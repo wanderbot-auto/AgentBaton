@@ -573,3 +573,786 @@ fn managed_mcp_cancel_after_verified_preflight_never_spawns_provider() {
     assert_eq!(receipt.reason, "managed_preflight_cancelled_or_deadline");
     assert!(!f.root.join("provider-started").exists());
 }
+
+mod active_diagnostic {
+    use super::diagnostics::*;
+    use super::*;
+    use McpDiagnosticOutcome::*;
+
+    struct DiagnosticFixture {
+        base: Fixture,
+        request: ManagedMcpDiagnosticRequest,
+        executable: PathBuf,
+        started: PathBuf,
+    }
+
+    fn diagnostic_fixture(mode: &str) -> DiagnosticFixture {
+        let mut f = fixture();
+        let create = request(&f);
+        let executable = PathBuf::from(&create.server.as_ref().unwrap().executable);
+        let shebang = fs::read_to_string(&executable)
+            .unwrap()
+            .lines()
+            .next()
+            .unwrap()
+            .to_owned();
+        let started = f.root.join("diagnostic-started");
+        let body = r#"
+import hashlib,json,os,stat,sys,time
+assert len(sys.argv)==1
+assert stat.S_IMODE(os.stat('.').st_mode)==0o700
+assert os.path.basename(os.getcwd())=='work'
+entered=os.path.dirname(os.getcwd())
+for name in ['HOME','TMPDIR','XDG_CONFIG_HOME','XDG_CACHE_HOME','XDG_DATA_HOME']:
+ assert os.environ[name].startswith(entered+'/')
+ assert os.path.isdir(os.environ[name])
+assert 'CODEX_HOME' not in os.environ and 'BATON_RUNTIME_DIR' not in os.environ
+assert 'AB_MCP_DIAGNOSTIC_SYNTHETIC_EVIDENCE' not in os.environ
+actual=os.stat(__file__)
+assert stat.S_IMODE(actual.st_mode)==0o500
+assert os.path.dirname(os.path.dirname(__file__))==entered
+with open(__file__,'rb') as f:
+ sha=hashlib.sha256(f.read()).hexdigest()
+with open(STARTED,'w') as f:
+ json.dump({'pid':os.getpid(),'work':os.getcwd(),'entry':{'device':actual.st_dev,'inode':actual.st_ino,'sha256':sha}}, f)
+print('untrusted-stderr-content',file=sys.stderr,flush=True)
+seen=[]
+for line in sys.stdin:
+ query=json.loads(line)
+ method=query.get('method','forbidden-response')
+ seen.append(method)
+ with open('wire-methods.json','w') as f:
+  json.dump(seen,f)
+ if method=='initialize':
+  assert query['jsonrpc']=='2.0' and query['id']==1
+  assert query['params']['protocolVersion']=='2025-06-18' and query['params']['capabilities']=={}
+  if MODE=='hang':
+   time.sleep(120)
+  if MODE=='oversize':
+   print('x'*70000,flush=True)
+   continue
+  if MODE=='callback':
+   print(json.dumps({'jsonrpc':'2.0','id':99,'method':'sampling/createMessage','params':{'untrusted':'untrusted-callback-content'}}),flush=True)
+   continue
+  result={'protocolVersion':'2024-11-05','capabilities':{'tools':{},'resources':{}},'serverInfo':{'name':'untrusted-server-name','version':'1'},'instructions':'untrusted-instructions'}
+  if MODE=='unsupported-version':
+   result['protocolVersion']='2035-01-01'
+  if MODE=='no-tools':
+   del result['capabilities']['tools']
+ elif method=='notifications/initialized':
+  assert not 'id' in query and seen==['initialize','notifications/initialized']
+  continue
+ elif method=='tools/list':
+  assert seen[:2]==['initialize','notifications/initialized']
+  assert not set(query['params'])-{'cursor'}
+  if query['id']==2:
+   assert query['params']=={}
+   result={'tools':[{'name':'read_note','description':'untrusted-description','inputSchema':{'type':'object'}}],'nextCursor':'untrusted-cursor'}
+  else:
+   assert query['id']==3 and query['params']=={'cursor':'untrusted-cursor'}
+   result={'tools':[{'name':'untrusted-extra-tool','inputSchema':{'type':'object'}}]}
+   if MODE=='repeated-cursor':
+    result={'tools':[],'nextCursor':'untrusted-cursor'}
+   if MODE=='drift':
+    os.chmod(ORIGINAL,0o500)
+ else:
+  with open('forbidden-method','w') as f:
+   f.write(method)
+  raise AssertionError(method)
+ print(json.dumps({'jsonrpc':'2.0','id':query['id'],'result':result}),flush=True)
+with open('closed-input','w') as f:
+ f.write('observed')
+if MODE=='stage-replaced':
+ os.rename(__file__,__file__+'.original')
+ with open(__file__,'w') as f:
+  f.write('replacement file owned by the fixture, preserve it')
+if MODE=='exit-nonzero':
+ sys.exit(19)
+"#;
+        let shebang = match mode {
+            "dynamic-interpreter" => "#!/usr/bin/env python3",
+            "missing-interpreter" => "#!/missing-agentbaton-diagnostic-test-interpreter",
+            _ => &shebang,
+        };
+        let entry = executable.to_str().unwrap();
+        let started_path = started.to_str().unwrap();
+        fs::write(
+            &executable,
+            format!(
+                "{shebang}\nMODE={mode:?}\nORIGINAL={entry:?}\nSTARTED={started_path:?}\n{body}"
+            ),
+        )
+        .unwrap();
+        let (_, _, derived) = approve(&mut f, &create, "diagnostic-derived");
+        ready(&mut f, &derived.connection.id);
+        let connection = f.store.get_connection(&derived.connection.id).unwrap();
+        assert_eq!(connection.probe_state, "ready");
+        let source = f.root.join("diagnostic-project");
+        fs::create_dir(&source).unwrap();
+        git(&source, &["init", "--initial-branch=main"]);
+        fs::write(source.join("project-canary"), "private project input").unwrap();
+        git(&source, &["add", "project-canary"]);
+        git(&source, &["commit", "-m", "generated diagnostic project"]);
+        let project = f
+            .store
+            .import_project(&source, "Diagnostics", "project")
+            .unwrap();
+        DiagnosticFixture {
+            base: f,
+            executable,
+            started,
+            request: ManagedMcpDiagnosticRequest {
+                project_id: project.id,
+                project_revision: project.revision,
+                connection_id: connection.id,
+                connection_revision: connection.revision,
+                server_name: "local_notes".into(),
+                entry_mode: McpDiagnosticEntryMode::Relocatable,
+            },
+        }
+    }
+
+    impl DiagnosticFixture {
+        fn preview(&self) -> PendingMcpDiagnostic {
+            self.base
+                .store
+                .preview_managed_mcp_diagnostic(&self.request)
+                .unwrap()
+        }
+
+        fn approval(&self) -> OwnerConfirmedMcpDiagnostic {
+            confirm(self.preview())
+        }
+
+        fn runtime_root(&self) -> PathBuf {
+            self.base.root.join("runtime")
+        }
+
+        fn run(
+            &mut self,
+            approval: OwnerConfirmedMcpDiagnostic,
+            cancel: &AtomicBool,
+        ) -> Result<ManagedMcpDiagnosticAttempt> {
+            let runtime = self.runtime_root();
+            self.base
+                .store
+                .run_managed_mcp_diagnostic(approval, &runtime, cancel)
+        }
+
+        fn trace(&self) -> (u32, PathBuf, Value) {
+            let info: Value = serde_json::from_slice(&fs::read(&self.started).unwrap()).unwrap();
+            let pid = info["pid"].as_u64().unwrap().try_into().unwrap();
+            let work = PathBuf::from(info["work"].as_str().unwrap());
+            let methods =
+                serde_json::from_slice(&fs::read(work.join("wire-methods.json")).unwrap()).unwrap();
+            assert!(work.starts_with(self.runtime_root()));
+            assert!(!work.join("forbidden-method").exists());
+            (pid, work, methods)
+        }
+
+        fn entry_directory(&self, receipt: &ManagedMcpDiagnosticReceipt) -> PathBuf {
+            self.runtime_root()
+                .join(format!("mcp-diagnostic-{}", receipt.diagnostic_id))
+                .join(receipt.entry_directory.as_ref().unwrap())
+        }
+
+        fn assert_reaped(&self, attempt: &ManagedMcpDiagnosticAttempt) {
+            assert!(!attempt.has_unreaped_child());
+            assert!(attempt.journal_recorded());
+            let (pid, _, _) = self.trace();
+            let pid = rustix::process::Pid::from_raw(pid.try_into().unwrap()).unwrap();
+            assert_eq!(
+                rustix::process::test_kill_process(pid),
+                Err(rustix::io::Errno::SRCH),
+                "the fixture direct child must already be reaped"
+            );
+            assert!(matches!(
+                attempt.receipt().direct_child,
+                McpDiagnosticExit::Reaped { .. }
+            ));
+            let actual: Value = serde_json::from_slice(&fs::read(&self.started).unwrap()).unwrap();
+            assert_eq!(json!(attempt.receipt().launched_entry), actual["entry"]);
+            assert_eq!(
+                attempt.receipt().entry_cleanup,
+                McpDiagnosticEntryCleanup::Removed
+            );
+            assert!(!self.entry_directory(attempt.receipt()).exists());
+            let record = self
+                .base
+                .store
+                .get_managed_mcp_diagnostic(&attempt.receipt().diagnostic_id)
+                .unwrap();
+            assert_eq!(json!(record.receipt), json!(attempt.receipt()));
+        }
+    }
+
+    fn confirm(review: PendingMcpDiagnostic) -> OwnerConfirmedMcpDiagnostic {
+        let reviewed_digest = review.review_digest().to_owned();
+        review
+            .confirm_after_owner_dialog(Some(&reviewed_digest))
+            .unwrap()
+    }
+
+    #[test]
+    fn static_discovery_and_unconfirmed_or_stale_review_never_spawn() {
+        let mut f = diagnostic_fixture("list");
+        let first = f.base.store.sequence().unwrap();
+        assert!(f.base.store.list_managed_mcp_profiles().is_ok());
+        assert!(f
+            .base
+            .store
+            .get_managed_mcp_profile(&f.request.connection_id)
+            .is_ok());
+        let review = f.preview();
+        assert_eq!(review.review().request.project_id, f.request.project_id);
+        assert_eq!(
+            review.review().actions,
+            ["initialize", "notifications/initialized", "tools/list"]
+        );
+        assert_eq!(
+            review.confirm_after_owner_dialog(None).unwrap_err().code,
+            "PERMISSION_DENIED"
+        );
+        assert_eq!(
+            f.preview()
+                .confirm_after_owner_dialog(Some("different digest"))
+                .unwrap_err()
+                .code,
+            "PERMISSION_DENIED"
+        );
+        let mut expired = f.preview();
+        expired.expire_for_test();
+        let digest = expired.review_digest().to_string();
+        assert_eq!(
+            expired
+                .confirm_after_owner_dialog(Some(&digest))
+                .unwrap_err()
+                .code,
+            "PERMISSION_DENIED"
+        );
+        let bad_input = json!({"project_id":f.request.project_id,"project_revision":f.request.project_revision,"connection_id":f.request.connection_id,"connection_revision":f.request.connection_revision,"server_name":f.request.server_name,"entry_mode":"relocatable","owner_confirmed":true});
+        assert!(serde_json::from_value::<ManagedMcpDiagnosticRequest>(bad_input).is_err());
+        let approved = f.approval();
+        let mut wrong_server = f.request.clone();
+        wrong_server.server_name = "other".into();
+        assert!(f
+            .base
+            .store
+            .preview_managed_mcp_diagnostic(&wrong_server)
+            .is_err());
+
+        let copied = f.executable.with_extension("copy");
+        fs::copy(&f.executable, &copied).unwrap();
+        fs::rename(copied, &f.executable).unwrap();
+        assert_eq!(
+            f.run(approved, &AtomicBool::new(false)).unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        assert!(!f.started.exists());
+        assert_eq!(f.base.store.sequence().unwrap(), first);
+        assert!(fs::read_dir(f.runtime_root()).unwrap().all(|entry| !entry
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with("mcp-diagnostic")));
+    }
+
+    #[test]
+    fn registered_project_and_connection_config_compare_before_launch() {
+        let mut f = diagnostic_fixture("list");
+        let approval = f.approval();
+        let conn = f
+            .base
+            .store
+            .get_connection(&f.request.connection_id)
+            .unwrap();
+        let mut altered = conn.clone();
+        altered.config_revision.push_str("-changed");
+        f.base
+            .store
+            .conn
+            .execute(
+                "UPDATE connections SET document=?1 WHERE id=?2",
+                params![encode(&altered).unwrap(), conn.id],
+            )
+            .unwrap();
+        assert_eq!(
+            f.run(approval, &AtomicBool::new(false)).unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        f.base
+            .store
+            .conn
+            .execute(
+                "UPDATE connections SET document=?1 WHERE id=?2",
+                params![encode(&conn).unwrap(), conn.id],
+            )
+            .unwrap();
+
+        let mut remote = conn.clone();
+        remote.host_id = "registered-elsewhere".into();
+        f.base
+            .store
+            .conn
+            .execute(
+                "UPDATE connections SET document=?1 WHERE id=?2",
+                params![encode(&remote).unwrap(), conn.id],
+            )
+            .unwrap();
+        assert_eq!(
+            f.base
+                .store
+                .preview_managed_mcp_diagnostic(&f.request)
+                .unwrap_err()
+                .code,
+            "CAPABILITY_UNSUPPORTED",
+        );
+        f.base
+            .store
+            .conn
+            .execute(
+                "UPDATE connections SET document=?1 WHERE id=?2",
+                params![encode(&conn).unwrap(), conn.id],
+            )
+            .unwrap();
+
+        let approval = f.approval();
+        f.base
+            .store
+            .archive_project(&f.request.project_id, f.request.project_revision, "archive")
+            .unwrap();
+        assert_eq!(
+            f.run(approval, &AtomicBool::new(false)).unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        assert!(!f.started.exists());
+    }
+
+    #[test]
+    fn actual_initialize_then_only_paginated_tools_list_with_independent_receipts() {
+        let mut f = diagnostic_fixture("list");
+        let connection_before = f
+            .base
+            .store
+            .get_managed_mcp_profile(&f.request.connection_id)
+            .unwrap();
+        let events_before = f.base.store.sequence().unwrap();
+        let approved = f.approval();
+        let attempt = f.run(approved, &AtomicBool::new(false)).unwrap();
+        f.assert_reaped(&attempt);
+        let receipt = attempt.receipt();
+        assert!(receipt.verified());
+        assert_ne!(
+            receipt.launched_entry.as_ref().unwrap().inode,
+            fs::metadata(&f.executable).unwrap().ino()
+        );
+        assert_eq!(
+            receipt.launched_entry.as_ref().unwrap().sha256,
+            executable_digest(&f.executable).unwrap().as_str()
+        );
+        assert_eq!(receipt.protocol_version.as_deref(), Some("2024-11-05"));
+        assert!(receipt
+            .runtime_snapshot_digest
+            .as_ref()
+            .is_some_and(|v| v.len() == 64));
+        assert_eq!(receipt.configured_tools_seen, ["read_note"]);
+        assert_eq!(receipt.other_tool_count, Some(1));
+        assert!(receipt.stderr_bytes_observed > 0);
+        assert_eq!(
+            receipt.direct_child,
+            McpDiagnosticExit::Reaped {
+                exit_code: Some(0),
+                signal: None,
+                kill_requested: false
+            }
+        );
+        let (_, work, methods) = f.trace();
+        assert!(work.join("closed-input").is_file());
+        assert!(!work.join("project-canary").exists());
+        assert_eq!(
+            methods,
+            json!([
+                "initialize",
+                "notifications/initialized",
+                "tools/list",
+                "tools/list"
+            ])
+        );
+        let evidence = f.base.store.events(events_before, 10).unwrap();
+        let json = encode(&evidence).unwrap();
+        assert!(
+            json.contains("mcp_diagnostic.launch_intent")
+                && json.contains("mcp_diagnostic.observed")
+        );
+        assert!(!json.contains("untrusted-"));
+        assert_eq!(connection_before.runtime_connected, None);
+        assert_eq!(connection_before.runtime_used, None);
+        assert_eq!(
+            json!(connection_before),
+            json!(f
+                .base
+                .store
+                .get_managed_mcp_profile(&f.request.connection_id)
+                .unwrap())
+        );
+        let sessions: i64 = f
+            .base
+            .store
+            .conn
+            .query_row("SELECT count(*) FROM sessions", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(sessions, 0);
+        let next = f.approval();
+        let second = f.run(next, &AtomicBool::new(false)).unwrap();
+        f.assert_reaped(&second);
+        assert!(second.receipt().verified());
+        assert_ne!(second.receipt().diagnostic_id, receipt.diagnostic_id);
+        if let Some(path) = std::env::var_os("AB_MCP_DIAGNOSTIC_SYNTHETIC_EVIDENCE") {
+            fs::write(
+                path,
+                serde_json::to_vec_pretty(&json!({
+                    "receipt":receipt,
+                    "observed_methods":methods,
+                    "stdin_close_observed":true,
+                    "direct_child_exit_verified":true,
+                    "session_count":sessions,
+                    "connection_projection_equal":true
+                }))
+                .unwrap(),
+            )
+            .unwrap();
+        }
+    }
+
+    #[test]
+    fn actual_timeout_signal_and_reap_owned_child() {
+        let mut f = diagnostic_fixture("hang");
+        let approval = f.approval();
+        let at = Instant::now();
+        let attempt = f.run(approval, &AtomicBool::new(false)).unwrap();
+        assert_eq!(attempt.receipt().outcome, TimedOut);
+        assert!(at.elapsed() < Duration::from_secs(7));
+        f.assert_reaped(&attempt);
+        assert_eq!(f.trace().2, json!(["initialize"]));
+        assert_eq!(
+            attempt.receipt().direct_child,
+            McpDiagnosticExit::Reaped {
+                exit_code: None,
+                signal: Some(rustix::process::Signal::KILL.as_raw()),
+                kill_requested: true
+            }
+        );
+    }
+
+    #[test]
+    fn cancelled_before_and_during_real_spawn_have_distinct_exit_proof() {
+        let mut f = diagnostic_fixture("hang");
+        let approval = f.approval();
+        let absent = f.run(approval, &AtomicBool::new(true)).unwrap();
+        assert_eq!(absent.receipt().outcome, Cancelled);
+        assert_eq!(absent.receipt().direct_child, McpDiagnosticExit::NotStarted);
+        assert_eq!(
+            absent.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::NotAllocated
+        );
+        assert!(absent.journal_recorded());
+        assert!(!f.started.exists());
+
+        let approval = f.approval();
+        let cancel = AtomicBool::new(false);
+        let start = f.started.clone();
+        let attempt = std::thread::scope(|scope| {
+            let cancel = &cancel;
+            let cancel_on_init = scope.spawn(move || {
+                let at = Instant::now();
+                loop {
+                    if let Ok(Some(methods)) = fs::read(&start).map(|data| {
+                        let value: Value = serde_json::from_slice(&data).unwrap_or(Value::Null);
+                        value["work"]
+                            .as_str()
+                            .map(|work| Path::new(work).join("wire-methods.json"))
+                    }) {
+                        if fs::read(methods)
+                            .ok()
+                            .is_some_and(|bytes| bytes == br#"["initialize"]"#)
+                        {
+                            cancel.store(true, Ordering::Release);
+                            return true;
+                        }
+                    }
+                    if at.elapsed() >= Duration::from_secs(3) {
+                        return false;
+                    }
+                    std::thread::sleep(Duration::from_millis(5));
+                }
+            });
+            let attempt = f.run(approval, cancel).unwrap();
+            assert!(cancel_on_init.join().unwrap());
+            attempt
+        });
+        assert_eq!(attempt.receipt().outcome, Cancelled);
+        f.assert_reaped(&attempt);
+    }
+
+    #[test]
+    fn rejected_protocol_budget_and_live_source_drift_do_not_verify() {
+        for (mode, expected) in [
+            ("callback", ProtocolFailed),
+            ("oversize", ResourceLimit),
+            ("unsupported-version", UnsupportedProtocol),
+            ("repeated-cursor", ProtocolFailed),
+            ("no-tools", ToolsUnsupported),
+            ("exit-nonzero", ProcessFailed),
+            ("drift", InputChanged),
+        ] {
+            let mut f = diagnostic_fixture(mode);
+            let approval = f.approval();
+            let attempt = f.run(approval, &AtomicBool::new(false)).unwrap();
+            assert_eq!(attempt.receipt().outcome, expected, "{mode}");
+            assert!(!attempt.receipt().verified());
+            f.assert_reaped(&attempt);
+            assert!(!encode(attempt.receipt()).unwrap().contains("untrusted-"));
+        }
+    }
+
+    #[test]
+    fn source_replaced_after_final_recheck_cannot_be_the_child() {
+        let mut f = diagnostic_fixture("list");
+        let replacement = f.executable.with_extension("replacement");
+        let unexpected = f.base.root.join("unapproved-program-started");
+        let shebang = fs::read_to_string(&f.executable)
+            .unwrap()
+            .lines()
+            .next()
+            .unwrap()
+            .to_owned();
+        fs::write(
+            &replacement,
+            format!(
+                "{shebang}\nopen({:?}, 'w').close()\n",
+                unexpected.to_str().unwrap()
+            ),
+        )
+        .unwrap();
+        fs::set_permissions(&replacement, fs::Permissions::from_mode(0o700)).unwrap();
+        let mut preview = f.preview();
+        let expected_sha = preview.review().server.executable_sha256.clone();
+        let approved_source_inode = fs::metadata(&f.executable).unwrap().ino();
+        preview.replace_source_before_spawn_for_test(replacement);
+        let attempt = f.run(confirm(preview), &AtomicBool::new(false)).unwrap();
+
+        assert!(
+            !unexpected.exists(),
+            "the substituted executable was launched"
+        );
+        assert_eq!(attempt.receipt().outcome, InputChanged);
+        let proof = attempt.receipt().launched_entry.as_ref().unwrap();
+        assert_eq!(proof.sha256, expected_sha);
+        assert_ne!(proof.inode, approved_source_inode);
+        assert_ne!(proof.inode, fs::metadata(&f.executable).unwrap().ino());
+        assert!(
+            f.started.is_file(),
+            "the approved executable's own canary is required"
+        );
+        f.assert_reaped(&attempt);
+    }
+
+    #[test]
+    fn unsupported_original_location_or_executable_metadata_never_starts() {
+        let mut f = diagnostic_fixture("list");
+        let mut original = f.request.clone();
+        original.entry_mode = McpDiagnosticEntryMode::RequiresOriginalLocation;
+        assert_eq!(
+            f.base
+                .store
+                .preview_managed_mcp_diagnostic(&original)
+                .unwrap_err()
+                .code,
+            "CAPABILITY_UNSUPPORTED",
+        );
+
+        #[cfg(target_os = "macos")]
+        let attribute = "com.apple.quarantine";
+        #[cfg(target_os = "linux")]
+        let attribute = "user.diagnostic-preserve";
+        rustix::fs::setxattr(
+            &f.executable,
+            attribute,
+            b"0081;0;GeneratedFixture;",
+            rustix::fs::XattrFlags::empty(),
+        )
+        .unwrap();
+        let approved = f.approval();
+        let attempt = f.run(approved, &AtomicBool::new(false)).unwrap();
+        assert_eq!(attempt.receipt().outcome, UnsupportedExecutable);
+        assert_eq!(
+            attempt.receipt().direct_child,
+            McpDiagnosticExit::NotStarted
+        );
+        assert!(attempt.receipt().launched_entry.is_none());
+        assert!(attempt.journal_recorded());
+        assert!(!f.started.exists());
+
+        let mut f = diagnostic_fixture("dynamic-interpreter");
+        let approved = f.approval();
+        let attempt = f.run(approved, &AtomicBool::new(false)).unwrap();
+        assert_eq!(attempt.receipt().outcome, UnsupportedExecutable);
+        assert_eq!(
+            attempt.receipt().direct_child,
+            McpDiagnosticExit::NotStarted
+        );
+        assert!(!f.started.exists());
+    }
+
+    #[test]
+    fn staged_entry_is_removed_after_spawn_failure_or_confirmed_owned_stop() {
+        let mut missing = diagnostic_fixture("missing-interpreter");
+        let approval = missing.approval();
+        let attempt = missing.run(approval, &AtomicBool::new(false)).unwrap();
+        assert_eq!(attempt.receipt().outcome, UnsupportedExecutable);
+        assert_eq!(
+            attempt.receipt().direct_child,
+            McpDiagnosticExit::NotStarted
+        );
+        assert_eq!(
+            attempt.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::Removed
+        );
+        assert!(!missing.entry_directory(attempt.receipt()).exists());
+        assert!(!missing.started.exists());
+        assert!(attempt.journal_recorded());
+
+        let mut f = diagnostic_fixture("list");
+        let mut pending = f.preview();
+        pending.defer_wait_for_exit_for_test();
+        let mut attempt = f.run(confirm(pending), &AtomicBool::new(false)).unwrap();
+        assert!(attempt.has_unreaped_child());
+        assert!(attempt.journal_recorded());
+        assert!(attempt.receipt().needs_reconciliation());
+        assert!(!attempt.receipt().verified());
+        assert_eq!(
+            attempt.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::WaitingForChild
+        );
+        assert!(f
+            .entry_directory(attempt.receipt())
+            .join("server")
+            .is_file());
+        let prior = f
+            .base
+            .store
+            .get_managed_mcp_diagnostic(&attempt.receipt().diagnostic_id)
+            .unwrap();
+        assert!(prior.receipt.unwrap().needs_reconciliation());
+
+        let deadline = Instant::now() + Duration::from_secs(3);
+        while attempt.has_unreaped_child() {
+            attempt.reconcile(&mut f.base.store).unwrap();
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        f.assert_reaped(&attempt);
+        assert!(attempt.receipt().verified());
+        assert!(!f
+            .base
+            .store
+            .has_unresolved_managed_mcp_diagnostic()
+            .unwrap());
+    }
+
+    #[test]
+    fn cleanup_preserves_replacement_and_does_not_release_unsettled_entry() {
+        let mut f = diagnostic_fixture("stage-replaced");
+        let approval = f.approval();
+        let attempt = f.run(approval, &AtomicBool::new(false)).unwrap();
+        assert!(!attempt.has_unreaped_child());
+        assert!(attempt.journal_recorded());
+        assert!(attempt.receipt().needs_reconciliation());
+        assert_eq!(
+            attempt.receipt().entry_cleanup,
+            McpDiagnosticEntryCleanup::Unknown
+        );
+        assert!(!attempt.receipt().verified());
+        let entry = f.entry_directory(attempt.receipt());
+        let id = attempt.receipt().diagnostic_id.clone();
+        drop(attempt);
+        assert_eq!(
+            fs::read_to_string(entry.join("server")).unwrap(),
+            "replacement file owned by the fixture, preserve it"
+        );
+        assert!(entry.join("server.original").is_file());
+        assert!(f.executable.is_file());
+        let record = f.base.store.get_managed_mcp_diagnostic(&id).unwrap();
+        assert_eq!(
+            record.receipt.unwrap().entry_cleanup,
+            McpDiagnosticEntryCleanup::Unknown
+        );
+        assert!(f
+            .base
+            .store
+            .has_unresolved_managed_mcp_diagnostic()
+            .unwrap());
+    }
+
+    #[test]
+    fn unresolved_durable_intent_blocks_a_second_spawn_and_retained_receipt_recovers() {
+        let mut f = diagnostic_fixture("list");
+        let approval = f.approval();
+        f.base
+            .store
+            .conn
+            .execute_batch(
+                "CREATE TRIGGER reject_diagnostic_receipt BEFORE INSERT ON events
+            WHEN json_extract(NEW.document,'$.kind')='mcp_diagnostic.observed'
+            BEGIN SELECT RAISE(ABORT,'generated receipt fault'); END",
+            )
+            .unwrap();
+        let mut attempt = f.run(approval, &AtomicBool::new(false)).unwrap();
+        assert!(attempt.receipt().verified());
+        assert!(!attempt.journal_recorded());
+        assert!(!attempt.has_unreaped_child());
+        let id = attempt.receipt().diagnostic_id.clone();
+        assert!(f
+            .base
+            .store
+            .get_managed_mcp_diagnostic(&id)
+            .unwrap()
+            .receipt
+            .is_none());
+        // Store checks the schema on reopen, so remove the injected fault
+        // before reopening the still-pending durable diagnostic record.
+        f.base
+            .store
+            .conn
+            .execute_batch("DROP TRIGGER reject_diagnostic_receipt")
+            .unwrap();
+        let reopened = Store::open(&f.runtime_root().join("db.sqlite")).unwrap();
+        assert!(reopened
+            .get_managed_mcp_diagnostic(&id)
+            .unwrap()
+            .receipt
+            .is_none());
+        assert!(reopened.has_unresolved_managed_mcp_diagnostic().unwrap());
+        drop(reopened);
+        let first_start = fs::read(&f.started).unwrap();
+        let second = f.approval();
+        assert_eq!(
+            f.run(second, &AtomicBool::new(false)).unwrap_err().code,
+            "DIAGNOSTIC_RECONCILIATION_REQUIRED"
+        );
+        assert_eq!(fs::read(&f.started).unwrap(), first_start);
+        attempt.reconcile(&mut f.base.store).unwrap();
+        assert!(!f
+            .base
+            .store
+            .has_unresolved_managed_mcp_diagnostic()
+            .unwrap());
+        f.assert_reaped(&attempt);
+        let next = f.approval();
+        assert!(f
+            .run(next, &AtomicBool::new(false))
+            .unwrap()
+            .receipt()
+            .verified());
+    }
+}
