@@ -1,0 +1,95 @@
+{
+  "status": "accepted_closed_published_feature",
+  "retention": {
+    "source": "c7e672cd2d92edfa232656c0cab1328aff86565f",
+    "delivery": "a91450f4a47b3f154b8a4286de403ec0c0a544d0",
+    "stop": "1f5c66c47efade982111dea4c2e99ba11a1267fe",
+    "evidence_sha256": "01d2736e3263674a25b71fd6f80bb74d80eca5690a715e35dc6b1ef52c7a9120",
+    "archives": 18,
+    "actual_arm64_artifacts": 3,
+    "targeted": 7,
+    "fmt_and_strict_clippy": "pass",
+    "old_fails_same_fixed_baseline": "12 pass and 1 old history fail; 1 pass and 2 old schema18 fails. All 3 names and exit codes reproduced.",
+    "limits": "Read-only plan over typed metadata, not persistence, real cleanup or GUI."
+  },
+  "coverage": {
+    "source": "79c2a892d94189f09a3f46c04e4c3d0a6d43c3d5",
+    "delivery_and_stop": "4b643b6343baa144cbfcc65f4281896b26100a5a",
+    "evidence_sha256": "b65b9bde6c8729cc09d3b6afd7a1c64fdeabf67c24e1f5b18a62061720c9c6be",
+    "integration_intermediate": "bca981832c5bf175780a0e021e94b86c02e7ce92",
+    "independent_specialized": 11,
+    "independent_cli_scopes": "Default and explicit mixed-root real ledger, 130 IDs, 97 and 102 partial, zero accepted; five missing under chosen combined root honestly reported.",
+    "limits": "References checked by file metadata. No automatic whole requirement/verification applicability inference. Rust test-run fixture issue and alternate identical fixture documented in worker receipt."
+  },
+  "feature_verified_remote": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+  "main_verified_remote": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "combined_tree": "b4d6b44137a1abc1fd4b689ec37c9433b6c7384c",
+  "combined_checks": {
+    "total": 963,
+    "pass": 947,
+    "skipped_existing": 16,
+    "fail": 0,
+    "bootstrap_files": 93,
+    "main_preview": "no conflict",
+    "scope": "32 exact delta paths within accepted claims, only historical remote lib path is B-reserved and byte-identical to first parent"
+  },
+  "reclaim": {
+    "requirements-coverage": {
+      "closed_sha256": "cf943ac01cfbcdb2a9c0044c251fb2f7e55775aa3bc11ecf1219757fa3349755",
+      "paths": [
+        "scripts/report-requirements-coverage.py",
+        "tests/infrastructure/test_requirements_coverage_report.py",
+        "docs/execution/requirements-coverage"
+      ]
+    },
+    "project-history-retention-plan": {
+      "closed_sha256": "38593ee25c6f0c1ea13232f2015f267dbaf9ca471f4dfb61c18f77954143326a",
+      "paths": [
+        "crates/core/src/conversations_history.rs",
+        "crates/core/src/conversations_history/retention.rs",
+        "crates/core/tests/history_retention.rs",
+        "docs/execution/project-history-retention-plan"
+      ]
+    },
+    "parent_before": "ea6f36645dead7c2698159acf03bd471c0ffc11138cd333f72b9112d7d1f4a98",
+    "parent_after": "b6a05bc657065e80416012b83f35ab2dcfb27b13973d9448f4680427221636bb"
+  },
+  "logs": {
+    "coverage-preview": {
+      "archive": "raw/retention-coverage-combined-coverage-preview.log.gz",
+      "raw_sha256": "e8026cc4171e751a64ac078deb7d3677a315b6e732313d47203c9ea543921326",
+      "archive_sha256": "4c5709b8932d1aca4870e36f54c7944efb6c4ade554e9b16c8f5965f95443461",
+      "bytes": 263
+    },
+    "history-preview": {
+      "archive": "raw/retention-coverage-combined-history-preview.log.gz",
+      "raw_sha256": "6ddbd1e1a1eec4128656e0c25ae63c399ce2bcea9bd282888fb0eb60e4d3ba12",
+      "archive_sha256": "54da0899847fa873ef775fee7196c2f4bf1fb16a6106d723451e0dd897c34be7",
+      "bytes": 263
+    },
+    "scope": {
+      "archive": "raw/retention-coverage-combined-scope.log.gz",
+      "raw_sha256": "747b4eb312a0ad5c8467a826f82cdd34b073592c7e29f64e963752b856556108",
+      "archive_sha256": "00c2f76e62a2558c6a2e287a3a152abc9c03832b6e00d7b8767330a15671f6c9",
+      "bytes": 50
+    },
+    "main-preview": {
+      "archive": "raw/retention-coverage-combined-main-preview.log.gz",
+      "raw_sha256": "f3077aaa1e09ab3d5c7f3efa4c76752ee75e8feace9b4a31eb4cddd53097133b",
+      "archive_sha256": "33b53465d0c66c2834b6035ce5c1fd49b5a84c17dd8ebc211fa93ddf879393a4",
+      "bytes": 263
+    },
+    "infra": {
+      "archive": "raw/retention-coverage-combined-infra.log.gz",
+      "raw_sha256": "1bdd7bbe1089c0cf5e5502df4782baed8cf958e5829259657b26bc796edc73ec",
+      "archive_sha256": "9c27360b171d7b4ae6f151c8cd02d09a76ab0bb3bc12f50504b5b60cd563435a",
+      "bytes": 2769
+    },
+    "bootstrap": {
+      "archive": "raw/retention-coverage-combined-bootstrap.log.gz",
+      "raw_sha256": "bc157a054558daa0e61fb32eb633fb020f2b3eb5251ca7d8024060042f858906",
+      "archive_sha256": "f791a639c399e549e78f462ec8a0f998ab99558f20b6cf25e2cce1260584b01f",
+      "bytes": 124
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "requirement": "AB-CAP-005",
+  "source": "6c207575c60e55a6e421df7f043daf9941593698",
+  "config_tree": "043bc357cd83d385db63181cd5bf6e341217cd7d",
+  "cargo_lock_blob": "b111c362b7ad360d5b4f9f1143e5bac38c5f5d9c",
+  "environment": "macOS ARM64",
+  "cases": [
+    [
+      23,
+      "cargo test --locked --offline -p agentbaton-config --test native_sources"
+    ],
+    [
+      1,
+      "cargo test --locked --offline -p agentbaton-config --test runtime skills_and_script_assets_are_hashed_and_never_executed_or_marked_executable"
+    ]
+  ],
+  "task_runtime": "scripts/collab.sh run",
+  "proof_local": "/tmp/ab-static-capabilities.4HJRoQ0W",
+  "logs_sha256": {
+    "native-sources.log": "5223079a9141d8c106c4b88b6028e7604304426986ae752004d4f4841cbc5650",
+    "static-runtime.log": "7533d16464119207a9b143e6fdd3a2463cfe4e247502cdddc1e0ae9a8bd87d44",
+    "source-pins.txt": "00b5493f395aa3b01531400d3584609125a21f1ae5f7f4b2bcf154e1e37b52a0"
+  },
+  "scope": "Exact current Config static discovery and managed materialization on temporary configured files. Confirms no execution of static script assets via the selected paths and restrictive parsing. No live Provider or new production permissions.",
+  "remaining": "Retain partial status pending end-to-end application observation for this acceptance requirement and the remaining signed-off verification decisions."
+}

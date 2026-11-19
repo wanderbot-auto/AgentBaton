@@ -1,0 +1,38 @@
+{
+  "source": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
+  "source_tree": "d20e11485274982ed07bb18a6ff54ed1a7a2e9bc",
+  "target_at_review": "a183f4dd2df0e95d9a73575015275ef9a0daddb9",
+  "preview_tree": "cde89155345873d9dc0b70f4546f7d07a35a1172",
+  "tested_tree": "exact source, not the preview",
+  "platform": "Linux ARM64 Docker",
+  "toolchain": "Rust 1.91.1",
+  "image": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+  "network": "none",
+  "isolated_cargo_cache": true,
+  "passed": 15,
+  "failed": 0,
+  "ignored": 0,
+  "active_new": 11,
+  "existing": 4,
+  "log": {
+    "path": "/tmp/ab-mcp-linux-independent.SngyPvPp/linux.log",
+    "sha256": "cd040726885f4b8a78a1831e0ab760a6b50f62c868a0b25b4e511df1c3f34cb6"
+  },
+  "macos_worker_general_core": {
+    "passed": 467,
+    "failed": 1,
+    "log": {
+      "path": "/tmp/ab-active-mcp-verify.70Q3diV2/final-cleanup/core_lib.log",
+      "sha256": "9e521b8e48ffe6e135a19f5cd70bd4bfa3124c10f28d9b17aa529f0562e10530"
+    }
+  },
+  "macos_worker_sessions_ipc": {
+    "passed": 59,
+    "failed": 4,
+    "log": {
+      "path": "/tmp/ab-active-mcp-verify.70Q3diV2/final-cleanup/sessions_ipc.log",
+      "sha256": "9786ff5fb5789c43aa34e0905bf27a7cc77b54f6f818edd81902a03130cd8102"
+    }
+  },
+  "admission_note": "Author exact fixed-base reproduction of five unchanged schema-18 fixture failures still in progress."
+}

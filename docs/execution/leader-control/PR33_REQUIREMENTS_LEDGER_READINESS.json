@@ -1,0 +1,99 @@
+{
+  "requirement": "AB-DOM-006",
+  "pr": 33,
+  "head": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "hosted_merge": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+  "hosted_tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+  "hosted_environment_workflow": 44439619001,
+  "hosted_tests": {
+    "ubuntu-24.04": {
+      "job_id": 135276914750,
+      "artifact_id": 14489987547,
+      "archive_sha256": "cb5b126b6e0d523ec714e7d7b99ca464c5999d7aed16bdcf3f12ea057e6fbb9d",
+      "python_log_sha256": "c0a5469d3c6b8a14ab1808b40a3dfb22bedf0bd3f978ac7d04c7ade778dd352f",
+      "focused_passed": 11
+    },
+    "macos-15": {
+      "job_id": 135276914525,
+      "artifact_id": 14489793637,
+      "archive_sha256": "f256a460060e09f12ffbd8cd8c0605fb0d95921352ed0c58283c19378649e0a8",
+      "python_log_sha256": "6f4ab97632ec7f2cc4e5bd7a980405cf0f8d1566c5a1b538bb9024ef4fb480a3",
+      "focused_passed": 11
+    }
+  },
+  "published_head_default_cli": {
+    "stable_ids": 130,
+    "partial": 97,
+    "applicability_unspecified_rows": 130,
+    "report_sha256": "a5e867f75a0cafad718020d1543b0f9459e66c550f2b5c567b173d9dbcf4cdd6"
+  },
+  "local_followup_preview": {
+    "base_ledger_commit": "f3f34f0c944a0852b6238bdc65ecbc6c012f3135",
+    "tree": "090db8d93bc71e7c4e5e98180f7d3b62e785c175",
+    "changed_files": 31,
+    "manifest_sha256": "151914b65bbf072a967ae198084a2d38e93071a18f06c35a43179ff07963784b",
+    "report_sha256": "a7227de35320bf15e8f7f7bfce8254d0cfcb08ec4624b9260c4ef47eccf6afaa",
+    "markdown_sha256": "f0f02c924596455a28fe339cb5fbacd9da1e67f09b3678c56ef33abce62a250c",
+    "stable_ids": 130,
+    "explicit_applicability_rows": 130,
+    "partial": 128,
+    "not_started": 2,
+    "accepted": 0,
+    "resolved_references": 2368,
+    "validation": {
+      "focused_passed": 11,
+      "design_links_checked": 395,
+      "bootstrap_files_checked": 93
+    }
+  },
+  "decision": "Keep PR head fixed during Product CI. Review the evidence documents for portability before committing the ledger synchronization based on the next eligible integration head; rerun the actual default CLI and required checks for that tree.",
+  "b_c_synchronized_snapshot": {
+    "parent": "674f0a090e8bb4d415c5b44336c4ff53d6f50dd3",
+    "source_ledger": "1064fe84a2d0865fb5275748bcef917342373dc0",
+    "local_commit": "df912c3f13e8029af4ab1207e07663ef07fa7c3f",
+    "tree": "0dd20ed9f041c44b6f28c87d3b3531a6b8a0c63c",
+    "total_document_changes": 34,
+    "file_manifest_sha256": "5fe236483357014b8ff875d62af628847b52ac539e6afb1e9865d8370a2e0af3",
+    "default_report_sha256": "9faf43158b15287053e230617215605599f1a84201df6ddd0a70ccfc553b1053",
+    "default_markdown_sha256": "fad54e7e39a2e8ad9d83b129355b44aff3fc31f097fd032bc9f32b65c8ad7715",
+    "requirements_with_explicit_applicability": 130,
+    "partial": 128,
+    "not_started": 2,
+    "accepted": 0,
+    "resolved_references": 2374,
+    "bootstrap_files": 93,
+    "design_links": 399,
+    "infrastructure": {
+      "total": 1086,
+      "passed": 1070,
+      "skipped": 16,
+      "log_sha256": "0d9a39761886ef8e3dc77edad0fd3f40748a408cfbc0707605d6e1e876a01c96"
+    },
+    "prior_receipts_referencing_local_raw_logs": 16,
+    "raw_local_logs_included": false,
+    "published": false
+  },
+  "owner_and_browser_combination_preview": {
+    "local_commit": "8d1bdd28d6e9c6cbd2b398d2d1389f40e78d97ab",
+    "tree": "ac25dfb7d174ef779c37682bcafe2cf695f7b15a",
+    "stage": "d70362ad1fc4b080537163be60cb830849ee4167",
+    "ledger_snapshot": "df912c3f13e8029af4ab1207e07663ef07fa7c3f",
+    "default_json_sha256": "65d50feb0520a91b7c7eee4f60057574c62be8b58855ff21feb1105d0c7ee388",
+    "default_markdown_sha256": "59f6d6ed243104f501c5e7bcdd59fdb7d927d5ae89e458b02b09716fa644d93b",
+    "infrastructure_total": 1094,
+    "infrastructure_skipped": 16,
+    "infrastructure_sha256": "9151aebe80cfc6763cb505d654793fe15fc799eaf126ec7aa5103e4bb6578ff5",
+    "exact_source_reference_total": 2374,
+    "published": false
+  },
+  "independent_portability_review": {
+    "source": "0bed9bca51e9aad8acc07632033c40862cc9efbd",
+    "method": "Source objects inspected directly and report re-run on detached previews. Build-time checkout absolute paths are output metadata. Local raw log paths are provenance metadata rather than distributable files.",
+    "adjustments": [
+      "Explicitly include the Linux MCP summary already committed in the leader evidence branch.",
+      "PR30 records the verified hosted job separately from the local decoded log path.",
+      "AB-SEC-008 partial status is explicitly limited to draft PR31."
+    ]
+  }
+}

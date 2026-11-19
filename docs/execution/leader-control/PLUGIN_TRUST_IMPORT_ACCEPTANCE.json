@@ -1,0 +1,82 @@
+{
+  "requirement": "AB-EXT-003",
+  "tested_source": "6d08995b80375c2c3f1319b02ac32375171db4bf",
+  "reviewed_delivery": "913074e39bdb7c2ca6ec082335f4abe25a777a5e",
+  "released_head": "7a4d38976146883d78c6007b304a1ab1439047ca",
+  "previous_target": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+  "feature_merge": "3d19a89f10756966da9f494f928d6962ad63b20b",
+  "feature_tree": "6a8262289ce3100878dc49ec15e10a04b954ecbe",
+  "config_tree": "043bc357cd83d385db63181cd5bf6e341217cd7d",
+  "lock_blob": "b111c362b7ad360d5b4f9f1143e5bac38c5f5d9c",
+  "scope": "selected local static import and enablement decision in Config",
+  "review_evidence": {
+    "archive": "docs/execution/plugin-trust-import/EVIDENCE.json",
+    "archive_sha256": "6cef218c587a8ce0ae9655bcd8dd20c60a9f60e6b14d0afe365ea83a5290e504",
+    "digests_verified": {
+      "logs": 13,
+      "sources": 3
+    },
+    "scope_note": "Combined historical scope output before and after was byte-identical. The merge did not touch any file temporarily transferred to A or C."
+  },
+  "independent_arm64_replay": {
+    "logs": "/tmp/ab-plugin-review.aKhvouEx",
+    "hashes": "04b39f20a9b2d33b3155b6a8570fb7168fe2c39118306378aac66f72b8f4ed4b",
+    "plugin_tests": 9,
+    "legacy_capability_tests": 12
+  },
+  "recorded_config_validation": {
+    "plugin_tests": 9,
+    "full_crate_total": 90,
+    "format": true,
+    "check_all_targets": true,
+    "strict_clippy": true
+  },
+  "combined_infrastructure": {
+    "ran": 978,
+    "passed": 962,
+    "skipped": 16,
+    "failed": 0,
+    "bootstrap_integrity": 93,
+    "log_path": "/tmp/ab-plugin-admission.HtNwa9DA/infrastructure.log",
+    "sha256": "5f44acd645899915f78da6f4dd113ded99f082d076b9b65b1baa73eed4fd7400"
+  },
+  "reclaimed_claim_sha256": [
+    "bc5a67881ac6842aeb068e8b2e87e6534948c32b621cae7ef29282d193b12a43",
+    "2f1e65f654b83ee98b2aecf7c40dabf5c663af27695c41a7588fc189a197cb07"
+  ],
+  "remaining": [
+    "Product UI and persistent approver integration",
+    "Actual external plugins, enforced runtime isolation and compatibility tests",
+    "Protected main and hosted CI"
+  ],
+  "new_b": {
+    "thread": "01a1eecb-645b-7de1-9d87-eb1afdee751c",
+    "turn": "01a1efdd-ed3b-7193-941e-405ed3472742",
+    "model": "gpt-6.2-sol",
+    "reasoning": "high",
+    "started_utc": "2026-11-18T18:14:21.278Z",
+    "status": "dispatched_verified_6_2_sol_high",
+    "worktree": "host19-data-workspace-ci",
+    "branch": "collab/host19-data-workspace-ci",
+    "base": "3d19a89f10756966da9f494f928d6962ad63b20b",
+    "claim": [
+      "apps/desktop/tests/data-workspace-real-ipc.py",
+      "apps/desktop/tests/test_data_workspace_schema19.py",
+      "docs/execution/host19-data-workspace-ci"
+    ],
+    "claim_sha256": "2085491e89af2fec0542c7a5f4fa91849f0be5c87afc4c7ca7af9615bfef6f2c",
+    "requirements_started": [],
+    "title": "窗口 B · Data Workspace 浏览器验收",
+    "contract": "HOST19_DATA_WORKSPACE_CI_TASK.md"
+  },
+  "a_continuation_scope_correction": {
+    "thread": "01a1e9df-6dc0-7223-bf07-df0d2bcf6042",
+    "turn": "01a1efde-8fa3-7da3-84da-844151bd9488",
+    "model": "gpt-6.2-sol",
+    "reasoning": "high",
+    "started_utc": "2026-11-18T18:15:02.870Z",
+    "reason": "Previous current turn ended with unrelated history-export retry; retained current worktree and restarted its continuation with explicit scope.",
+    "unrelated_local_docs_only_head": "e764b404851db990cb5c7dda4e27291ec79fca92",
+    "disposition": "No old-task or current-task merge from that retry; preserve project evidence."
+  }
+}

@@ -1,0 +1,840 @@
+{
+  "spec": "specs/requirements.json",
+  "sources": [
+    "docs/02-experience.md",
+    "docs/08-security.md",
+    "docs/09-testing-release.md",
+    "docs/10-operations-extension.md",
+    "docs/11-engineering-program.md",
+    "docs/15-validation-gates.md",
+    "docs/execution/launch/APPROVAL.md",
+    "AGENTS.md"
+  ],
+  "scope": "WP11 desktop, WP12 safety/data, WP13 delivery, WP14 extension/host. Applicability differs from verified test outcome. CI is applicable for technical checks in exact-candidate validation where implementable. For AB-EXT-006 the authoritative layer is owner documentary/license review; no automatic license selection or publication.",
+  "requirements": {
+    "AB-UX-001": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "完整功能集合",
+        "when": "展示工作台",
+        "then": "按工作/任务/能力/历史组织，不按底层模块堆导航"
+      },
+      "requirements": {
+        "unit": "导航可达性和默认页。",
+        "integration": "满载工作台四类主导航及各入口的实际路由。",
+        "native_arm64": "原生 App 验证各导航的正常路径。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-002": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "受管session可发送消息",
+        "when": "用户操作",
+        "then": "消息/事件/命令输出/Diff/审批在Baton内展示，原生配置连接也不跳转终端操控"
+      },
+      "requirements": {
+        "unit": "各事件、Diff 和权限显示优先级。",
+        "integration": "受管和只读外部配置连接均走同一 App，不交给原生 TUI。",
+        "native_arm64": "实机走发送、输出、Diff 和原生批准。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-003": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "将输入交给另一个Agent",
+        "when": "按项目策略执行交接",
+        "then": "范围内自动进行并留可查看记录；新增数据接收方或扩权才确认"
+      },
+      "requirements": {
+        "unit": "同范围与扩权、接收方变化的分类。",
+        "integration": "真实项目交接自动进行并保留依据；变更接收方时停在确认。",
+        "native_arm64": "实际 App 检查确认、取消、自动分支和审查记录。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-004": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "任务执行中",
+        "when": "查看详情",
+        "then": "状态带证据，不生成虚构完成百分比"
+      },
+      "requirements": {
+        "unit": "状态日期、来源和证据一致性。",
+        "integration": "真实执行状态缺证据时不呈现推断百分比；可靠状态链接实际证据。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-005": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "无可靠运行事件",
+        "when": "查看卡片",
+        "then": "显示未知/过期/来源时间，不强行绿色"
+      },
+      "requirements": {
+        "unit": "断线、未知和过期状态不合并。",
+        "integration": "实际连接失联并读取卡片，显示源与采样时间，不误报健康。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-006": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "读屏或纯键盘用户",
+        "when": "操作主要流程",
+        "then": "焦点可达、状态可读、不只靠颜色"
+      },
+      "requirements": {
+        "unit": "焦点、角色、可访问名称与非色彩表达。",
+        "integration": "键盘端到端完成关键流程及状态转换。",
+        "native_arm64": "用实际 macOS 键盘与 VoiceOver 走主要流程。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-007": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "无CLI/未登录/断线/配置坏",
+        "when": "使用工作台",
+        "then": "有可解释下一步，不用演示数据伪装正常"
+      },
+      "requirements": {
+        "unit": "登录、断线、路径、格式异常的文案与操作。",
+        "integration": "实际 Core 注入各类空/错误源，正常 App 明确下一步。",
+        "native_arm64": "实机核验 GUI PATH、未登录及断连入口。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-008": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "用户选择保留策略",
+        "when": "保存/清理记录",
+        "then": "完整正文和日志本地保存、按项目TTL/永久保留，源文件/采纳成果/独立报告不随正文清理"
+      },
+      "requirements": {
+        "unit": "项目策略、TTL、永久与引用边界。",
+        "integration": "真实本地持久化历史与清理，验证带 pin、源文件、采纳结果、独立报告保留。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-001": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "Provider无法网络隔离",
+        "when": "严格模式启动",
+        "then": "拒绝或换执行器，不把prompt当enforcement"
+      },
+      "requirements": {
+        "unit": "请求、有效范围及 enforcement 分开，严格时 fail closed。",
+        "integration": "在受控真实环境比较可执行的限制及不支持时的拒绝。",
+        "native_arm64": "实机确认实际限制能力及不支持时的拒绝。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-002": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "不可信WebView内容",
+        "when": "尝试shell/SQL",
+        "then": "受限命令和参数校验拒绝"
+      },
+      "requirements": {
+        "unit": "固定命令、参数、长度、访问与类型白名单。",
+        "integration": "真实 Core/桥接对未登记操作及越界参数拒绝，无状态副作用。",
+        "native_arm64": "实际打包 Tauri 能力范围验证。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-003": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "过期或跨session句柄",
+        "when": "调用MCP bridge",
+        "then": "拒绝访问且不暴露秘密"
+      },
+      "requirements": {
+        "unit": "时间、身份、会话、动作与范围绑定。",
+        "integration": "短期句柄过期或跨 session 时在真实 MCP bridge 拒绝且日志不暴露秘密。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-004": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "本地任务与日志",
+        "when": "使用核心功能",
+        "then": "不上传Baton云；Provider网络去向明确"
+      },
+      "requirements": {
+        "unit": "接收方及上传默认关闭，网络来源分类。",
+        "integration": "本地实际任务与日志受限网络运行，逐项核对无未批准 Baton 上传。",
+        "provider": "对获准真实 Provider 明确可观察的请求目的和发送边界。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-005": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "恶意HTML/ANSI/工具描述",
+        "when": "预览/交接",
+        "then": "不执行脚本、不成为高权限指令"
+      },
+      "requirements": {
+        "unit": "危险格式、ANSI 及描述的只读呈现。",
+        "integration": "用无害标记验证真实预览无脚本/命令副作用，文本不赋予权限。",
+        "native_arm64": "在真实 WebView 校验同样的不可信内容边界。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-006": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "journal写失败",
+        "when": "任务状态更新",
+        "then": "停止新副作用或进入可解释错误，不报成功"
+      },
+      "requirements": {
+        "unit": "写入故障与错误状态映射。",
+        "integration": "真实故障夹具使 SQLite/journal 无法持久化，重启对账并核对停止新副作用。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-007": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "新旧schema不兼容",
+        "when": "升级/回滚",
+        "then": "备份/拒绝危险写入，给恢复路径"
+      },
+      "requirements": {
+        "unit": "版本选择、不可迁移拒绝、备份路径。",
+        "integration": "使用确实来自旧版本的非空库验证备份、迁移、破损拒绝和恢复。",
+        "native_arm64": "实际安装版在 Apple Silicon 验证关键迁移、备份与回退。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-008": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "用户请求导出或清理",
+        "when": "执行操作",
+        "then": "范围可预览，不删原仓库，不泄露凭据"
+      },
+      "requirements": {
+        "unit": "导出脱敏、清理范围预览及以原始字节佐证。",
+        "integration": "真实项目历史导出和删除，核对 checksum、秘密排除及源文件保留。",
+        "native_arm64": "实际 App 复核导出与清理入口、失败路径。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-001": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "mock与真实测试混合",
+        "when": "生成报告",
+        "then": "逐层记录passed/failed/blocked/not_run"
+      },
+      "requirements": {
+        "unit": "报告的状态词、证据层与缺失结果。",
+        "integration": "在一个实际候选汇编通过、失败、阻塞和未运行的各类报告并对应正确证据。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-002": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "浏览器UI已通过",
+        "when": "发布桌面声明",
+        "then": "需实际原生桌面证据，不以浏览器替代"
+      },
+      "requirements": {
+        "unit": "浏览器报告与原生证据分类。",
+        "integration": "真实桌面验收报告关联并可追溯到实际构建。",
+        "native_arm64": "真实安装的 ARM64 App 完成各适用原生流程。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-003": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "启用了embedded UI测试服务",
+        "when": "构建发行包",
+        "then": "测试feature和入口被移除并检测"
+      },
+      "requirements": {
+        "unit": "测试 feature、权限以及包入口审计。",
+        "integration": "检查 actual release artifact 的编译配置、文件、IPC 和监听行为。",
+        "native_arm64": "运行实际构建的 ARM64 发行产物，证明测试控制面不在包中。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-004": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "批准交付候选",
+        "when": "构建dmg/app",
+        "then": "关联commit/架构/测试/校验值和签名状态"
+      },
+      "requirements": {
+        "unit": "构建记录 schema 及摘要验证。",
+        "integration": "实际 App/DMG 与具体 commit、架构、签名状态、测试记录和摘要逐一对应。",
+        "native_arm64": "从固定 ARM64 安装产物实际启动并校验版本。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-005": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "签名或真实账户CI",
+        "when": "执行任务",
+        "then": "受保护环境最小secret，不给普通PR"
+      },
+      "requirements": {
+        "unit": "普通 PR 与受保护环境的配置边界。",
+        "integration": "经批准的安全验证检查保护规则、独立人工确认与 secret 的实际作用域。",
+        "ci": "普通/fork PR 无凭据，隔离验证和发布在受保护环境内。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-006": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "CI失败",
+        "when": "期待自动修复",
+        "then": "仅有配置触发器才执行，否则显示需继续"
+      },
+      "requirements": {
+        "unit": "缺省不触发、确切目标、去重、轮次与预算。",
+        "integration": "实际 CI 终态接入 App；无触发配置则显示需继续，有授权才提交受控修复意图。",
+        "ci": "在私有测试工作流验证触发来源、条件、退出与无环路。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-007": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "存在运行任务",
+        "when": "应用更新",
+        "then": "不无声中断，数据库迁移和回滚有说明"
+      },
+      "requirements": {
+        "unit": "活跃任务、迁移、失败原因和恢复边界。",
+        "integration": "对实际本地候选更新，活跃尝试保持，保存升级失败与回退的可读状态。",
+        "native_arm64": "使用 Apple Silicon 实际 App 和测试安装包复验。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-001": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "批准远程执行",
+        "when": "连接Host",
+        "then": "明确身份/工作区/权限，非本机路径直接复用"
+      },
+      "requirements": {
+        "unit": "Host 身份、路径、权限与本机引用分离。",
+        "integration": "在独占获准 Host 上验证远程连接与身份、目录契约。",
+        "native_arm64": "以实际 macOS Host 核对连接和运行身份。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-002": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "输入在本地",
+        "when": "远端任务需要数据",
+        "then": "范围内自动最小必要传输并核对版本；新接收方/新数据范围再次批准"
+      },
+      "requirements": {
+        "unit": "范围、版本、接收方及最小传输。",
+        "integration": "实际私有传输只同步批准的确切版本；接收方更换明确拒绝直传。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-003": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "导入扩展",
+        "when": "启用",
+        "then": "区分声明型与代码型权限，不自动执行"
+      },
+      "requirements": {
+        "unit": "声明/代码型分类与确认要求。",
+        "integration": "真实导入和启用入口复核声明型生效、代码型等待批准且不自动运行。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-004": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "Provider或OS升级",
+        "when": "发布支持说明",
+        "then": "更新实际测试证据，未测即标未测"
+      },
+      "requirements": {
+        "unit": "版本变化预期降级、矩阵源验证。",
+        "integration": "实际持久记录以受支持版本合成发布矩阵，未知输入不可继承旧状态。",
+        "native_arm64": "实际受支持 ARM64 macOS 候选。",
+        "provider": "真实版本与平台组合按获准情形更新证据。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-005": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "用户不创建云账户",
+        "when": "使用本地核心",
+        "then": "个人功能不因团队后台缺失不可用"
+      },
+      "requirements": {
+        "unit": "本地依赖缺省以及未配置 Team 服务的正常状态。",
+        "integration": "无团队服务及云账户运行实际本地个人核心、工作区与历史。",
+        "native_arm64": "用真实 App 初始本地流程验证。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-006": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "计划公开产品",
+        "when": "发布",
+        "then": "记录回馈改进政策，具体许可证及分发条款经审定后发布，不擅自选默认许可"
+      },
+      "requirements": {
+        "documentary": "由负责人审定具体许可文本、厂商兼容条款、分发限制和回馈贡献政策。记录实际审批；无审批不得发布或选默认许可证。"
+      },
+      "dimensions": {
+        "unit": "not_applicable",
+        "integration": "not_applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "not_applicable",
+        "documentary": "applicable"
+      }
+    },
+    "AB-UX-009": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "多任务多Agent",
+        "when": "查看工作台",
+        "then": "默认关键事件/待处理项，详情可展开，不只聊天列表或满屏监控"
+      },
+      "requirements": {
+        "unit": "关键事件、待办、详情的优先级。",
+        "integration": "同一多任务/多 Agent 工作台正常查看、展开证据和注意事项。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-UX-010": {
+      "work_package": "WP11",
+      "source_criterion": {
+        "given": "系统或用户切换语言",
+        "when": "呈现界面",
+        "then": "界面切换，代码命令与原始日志不翻译；支持访问性"
+      },
+      "requirements": {
+        "unit": "资源键完整、动态字段不翻译。",
+        "integration": "中英切换后命令、源码和原始日志逐字相同，关键状态可读。",
+        "native_arm64": "实际 App 用系统语言和用户覆盖分别验证。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-009": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "日志/正文到期或项目关闭留存",
+        "when": "清理",
+        "then": "相关检索索引/缓存同步处理，不误删pin/源文件/独立报告"
+      },
+      "requirements": {
+        "unit": "pin、独立报告和衍生数据引用的清理规范。",
+        "integration": "真实到期或关闭留存后，正文、检索索引和缓存一起处理，检查排除项。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-SEC-010": {
+      "work_package": "WP12",
+      "source_criterion": {
+        "given": "存在已批准ProjectPolicy",
+        "when": "任务/委派/远程传输",
+        "then": "由Core验证资源与接收方关系，模型或前端不能自报授权"
+      },
+      "requirements": {
+        "unit": "按 ProjectPolicy 限定接收方、数据和来源。",
+        "integration": "真实任务、委派和受控传输验证已批准与未知接收方，以及模型自报不能授权。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-008": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "macOS候选包",
+        "when": "构建/发行",
+        "then": "Apple Silicon和Intel分别有测试证据，缺失不删除范围或冒称已测"
+      },
+      "requirements": {
+        "integration": "本轮已批准的架构逐个验证并声明未执行组合。",
+        "native_arm64": "当前 macOS 发行范围按 AGENTS.md 实测 Apple Silicon；Intel 证据仅对应历史版本。"
+      },
+      "dimensions": {
+        "unit": "not_applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-REL-009": {
+      "work_package": "WP13",
+      "source_criterion": {
+        "given": "依赖版本锁定",
+        "when": "确定最低macOS",
+        "then": "记录构建/运行/核心Provider/后台与更新验证，缺证据保留待验"
+      },
+      "requirements": {
+        "integration": "锁定依赖和基础系统后复核真实兼容组合。",
+        "native_arm64": "在候选最低系统验证 ARM64 构建/原生启动、后台和更新。",
+        "provider": "候选最低 ARM64 系统实际验证获准 Provider；其他组合明确待验。"
+      },
+      "dimensions": {
+        "unit": "not_applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-007": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "用户注册Host",
+        "when": "启用",
+        "then": "验证身份、目录、连接能力；不创建云资源、不默认Windows"
+      },
+      "requirements": {
+        "unit": "远程注册平台、身份/目录验证及不自动创建资源。",
+        "integration": "实际获准 macOS/Linux Host 分别验证注册及能力证据。",
+        "native_arm64": "实际 ARM64 macOS Host 注册与工作区验证。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-008": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "新任务有多个候选Host",
+        "when": "路由",
+        "then": "先过数据/权限/能力过滤再按数据与负载选择，记录原因，活动attempt不迁移"
+      },
+      "requirements": {
+        "unit": "过滤数据、权限和能力后的确定性路由。",
+        "integration": "经授权的多私有 Host 运行新任务并保存选择原因；已有 attempt 不迁移。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-009": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "远端可能继续运行",
+        "when": "断线与重连",
+        "then": "连接状态不当任务失败；先对账再续接，不重复派发，不丢取消未确认状态"
+      },
+      "requirements": {
+        "unit": "断连、结果未知及取消未确认状态。",
+        "integration": "实际远端私有运行时制造断连、后续恢复，按持久记录对账且不重派。。按 WP14 和验证清单，分别提供批准范围内真实 macOS/Linux Host 支持的证据。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-010": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "远端暂存执行事件",
+        "when": "同步主历史",
+        "then": "本机为主历史库、远端有透明缓存/保留规则；不宣称所有字节从不离开Mac"
+      },
+      "requirements": {
+        "unit": "本地主库、远端缓存策略和可观察的清理。",
+        "integration": "在获准远端运行、重连并同步事件，验证保留/清理规则明确且本机历史完整。。按 WP14 和验证清单，分别提供批准范围内真实 macOS/Linux Host 支持的证据。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-EXT-011": {
+      "work_package": "WP14",
+      "source_criterion": {
+        "given": "远端与控制端断连",
+        "when": "继续执行",
+        "then": "只在现有有期限授权与预算内，不扩权或生产发布；到期停新副作用并记录"
+      },
+      "requirements": {
+        "unit": "离线期限和剩余预算判定。",
+        "integration": "实际中断网络后跨截止时间，观测不允许新副作用、扩权、发布，日志可对账。。按 WP14 和验证清单，分别提供批准范围内真实 macOS/Linux Host 支持的证据。"
+      },
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    }
+  }
+}
