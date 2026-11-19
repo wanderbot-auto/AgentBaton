@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "archive_sha256": "2fa14871b9e9e715b25dd1f9bc5fcfbfaf67243e99ae8a25a484f4a187ef25c0",
+    "dmg_sha256": "7e7598774e7bc20bcf7ad0cf6e61d6096a21afadf1fa9543891225e928aa2055",
+    "source_commit": "d70362ad1fc4b080537163be60cb830849ee4167",
+    "source_tree": "19aba6e8f208f021bc84573dd8b496d29fce5633",
+    "target": "aarch64-apple-darwin"
+  },
+  "artifact": {
+    "name": "AgentBaton-arm64-d70362ad1fc4b080537163be60cb830849ee4167-development.dmg",
+    "sha256": "7e7598774e7bc20bcf7ad0cf6e61d6096a21afadf1fa9543891225e928aa2055",
+    "build_record_sha256": "156c62c31e9e3309b4166287002a447f799b6f3af72ab448542398cb9afef2ca",
+    "checklist_sha256": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+    "checksum_manifest_sha256": "8d9094a1f6b3bdb7fa6c46a4b4a2c16400a8f97313995b678545ab554d99c628",
+    "channel": "development"
+  },
+  "product_version": "0.1.0",
+  "source_config_sha256": "04bfa24791d0216e17f2aeda9527a952dc750ac5a08c0fab9e72a3d81dac78d9",
+  "inspection": "macos_arm64_read_only_dmg_detached",
+  "mount_shortcut": {
+    "path": "Applications",
+    "target": "/Applications"
+  },
+  "notarization": "unknown",
+  "test_execution": "unknown",
+  "receipt_sha256": null,
+  "receipt_trust_anchor": "externally_pinned_trusted_build_record_required",
+  "attribution_completeness": "unknown",
+  "files": [
+    {
+      "path": "AgentBaton.app/Contents/Info.plist",
+      "sha256": "4fd00649bf970ec48e74fe999424f4d38a63678b419c0f576e278e727da7a344",
+      "bytes": 974,
+      "role": "bundle_metadata",
+      "attribution": [],
+      "attribution_state": "unknown"
+    },
+    {
+      "path": "AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+      "sha256": "fa09e4cdeafba5533e7418b133288e1e92445f40b752c99fc663303ef2e14a13",
+      "bytes": 17294240,
+      "role": "desktop",
+      "attribution": [],
+      "architecture": "arm64",
+      "cpu_subtype": 0,
+      "binary_format": "Mach-O 64-bit thin",
+      "signature": {
+        "type": "ad_hoc",
+        "cdhash": "91064a47fe8dcb8f75a075bb9939ac8a8cd720f7",
+        "team_identifier": null,
+        "verification": "failed",
+        "verification_exit_code": 1,
+        "publisher_trust": "unknown"
+      },
+      "attribution_state": "unknown",
+      "static_linkage": "unknown",
+      "embedded_web": "unknown"
+    },
+    {
+      "path": "AgentBaton.app/Contents/MacOS/baton",
+      "sha256": "96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b",
+      "bytes": 790336,
+      "role": "cli",
+      "attribution": [],
+      "architecture": "arm64",
+      "cpu_subtype": 0,
+      "binary_format": "Mach-O 64-bit thin",
+      "signature": {
+        "type": "ad_hoc",
+        "cdhash": "b8ccce5c6f9ede235111664c3296401c876f1be3",
+        "team_identifier": null,
+        "verification": "passed",
+        "verification_exit_code": 0,
+        "publisher_trust": "unknown"
+      },
+      "attribution_state": "unknown",
+      "static_linkage": "unknown"
+    },
+    {
+      "path": "AgentBaton.app/Contents/MacOS/batond",
+      "sha256": "626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a",
+      "bytes": 18338352,
+      "role": "daemon",
+      "attribution": [],
+      "architecture": "arm64",
+      "cpu_subtype": 0,
+      "binary_format": "Mach-O 64-bit thin",
+      "signature": {
+        "type": "ad_hoc",
+        "cdhash": "74595e9a83dd34930646df0771f60ee5addc46e3",
+        "team_identifier": null,
+        "verification": "passed",
+        "verification_exit_code": 0,
+        "publisher_trust": "unknown"
+      },
+      "attribution_state": "unknown",
+      "static_linkage": "unknown"
+    },
+    {
+      "path": "AgentBaton.app/Contents/Resources/icon.icns",
+      "sha256": "c06b01170670fb61780e9b79b6e4c2a3bb54834649d2eb5ccd2888086fe5fa32",
+      "bytes": 44697,
+      "role": "resource",
+      "attribution": [
+        {
+          "kind": "git_source_bytes",
+          "path": "apps/desktop/src-tauri/icons/icon.icns",
+          "sha256": "c06b01170670fb61780e9b79b6e4c2a3bb54834649d2eb5ccd2888086fe5fa32"
+        }
+      ],
+      "attribution_state": "bound_evidence"
+    }
+  ]
+}

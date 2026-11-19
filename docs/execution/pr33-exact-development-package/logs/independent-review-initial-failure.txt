@@ -1,0 +1,8 @@
+Cargo.lock: OK
+apps/desktop/src-tauri/Cargo.lock: OK
+apps/desktop/package-lock.json: OK
+./AgentBaton-arm64-d70362ad1fc4b080537163be60cb830849ee4167-development.dmg: OK
+development.zip: OK
+Traceback (most recent call last):
+  File "<stdin>", line 20, in <module>
+AssertionError
