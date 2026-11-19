@@ -1,0 +1,71 @@
+{
+  "Contents": {
+    "ctime_ns": 1794935221695674041,
+    "dev": 16777239,
+    "inode": 17,
+    "mode": 16877,
+    "mtime_ns": 1794935217551942416,
+    "size": 160
+  },
+  "Contents/Info.plist": {
+    "ctime_ns": 1794935221695526333,
+    "dev": 16777239,
+    "inode": 24,
+    "mode": 33188,
+    "mtime_ns": 1794935217545286374,
+    "sha256": "4fd00649bf970ec48e74fe999424f4d38a63678b419c0f576e278e727da7a344",
+    "size": 974
+  },
+  "Contents/MacOS": {
+    "ctime_ns": 1794935221694303166,
+    "dev": 16777239,
+    "inode": 18,
+    "mode": 16877,
+    "mtime_ns": 1794935217553400958,
+    "size": 160
+  },
+  "Contents/MacOS/agentbaton-desktop": {
+    "ctime_ns": 1794935221694260916,
+    "dev": 16777239,
+    "inode": 21,
+    "mode": 33261,
+    "mtime_ns": 1794935217394798291,
+    "sha256": "180962ac11c4422f784ca017979bb74e73ee555886b7edf9e3ab755664ba28fd",
+    "size": 19682880
+  },
+  "Contents/MacOS/baton": {
+    "ctime_ns": 1794935221010766083,
+    "dev": 16777239,
+    "inode": 19,
+    "mode": 33261,
+    "mtime_ns": 1794933830829147791,
+    "sha256": "1d38b91fb401cfd3ef1486a845df246682f16b44b1b6e6d533e7959b256e8647",
+    "size": 810720
+  },
+  "Contents/MacOS/batond": {
+    "ctime_ns": 1794935221366752583,
+    "dev": 16777239,
+    "inode": 20,
+    "mode": 33261,
+    "mtime_ns": 1794933830820432791,
+    "sha256": "a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109",
+    "size": 17878176
+  },
+  "Contents/Resources": {
+    "ctime_ns": 1794935221694878333,
+    "dev": 16777239,
+    "inode": 22,
+    "mode": 16877,
+    "mtime_ns": 1794935217543646833,
+    "size": 96
+  },
+  "Contents/Resources/icon.icns": {
+    "ctime_ns": 1794935221694855041,
+    "dev": 16777239,
+    "inode": 23,
+    "mode": 33188,
+    "mtime_ns": 1794931761543384624,
+    "sha256": "c06b01170670fb61780e9b79b6e4c2a3bb54834649d2eb5ccd2888086fe5fa32",
+    "size": 44697
+  }
+}

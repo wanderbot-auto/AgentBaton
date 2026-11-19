@@ -1,0 +1,26 @@
+test_all_pins_must_be_present_and_unique (test_native_release_audit.NativeBundleAuditTests.test_all_pins_must_be_present_and_unique) ... ok
+test_clean_pinned_arm64_slots_are_scanned_read_only (test_native_release_audit.NativeBundleAuditTests.test_clean_pinned_arm64_slots_are_scanned_read_only) ... ok
+test_each_missing_slot_fails (test_native_release_audit.NativeBundleAuditTests.test_each_missing_slot_fails) ... ok
+test_each_role_is_checked_for_source_gated_markers (test_native_release_audit.NativeBundleAuditTests.test_each_role_is_checked_for_source_gated_markers) ... ok
+test_file_inspection_failure_never_reports_pass (test_native_release_audit.NativeBundleAuditTests.test_file_inspection_failure_never_reports_pass) ... ok
+test_foreign_build_of_the_same_role_is_refused (test_native_release_audit.NativeBundleAuditTests.test_foreign_build_of_the_same_role_is_refused) ... ok
+test_mixed_architecture_is_refused_even_with_matching_byte_digests (test_native_release_audit.NativeBundleAuditTests.test_mixed_architecture_is_refused_even_with_matching_byte_digests) ... ok
+test_role_inspection_error_never_reports_pass (test_native_release_audit.NativeBundleAuditTests.test_role_inspection_error_never_reports_pass) ... ok
+test_role_swap_is_refused_even_with_matching_byte_digests (test_native_release_audit.NativeBundleAuditTests.test_role_swap_is_refused_even_with_matching_byte_digests) ... ok
+test_strings_failure_on_the_last_role_never_reports_pass (test_native_release_audit.NativeBundleAuditTests.test_strings_failure_on_the_last_role_never_reports_pass) ... ok
+test_symlink_slot_is_refused (test_native_release_audit.NativeBundleAuditTests.test_symlink_slot_is_refused) ... ok
+test_unexpected_native_smoke_binary_fails_inventory (test_native_release_audit.NativeBundleAuditTests.test_unexpected_native_smoke_binary_fails_inventory) ... ok
+test_wrong_launch_entry_is_refused (test_native_release_audit.NativeBundleAuditTests.test_wrong_launch_entry_is_refused) ... ok
+test_every_existing_marker_is_independently_rejected (test_native_release_audit.NativeReleaseAuditTests.test_every_existing_marker_is_independently_rejected) ... ok
+test_grep_error_never_becomes_no_match_success (test_native_release_audit.NativeReleaseAuditTests.test_grep_error_never_becomes_no_match_success) ... ok
+test_legitimate_integration_production_identifiers_are_not_test_markers (test_native_release_audit.NativeReleaseAuditTests.test_legitimate_integration_production_identifiers_are_not_test_markers) ... ok
+test_missing_input_fails_without_success (test_native_release_audit.NativeReleaseAuditTests.test_missing_input_fails_without_success) ... ok
+test_missing_inspector_fails_before_success_or_inspection (test_native_release_audit.NativeReleaseAuditTests.test_missing_inspector_fails_before_success_or_inspection) ... ok
+test_new_integration_os_test_marker_is_rejected (test_native_release_audit.NativeReleaseAuditTests.test_new_integration_os_test_marker_is_rejected) ... ok
+test_strings_failure_after_clean_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_clean_output_never_reports_pass) ... ok
+test_strings_failure_after_forbidden_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_forbidden_output_never_reports_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 3.863s
+
+OK
