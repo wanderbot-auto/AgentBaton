@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "archive_sha256": "6512eef12475345c2a0d9919ba14f1b41cc8599f78c4d7c5b85d9377f699f5e8",
+    "dmg_sha256": "54f02ddc37f889f97103e46988bd424f4bdf14ad4901bab34b78ddda3fbc508b",
+    "source_commit": "1d1c35dc7301e0811d0126ce41fa861aaeca4585",
+    "source_tree": "e0d4bac964ce9d4c816407c5cffa8504cf5d6c8b",
+    "target": "aarch64-apple-darwin"
+  },
+  "artifact": {
+    "name": "AgentBaton-arm64-1d1c35dc7301e0811d0126ce41fa861aaeca4585-development.dmg",
+    "sha256": "54f02ddc37f889f97103e46988bd424f4bdf14ad4901bab34b78ddda3fbc508b",
+    "build_record_sha256": "fe4497f7c96b1d826b6ec4c352a1140ff54b4d7c1f856b65aecd224a509ab49e",
+    "checklist_sha256": "ada36a53535f566bad24cc9f14b72d2c9d50f7475f804164fded422b534adf8b",
+    "checksum_manifest_sha256": "ccb8c9565facb4b9af6e8767487b9940cc4a3754a0ca071546be539442dd657f",
+    "channel": "development"
+  },
+  "product_version": "0.0.1",
+  "source_config_sha256": "19d05e37cac16df09815f744ff13294d5d347b9df9b9cef312b0c61d07d37e2b",
+  "inspection": "macos_arm64_read_only_dmg_detached",
+  "mount_shortcut": {
+    "path": "Applications",
+    "target": "/Applications"
+  },
+  "notarization": "unknown",
+  "test_execution": "unknown",
+  "receipt_sha256": "ba951fe5587a90ca6942fd552485a8fb82a79c7a06ec3df3e289be7201456b4e",
+  "receipt_trust_anchor": "externally_pinned_trusted_build_record_required",
+  "attribution_completeness": "unknown",
+  "files": [
+    {
+      "path": "AgentBaton.app/Contents/Info.plist",
+      "sha256": "0b42eda6ad754de990f0e46cd2088d8ceb9284fac8ee8bff0845c6fb48f37d80",
+      "bytes": 435,
+      "role": "bundle_metadata",
+      "attribution": [],
+      "attribution_state": "unknown"
+    },
+    {
+      "path": "AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+      "sha256": "b782379282da96517bdedffda0231ac904c1600ef37cd1776b8cac60915f6183",
+      "bytes": 32976,
+      "role": "desktop",
+      "attribution": [
+        {
+          "kind": "linker_map_receipt",
+          "sha256": "6682e60eb567d4e309ccb390880396552ecb1fe49c6949921ef63a0f965ac6ac",
+          "object_inputs": [
+            "native-86f044.o",
+            "libSystem.tbd"
+          ]
+        },
+        {
+          "kind": "web_module_receipt",
+          "sha256": "d40bb2412745a131f94012bb70691b46a145448d9754fed06f418b4ad2b4febb",
+          "asset_sha256": "76a67f3aa924a49ff7b8b3b0337332a995e5ced573f875b23537c4fff1b21752",
+          "asset_bytes": 315,
+          "offset": 16384,
+          "modules": [
+            {
+              "id": "src/label.js",
+              "rendered_length": 160
+            },
+            {
+              "id": "src/entry.js",
+              "rendered_length": 155
+            }
+          ]
+        }
+      ],
+      "architecture": "arm64",
+      "cpu_subtype": 0,
+      "binary_format": "Mach-O 64-bit thin",
+      "signature": {
+        "type": "unsigned",
+        "verification": "not_applicable",
+        "publisher_trust": "unknown"
+      },
+      "attribution_state": "bound_evidence",
+      "static_linkage": "bound_receipt",
+      "embedded_web": "bound_receipt"
+    },
+    {
+      "path": "AgentBaton.app/Contents/MacOS/baton",
+      "sha256": "f4d4cc061f276ac216165db4e4b8deddfbcc1ef47853d0822cb551548fd25c02",
+      "bytes": 16560,
+      "role": "cli",
+      "attribution": [],
+      "architecture": "arm64",
+      "cpu_subtype": 0,
+      "binary_format": "Mach-O 64-bit thin",
+      "signature": {
+        "type": "unsigned",
+        "verification": "not_applicable",
+        "publisher_trust": "unknown"
+      },
+      "attribution_state": "unknown",
+      "static_linkage": "unknown"
+    },
+    {
+      "path": "AgentBaton.app/Contents/MacOS/batond",
+      "sha256": "b70dd24ad9c2ec041f1c9ad444b7e200361c843f6c8cc245b2e6a0ef227d67e9",
+      "bytes": 16560,
+      "role": "daemon",
+      "attribution": [],
+      "architecture": "arm64",
+      "cpu_subtype": 0,
+      "binary_format": "Mach-O 64-bit thin",
+      "signature": {
+        "type": "unsigned",
+        "verification": "not_applicable",
+        "publisher_trust": "unknown"
+      },
+      "attribution_state": "unknown",
+      "static_linkage": "unknown"
+    },
+    {
+      "path": "AgentBaton.app/Contents/Resources/icon.icns",
+      "sha256": "2c25569d492aec21cd3185c66f6e2fcc75187290b96ac7f07080a68dc4894110",
+      "bytes": 21,
+      "role": "resource",
+      "attribution": [
+        {
+          "kind": "git_source_bytes",
+          "path": "apps/desktop/src-tauri/icons/icon.icns",
+          "sha256": "2c25569d492aec21cd3185c66f6e2fcc75187290b96ac7f07080a68dc4894110"
+        }
+      ],
+      "attribution_state": "bound_evidence"
+    }
+  ]
+}
