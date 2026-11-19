@@ -1,0 +1,30 @@
+commit=d70362ad1fc4b080537163be60cb830849ee4167
+architecture=arm64
+channel=development; no Developer ID signing or notarization configured
+signing_mode=ad_hoc_app
+dmg_sha256=e184d9a6eb5ac3da623601840139d015d581cf610f730dc99e8d279f08fcd9c6
+code_resources_sha256=0e6cfdc791d929d7c9dcb86d6b699b10fac2bfdd003f62fe90ba252ac45b8d1a
+compiled_sha256.agentbaton-desktop=fa09e4cdeafba5533e7418b133288e1e92445f40b752c99fc663303ef2e14a13
+shipped_sha256.agentbaton-desktop=85437caf8d475c4ec1c6a5f2e7521c4eed2811a9df843e088780abefdffefa8a
+compiled_sha256.baton=96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b
+shipped_sha256.baton=96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b
+compiled_sha256.batond=626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a
+shipped_sha256.batond=626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+v26.7.0
+Xcode 27.2
+Build version 27B52
+Signature inspection follows; ad hoc signatures do not establish a trusted publisher.
+CDHash=b51b74aaeb5e3143ad3fe4ad94da66e6a67d2cb8
+Signature=adhoc
+TeamIdentifier=not set
+Sealed Resources version=2 rules=13 files=3
