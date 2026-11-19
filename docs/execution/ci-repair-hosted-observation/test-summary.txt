@@ -1,0 +1,38 @@
+Darwin arm64
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+cargo 1.91.1 (ea2d97820 2025-10-10)
+
+CI decisions and GitHub mapping
+running 9 tests
+test fresh_pending_success_cancelled_and_unknown_are_never_repairable ... ok
+test missing_sources_or_observations_and_wrong_repo_workflow_or_commit_are_distinct ... ok
+test stale_attempts_and_expired_or_incomplete_evidence_fail_closed ... ok
+test current_terminal_failure_without_rule_explicitly_requires_continuation ... ok
+test policy_requires_unrevoked_explicit_approval_and_exact_live_actor ... ok
+test history_is_required_and_duplicates_cycles_and_unknown_stop_are_refused ... ok
+test stable_eligibility_changes_with_ci_attempt_and_does_not_reset_with_policy_revision ... ok
+test limits_use_known_shared_and_repair_usage_without_resetting_budget ... ok
+test real_store_cannot_accept_a_forged_candidate_and_does_not_write_history ... ok
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+running 8 tests
+test real_dispatch_response_binds_the_candidate_and_preserves_advisory_decision ... ok
+test requires_an_independent_query_for_the_approved_full_ref_and_exact_attempt_path ... ok
+test independent_latest_selection_rejects_truncation_supersession_and_reruns ... ok
+test refuses_unverified_response_bytes_and_duplicate_identities ... ok
+test the_reported_pr_head_or_merge_event_does_not_certify_candidate_execution ... ok
+test only_explicit_completed_failure_can_supply_a_repair_report ... ok
+test completion_is_from_verified_jobs_and_must_be_fresh_and_ordered ... ok
+test requires_approval_and_exact_selected_latest_and_job_bindings ... ok
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+Workspace format check passed.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.08s
