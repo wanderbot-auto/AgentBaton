@@ -1787,6 +1787,7 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
     def clean(v):return str(v).replace(token,'[redacted generated Owner token]')if token else str(v)
     diagnostic_phase='runtime'
     finite=finite_projection.FiniteRuntimeDiagnosticsV5()
+    start_failure = finite_projection.StartFailureRecorder()
     def passed(name,details):
         report['checks'].append({'id':name,'status':'passed','evidence':details});finite.completed(name)
     def fail(stage,error):
@@ -2133,8 +2134,22 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
         start_root = observe_rendered_root_action(start_button, start_label, 'running', task['revision'], start_readiness_deadline)
         report['observations']['rendered_root_action']['start'] = start_root
         shot('02-exact-saved-raw-reference-before-start',goal_panel)
-        start_button.click()
-        started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]
+        with lock:
+            start_trace_index = len(report['http'])
+        start_stage = 'click'
+        try:
+            start_button.click()
+            start_stage = 'receipt_wait'
+            started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]
+        except BaseException as error:
+            try:
+                with lock:
+                    end = start_trace_index + finite_projection.MAX_DIAGNOSTIC_REPLIES + 1
+                    window = [row.copy() for row in report['http'][start_trace_index:end]]
+                start_failure.capture(start_stage, window, scope['id'], child['task_id'], error)
+            except BaseException:
+                pass  # Preserve the primary failure even when diagnostic metadata is unavailable.
+            raise
         initial=started['response']['result'];goal_id=initial['goal']['run']['id'];bounds.goal_runs[goal_id]=child['task_id']
         assert support.exact_json_value(initial['plan'],saved['reference'])and initial['goal']['task_accepted']is False
         query={'scope_id':scope['id'],'task_id':child['task_id'],'goal_run_id':goal_id}
@@ -2426,7 +2441,7 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
             report['observations']['retained_private_fixture']=retention
             base.write_private_json(output/'retained-private-fixture.json',retention)
         planning.seal_runtime_report(report,daemon_complete,identities_complete and graph_gone,http_complete and directory_removed,clean)
-        report['finite_diagnostics']=finite.snapshot()
+        report['finite_diagnostics']=start_failure.snapshot(finite)
         base.write_private_json(output/'report.json',json.loads(clean(json.dumps(report))))
     print(json.dumps({'status':report['status'],'report':str(output/'report.json'),'checks':len(report['checks']),'screenshots':len(report['screenshots'])}))
     return planning.runtime_exit(report)
