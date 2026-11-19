@@ -1,0 +1,33 @@
+{
+  "pr": 33,
+  "head": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tested_merge": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+  "tested_tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+  "job": 135276914703,
+  "actions_workflow": 44439619004,
+  "raw_job_sha256": "ab1b7ca329f25b097bad75a0e791711f98c96a0c8416487e5f458647d192f855",
+  "native_artifact": {
+    "id": 14493545935,
+    "zip_sha256": "4c4882c14436d8b11cc680fdec8cbe444bbfbd9c03482c789398b6f93cb58f70",
+    "original_report_sha256": "13c4a29967157ab8b5021e03f19a21a0e43f4af4ad20f007d6a8c846efc40e3f",
+    "runner_sha256": "5bcec6b3c02a5b7645a0d41bb7d7785893a00289a8dc32fbabe335a95be34a6c",
+    "skipped_integration_projection_sha256": "6a3121cf53339c66e327e23492bb0a4131112e10878a13054bf6439e6a3bb78d"
+  },
+  "independent_read": {
+    "workspace_integration_ipc_passed": 34,
+    "migration_14_15_16_18": "passed",
+    "native_fixture_unit_passed": 37,
+    "native_fixture_process_exit": 0,
+    "original_report_status": "passed",
+    "owned_group_cleanup": true,
+    "external_runner_status": "failed",
+    "evidence_error": "native report Goal execution schema/counts/sequence changed or are incomplete",
+    "current_db_reported_schema": 19,
+    "affected_validator": "scripts/native-run.py and follow-up scripts/native-macos-smoke.sh still require 18 for portions of the current report",
+    "close_to_background_restore_acceptance": "not_run",
+    "subsequent_owner_dialog_and_default_packaging_steps": "skipped"
+  },
+  "a_scope": "pr33-native-ci-budget-review",
+  "a_scope_sha256": "e2c5daed7eb4305a019b545dfd2166222aab653e4846ecd5432e503df24050e9"
+}

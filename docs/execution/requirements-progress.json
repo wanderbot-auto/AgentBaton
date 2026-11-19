@@ -28,7 +28,8 @@
         "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
-        "crates/workspaces/tests/safety.rs"
+        "crates/workspaces/tests/safety.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -41,7 +42,15 @@
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-PRJ-002",
@@ -86,7 +95,8 @@
         "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
-        "crates/workspaces/tests/safety.rs"
+        "crates/workspaces/tests/safety.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -139,6 +149,14 @@
         "actual_browser_five": "passed: five true builtApp/UnixCore cases, sixPNG, four[2,1,2,1] ownbindingselection, noGrant/session; compiledFE/Coree313/harness6c0908; noNative/Mac",
         "post_parent_composed": "docs/execution/task-workspace-integration/POST_PARENT_COMPOSED_RESULTS.json",
         "latest_local": "Factory26 actual c1/default16compiledCore; fullinfra166 c961; TaskprivateCIpublication corrected/reviewed/realretainedinput projection passed. No exactCI16/native/Mac acceptance."
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -184,7 +202,8 @@
         "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
-        "crates/workspaces/tests/safety.rs"
+        "crates/workspaces/tests/safety.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -237,6 +256,14 @@
         "actual_browser_five": "passed: five true builtApp/UnixCore cases, sixPNG, four[2,1,2,1] ownbindingselection, noGrant/session; compiledFE/Coree313/harness6c0908; noNative/Mac",
         "post_parent_composed": "docs/execution/task-workspace-integration/POST_PARENT_COMPOSED_RESULTS.json",
         "latest_local": "Factory26 actual c1/default16compiledCore; fullinfra166 c961; TaskprivateCIpublication corrected/reviewed/realretainedinput projection passed. No exactCI16/native/Mac acceptance."
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -269,7 +296,8 @@
         "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
       ],
       "verification_refs": [
-        "crates/workspaces/tests/safety.rs"
+        "crates/workspaces/tests/safety.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -339,7 +367,15 @@
           "evidence": "docs/execution/authorized-integration/MATCHED_SCHEMA17_RESULTS.json",
           "coverage": "partial Linux generatedACP/privateOwner; currentmigrations/Native/Mac/requiredCI/installers/fullrequirement notaccepted"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-PRJ-005",
@@ -388,7 +424,8 @@
         "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
       ],
       "verification_refs": [
-        "crates/workspaces/tests/safety.rs"
+        "crates/workspaces/tests/safety.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -507,6 +544,14 @@
         "actual_browser_five": "passed: five true builtApp/UnixCore cases, sixPNG, four[2,1,2,1] ownbindingselection, noGrant/session; compiledFE/Coree313/harness6c0908; noNative/Mac",
         "post_parent_composed": "docs/execution/task-workspace-integration/POST_PARENT_COMPOSED_RESULTS.json",
         "latest_local": "Factory26 actual c1/default16compiledCore; fullinfra166 c961; TaskprivateCIpublication corrected/reviewed/realretainedinput projection passed. No exactCI16/native/Mac acceptance."
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -542,6 +587,17 @@
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
         }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ]
     },
     {
@@ -583,8 +639,17 @@
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
         "apps/desktop/src/SessionWorkbench.test.tsx",
-        "crates/providers/tests/native_codex.rs"
-      ]
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-PRO-002",
@@ -614,14 +679,25 @@
       "coverage": "partial",
       "verification_refs": [
         "crates/providers/tests/native_codex.rs",
-        "crates/core/tests/sessions_ipc.rs"
-      ]
+        "crates/core/tests/sessions_ipc.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-PRO-003",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/installation.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -630,7 +706,32 @@
         "native_x86_64": "not_run"
       },
       "evidence": [],
-      "limitations": []
+      "limitations": [
+        "Apple Silicon and Linux ARM64 synthetic processes verify closed status projection, launch refusal and reaping. Production probe context, named connection wiring, real credential expiry and identity verification remain unverified."
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json",
+        "crates/providers/tests/auth_status.rs",
+        "docs/execution/provider-auth-status/EVIDENCE.md",
+        "docs/execution/provider-auth-status/logs/linux-arm64-provider.log"
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "guarded_provider_authentication_status_projector",
+          "source": "8eb02900d9f4ef9a22dd45031e638c997761aa2e",
+          "feature": "f912214b0a415f36b4bb4e4d949552d450ad67de",
+          "evidence": "docs/execution/provider-auth-status/EVIDENCE.md"
+        }
+      ]
     },
     {
       "id": "AB-PRO-004",
@@ -645,7 +746,18 @@
         "native_x86_64": "not_run"
       },
       "evidence": [],
-      "limitations": []
+      "limitations": [],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ]
     },
     {
       "id": "AB-PRO-005",
@@ -660,7 +772,18 @@
         "native_x86_64": "not_run"
       },
       "evidence": [],
-      "limitations": []
+      "limitations": [],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ]
     },
     {
       "id": "AB-PRO-006",
@@ -690,8 +813,17 @@
       "coverage": "partial",
       "verification_refs": [
         "crates/providers/tests/native_codex.rs",
-        "crates/core/tests/sessions_ipc.rs"
-      ]
+        "crates/core/tests/sessions_ipc.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-PRO-007",
@@ -725,8 +857,17 @@
       "coverage": "partial",
       "verification_refs": [
         "crates/providers/tests/native_codex.rs",
-        "crates/core/tests/sessions_ipc.rs"
-      ]
+        "crates/core/tests/sessions_ipc.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-002",
@@ -755,8 +896,17 @@
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
-      ]
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-003",
@@ -785,23 +935,61 @@
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
-      ]
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-006",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/sessions.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "9 independent real local Core tests on Apple Silicon passed. Worker existing IPC (3) and session unit (2) controls passed. Real Provider and Native OS flow not run."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/session-recovery-admission/EVIDENCE.json",
+        "docs/execution/leader-control/GRAPH_AND_SESSION_RECOVERY_ADMISSION.json"
+      ],
+      "limitations": [
+        "Read-only Supervisor preflight with trusted fixture inputs. Durable original spec/negotiated capability and actual load support are pending. No new attempt or turn replay is invoked by assessment."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/session_recovery_admission.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "stopped_managed_session_recovery_admission",
+          "source": "ff13dd587b8b69001700245f7d2edd28d8ad0d31",
+          "feature": "b5681ec4fa3ff2f48fe0c40bc24b436ce4e1c4ea",
+          "evidence": "docs/execution/session-recovery-admission/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-007",
@@ -840,30 +1028,76 @@
         "apps/desktop/src/task-notifications-model.test.ts",
         "apps/desktop/src/TaskNotifications.test.tsx",
         "apps/desktop/tests/task_notifications_real_ipc_probe.py",
-        "tests/infrastructure/test_task_notification_ci.py"
+        "tests/infrastructure/test_task_notification_ci.py",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
       ],
       "supporting_evidence": [
         "docs/execution/task-notifications/ROOT_EBA_COMPOSITION_RESULTS.json"
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-008",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src-tauri/src/lib.rs",
+        "apps/desktop/src-tauri/src/background_policy.rs"
+      ],
       "verification": {
         "unit": "not_run",
-        "integration": "not_run",
+        "integration": "Previously implemented scope rechecked against fixed source; full requirement acceptance pending.",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
       "evidence": [
+        "docs/execution/leader-control/IMPLEMENTATION_COVERAGE_RECONCILIATION.json",
         "docs/execution/background-login-registration/EVIDENCE.json"
       ],
       "limitations": [
-        "Supporting next-login registration/settings slice only at bb5c7f935f95139027ff7b2008dcd9db318e833c; active-task survival across UI exit, menu-bar, stop-all/full-exit, sleep/crash recovery and100-repeat lifecycle remain unimplemented or NOT_RUN. Status and verification are unchanged; Linux/mock/browser evidence does not establish D13 acceptance."
-      ]
+        "Managed UI close-to-background gating and draft preservation are implemented. Actual continued authorized work through full UI exit and separate stop remain to be demonstrated for the current bundle."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "apps/desktop/src/BackgroundService.test.tsx",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "scope": "Managed UI close-to-background gating and draft preservation are implemented. Actual continued authorized work through full UI exit and separate stop remain to be demonstrated for the current bundle.",
+          "attribution": [
+            {
+              "path": "apps/desktop/src-tauri/src/lib.rs",
+              "sha256": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb"
+            },
+            {
+              "path": "apps/desktop/src-tauri/src/background_policy.rs",
+              "sha256": "08378e56153b7f79ffc46f1b2c4525a837ea3d83067a2cb81b7404e640d24982"
+            },
+            {
+              "path": "apps/desktop/src/BackgroundService.test.tsx",
+              "sha256": "e11d959272aca4cac6e10b5bbaf75b8dcb68fa42de18282d05ea5e4a5e6f971f"
+            }
+          ]
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-CAP-001",
@@ -902,8 +1136,17 @@
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CAP-002",
@@ -942,8 +1185,17 @@
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CAP-003",
@@ -982,8 +1234,17 @@
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CAP-004",
@@ -1022,8 +1283,17 @@
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CAP-005",
@@ -1050,7 +1320,8 @@
         "docs/execution/session-supervision/EVIDENCE.json",
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/leader-control/AB_CAP_005_STATIC_SCAN_CURRENT.json"
       ],
       "limitations": [
         "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
@@ -1062,23 +1333,71 @@
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "current_static_discovery_and_non_executable_materialization",
+          "source": "6c207575c60e55a6e421df7f043daf9941593698",
+          "tested_source_tree": "043bc357cd83d385db63181cd5bf6e341217cd7d",
+          "evidence": "docs/execution/leader-control/AB_CAP_005_STATIC_SCAN_CURRENT.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CAP-006",
       "work_package": "WP06",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/managed_mcps.rs",
+        "crates/core/src/managed_mcps/diagnostics.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "Independent normal macOS Apple Silicon composed 15/15 and isolated original Linux ARM64 source 15/15 with real generated local MCP processes. Verified one-shot local review, exact private entry launch, bounded protocol listing, failure/timeout and direct-child cleanup evidence; hosted and native App acceptance are pending."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/active-mcp-diagnostic/EVIDENCE.json",
+        "docs/execution/leader-control/ACTIVE_MCP_DIAGNOSTIC_ADMISSION.json",
+        "docs/execution/leader-control/MCP_DIAGNOSTIC_LINUX_REVIEW.json"
+      ],
+      "limitations": [
+        "Current managed local stdio Core entry is in-process. Real Owner IPC and desktop confirmation, worker/maintenance integration, restart-local pending reconciliation, HTTP/authorized remote transport and full release acceptance remain pending. Entry and direct child are tracked; unconfined native dependency, same-UID and descendant actions are outside the verified boundary."
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json",
+        "crates/core/src/managed_mcps_tests.rs"
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "owner_confirmed_local_stdio_standalone_mcp_diagnostic_core",
+          "source": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
+          "feature": "375a054e69d3d411f32266c41b03ba2f6c682460",
+          "evidence": "docs/execution/leader-control/ACTIVE_MCP_DIAGNOSTIC_ADMISSION.json"
+        }
+      ]
     },
     {
       "id": "AB-CAP-007",
@@ -1111,8 +1430,17 @@
       "verification_refs": [
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CAP-008",
@@ -1151,8 +1479,17 @@
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-001",
@@ -1185,9 +1522,18 @@
         "crates/config/tests/transactions.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-002",
@@ -1210,9 +1556,18 @@
         "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
       ],
       "verification_refs": [
-        "crates/config/tests/transactions.rs"
+        "crates/config/tests/transactions.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-003",
@@ -1235,9 +1590,18 @@
         "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
       ],
       "verification_refs": [
-        "crates/config/tests/transactions.rs"
+        "crates/config/tests/transactions.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-004",
@@ -1260,9 +1624,18 @@
         "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
       ],
       "verification_refs": [
-        "crates/config/tests/transactions.rs"
+        "crates/config/tests/transactions.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-005",
@@ -1285,9 +1658,18 @@
         "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
       ],
       "verification_refs": [
-        "crates/config/tests/transactions.rs"
+        "crates/config/tests/transactions.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-006",
@@ -1310,9 +1692,18 @@
         "Managed-file primitive only; capability dependencies, Provider schema/reload, approval router and UI/daemon remain."
       ],
       "verification_refs": [
-        "crates/config/tests/transactions.rs"
+        "crates/config/tests/transactions.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-007",
@@ -1342,8 +1733,17 @@
       "verification_refs": [
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-008",
@@ -1386,23 +1786,68 @@
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-TSK-001",
       "work_package": "WP08",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/goal_runtime.rs",
+        "crates/core/src/goal_store.rs"
+      ],
       "verification": {
         "unit": "not_run",
-        "integration": "not_run",
+        "integration": "Previously implemented scope rechecked against fixed source; full requirement acceptance pending.",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/leader-control/IMPLEMENTATION_COVERAGE_RECONCILIATION.json",
+        "docs/execution/goal-runtime-real-ipc/EVIDENCE.json"
+      ],
+      "limitations": [
+        "Typed task execution contract produced from a validated, authorized GoalPlan. Actual natural-language-only completion of all contract fields and clarification behaviour remain unproven."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "scope": "Typed task execution contract produced from a validated, authorized GoalPlan. Actual natural-language-only completion of all contract fields and clarification behaviour remain unproven.",
+          "attribution": [
+            {
+              "path": "crates/core/src/goal_runtime.rs",
+              "sha256": "840408fd598da3f95a39d96973507c01a0098e3377a5705184acf6cf3177e4ff"
+            },
+            {
+              "path": "crates/core/src/goal_store.rs",
+              "sha256": "21e1d85e90d42e58dea3e9098fa0653a70a2980dbc69586f23b65e28a3c2e750"
+            }
+          ]
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-TSK-002",
@@ -1459,7 +1904,18 @@
           "limits": "NotMac/OSOwner/liveProvider/fullDesign; fullRust170+1failure retained; cabffixture repair/review/newfullrunpending; childplanning/childGoal/workspacecreation/fullfault/queue/recovery/legacybudgetmatrix remain."
         }
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
+      ]
     },
     {
       "id": "AB-TSK-003",
@@ -1526,7 +1982,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -1776,6 +2233,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -1840,7 +2305,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -2090,6 +2556,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -2148,7 +2622,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -2226,6 +2701,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -2263,7 +2746,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -2299,7 +2783,15 @@
           "dimension": "Linux generated ACP + actual IPC only; full requirement/native/remote not accepted",
           "source_review_sha256": "a227d1f099b771fecd51037fec02263ca023c04edc7c7c37b463327fad05f25a"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-TSK-007",
@@ -2361,7 +2853,8 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "data_workspace_contribution": {
@@ -2610,7 +3103,15 @@
           "dimension": "Linux generated ACP + actual IPC only; full requirement/native/remote not accepted",
           "source_review_sha256": "a227d1f099b771fecd51037fec02263ca023c04edc7c7c37b463327fad05f25a"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-TSK-008",
@@ -2688,7 +3189,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -2946,7 +3448,15 @@
           "dimension": "Linux generated ACP + actual IPC only; full requirement/native/remote not accepted",
           "source_review_sha256": "a227d1f099b771fecd51037fec02263ca023c04edc7c7c37b463327fad05f25a"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-TSK-009",
@@ -3011,7 +3521,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -3289,6 +3800,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -3357,7 +3876,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -3539,7 +4059,15 @@
           "dimension": "Linux generated ACP + actual IPC only; full requirement/native/remote not accepted",
           "source_review_sha256": "a227d1f099b771fecd51037fec02263ca023c04edc7c7c37b463327fad05f25a"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-VAL-001",
@@ -3571,7 +4099,8 @@
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -3586,7 +4115,15 @@
           "overall_requirement": "incomplete",
           "composition_note": "productionunchangedfrom283snapshot; reviewedsharedsessiontestdelta17pass"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-VAL-002",
@@ -3619,7 +4156,8 @@
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -3655,6 +4193,14 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -3735,7 +4281,8 @@
         "crates/workspaces/tests/command_validation.rs",
         "crates/core/tests/command_validation.rs",
         "crates/core/tests/command_validation_migration.rs",
-        "apps/desktop/src/CommandValidation.test.tsx"
+        "apps/desktop/src/CommandValidation.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -3853,6 +4400,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -3913,7 +4468,8 @@
         "crates/workspaces/tests/command_validation.rs",
         "crates/core/tests/command_validation.rs",
         "crates/core/tests/command_validation_migration.rs",
-        "apps/desktop/src/CommandValidation.test.tsx"
+        "apps/desktop/src/CommandValidation.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -4008,6 +4564,14 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -4040,8 +4604,17 @@
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
-      ]
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-VAL-006",
@@ -4101,7 +4674,8 @@
         "crates/workspaces/tests/command_validation.rs",
         "crates/core/tests/command_validation.rs",
         "crates/core/tests/command_validation_migration.rs",
-        "apps/desktop/src/CommandValidation.test.tsx"
+        "apps/desktop/src/CommandValidation.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -4187,6 +4761,14 @@
         "actual_browser": "freshRoot daemon191daa: quiet38/24PNG command5/2 Goal9/6 editor10/9 Data8/6; owner fixture outside HTTP, joined cancellation before destination only",
         "macOS": "not_run_for_this_Data_composition",
         "full_requirement": "not fully accepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -4252,7 +4834,8 @@
         "crates/workspaces/tests/command_validation.rs",
         "crates/core/tests/command_validation.rs",
         "crates/core/tests/command_validation_migration.rs",
-        "apps/desktop/src/CommandValidation.test.tsx"
+        "apps/desktop/src/CommandValidation.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -4361,22 +4944,61 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
       "id": "AB-VAL-008",
       "work_package": "WP09",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/TaskExperienceProposal.tsx",
+        "apps/desktop/src/task-experience-proposal.ts",
+        "apps/desktop/src/App.tsx"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed 17 focused and 1,597 UI tests; no actual Native required for the scoped jsdom evidence",
+        "integration": "passed real App mount and local draft with simulated Core responses; no executable or durable writes",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/task-experience-proposal/EVIDENCE.md",
+        "docs/execution/leader-control/EXPERIENCE_AND_NOTIFICATION_ADMISSION.json"
+      ],
+      "limitations": [
+        "Present in the real App Task detail mount. The current review draft is temporary. Persisted approval, batch review, actual application of template/Skill/rules and Native remain pending."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "apps/desktop/src/TaskExperienceProposal.entry.test.tsx",
+        "apps/desktop/src/TaskExperienceProposal.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "review_draft_for_accepted_task",
+          "source": "da7e3ebaeddeca8dd4be183f7a592d8d61b3eb40",
+          "feature": "fb8bab79b091c203be4ec09c110a5a1cfc75de8e",
+          "evidence": "docs/execution/task-experience-proposal/EVIDENCE.md"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-UX-001",
@@ -4403,13 +5025,22 @@
         "Task draft vertical slice only. UI tests use mocked transport; macOS host/build/runtime verification pending."
       ],
       "verification_refs": [
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "sidebar_layout_contribution": {
         "source": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
         "validation": "author39+Rootindependent39 with actual generated-project IPC/28PNG each; allfour viewport/sidebar metrics passed",
         "scope": "oneCSS declaration; complete project name/actions retained; current macOS validation pending; full requirement remains partial"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -4439,23 +5070,64 @@
       "coverage": "partial",
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
-        "apps/desktop/src/SessionWorkbench.test.tsx"
-      ]
+        "apps/desktop/src/SessionWorkbench.test.tsx",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-UX-003",
       "work_package": "WP11",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/factory_runtime.rs",
+        "apps/desktop/src/FactoryRuntime.tsx"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "Actual private Linux Chromium and Core returned and persisted correct scoped handoff evidence. Apple Silicon targeted FactoryRuntime 59 tests with local simulated transport passed."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/host19-factory-ci/EVIDENCE.json",
+        "docs/execution/leader-control/AB_UX_003_SCOPED_HANDOFF_EVIDENCE.json"
+      ],
+      "limitations": [
+        "Same-scope generated Factory handoff with durable digest and matched child artifact. Cross-recipient or broadened-scope confirmation, fuller UI disclosure and native acceptance remain pending."
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json",
+        "apps/desktop/tests/factory-real-ipc.py",
+        "apps/desktop/src/FactoryRuntime.test.tsx",
+        "apps/desktop/src/FactoryRuntime.completed-history.test.tsx"
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "same_approved_scope_automatic_factory_handoff",
+          "source": "29f6a14147880a2a1744e1044278165d8c11f4db",
+          "feature": "b8573a221e152c6f47d8590739f031a7bbbd9058",
+          "evidence": "docs/execution/leader-control/AB_UX_003_SCOPED_HANDOFF_EVIDENCE.json"
+        }
+      ]
     },
     {
       "id": "AB-UX-004",
@@ -4493,9 +5165,18 @@
       "verification_refs": [
         "apps/desktop/src/App.test.tsx",
         "crates/core/tests/storage.rs",
-        "apps/desktop/src/event-window.test.ts"
+        "apps/desktop/src/event-window.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-UX-005",
@@ -4542,9 +5223,18 @@
         "crates/core/tests/sessions_ipc.rs",
         "apps/desktop/src/SessionWorkbench.test.tsx",
         "crates/core/tests/storage.rs",
-        "apps/desktop/src/event-window.test.ts"
+        "apps/desktop/src/event-window.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-UX-006",
@@ -4579,13 +5269,22 @@
       "verification_refs": [
         "apps/desktop/src/App.test.tsx",
         "crates/core/tests/storage.rs",
-        "apps/desktop/src/event-window.test.ts"
+        "apps/desktop/src/event-window.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "sidebar_layout_contribution": {
         "source": "25e9fbeda9fab2043f5b167fea86fc7e48d5a8d3",
         "validation": "author39+Rootindependent39 with actual generated-project IPC/28PNG each; allfour viewport/sidebar metrics passed",
         "scope": "oneCSS declaration; complete project name/actions retained; current macOS validation pending; full requirement remains partial"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -4628,24 +5327,61 @@
         "crates/core/tests/sessions_ipc.rs",
         "apps/desktop/src/SessionWorkbench.test.tsx",
         "crates/core/tests/storage.rs",
-        "apps/desktop/src/event-window.test.ts"
+        "apps/desktop/src/event-window.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-UX-008",
       "work_package": "WP11",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/conversations_history/retention.rs"
+      ],
       "verification": {
-        "unit": "not_run",
+        "unit": "Passed seven metadata-only Core tests on Apple Silicon. Live inventory, persistent policy and native UI remain open.",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-history-retention-plan/EVIDENCE.md",
+        "docs/execution/leader-control/RETENTION_AND_COVERAGE_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Read-only plan over typed metadata, not persistence, real cleanup or GUI."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/history_retention.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "retention",
+          "source": "c7e672cd2d92edfa232656c0cab1328aff86565f",
+          "feature": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+          "scope": "Passed seven metadata-only Core tests on Apple Silicon. Live inventory, persistent policy and native UI remain open."
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-SEC-001",
@@ -4680,7 +5416,8 @@
       "verification_refs": [
         "crates/core/tests/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
       "data_workspace_contribution": {
         "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
@@ -4713,7 +5450,15 @@
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-SEC-002",
@@ -4757,7 +5502,8 @@
       "verification_refs": [
         "crates/core/tests/policy.rs",
         "apps/desktop/src-tauri/src/approval.rs",
-        "crates/config/tests/native_sources.rs"
+        "crates/config/tests/native_sources.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
       "data_workspace_contribution": {
         "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
@@ -4949,6 +5695,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -5078,7 +5832,18 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
-      }
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ]
     },
     {
       "id": "AB-SEC-004",
@@ -5158,6 +5923,17 @@
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
         }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ]
     },
     {
@@ -5205,7 +5981,8 @@
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
       "data_workspace_contribution": {
         "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
@@ -5280,6 +6057,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -5338,6 +6123,17 @@
           "delivery": "docs/execution/data-runtime-integration/DEVELOPMENT_DELIVERY_F9C6.md",
           "limits": "OSOwnerDialog/manualinstall/minOS/liveProvider/full64Corecopy notverified; requirement partial"
         }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ]
     },
     {
@@ -5391,7 +6187,8 @@
         "crates/core/tests/migration_v5.rs",
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
       "data_workspace_contribution": {
         "status": "partial; local implementation and independent checks passed, exact CI/platform pending",
@@ -5449,22 +6246,71 @@
         "actual_browser_five": "passed: five true builtApp/UnixCore cases, sixPNG, four[2,1,2,1] ownbindingselection, noGrant/session; compiledFE/Coree313/harness6c0908; noNative/Mac",
         "post_parent_composed": "docs/execution/task-workspace-integration/POST_PARENT_COMPOSED_RESULTS.json",
         "latest_local": "Factory26 actual c1/default16compiledCore; fullinfra166 c961; TaskprivateCIpublication corrected/reviewed/realretainedinput projection passed. No exactCI16/native/Mac acceptance."
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
       "id": "AB-SEC-008",
       "work_package": "WP12",
-      "status": "not_started",
+      "status": "implementing",
       "implementation_refs": [],
       "verification": {
         "unit": "not_run",
-        "integration": "not_run",
+        "integration": "Previously implemented scope rechecked against fixed source; full requirement acceptance pending.",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/leader-control/IMPLEMENTATION_COVERAGE_RECONCILIATION.json",
+        "docs/execution/leader-control/PR31_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "The history export implementation and isolated native bundle evidence are scoped to draft PR 31. This feature is outside PR 33 and the accepted product branch. The outstanding macOS check, manual native acceptance, data deletion and full security acceptance remain pending."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "source": "0febc59cf919cb3fe2e2152d8092ccd8c21167a3",
+          "scope": "History export implemented and exercised in a draft PR and isolated native bundle. The required macOS CI failure remains, and data deletion and full security acceptance remain pending.",
+          "attribution": [
+            {
+              "path": "crates/core/src/history_export.rs",
+              "sha256": "aafdf4159adbde1a47b2dc02b37a9476ff643850db95976824c72a558e82d57d"
+            },
+            {
+              "path": "apps/desktop/src/ProjectHistoryExport.tsx",
+              "sha256": "bf4051220e211a16c8c694130e19000fe234d707fd58b1916248231d15ee2299"
+            },
+            {
+              "path": "crates/core/src/history_export_tests.rs",
+              "sha256": "b5db5c29936ac22e5578d73e703e076b57b2e4709cfa4a9b0c3a7f9fbaa700b4"
+            },
+            {
+              "path": "apps/desktop/src/ProjectHistoryExport.test.tsx",
+              "sha256": "293d322b37bcb7e959334248c3e6b93d60f66d7a274a53cd56fe6a08419df8ee"
+            }
+          ]
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-REL-001",
@@ -5482,7 +6328,7 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "Independent layers recorded for local Rust, infrastructure, hosted Linux browser/Unix IPC, and ARM64 development packaging."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -5490,14 +6336,16 @@
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
         "docs/execution/data-runtime-integration/EVIDENCE.json",
         "docs/execution/goal-runtime-integration/EVIDENCE.json",
-        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json"
+        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json",
+        "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+        "docs/execution/leader-control/PR33_MACOS_LIFECYCLE_RED.json"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
-        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
+        "PR 33 Environment and Product UI checks passed on the first fixed head; product Rust and native macOS checks failed in separate stages. Full required CI, real Providers, and native visual acceptance are pending."
       ],
       "verification_refs": [
-        "apps/desktop/src-tauri/tests/test_native_runner.py"
+        "apps/desktop/src-tauri/tests/test_native_runner.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "data_workspace_contribution": {
@@ -5559,8 +6407,27 @@
           "local": "554Rust+7compilefail docs;445UI;actual Unix/browser80checks56PNGs",
           "scope": "bounded existing-workspace independent Work/Summary only; candidates not TaskAccepted",
           "limits": "full130 notaccepted; dependent Graph/Owner/factory/NL pending; no liveProvider/OSOwner/manualinstall/minOS/production/signing claim"
+        },
+        {
+          "slice": "pr33_test_layer_separation",
+          "source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+          "evidence": "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+          "scope": "Local and hosted observations bound to a fixed tree, including failed and skipped platform stages."
+        },
+        {
+          "slice": "hosted_mac_webview_original_report_before_runner_rejection",
+          "feature": "ae844ca33406aabd62f44ea73818f9127f211748",
+          "evidence": "docs/execution/leader-control/PR33_MACOS_LIFECYCLE_RED.json"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-REL-002",
@@ -5578,21 +6445,38 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "Actual ARM64 default bundle built locally; the PR 33 hosted desktop lifecycle and native dialog stages were skipped after the Integration IPC failure."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
-        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
+        "Native desktop runtime, visual review, manual installation, and Finder acceptance for the current feature remain separate from build and browser observations."
       ],
       "verification_refs": [
-        "apps/desktop/src-tauri/tests/test_native_runner.py"
+        "apps/desktop/src-tauri/tests/test_native_runner.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verified_slices": [
+        {
+          "slice": "current_native_execution_dimension_tracking",
+          "source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+          "evidence": "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+          "scope": "ARM64 compile/package evidence and explicit hosted native runtime and visual state."
+        }
+      ]
     },
     {
       "id": "AB-REL-003",
@@ -5601,7 +6485,8 @@
       "implementation_refs": [
         ".github/workflows/product.yml",
         "scripts/native-macos-smoke.sh",
-        "scripts/native-audit-release.sh"
+        "scripts/native-audit-release.sh",
+        "scripts/native-audit-release-bundle.sh"
       ],
       "verification": {
         "unit": "not_run",
@@ -5609,18 +6494,46 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "The same existing packager now uses the three-role audit against a mounted development DMG. Independent Apple Silicon replay accepted the original package through the unchanged consumer, rejected mixed and missing roles without producing an upload candidate, and detached all three owned mounts."
       },
       "evidence": [
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+        "docs/execution/default-bundle-native-audit/EVIDENCE.json",
+        "docs/execution/leader-control/PR33_DEVELOPMENT_PACKAGE_ADMISSION_REVIEW.json"
       ],
       "limitations": [
-        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
+        "Real local assembly used pinned compiled development fixtures. Exact hosted packaging and broader native product acceptance are pending."
       ],
       "coverage": "partial",
       "verification_refs": [
-        "apps/desktop/src-tauri/tests/test_native_runner.py"
+        "apps/desktop/src-tauri/tests/test_native_runner.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verified_slices": [
+        {
+          "slice": "pinned_default_arm64_bundle_marker_scan",
+          "source": "576ce5fda4a0b1fb24026dbe40c439595606f43e",
+          "review_composition": "ae844ca33406aabd62f44ea73818f9127f211748",
+          "artifact_source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+          "evidence": "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+          "scope": "Known test markers and three verified file digests; no application execution inferred."
+        },
+        {
+          "slice": "independent_native_development_dmg_admission",
+          "source": "37adc84966e6748fdd942651f3971e9bc6d850fc",
+          "feature": "674f0a090e8bb4d415c5b44336c4ff53d6f50dd3",
+          "evidence": "docs/execution/leader-control/PR33_DEVELOPMENT_PACKAGE_ADMISSION_REVIEW.json"
+        }
       ]
     },
     {
@@ -5631,7 +6544,8 @@
         ".github/workflows/product.yml",
         "scripts/package-development-macos.sh",
         "scripts/native-macos-smoke.sh",
-        "scripts/native-audit-release.sh"
+        "scripts/native-audit-release.sh",
+        "scripts/record-development-bundle-provenance.py"
       ],
       "verification": {
         "unit": "not_run",
@@ -5639,156 +6553,474 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "Local ARM64 default development ZIP and DMG were created with a byte-exact Cargo lock and independently matched checksum, build SHA, architecture and signature observations."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+        "docs/execution/development-bundle-provenance/current-pr33/EVIDENCE.json"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
-        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
+        "Development artifacts are unsigned formally. Desktop strict signature verification failed; launch, Gatekeeper, notarization, final linked and Web attribution, and exact hosted delivery are pending."
       ],
       "verification_refs": [
-        "apps/desktop/src-tauri/tests/test_native_runner.py"
+        "apps/desktop/src-tauri/tests/test_native_runner.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verified_slices": [
+        {
+          "slice": "pr33_locked_local_development_package_provenance",
+          "source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+          "review_composition": "ae844ca33406aabd62f44ea73818f9127f211748",
+          "evidence": "docs/execution/development-bundle-provenance/current-pr33/EVIDENCE.json",
+          "scope": "Built locally with Tauri no-sign and locked Cargo, then read-only mounted and verified."
+        }
+      ]
     },
     {
       "id": "AB-REL-005",
       "work_package": "WP13",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "scripts/validate_infrastructure.py"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "The ordinary CI credential guard passed targeted and full local infrastructure checks on the exact feature candidate."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/release-secret-isolation/EVIDENCE.json",
+        "docs/execution/leader-control/RELEASE_SECRET_ISOLATION_COMPOSED_CHECKPOINT.json"
+      ],
+      "limitations": [
+        "The evidence covers static validation of ordinary CI workflows. Protected release environments, live credentials, signing, and hosted required checks are pending."
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "ordinary_ci_credential_static_guard",
+          "source": "794151d3afe217caff96a236c16861ccab026247",
+          "feature": "97803b16276903ffe4b6945966f21adeaad11eeb",
+          "evidence": "docs/execution/release-secret-isolation/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json",
+        "tests/infrastructure/test_pr_workflow_secret_isolation.py"
+      ]
     },
     {
       "id": "AB-REL-006",
       "work_package": "WP13",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/integration.rs",
+        "crates/core/src/integration/ci_repair.rs",
+        "crates/core/src/integration_runtime.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "Actual Store candidate replay exercised continuation, wrong commit and missing CAS refusal, preserving legacy reconciliation and no decision event mutation. Nine local focused tests passed independently on the accepted composition."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/ci-repair-decision/CAS_REUSE_EVIDENCE.json",
+        "docs/execution/leader-control/CI_REPAIR_DECISION_ADMISSION.json"
+      ],
+      "limitations": [
+        "Current slice makes a read-only decision from typed trusted inputs. Live CI observation, trusted rule and history enrollment, actual resource-bounded repair admission/dispatch, desktop presentation and hosted acceptance remain pending."
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json",
+        "crates/core/tests/ci_repair_decision.rs"
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "readonly_ci_repair_eligibility_and_manual_continuation",
+          "source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+          "feature": "bd894a012ddb504b0e576f20f1f8fabb3dc8e949",
+          "evidence": "docs/execution/leader-control/CI_REPAIR_DECISION_ADMISSION.json"
+        }
+      ]
     },
     {
       "id": "AB-REL-007",
       "work_package": "WP13",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/execution.rs",
+        "crates/core/src/execution/update_readiness.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "Nine targeted Apple Silicon Core readiness tests passed. An independent replay with the exact earlier ARM64 development package moved a generated Store 18 to 19 and restored the byte-identical Store 18, with source hashes stable and a wrong package rejected. All 15 targeted replay tests passed on the next local composition. The archived rollback copy was opened and read by the pinned historical Store 18 Core and CLI. Four real read-only IPC replies, matching logical rows and clean owned exit were verified."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/update-readiness/EVIDENCE.json",
+        "docs/execution/leader-control/UPDATE_READINESS_ADMISSION.json",
+        "docs/execution/leader-control/PR33_DEVELOPMENT_UPDATE_REHEARSAL_REVIEW.json"
+      ],
+      "limitations": [
+        "Local update readiness is read-only. An exact previous Core and CLI reopened the isolated restored Store 18. Exclusive live update admission, desktop entrypoints, old desktop app relaunch, package installation, and signing remain pending."
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json",
+        "crates/core/tests/update_readiness.rs"
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "read_only_update_readiness",
+          "source": "882a3dcc950a1ebd3436cc978fa8cbd57c36b091",
+          "feature": "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+          "evidence": "docs/execution/leader-control/UPDATE_READINESS_ADMISSION.json"
+        },
+        {
+          "slice": "independent_development_package_store_rehearsal",
+          "source": "d38934919cf8b44e7bab44f2123f68d4faf5af89",
+          "feature": "b349c7ce3a65483541de469de730b13f35d35221",
+          "evidence": "docs/execution/leader-control/PR33_DEVELOPMENT_UPDATE_REHEARSAL_REVIEW.json"
+        },
+        {
+          "slice": "historical_core_store18_reopen_after_recovery",
+          "source": "c42805dce612ee7bf62fb8c9a751e60535e7b684",
+          "feature": "f88e7d9358c23affd0ed30c340dfbd150c34ecd6",
+          "evidence": "docs/execution/pr33-store18-reopen/EVIDENCE.json"
+        }
+      ]
     },
     {
       "id": "AB-EXT-001",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/remote-host/src/transport.rs",
+        "crates/remote-host/src/protocol.rs"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed remote foundation slice18Rust, not whole requirement",
+        "integration": "passed16 actual local stdio/subprocess faults, not SSH/cross-machine/CoreUI",
         "provider": "not_run",
-        "native_arm64": "not_run",
+        "native_arm64": "Passed isolated Apple Silicon App local Host metadata registration and same-receipt reopen; actual remote identity, connection and routing remain unverified.",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/remote-host-foundation/EVIDENCE.json",
+        "docs/execution/leader-control/PR30_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Standalone nested crate; root Cargo/current CI does not automatically execute its verifier.",
+        "Actual local macOS ARM64 CLI only; real SSH/host-key failure, Linux/cross-machine and Provider unverified.",
+        "Core IPC/UI routing, shared project/root budgets and remote cache/retention not integrated; whole requirement not accepted."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/remote-host/tests/foundation.rs",
+        "tests/infrastructure/test_remote_host.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "remote_host_standalone_durable_stdio_authorization_foundation",
+          "source": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+          "main_merge": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "source_digest": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
+          "rust": 18,
+          "actual_subprocess": 16,
+          "actual_platform": "macOS26.6.1ARM64",
+          "scope": "typed local Host/grant protocol, record worker and bounded reconciliation only; not full remote product",
+          "evidence": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json"
+        },
+        {
+          "slice": "local_host_metadata_registration_app_settings_and_original_key_recovery",
+          "source": "cde501db847d1bbfc27a298e16cd772afc1a41e9",
+          "driver_source": "522db444e96ccd1b92b3ebf400bd86c133390ba9",
+          "feature": "ec2ca48b12241451905157240238987c821e2b2a",
+          "evidence": "docs/execution/host-registration-native-e2e/EVIDENCE.md",
+          "environment": "macOS 26.6.1 arm64 isolated development bundle and distinct production Core private Unix socket process",
+          "scope": "Local registration metadata, explicit ack and App reopen; Core postcommit unread reply and same-key replay/restart. No real Host contact or grant."
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-002",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/remote-host/src/transfer.rs"
+      ],
       "verification": {
-        "unit": "not_run",
+        "unit": "Passed 11 targeted and 47 whole-crate tests for typed planning and synthetic integrity, ARM64 macOS.",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/remote-transfer-plan/EVIDENCE.json",
+        "docs/execution/leader-control/REMOTE_TRANSFER_PLAN_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Pure planning and content checks over verified approval and synthetic in-memory bytes. Actual collection, transport, dispatch-time revalidation and remote runtime not implemented here."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/remote-host/tests/transfer.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "minimum_project_authorized_transfer_plan",
+          "source": "a15b4990a1e9837039990619a8affeed17bfa21f",
+          "feature": "4be7d4493a3e82624e2eb45329ec5c358503486a",
+          "scope": "Pure planning and content checks over verified approval and synthetic in-memory bytes. Actual collection, transport, dispatch-time revalidation and remote runtime not implemented here."
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-003",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/plugin_trust.rs"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed 9 targeted and 90 Config crate; independently replayed 9 plugin and 12 legacy capability tests",
+        "integration": "passed isolated private temporary files and static approval eligibility; no application activation or execution",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/plugin-trust-import/EVIDENCE.json",
+        "docs/execution/leader-control/PLUGIN_TRUST_IMPORT_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Product UI and persistent approver integration",
+        "Actual external plugins, enforced runtime isolation and compatibility tests",
+        "Protected main and hosted CI"
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/config/tests/plugin_trust.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "static_selected_local_plugin_import_and_enablement_eligibility",
+          "source": "6d08995b80375c2c3f1319b02ac32375171db4bf",
+          "feature_head": "3d19a89f10756966da9f494f928d6962ad63b20b",
+          "scope": "selected local static import and enablement decision in Config",
+          "evidence": "docs/execution/plugin-trust-import/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-004",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "scripts/report-compatibility-matrix.py"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed focused scoped checks; whole requirement not accepted",
+        "integration": "passed private fixtures for this slice; end-to-end product validation pending",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/compatibility-matrix/EVIDENCE.json",
+        "docs/execution/leader-control/THREE_WINDOW_20261119_ADMISSION.json"
+      ],
+      "limitations": [
+        "No real Provider account, live upgrade retest, Linux/macOS release validation or compatibility publication."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "tests/infrastructure/test_compatibility_matrix.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "pinned_compatibility_evidence_report",
+          "source": "3221f26f03f805b2200f4c832f1ce2b27bb34234",
+          "feature_head": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+          "scope": "Independently reran all 15 focused tests, reproduced JSON/Markdown byte for byte, checked 7 pinned primary records and schema19 snapshot corroboration, and confirmed 13 observations.",
+          "evidence": "docs/execution/compatibility-matrix/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-005",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/ipc.rs",
+        "crates/core/src/lib.rs"
+      ],
       "verification": {
         "unit": "not_run",
-        "integration": "not_run",
+        "integration": "passed actual private Unix IPC and SQLite on macOS ARM64: fresh import and local draft, retained after restart, no execution/connection rows",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/leader-control/AB_EXT_005_LOCAL_CORE_EVIDENCE.json"
+      ],
+      "limitations": [
+        "Fresh private local project/draft and durable Core restart validated. Full individual UI and task execution through team-service absence or outage still require independent acceptance."
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "personal_local_project_and_draft_without_configured_team_backend",
+          "source": "5f6718778d06e415098ca81ee29c89aa86965480",
+          "feature": "f4b1e5217085fe20c9122b3fae12bff535d24930",
+          "evidence": "docs/execution/leader-control/AB_EXT_005_LOCAL_CORE_EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ]
     },
     {
       "id": "AB-EXT-006",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "docs/execution/release-license-audit/AUDIT.md",
+        "docs/execution/release-license-audit/LOCK-INVENTORY.json",
+        "docs/execution/release-license-audit/OWNER-REVIEW.md"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "documentary": "not_run",
+        "current_local_partial": "Dependency inventory, original notices, prior development package inspection, and current and historical build graph evidence were independently verified. Owner adjudication and current final distribution evidence are pending."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/release-license-audit/EVIDENCE.json",
+        "docs/execution/leader-control/HISTORICAL_DEVELOPMENT_PACKAGE_REVIEW.json"
+      ],
+      "limitations": [
+        "The Owner retains final license, contribution and commercial boundaries, and Provider distribution decisions. Current package per-file provenance and final release are pending."
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "dependency_inventory_and_owner_license_review_materials",
+          "source": "01019c140cd04c88c9be9252edd9caf5b924063f",
+          "feature": "01019c140cd04c88c9be9252edd9caf5b924063f",
+          "evidence": "docs/execution/release-license-audit/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "not_applicable",
+        "integration": "not_applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "not_applicable",
+        "documentary": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json",
+        "docs/execution/leader-control/RELEASE_LICENSE_AUDIT_INPUTS.json",
+        "docs/execution/release-license-audit/REPRODUCE.md"
+      ]
     },
     {
       "id": "AB-DOM-001",
@@ -5815,9 +7047,18 @@
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-DOM-002",
@@ -5844,9 +7085,18 @@
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-DOM-003",
@@ -5882,9 +7132,18 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-DOM-004",
@@ -5923,7 +7182,8 @@
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -5947,7 +7207,15 @@
           "native_owner_dialog_newMacFIRST_and_packages": "not_run",
           "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-DOM-005",
@@ -5983,7 +7251,8 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -5994,22 +7263,73 @@
           "review": "docs/execution/approval-outcome-guard/REVIEW.md",
           "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-DOM-006",
       "work_package": "WP01",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "scripts/report-requirements-coverage.py"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "ci": "not_run",
+        "current_local_partial": "Both formats produce 130 stable IDs. All 11 report tests passed on exact PR 33 in Linux and macOS CI. Its default ledger still omits applicability on all 130 rows. A separate private preview of the synchronized ledger and cited receipts produces all 130 explicit levels and resolves all 2,368 recorded references."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/requirements-coverage/EVIDENCE.json",
+        "docs/execution/leader-control/RETENTION_AND_COVERAGE_ACCEPTANCE.json",
+        "docs/execution/leader-control/FACTORY_GOAL_CONFIG_ADMISSION.json",
+        "docs/execution/leader-control/PR33_REQUIREMENTS_LEDGER_READINESS.json"
+      ],
+      "limitations": [
+        "Reference checks inspect path metadata. The follow-up ledger and evidence synchronization has only run in a local preview. Required product CI and formal integration remain open for the current PR."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "tests/infrastructure/test_requirements_coverage_report.py",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "coverage",
+          "source": "79c2a892d94189f09a3f46c04e4c3d0a6d43c3d5",
+          "feature": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+          "scope": "Passed 11 tests and real two-ledger CLI. Requirement-level applicability is reported from explicit records and many fields still need coverage."
+        },
+        {
+          "slice": "current_report_all_requirements_verification_levels",
+          "source": "417bda8593edc168724daec6855193d524961a7b",
+          "feature": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+          "evidence": "docs/execution/leader-control/FACTORY_GOAL_CONFIG_ADMISSION.json"
+        },
+        {
+          "slice": "pr33_exact_environment_report_tests_and_default_ledger_gap",
+          "feature": "ae844ca33406aabd62f44ea73818f9127f211748",
+          "evidence": "docs/execution/leader-control/PR33_REQUIREMENTS_LEDGER_READINESS.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-COR-001",
@@ -6025,7 +7345,8 @@
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "Five exact local Core IPC tests passed; single binder, authenticated restart, denial without mutation and bounded frame behavior. Native App and CLI multi-client proof remains separate."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json"
@@ -6036,9 +7357,26 @@
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verified_slices": [
+        {
+          "slice": "unix_socket_single_writer_and_restart",
+          "source": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
+          "feature": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
+          "evidence": "docs/execution/leader-control/GRAPH_AND_SESSION_RECOVERY_ADMISSION.json"
+        }
+      ]
     },
     {
       "id": "AB-COR-002",
@@ -6074,7 +7412,8 @@
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -6138,6 +7477,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -6174,9 +7521,18 @@
         "crates/core/tests/execution.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
+        "apps/daemon/tests/signals.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-COR-004",
@@ -6211,9 +7567,18 @@
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs",
         "apps/desktop/src/event-window.test.ts",
-        "apps/desktop/src/App.test.tsx"
+        "apps/desktop/src/App.test.tsx",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-COR-005",
@@ -6252,8 +7617,17 @@
         "apps/daemon/tests/signals.rs",
         "crates/core/tests/storage.rs",
         "apps/desktop/src/event-window.test.ts",
-        "apps/desktop/src/App.test.tsx"
-      ]
+        "apps/desktop/src/App.test.tsx",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-COR-006",
@@ -6282,8 +7656,17 @@
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
-        "apps/daemon/tests/signals.rs"
-      ]
+        "apps/daemon/tests/signals.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-COR-007",
@@ -6323,7 +7706,8 @@
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
-        "crates/core/tests/execution.rs"
+        "crates/core/tests/execution.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -6378,6 +7762,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -6416,9 +7808,18 @@
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/providers/tests/native_codex.rs"
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-ACP-002",
@@ -6454,8 +7855,17 @@
       "verification_refs": [
         "crates/providers/tests/stdio.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/providers/tests/native_codex.rs"
-      ]
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-ACP-003",
@@ -6486,9 +7896,18 @@
       "verification_refs": [
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
-        "crates/core/tests/sessions_ipc.rs"
+        "crates/core/tests/sessions_ipc.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-ACP-004",
@@ -6526,9 +7945,18 @@
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/providers/tests/native_codex.rs"
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-ACP-005",
@@ -6568,9 +7996,18 @@
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/providers/tests/native_codex.rs"
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-ACP-006",
@@ -6608,9 +8045,18 @@
         "crates/providers/tests/contracts.rs",
         "crates/providers/tests/stdio.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/providers/tests/native_codex.rs"
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-PRO-009",
@@ -6651,8 +8097,17 @@
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
         "apps/desktop/src/SessionWorkbench.test.tsx",
-        "crates/providers/tests/native_codex.rs"
-      ]
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-PRO-010",
@@ -6693,23 +8148,62 @@
       "verification_refs": [
         "crates/core/tests/sessions_ipc.rs",
         "apps/desktop/src/SessionWorkbench.test.tsx",
-        "crates/providers/tests/native_codex.rs"
-      ]
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-PRO-011",
       "work_package": "WP04",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/providers/src/managed_update.rs",
+        "crates/providers/src/lib.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "12 independent Apple Silicon focused tests passed; worker full serialized package suite 96 passed. Real Provider and Native UI acceptance were not run."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/managed-provider-update/EVIDENCE.json",
+        "docs/execution/leader-control/MANAGED_UPDATE_ADMISSION.json"
+      ],
+      "limitations": [
+        "Scoped preflight with local synthetic executables and trusted compatibility records. Registration, dispatch, real Provider compatibility, and Linux remain pending."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/providers/tests/managed_update.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "approved_managed_update_preflight_for_new_tasks",
+          "source": "f2585a98c75ab8ab59c2b300b0a91d7be96b9bc2",
+          "feature": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
+          "evidence": "docs/execution/managed-provider-update/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-PRO-012",
@@ -6743,23 +8237,73 @@
       "coverage": "partial",
       "verification_refs": [
         "crates/providers/tests/native_codex.rs",
-        "crates/core/tests/sessions_ipc.rs"
-      ]
+        "crates/core/tests/sessions_ipc.rs",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-009",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src-tauri/src/workspace_open.rs",
+        "apps/desktop/src/ExternalWorkspaceOpen.tsx"
+      ],
       "verification": {
         "unit": "not_run",
-        "integration": "not_run",
+        "integration": "Previously implemented scope rechecked against fixed source; full requirement acceptance pending.",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/leader-control/IMPLEMENTATION_COVERAGE_RECONCILIATION.json",
+        "docs/execution/workspace-open-directory/COMPOSED_ROOT8B_RESULTS.json"
+      ],
+      "limitations": [
+        "Owner-only directory read, narrow Native Terminal handoff and normal task UI. Current real macOS Terminal opening evidence remains a separate acceptance gate."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "scope": "Owner-only directory read, narrow Native Terminal handoff and normal task UI. Current real macOS Terminal opening evidence remains a separate acceptance gate.",
+          "attribution": [
+            {
+              "path": "apps/desktop/src-tauri/src/workspace_open.rs",
+              "sha256": "e317fe58db8332185a100b1ec0c8ea2b415e89ee2c209d67dc14b70c9e41056b"
+            },
+            {
+              "path": "apps/desktop/src/ExternalWorkspaceOpen.tsx",
+              "sha256": "91398f5d97a396e61c47f1655d2e84508038a7e92b1f25cc4c7a680442e01b5d"
+            },
+            {
+              "path": "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx",
+              "sha256": "efa6291788b01f83a16d95a8eac97197c7136bd5a937c4f990d84bbd4e5be8d5"
+            }
+          ]
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-010",
@@ -6792,45 +8336,129 @@
         "apps/desktop/src-tauri/src/background_service.rs::engine::tests",
         "apps/desktop/src/BackgroundServiceSettings.test.tsx",
         "apps/desktop/src/background-service-api.test.ts",
-        "apps/desktop/src/QuietCanvas.test.tsx"
+        "apps/desktop/src/QuietCanvas.test.tsx",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-SES-011",
       "work_package": "WP10",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/StandaloneConversations.tsx"
+      ],
       "verification": {
         "unit": "not_run",
-        "integration": "not_run",
+        "integration": "Previously implemented scope rechecked against fixed source; full requirement acceptance pending.",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/leader-control/IMPLEMENTATION_COVERAGE_RECONCILIATION.json"
+      ],
+      "limitations": [
+        "Normal app flow selects conversation excerpts, reviews an editable summary in the original project and explicitly creates a draft. Complete contract derivation and durable provenance of all selected excerpts remain unproven."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "apps/desktop/src/StandaloneConversations.test.tsx",
+        "docs/execution/leader-control/PROVIDER_SESSION_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "source": "9e897d6f6bf0b823e187930fbb84f897be51b89e",
+          "scope": "Normal app flow selects conversation excerpts, reviews an editable summary in the original project and explicitly creates a draft. Complete contract derivation and durable provenance of all selected excerpts remain unproven.",
+          "attribution": [
+            {
+              "path": "apps/desktop/src/App.tsx",
+              "sha256": "89f5ba3561139a1882e7d8c836c7adb56d65009e0fb24007265e665fcdff69fc"
+            },
+            {
+              "path": "apps/desktop/src/StandaloneConversations.tsx",
+              "sha256": "48c65fa969d2f6d5edfc3a0813c9570046e85fe909d2a8877f81bf4ed91732f2"
+            },
+            {
+              "path": "apps/desktop/src/StandaloneConversations.test.tsx",
+              "sha256": "6e863201246d25dfde665d21364c45b8c36a6ef56f539ac9fd0890ef646fb18d"
+            }
+          ]
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
     },
     {
       "id": "AB-CFG-009",
       "work_package": "WP07",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/project_import.rs",
+        "crates/config/src/capabilities/native.rs",
+        "crates/config/src/capabilities/instruction_only.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "current_local_partial": "Nine independent Apple Silicon Config tests passed, including actual source-root exchange and post-publication recovery. Worker whole Config suite passed 99. Native App and real Provider remain unverified."
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-config-import/EVIDENCE.json",
+        "docs/execution/leader-control/FACTORY_GOAL_CONFIG_ADMISSION.json"
+      ],
+      "limitations": [
+        "Scope covers read-only inspection and trusted confirmation publishing a private managed snapshot. Core registration and App confirmation still need wiring. Hook event discovery is static, and Hook activation is unsupported by the current RuntimePlan."
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json",
+        "crates/config/tests/project_import.rs"
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "first_project_config_inspection_confirmation_snapshot",
+          "source": "d601689a0dc85c47ef3b483bccef867de2d5d747",
+          "feature": "ae236688c1727e1a4610c424dd42bdd832f76dab",
+          "evidence": "docs/execution/project-config-import/EVIDENCE.json"
+        }
+      ]
     },
     {
       "id": "AB-CFG-010",
       "work_package": "WP07",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/config/src/project_import.rs",
+        "crates/core/src/project_config.rs",
+        "crates/core/src/runtime_config.rs"
+      ],
       "verification": {
         "unit": "not_run",
         "integration": "not_run",
@@ -6838,8 +8466,43 @@
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/leader-control/PROJECT_CONFIG_DRIFT_START_PLAN.md",
+        "docs/execution/project-config-drift-policy/EVIDENCE.json",
+        "docs/execution/leader-control/PROJECT_CONFIG_DRIFT_ADMISSION.json"
+      ],
+      "limitations": [
+        "Config and durable Core IPC verify approved instruction-only updates, Owner approval, recovery, and immutable physical attempt and Factory lineage binding. Normal App/Tauri workflows, genuine Provider loading and whole-requirement acceptance remain pending."
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json",
+        "crates/config/tests/project_import.rs",
+        "crates/core/tests/project_config_ipc.rs",
+        "docs/execution/project-config-core-ipc/FINAL_6126.json"
+      ],
+      "coverage": "partial",
+      "verified_slices": [
+        {
+          "slice": "project_configuration_approved_instruction_updates",
+          "source": "97f3e9e4c0d577aea1adaaf56953ab25495a90d5",
+          "feature": "7b04514caaf7807b46018547a8b10f2a5e7fc3d6",
+          "evidence": "docs/execution/project-config-drift-policy/EVIDENCE.json"
+        },
+        {
+          "slice": "trusted_core_approval_and_immutable_tasks",
+          "source": "c079dbe2360e9bd5efd3268a7ee77115c7303b73",
+          "feature": "d55b426a6dab4f4010b67d6d05af342d12a4111d",
+          "evidence": "docs/execution/project-config-core-ipc/FINAL_6126.json"
+        }
+      ]
     },
     {
       "id": "AB-CFG-011",
@@ -6869,8 +8532,17 @@
       "verification_refs": [
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-012",
@@ -6903,8 +8575,17 @@
       "verification_refs": [
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-CFG-013",
@@ -6937,8 +8618,17 @@
       "verification_refs": [
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
-        "crates/core/tests/migration_v5.rs"
-      ]
+        "crates/core/tests/migration_v5.rs",
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-TSK-011",
@@ -7000,7 +8690,8 @@
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
         "apps/desktop/tests/goal-planning-real-ipc.py",
-        "apps/desktop/src/GoalPlanEditor.test.tsx"
+        "apps/desktop/src/GoalPlanEditor.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -7239,6 +8930,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -7314,7 +9013,8 @@
         "crates/core/tests/goal_plan.rs",
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
-        "apps/desktop/tests/goal-planning-real-ipc.py"
+        "apps/desktop/tests/goal-planning-real-ipc.py",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "coverage": "partial",
       "verified_slices": [
@@ -7552,6 +9252,14 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
       }
     },
     {
@@ -7638,7 +9346,8 @@
         "crates/workspaces/tests/command_validation.rs",
         "crates/core/tests/command_validation.rs",
         "crates/core/tests/command_validation_migration.rs",
-        "apps/desktop/src/CommandValidation.test.tsx"
+        "apps/desktop/src/CommandValidation.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -7815,7 +9524,15 @@
           },
           "coverage": "partial; Linux only, Native/dualMac/remoteCI/installers/full requirement not accepted"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-VAL-010",
@@ -7856,7 +9573,8 @@
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -7880,7 +9598,15 @@
           "native_owner_dialog_newMacFIRST_and_packages": "not_run",
           "whole_requirement": "incomplete; noalgorithm/TaskAccepted/adoption"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-VAL-011",
@@ -7941,7 +9667,8 @@
         "crates/workspaces/tests/command_validation.rs",
         "crates/core/tests/command_validation.rs",
         "crates/core/tests/command_validation_migration.rs",
-        "apps/desktop/src/CommandValidation.test.tsx"
+        "apps/desktop/src/CommandValidation.test.tsx",
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -8006,7 +9733,15 @@
           "exact_new_mac_ci": "not_run_yet",
           "scope": "command-only; no TaskAccepted/adoption or sharedbudget/fullstreamhistory/OScontainment completion"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-UX-009",
@@ -8039,9 +9774,18 @@
       "verification_refs": [
         "apps/desktop/src/App.test.tsx",
         "crates/core/tests/storage.rs",
-        "apps/desktop/src/event-window.test.ts"
+        "apps/desktop/src/event-window.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-UX-010",
@@ -8074,24 +9818,61 @@
       "verification_refs": [
         "apps/desktop/src/App.test.tsx",
         "crates/core/tests/storage.rs",
-        "apps/desktop/src/event-window.test.ts"
+        "apps/desktop/src/event-window.test.ts",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-SEC-009",
       "work_package": "WP12",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/core/src/conversations_history/retention.rs"
+      ],
       "verification": {
-        "unit": "not_run",
+        "unit": "Passed seven Core plan tests including source-bound derived invalidations. Atomic cleanup, durable gap marking and actual search/cache mutation are pending.",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/project-history-retention-plan/EVIDENCE.md",
+        "docs/execution/leader-control/RETENTION_AND_COVERAGE_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Read-only plan over typed metadata, not persistence, real cleanup or GUI."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/core/tests/history_retention.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "retention",
+          "source": "c7e672cd2d92edfa232656c0cab1328aff86565f",
+          "feature": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+          "scope": "Passed seven Core plan tests including source-bound derived invalidations. Atomic cleanup, durable gap marking and actual search/cache mutation are pending."
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-SEC-010",
@@ -8271,7 +10052,18 @@
         "collector": "51723 source-ready/22pure/actualretainedinput validpostjoinprojection only",
         "platform": "latestremote727 dualMac55sfailed; nextcandidateCI/native/packages not_run",
         "coverage": "partial, requirementnotfullyaccepted"
-      }
+      },
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verification_refs": [
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ]
     },
     {
       "id": "AB-REL-008",
@@ -8289,111 +10081,330 @@
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "Apple Silicon ARM64 development build and three ARM64 executables verified on the fixed PR 33 source."
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
-        "docs/execution/provider-adapters/FINAL_REVIEW.md"
+        "docs/execution/provider-adapters/FINAL_REVIEW.md",
+        "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+        "docs/execution/development-bundle-provenance/current-pr33/EVIDENCE.json"
       ],
       "limitations": [
-        "Additive CI defined; macOS builds/artifacts not yet executed. No signing/notarization/production release.",
-        "Foundation dualarchitecture DMGs verified at PR3 only; new integrated macOS GUI/default-release lane pending, manual/native full acceptance not established."
+        "Owner-approved current macOS scope is ARM64. Historical Intel artifacts remain evidence for their source versions; current hosted ARM64 and native runtime acceptance are pending."
       ],
       "verification_refs": [
-        "apps/desktop/src-tauri/tests/test_native_runner.py"
+        "apps/desktop/src-tauri/tests/test_native_runner.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "not_applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      },
+      "verified_slices": [
+        {
+          "slice": "apple_silicon_package_architecture",
+          "source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+          "evidence": "docs/execution/development-bundle-provenance/current-pr33/EVIDENCE.json",
+          "scope": "Actual ARM64 package and thin executable inspection on Apple Silicon; native runtime separate."
+        }
+      ]
     },
     {
       "id": "AB-REL-009",
       "work_package": "WP13",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "scripts/report-compatibility-matrix.py"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed focused scoped checks; whole requirement not accepted",
+        "integration": "passed private fixtures for this slice; end-to-end product validation pending",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/compatibility-matrix/EVIDENCE.json",
+        "docs/execution/leader-control/THREE_WINDOW_20261119_ADMISSION.json"
+      ],
+      "limitations": [
+        "No minimum system is approved, and no candidate or matching cold installation and real Provider evidence are available."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "tests/infrastructure/test_compatibility_matrix.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "minimum_system_evidence_gap_report",
+          "source": "3221f26f03f805b2200f4c832f1ce2b27bb34234",
+          "feature_head": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+          "scope": "Independently reran all 15 focused tests, reproduced JSON/Markdown byte for byte, checked 7 pinned primary records and schema19 snapshot corroboration, and confirmed 13 observations.",
+          "evidence": "docs/execution/compatibility-matrix/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "not_applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-007",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/remote-host/src/transport.rs",
+        "crates/remote-host/src/main.rs"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed remote foundation slice18Rust, not whole requirement",
+        "integration": "passed16 actual local stdio/subprocess faults, not SSH/cross-machine/CoreUI",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/remote-host-foundation/EVIDENCE.json",
+        "docs/execution/leader-control/PR30_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Standalone nested crate; root Cargo/current CI does not automatically execute its verifier.",
+        "Actual local macOS ARM64 CLI only; real SSH/host-key failure, Linux/cross-machine and Provider unverified.",
+        "Core IPC/UI routing, shared project/root budgets and remote cache/retention not integrated; whole requirement not accepted."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/remote-host/tests/foundation.rs",
+        "tests/infrastructure/test_remote_host.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "remote_host_standalone_durable_stdio_authorization_foundation",
+          "source": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+          "main_merge": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "source_digest": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
+          "rust": 18,
+          "actual_subprocess": 16,
+          "actual_platform": "macOS26.6.1ARM64",
+          "scope": "typed local Host/grant protocol, record worker and bounded reconciliation only; not full remote product",
+          "evidence": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-008",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/remote-host/src/routing.rs"
+      ],
       "verification": {
-        "unit": "not_run",
+        "unit": "Passed exact verified route selection: 10 targeted / 36 whole crate on ARM64; no real Host selection in a running scheduler.",
         "integration": "not_run",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/remote-host-routing-policy/EVIDENCE.json",
+        "docs/execution/leader-control/REMOTE_HOST_ROUTING_POLICY_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Pure selection for a new attempt over caller-verified inputs. Controller/scheduler connection, recording, real capability observations, revalidation before dispatch and remote tests remain pending."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/remote-host/tests/routing.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "approved_new_attempt_remote_host_router",
+          "source": "7e504de5e080db98cfa091760cb0576e01566a4e",
+          "feature": "46e38016256dfe3ff2646eb546cad5b8179e27ef",
+          "scope": "pure Host selection over caller-verified binding and observations; no dispatch or new authority",
+          "rust_targeted": 10,
+          "rust_whole_crate": 36
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-009",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/remote-host/src/controller.rs",
+        "crates/remote-host/src/store.rs",
+        "crates/remote-host/src/protocol.rs"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed remote foundation slice18Rust, not whole requirement",
+        "integration": "passed16 actual local stdio/subprocess faults, not SSH/cross-machine/CoreUI",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/remote-host-foundation/EVIDENCE.json",
+        "docs/execution/leader-control/PR30_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Standalone nested crate; root Cargo/current CI does not automatically execute its verifier.",
+        "Actual local macOS ARM64 CLI only; real SSH/host-key failure, Linux/cross-machine and Provider unverified.",
+        "Core IPC/UI routing, shared project/root budgets and remote cache/retention not integrated; whole requirement not accepted."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/remote-host/tests/foundation.rs",
+        "tests/infrastructure/test_remote_host.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "remote_host_standalone_durable_stdio_authorization_foundation",
+          "source": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+          "main_merge": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "source_digest": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
+          "rust": 18,
+          "actual_subprocess": 16,
+          "actual_platform": "macOS26.6.1ARM64",
+          "scope": "typed local Host/grant protocol, record worker and bounded reconciliation only; not full remote product",
+          "evidence": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-010",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/remote-host/src/cache_retention.rs"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed focused scoped checks; whole requirement not accepted",
+        "integration": "passed private fixtures for this slice; end-to-end product validation pending",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/remote-cache-retention/EVIDENCE.json",
+        "docs/execution/leader-control/THREE_WINDOW_20261119_ADMISSION.json"
+      ],
+      "limitations": [
+        "Actual remote host inventory, durable primary-history adapter, app presentation and remote cleanup execution remain unverified."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/remote-host/tests/cache_retention.rs",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "read_only_remote_cache_retention_preview",
+          "source": "b84c56765883a9c1f3fdf119562793a97a56cb43",
+          "feature_head": "cbac72707f7c075b202a63a658b46f4f0a2df9c8",
+          "scope": "Reviewed policy and durable-history boundary; 9 targeted and 56 crate tests, fmt/check/strict Clippy; independently matched 12 logs, the final remote-host subtree, 3 source digests and both locks.",
+          "evidence": "docs/execution/remote-cache-retention/EVIDENCE.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-EXT-011",
       "work_package": "WP14",
-      "status": "not_started",
-      "implementation_refs": [],
+      "status": "implementing",
+      "implementation_refs": [
+        "crates/remote-host/src/store.rs",
+        "crates/remote-host/src/worker.rs",
+        "crates/remote-host/src/protocol.rs"
+      ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed remote foundation slice18Rust, not whole requirement",
+        "integration": "passed16 actual local stdio/subprocess faults, not SSH/cross-machine/CoreUI",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run"
       },
-      "evidence": [],
-      "limitations": []
+      "evidence": [
+        "docs/execution/remote-host-foundation/EVIDENCE.json",
+        "docs/execution/leader-control/PR30_ACCEPTANCE.json"
+      ],
+      "limitations": [
+        "Standalone nested crate; root Cargo/current CI does not automatically execute its verifier.",
+        "Actual local macOS ARM64 CLI only; real SSH/host-key failure, Linux/cross-machine and Provider unverified.",
+        "Core IPC/UI routing, shared project/root budgets and remote cache/retention not integrated; whole requirement not accepted."
+      ],
+      "coverage": "partial",
+      "verification_refs": [
+        "crates/remote-host/tests/foundation.rs",
+        "tests/infrastructure/test_remote_host.py",
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+      ],
+      "verified_slices": [
+        {
+          "slice": "remote_host_standalone_durable_stdio_authorization_foundation",
+          "source": "9457b43b42858168b7a91e4c7c97c7c3a04ae111",
+          "main_merge": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "source_digest": "dad334672594171b9054f0509ba4b6a6828b716935bdeb5056d718fd042ff7f7",
+          "rust": 18,
+          "actual_subprocess": 16,
+          "actual_platform": "macOS26.6.1ARM64",
+          "scope": "typed local Host/grant protocol, record worker and bounded reconciliation only; not full remote product",
+          "evidence": "docs/execution/remote-host-foundation/runs/20261117T153134Z-819857000/evidence.json"
+        }
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-DOM-007",
@@ -8441,9 +10452,18 @@
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/policy.rs",
         "apps/daemon/tests/signals.rs",
-        "crates/providers/tests/native_codex.rs"
+        "crates/providers/tests/native_codex.rs",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
       ],
-      "coverage": "partial"
+      "coverage": "partial",
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     },
     {
       "id": "AB-DOM-008",
@@ -8485,7 +10505,8 @@
       "verification_refs": [
         "crates/core/tests/migration_v6.rs",
         "apps/desktop/src/ArtifactValidation.test.tsx",
-        "apps/desktop/src/validation-api.test.ts"
+        "apps/desktop/src/validation-api.test.ts",
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
       ],
       "verified_slices": [
         {
@@ -8524,7 +10545,15 @@
           },
           "coverage": "partial; Linux only, Native/dualMac/remoteCI/installers/full requirement not accepted"
         }
-      ]
+      ],
+      "verification_applicability": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
     }
   ]
 }

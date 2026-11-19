@@ -1,0 +1,395 @@
+{
+  "spec": "specs/requirements.json",
+  "sources": [
+    "docs/04-providers-sessions.md",
+    "docs/02-experience.md",
+    "docs/09-testing-release.md",
+    "docs/11-engineering-program.md",
+    "docs/15-validation-gates.md",
+    "AGENTS.md",
+    "docs/execution/launch/APPROVAL.md"
+  ],
+  "scope": "WP04 actual compatibility and WP10 sessions. CI marks applicable contract automation and evidence alignment, not permission for live account deployment. Real Provider, host and user-level service operations remain separately gated.",
+  "requirements": {
+    "AB-PRO-001": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "CLI可能不在GUI PATH",
+        "when": "执行发现",
+        "then": "允许明确路径并记录版本/架构/来源"
+      },
+      "required_unit": "明确路径、错误元数据与版本格式。",
+      "required_integration": "在非 GUI PATH 下按已批准绝对路径验证实际程序、版本、架构及来源。",
+      "required_provider": null,
+      "required_native_arm64": "用实际原生 App 验证 Finder 启动环境与显式路径。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-002": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "Agent提供部分ACP能力",
+        "when": "建立连接",
+        "then": "按声明与实测展示支持矩阵，不假定所有方法"
+      },
+      "required_unit": "区分声明、已验证、未知和不支持。",
+      "required_integration": "受控实际连接读回部分能力及证据矩阵。",
+      "required_provider": "正式支持的每个 Provider/adapter 组合需要实际能力协商。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-003": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "CLI已经登录或已过期",
+        "when": "探测认证",
+        "then": "保留原生凭据，不输出或复制token"
+      },
+      "required_unit": "过期/未登录/不支持的最小状态和隔离日志。",
+      "required_integration": "用临时合成认证状态和失败输入证明确实不读取、复制或输出秘密。",
+      "required_provider": "在获准已登录与过期的真实测试身份上用已知厂商机制取状态。",
+      "required_native_arm64": "在支持的 Apple Silicon 环境核对获准测试身份的已登录和过期状态及系统凭据最小读取。可与 AB-PRO-012 的同一实机验证复用证据。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-004": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "锁定Codex与adapter版本",
+        "when": "运行真实用例",
+        "then": "保存环境和真实产物证据，不以mock代替"
+      },
+      "required_unit": "固定 Codex 版本、参数、事件、负控和证据格式。",
+      "required_integration": "实际 Core 及 adapter 管道处理批准、拒绝、取消和源记录。",
+      "required_provider": "用获准 Codex 版本与测试身份产生真实结果、原始记录和产物。",
+      "required_native_arm64": "正式 macOS 支持组合在 ARM64 App 中实际复核。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-005": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "锁定Qoder版本",
+        "when": "运行真实用例",
+        "then": "校验事件/审批/取消/产物并报告差异"
+      },
+      "required_unit": "固定 Qoder 版本、协议差异和降级契约。",
+      "required_integration": "真实 Core/adapter 管道验证事件、审批、取消、产物，保留未知结果。",
+      "required_provider": "用获准 Qoder 版本与测试身份验证完整支持矩阵，产物可核。",
+      "required_native_arm64": "正式 macOS 支持组合在 ARM64 App 中实际复核。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-006": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "批准的驱动版本",
+        "when": "进行接入",
+        "then": "能力分项认证，不把adapter存在当已兼容"
+      },
+      "required_unit": "显式按每项能力判定兼容。",
+      "required_integration": "私有 adapter 实际协商受支持和未知能力，区分有效事件。",
+      "required_provider": "只有在实际批准的 Claude 或自定义 driver 上验证的能力可宣称支持。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-007": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "Provider升级至未测版本",
+        "when": "再次启动",
+        "then": "标记未测，运行兼容检查或提示限制"
+      },
+      "required_unit": "未知版本隔离及不冒用历史能力。",
+      "required_integration": "改变已登记私有工具的版本，启动路径显示未测/限制，或按授权建议验证。",
+      "required_provider": "已批准真实 Provider 上用未认证版本确认降级结论。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-002": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "ACP或原生接口可用",
+        "when": "启动会话",
+        "then": "App内完整发送、查看过程、审批、取消和验收；不新增外部TUI主入口"
+      },
+      "required_unit": "发送、事件、权限、取消与验收状态映射。",
+      "required_integration": "从真实 App 入口接入 Core 与私有 ACP，完成受管交互链。",
+      "required_provider": null,
+      "required_native_arm64": "在实际 ARM64 App 验证批准、取消与受管交互的完整入口。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-003": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "只有进程存活证据",
+        "when": "刷新会话",
+        "then": "不推断为正在推理或等待审批"
+      },
+      "required_unit": "进程、观察到的活动与人工注意分开。",
+      "required_integration": "真实 UI 从对应来源读到进程、流更新和审批事件，缺事件时不推断。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-006": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "原生恢复未声明或工作区变化",
+        "when": "恢复会话",
+        "then": "拒绝或创建新attempt并解释，不能伪装续接"
+      },
+      "required_unit": "恢复资格、版本/工作区变更和未知结果不可反复派发。",
+      "required_integration": "实际 session 恢复或拒绝路径及新尝试的所选交接链，保留原历史。",
+      "required_provider": "实际原生恢复只有获准并声明支持的 Provider/adapter 安装组合可通过。",
+      "required_native_arm64": "在实际桌面 App 验证操作和不能恢复时的说明。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-007": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "同任务大量重复事件",
+        "when": "通知展示",
+        "then": "以需要处理事项聚合并保留来源"
+      },
+      "required_unit": "重复事件聚合、源引用、状态优先级、免打扰。",
+      "required_integration": "向实际 Core 写入多次同任务事件，回放 App 展示其单条聚合和来源。",
+      "required_provider": null,
+      "required_native_arm64": "Apple Silicon 实机检查原生交付和免打扰，不从浏览器推断。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-008": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "有活动受管任务",
+        "when": "关闭/退出应用",
+        "then": "关闭窗口/退出UI后授权任务仍由daemon管理；停止全部为独立可解释操作"
+      },
+      "required_unit": "关闭 UI 和完全停止的权限、流程与未知状态。",
+      "required_integration": "用私有实际进程观察 UI 客户端关闭、任务继续、完整退出停止新派发。",
+      "required_provider": null,
+      "required_native_arm64": "在 ARM64 App 分别关闭窗口、退出 UI、停止全部，核对独立后台状态。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-009": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "同Provider有个人与工作连接",
+        "when": "创建/恢复任务",
+        "then": "固定identity/environment引用，不静默换账号或计费"
+      },
+      "required_unit": "具名连接的 identity、environment、host 和计费模式绑定。",
+      "required_integration": "两个隔离连接运行/恢复分开保存绑定和实际源引用。",
+      "required_provider": "用获准隔离身份检查厂商认证和计费边界。",
+      "required_native_arm64": "在支持的 Apple Silicon 环境使用隔离测试身份验证创建与恢复，不静默换账号、环境或计费方式。可与 AB-PRO-012 的同一实机验证复用证据。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-010": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "复用本机程序或独立安装",
+        "when": "创建托管环境",
+        "then": "程序来源不决定配置来源，无隐式共享"
+      },
+      "required_unit": "安装与配置来源独立的组合及阻止隐式继承。",
+      "required_integration": "用真实文件与两个具有同一程序的受管环境验证差异。",
+      "required_provider": "对宣称兼容的真实引擎复核其配置来源和隐式继承行为。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-011": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "更新策略批准且版本验证通过",
+        "when": "准备新任务",
+        "then": "新版本仅用于新任务，活跃进程不替换，不修改原生安装"
+      },
+      "required_unit": "已批准兼容更新仅允许新任务，固定新旧安装与能力。",
+      "required_integration": "实际登记并派发新任务，观察原活跃进程及原安装/配置保持固定。",
+      "required_provider": "用获准实际 Provider 验证指定版本升级前后兼容。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-PRO-012": {
+      "work_package": "WP04",
+      "source_criterion": {
+        "given": "连接引用原生认证",
+        "when": "登录/断开/远程执行",
+        "then": "仅使用厂商支持机制，不拷贝认证目录、不全局退出其他连接"
+      },
+      "required_unit": "禁止复制凭据、身份意外覆盖、远程无授权认证。",
+      "required_integration": "两套隔离私有连接测试原生支持路径、一处撤销及另一处继续。",
+      "required_provider": "在厂商支持机制和获准账号上核对复用、隔离和远程限制。",
+      "required_native_arm64": "实际 ARM64 安装核对本地系统凭据互操作与隔离。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-009": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "用户选择外部终端",
+        "when": "打开工作区",
+        "then": "只定位目录，不启动另一Agent、不转移会话、不同步审批"
+      },
+      "required_unit": "目录参数与固定打开工具边界，不能执行会话动作。",
+      "required_integration": "打开批准的实际工作区，并验证只收到目录参数，原会话与审批不迁移。",
+      "required_provider": null,
+      "required_native_arm64": "在 ARM64 上通过正常外部工具入口核对真实打开动作。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-010": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "登录Mac且后台注册已开启",
+        "when": "服务启动",
+        "then": "单实例，不强开UI，恢复前对账；可显式禁用后台注册"
+      },
+      "required_unit": "后台登记、固定程序、单实例和撤销状态。",
+      "required_integration": "模拟重启后实际 Core 能恢复可核结果，不自动重放未知副作用。",
+      "required_provider": null,
+      "required_native_arm64": "在受控 ARM64 系统实际验证登记、登录启动、不强开 UI、显式禁用及权限。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable"
+      }
+    },
+    "AB-SES-011": {
+      "work_package": "WP10",
+      "source_criterion": {
+        "given": "用户有讨论上下文",
+        "when": "转换正式任务",
+        "then": "显示/记录采用上下文，生成合同，不无声扩大原权限"
+      },
+      "required_unit": "所选交谈片段构造合同，授权不得继承或扩大。",
+      "required_integration": "App 正常入口将既有对话部分转换，Core 实际读回记录的上下文和未批准状态。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "ci": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable"
+      }
+    }
+  }
+}

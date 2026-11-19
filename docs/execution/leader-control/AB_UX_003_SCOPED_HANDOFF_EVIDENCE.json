@@ -1,0 +1,36 @@
+{
+  "requirement": "AB-UX-003",
+  "feature": "b8573a221e152c6f47d8590739f031a7bbbd9058",
+  "runtime_source": "29f6a14147880a2a1744e1044278165d8c11f4db",
+  "runtime_report_sha256": "b599b4a209ed414dc64f5452bdc6dfc72eaf8ec32b099fb98003b43826c3cb7f",
+  "runtime_report": "/private/tmp/ab-collab-c554w3u5/linux-replay.J8dxjT/normal/report.json",
+  "evidence_scope": "Same-scope generated ACP’s parent/child/resumed-parent automatic handoff through a single granted Factory flow. Current UI can display stopped parent and handoff digest. Live formal Provider, cross-recipient confirmation UI and full disclosed content remain pending.",
+  "source_sha256": {
+    "crates/core/src/factory_runtime.rs": "dd9e83a1c49766adda2cf5b72746c3d8d0461ab39fc2b1dce9be2881306b3a50",
+    "apps/desktop/src/FactoryRuntime.tsx": "87455db8e315837852cd87e83117dc945c342716afd7f0e822c7a176fde4df10"
+  },
+  "task_request_chain": [
+    "parent-initial",
+    "child",
+    "parent-resumed"
+  ],
+  "same_fixed_scope": true,
+  "grant_events": 1,
+  "durable_handoff_event": true,
+  "actual_handoff_artifact": {
+    "id": "report-child",
+    "actual_bytes": 26,
+    "sha256": "160d04420381093081e92c71db1eb53dcc9dde35c59511c4567f45922b70d1a6"
+  },
+  "handoff_digest": "49a485ddaf942d339de873b8dbf5f1abf332be5460019173237a850766d64c7c",
+  "matching_persisted_waiting_relation": true,
+  "independent_runtime_receipt": "/tmp/ab-scoped-handoff-acceptance.oh__a_wf/receipt.json",
+  "independent_runtime_receipt_sha256": "b5beb6bb85931a1fcefb03d6a4fb88db22915143c5716f5cd8bdb675f08e20f1",
+  "ui_variant_verification": {
+    "files": 3,
+    "passed": 59,
+    "raw": "/tmp/ab-scope-handoff-ui.bJbAFbJA",
+    "sha256": "4f8127ee77893c6ddfba2fd48486ae789d5706fd70c2ef36503ddd49347dff09",
+    "scope": "Existing FactoryRuntime tests exercised the current UI validation and history components with local mocked transport; this is separate from the raw actual browser/IPC receipt."
+  }
+}

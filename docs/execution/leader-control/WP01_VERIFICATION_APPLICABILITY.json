@@ -1,0 +1,153 @@
+{
+  "specification": "specs/requirements.json",
+  "applicability_source": [
+    "docs/11-engineering-program.md#2-工作包",
+    "AGENTS.md",
+    "docs/15-validation-gates.md"
+  ],
+  "scope": "WP01 contract criteria and their actual Core, ledger or integration boundaries. Applicable dimensions are not a record of test results.",
+  "common_rationale": {
+    "provider": "The WP01 criterion can be verified with controlled protocol/worker input independent of a real Provider account. Live behavior remains covered by the corresponding Provider requirements.",
+    "native_arm64": "No criterion in WP01 requires an OS UI or installer action. Independent native application gates still apply to macOS product acceptance.",
+    "native_x86_64": "Excluded from current macOS product scope by AGENTS.md. Historical Intel evidence remains evidence for the versions tested.",
+    "ci": "Re-run the appropriate contract and integration checks on the exact PR target under the repository’s required CI. This is an applicability assignment and does not assert hook placement or a passed job."
+  },
+  "requirements": {
+    "AB-DOM-001": {
+      "source_criterion": {
+        "given": "任务可有多个尝试和会话",
+        "when": "定义契约",
+        "then": "Task/Attempt/Session/Handoff/Artifact身份和关系独立"
+      },
+      "required_unit": "领域身份、外键类型与序列化不混用。",
+      "required_integration": "真实 Core 持久化并读回同一 Task 的两个 Attempt、多 Session、Handoff 与 Artifact。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-DOM-002": {
+      "source_criterion": {
+        "given": "无效/未知字段请求",
+        "when": "校验",
+        "then": "返回明确错误，不静默吞掉误拼字段"
+      },
+      "required_unit": "请求模式严格拒绝未知、拼错或版本不受支持的字段。",
+      "required_integration": "公共 Core IPC 返回明确、可定位的错误，非法请求不得新增记录。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-DOM-003": {
+      "source_criterion": {
+        "given": "所有正常与异常终态",
+        "when": "运行穷举测试",
+        "then": "禁止无证据accepted/cancelled等非法转移"
+      },
+      "required_unit": "枚举正常、异常和禁止的状态转换及证据门。",
+      "required_integration": "实际 Core 在重启、取消和未知结果条件下重读状态与事件，不出现无证据终态。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-DOM-004": {
+      "source_criterion": {
+        "given": "代码/数据存在多个版本",
+        "when": "写Validation",
+        "then": "精确绑定attempt、输入、产物和validator版本"
+      },
+      "required_unit": "尝试、输入修订、产物与 Validator 版本的精确比较和错误路径。",
+      "required_integration": "记录其一后替换尝试、输入、产物或 Validator，当前真实验证记录不能被错误复用。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-DOM-005": {
+      "source_criterion": {
+        "given": "请求超时",
+        "when": "序列化错误",
+        "then": "包含retryable和side_effect_state，超时不等于未执行"
+      },
+      "required_unit": "错误结构包含可重试性及副作用状态，序列化类型一致。",
+      "required_integration": "在真实公共请求边界触发超时，核对明确的结果未知和禁止盲目重复副作用。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-DOM-006": {
+      "source_criterion": {
+        "given": "所有批准功能",
+        "when": "生成覆盖报告",
+        "then": "每项有稳定ID与适用验证层级，不用页面数替代"
+      },
+      "required_unit": "报告解析、稳定 ID、明确适用性、引用与结果分离。",
+      "required_integration": "组合需求台账和真实功能树，通过正式 CLI 验证 130 项每项有明确适用层级。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-DOM-007": {
+      "source_criterion": {
+        "given": "安装、配置、身份、Host可独立选择",
+        "when": "建模",
+        "then": "Connection和RuntimeEnvironment单独建模，Attempt绑定解析后的快照"
+      },
+      "required_unit": "Connection、RuntimeEnvironment、Identity、Host 及精确快照的类型分离。",
+      "required_integration": "在实际 Core 登记和派发时固定 Attempt 运行绑定，更改连接或配置后旧尝试绑定仍可追溯。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-DOM-008": {
+      "source_criterion": {
+        "given": "任务已accepted",
+        "when": "推送或发布",
+        "then": "Integration/Release单独状态与证据，不能从accepted推导deployed"
+      },
+      "required_unit": "任务、集成和发布的记录及状态转换分离。",
+      "required_integration": "在实际 Core 集成记录与受保护开发交付阶段验证 accepted 不能派生 deployed。实际生产发布继续受独立授权约束。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    }
+  }
+}
