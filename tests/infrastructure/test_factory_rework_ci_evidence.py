@@ -42,7 +42,7 @@ def observation():
 def database(path):
     # Exact relevant real column names; generated minimal rows, not a product DB.
     conn = sqlite3.connect(path)
-    conn.executescript('''PRAGMA user_version=18;
+    conn.executescript('''PRAGMA user_version=19;
 CREATE TABLE factory_child_goal_runs(goal_run_id TEXT PRIMARY KEY,document TEXT);
 CREATE TABLE goal_runs(id TEXT PRIMARY KEY,state TEXT,document TEXT);
 CREATE TABLE goal_run_nodes(run_id TEXT,plan_revision INTEGER,state TEXT,document TEXT);
@@ -233,7 +233,8 @@ class Projection(unittest.TestCase):
             ('PRAGMA user_version=15', ()),
             ('PRAGMA user_version=16', ()),
             ('PRAGMA user_version=17', ()),
-            ('PRAGMA user_version=19', ()),
+            ('PRAGMA user_version=18', ()),
+            ('PRAGMA user_version=20', ()),
             ('UPDATE goal_runs SET state=?', (SECRET,)),
             ('UPDATE goal_runs SET state=?', ('running',)),
             ("UPDATE goal_run_nodes SET document=json_set(document,'$.plan_revision',1.5)", ()),
@@ -359,7 +360,7 @@ class Projection(unittest.TestCase):
 
     def test_all_four_integration_tables_are_explicit_zero_metadata(self):
         result = self.collect()['cases'][0]['post_shutdown']
-        self.assertEqual(result['schema'], 18)
+        self.assertEqual(result['schema'], 19)
         self.assertEqual(result['integration_counts'], {name: 0 for name in P.INTEGRATION_TABLES})
         self.assertEqual(len(result['integration_counts']), 4)
 
@@ -654,7 +655,7 @@ class EventProjection(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertLessEqual(len(stdout.getvalue().encode()), P.MAX_PUBLIC)
         self.assertNotIn(SECRET, stdout.getvalue())
-        self.assertEqual(P.SCHEMA, 18)
+        self.assertEqual(P.SCHEMA, 19)
 
 
 class ValidationObservations(unittest.TestCase):
