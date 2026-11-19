@@ -394,6 +394,126 @@ fn backup_proof_requires_same_store_private_copy_and_standalone_sqlite() {
 
 #[test]
 #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+fn store_issued_backup_binds_wal_rows_and_is_consumed_by_preflight() {
+    let mut f = Fixture::new();
+    let task = f
+        .store
+        .create("fixture", "Latest WAL draft", "wal")
+        .unwrap();
+    let boundary = f.store.update_database_boundary().unwrap();
+    let original = fs::read(&f.database).unwrap();
+    let wal = f.database.with_file_name("core.sqlite3-wal");
+    let original_wal = fs::read(&wal).unwrap();
+    assert!(!original_wal.is_empty());
+    let path = f.root.join("issued backup ? %.sqlite3");
+    let issued = f.store.issue_update_backup(&path).unwrap();
+    let proof = issued.proof();
+    assert_eq!(proof.database, &boundary);
+    assert!(proof.receipt_ref.starts_with("update-backup:"));
+    assert_eq!(proof.backup.path, path);
+    assert_eq!(proof.backup.sha256, &executable_digest(&path).unwrap());
+    let source = fs::metadata(&f.database).unwrap();
+    let snapshot = fs::metadata(&path).unwrap();
+    assert_ne!(
+        (source.dev(), source.ino()),
+        (snapshot.dev(), snapshot.ino())
+    );
+    assert_eq!(snapshot.nlink(), 1);
+    assert_eq!(snapshot.permissions().mode() & 0o7777, 0o600);
+    for suffix in ["-wal", "-shm", "-journal"] {
+        assert!(!f
+            .root
+            .join(format!("issued backup ? %.sqlite3{suffix}"))
+            .exists());
+    }
+
+    let migrated = f.root.join("issued-migrated.sqlite3");
+    let restored = f.root.join("issued-restored.sqlite3");
+    fs::copy(&path, &migrated).unwrap();
+    fs::copy(&path, &restored).unwrap();
+    let migrated_store = Store::open(&migrated).unwrap();
+    assert_eq!(migrated_store.sequence().unwrap(), boundary.sequence);
+    assert_eq!(migrated_store.get(&task.id).unwrap().goal, task.goal);
+    drop(migrated_store);
+
+    let migrated_digest = executable_digest(&migrated).unwrap();
+    let mut evidence = f.proof();
+    evidence.backup = proof;
+    evidence.migration.input_backup_sha256 = evidence.backup.backup.sha256;
+    evidence.migration.source_schema = boundary.schema;
+    evidence.migration.result = UpdateEvidenceFile {
+        path: &migrated,
+        sha256: &migrated_digest,
+    };
+    evidence.recovery.restored = UpdateEvidenceFile {
+        path: &restored,
+        sha256: evidence.backup.backup.sha256,
+    };
+    let status = f.background(&boundary, false);
+    let result = f
+        .store
+        .assess_update_readiness(&f.request(&evidence, Some(&available(&boundary, &status))));
+    assert!(result.ready.is_some(), "{:?}", result.blockers);
+    assert_eq!(f.store.update_database_boundary().unwrap(), boundary);
+    assert_eq!(fs::read(&f.database).unwrap(), original);
+    assert_eq!(fs::read(&wal).unwrap(), original_wal);
+}
+
+#[test]
+fn backup_issuer_refuses_collisions_and_unsafe_destinations_without_touching_entries() {
+    use std::os::unix::fs::symlink;
+
+    let mut f = Fixture::new();
+    let original = fs::read(&f.database).unwrap();
+    let boundary = f.store.update_database_boundary().unwrap();
+    let target = f.root.join("collision.sqlite3");
+    fs::write(&target, b"prior file").unwrap();
+    assert_eq!(
+        f.store.issue_update_backup(&target).unwrap_err().code,
+        "UPDATE_BACKUP_DESTINATION_OCCUPIED"
+    );
+    assert_eq!(fs::read(&target).unwrap(), b"prior file");
+    fs::remove_file(&target).unwrap();
+
+    let sidecar = f.root.join("collision.sqlite3-wal");
+    symlink(&target, &sidecar).unwrap();
+    assert_eq!(
+        f.store.issue_update_backup(&target).unwrap_err().code,
+        "UPDATE_BACKUP_DESTINATION_OCCUPIED"
+    );
+    assert_eq!(fs::read_link(&sidecar).unwrap(), target);
+    assert!(!target.exists());
+
+    let exposed = f.root.join("exposed");
+    fs::create_dir(&exposed).unwrap();
+    fs::set_permissions(&exposed, fs::Permissions::from_mode(0o755)).unwrap();
+    let alias = f.root.join("alias");
+    symlink(&f.root, &alias).unwrap();
+    for path in [
+        exposed.join("back.sqlite3"),
+        alias.join("back.sqlite3"),
+        PathBuf::from("relative.sqlite3"),
+    ] {
+        assert_eq!(
+            f.store.issue_update_backup(&path).unwrap_err().code,
+            "UPDATE_BACKUP_PATH_INVALID"
+        );
+    }
+    assert!(fs::read_dir(&exposed).unwrap().next().is_none());
+    assert!(!f.root.join("back.sqlite3").exists());
+    assert!(!fs::read_dir(&f.root).unwrap().any(|entry| {
+        entry
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".update-backup-")
+    }));
+    assert_eq!(fs::read(&f.database).unwrap(), original);
+    assert_eq!(f.store.update_database_boundary().unwrap(), boundary);
+}
+
+#[test]
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
 fn update_recheck_rejects_new_actor_and_durable_drift_without_a_new_event() {
     let f = Fixture::new();
     let proof = f.proof();
@@ -637,10 +757,33 @@ fn real_managed_work_blocks_until_the_completed_turn_and_stop_are_settled() {
     {
         let database = f.store.update_database_boundary().unwrap();
         let background = f.background(&database, supervisor.has_workers());
-        let proof = f.proof();
+        let original = fs::read(&f.database).unwrap();
+        let wal = f.database.with_file_name("core.sqlite3-wal");
+        let original_wal = fs::read(&wal).unwrap();
+        let destination = f.root.join("active-issued.sqlite3");
+        let issued = f.store.issue_update_backup(&destination).unwrap();
+        let backup = issued.proof();
+        assert_eq!(backup.database, &database);
+        let migrated = f.root.join("active-migrated.sqlite3");
+        let restored = f.root.join("active-restored.sqlite3");
+        fs::copy(&destination, &migrated).unwrap();
+        fs::copy(&destination, &restored).unwrap();
+        let mut proof = f.proof();
+        proof.backup = backup;
+        proof.migration.input_backup_sha256 = proof.backup.backup.sha256;
+        proof.migration.result = UpdateEvidenceFile {
+            path: &migrated,
+            sha256: proof.backup.backup.sha256,
+        };
+        proof.recovery.restored = UpdateEvidenceFile {
+            path: &restored,
+            sha256: proof.backup.backup.sha256,
+        };
         let result = f
             .store
             .assess_update_readiness(&f.request(&proof, Some(&available(&database, &background))));
+        assert_eq!(fs::read(&f.database).unwrap(), original);
+        assert_eq!(fs::read(&wal).unwrap(), original_wal);
         assert!(result
             .blockers
             .contains(&Blocker::Work(Source::Session, Work::Active)));
