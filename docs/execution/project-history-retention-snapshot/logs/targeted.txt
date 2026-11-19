@@ -1,0 +1,13 @@
+     Running tests/history_retention.rs (target/debug/deps/history_retention-8f36bcb4aa151d9a)
+
+running 8 tests
+test invalid_scope_and_unrepresentable_time_refuse_without_clamping ... ok
+test keeps_pins_active_references_and_non_detail_categories ... ok
+test rejects_unknown_ownership_conflicting_records_and_ambiguous_derived_sources ... ok
+test task_conversation_and_session_activity_come_from_core_owners ... ok
+test override_permanence_and_capture_have_independent_meanings ... ok
+test default_90_day_boundary_is_inclusive_and_future_or_unknown_dates_remain ... ok
+test scoped_invalidation_links_and_gap_markers_are_deterministic ... ok
+test store_snapshot_keeps_active_unknown_and_stopped_turns_in_their_own_project ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.77s

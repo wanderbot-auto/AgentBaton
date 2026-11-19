@@ -19,6 +19,10 @@ use std::{
     num::NonZeroU64,
 };
 
+#[path = "retention_snapshot.rs"]
+mod retention_snapshot;
+pub use retention_snapshot::{HistorySnapshotGap, ProjectHistoryRetentionPreview};
+
 pub const DEFAULT_DETAIL_RETENTION_DAYS: u64 = 90;
 const MILLIS_PER_DAY: i64 = 86_400_000;
 
@@ -121,10 +125,38 @@ pub enum HistoryKeepReason {
     Pinned,
     ActiveUse,
     ActivityUnknown,
+    RetentionMetadataUnknown,
     PermanentRetention,
     MissingTimestamp,
     FutureTimestamp,
     WithinRetention,
+}
+
+struct InventoryRecord<'a> {
+    id: &'a str,
+    kind: HistoryRecordKind,
+    source: HistorySource<'a>,
+    captured_at_ms: Option<i64>,
+    pinned: Option<bool>,
+    active_use: InventoryUse,
+}
+
+enum InventoryUse {
+    Additional(HistoryUse),
+    Observed(HistoryUse),
+}
+
+impl<'a> From<HistoryRecord<'a>> for InventoryRecord<'a> {
+    fn from(record: HistoryRecord<'a>) -> Self {
+        Self {
+            id: record.id,
+            kind: record.kind,
+            source: record.source,
+            captured_at_ms: record.captured_at_ms,
+            pinned: Some(record.pinned),
+            active_use: InventoryUse::Additional(record.active_use),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -292,8 +324,9 @@ impl<'a> HistorySource<'a> {
 }
 
 fn keep_reason(
-    record: &HistoryRecord<'_>,
+    record: &InventoryRecord<'_>,
     owner_active: bool,
+    derived_inventory_known: bool,
     evaluated_at_ms: i64,
     expiry_cutoff_ms: Option<i64>,
 ) -> Option<HistoryKeepReason> {
@@ -304,18 +337,24 @@ fn keep_reason(
     ) {
         return Some(ProtectedKind);
     }
-    if record.pinned {
+    if record.pinned == Some(true) {
         return Some(Pinned);
     }
-    if owner_active || record.active_use == HistoryUse::Active {
-        return Some(ActiveUse);
-    }
-    if record.active_use == HistoryUse::Unknown {
-        return Some(ActivityUnknown);
+    match record.active_use {
+        InventoryUse::Additional(_) if owner_active => return Some(ActiveUse),
+        InventoryUse::Additional(HistoryUse::Active)
+        | InventoryUse::Observed(HistoryUse::Active) => return Some(ActiveUse),
+        InventoryUse::Additional(HistoryUse::Unknown)
+        | InventoryUse::Observed(HistoryUse::Unknown) => return Some(ActivityUnknown),
+        InventoryUse::Additional(HistoryUse::Inactive)
+        | InventoryUse::Observed(HistoryUse::Inactive) => (),
     }
     let Some(expiry_cutoff_ms) = expiry_cutoff_ms else {
         return Some(PermanentRetention);
     };
+    if record.pinned.is_none() || !derived_inventory_known {
+        return Some(RetentionMetadataUnknown);
+    }
     match record.captured_at_ms {
         None => Some(MissingTimestamp),
         Some(time) if time > evaluated_at_ms => Some(FutureTimestamp),
@@ -334,6 +373,22 @@ pub fn plan_project_history_cleanup(
     evaluated_at_ms: i64,
     records: &[HistoryRecord<'_>],
     derived: &[DerivedHistoryRecord<'_>],
+) -> Result<HistoryCleanupPlan> {
+    plan_inventory_cleanup(
+        project_id,
+        policy,
+        evaluated_at_ms,
+        records.iter().copied().map(InventoryRecord::from),
+        Some(derived),
+    )
+}
+
+fn plan_inventory_cleanup<'a>(
+    project_id: &str,
+    policy: HistoryRetentionPolicy,
+    evaluated_at_ms: i64,
+    records: impl IntoIterator<Item = InventoryRecord<'a>>,
+    derived: Option<&[DerivedHistoryRecord<'a>]>,
 ) -> Result<HistoryCleanupPlan> {
     if !bounded_id(project_id) {
         return Err(CoreError::new(
@@ -359,7 +414,7 @@ pub fn plan_project_history_cleanup(
 
     let mut seen = BTreeSet::new();
     let mut by_source: BTreeMap<&str, Vec<&DerivedHistoryRecord<'_>>> = BTreeMap::new();
-    for item in derived {
+    for item in derived.unwrap_or_default() {
         if !bounded_id(item.id)
             || !bounded_id(item.project_id)
             || !bounded_id(item.source_record_id)
@@ -390,23 +445,28 @@ pub fn plan_project_history_cleanup(
         if owner_project != project_id {
             continue;
         }
-        let decision =
-            if let Some(reason) = keep_reason(record, active, evaluated_at_ms, expiry_cutoff_ms) {
-                HistoryCleanupDecision::Keep { reason }
-            } else {
-                let mut linked = by_source.remove(id).unwrap_or_default();
-                linked.sort_unstable_by_key(|item| (item.kind, item.id));
-                HistoryCleanupDecision::ExpireDetail {
-                    gap: HistoryGapReason::DetailExpired,
-                    invalidations: linked
-                        .into_iter()
-                        .map(|item| HistoryInvalidation {
-                            id: item.id.to_owned(),
-                            kind: item.kind,
-                        })
-                        .collect(),
-                }
-            };
+        let decision = if let Some(reason) = keep_reason(
+            &record,
+            active,
+            derived.is_some(),
+            evaluated_at_ms,
+            expiry_cutoff_ms,
+        ) {
+            HistoryCleanupDecision::Keep { reason }
+        } else {
+            let mut linked = by_source.remove(id).unwrap_or_default();
+            linked.sort_unstable_by_key(|item| (item.kind, item.id));
+            HistoryCleanupDecision::ExpireDetail {
+                gap: HistoryGapReason::DetailExpired,
+                invalidations: linked
+                    .into_iter()
+                    .map(|item| HistoryInvalidation {
+                        id: item.id.to_owned(),
+                        kind: item.kind,
+                    })
+                    .collect(),
+            }
+        };
         entries.push(HistoryCleanupEntry {
             id: id.to_owned(),
             kind: record.kind,
