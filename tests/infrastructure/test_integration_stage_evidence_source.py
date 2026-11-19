@@ -145,6 +145,8 @@ def settlement_before_phase(text):
 
 
 def rust_controls_before_phase(text):
+    if hashlib.sha256(text.encode()).hexdigest() == SCHEMA19_RUST_TEST_SHA256:
+        text = rust_controls_before_schema19(text)
     if hashlib.sha256(text.encode()).hexdigest() == SCHEMA18_RUST_TEST_SHA256:
         text = rust_controls_before_schema18(text)
     exact_source_pin(text, PHASE_RUST_TEST_SHA256)
@@ -176,7 +178,7 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
                 evidence_before_schema19(changed)
         current_controls = RUST_TEST.read_text()
         original_controls = rust_controls_before_schema19(current_controls)
-        exact_source_pin(rust_controls_before_phase(original_controls), BEFORE_PHASE_RUST_TEST_SHA256)
+        exact_source_pin(rust_controls_before_phase(current_controls), BEFORE_PHASE_RUST_TEST_SHA256)
         for changed in (current_controls + '\n', original_controls):
             with self.assertRaises(AssertionError):
                 rust_controls_before_schema19(changed)
@@ -326,7 +328,7 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
         self.assertRegex(source, r'shape\(\s*&value')
 
     def test_rust_controls_cover_required_negative_dimensions(self):
-        source = rust_controls_before_phase(rust_controls_before_schema19(RUST_TEST.read_text()))
+        source = rust_controls_before_phase(RUST_TEST.read_text())
         for required in ['must not read', 'PRIVATE_CANARY_DO_NOT_PUBLISH', 'other-attempt', 'foreign', '33', '65', 'worker_thread_joined', 'git_stdout_observed_bytes', 'source_commit', 'unrecognized', 'server.finish()', 'result.is_ok()']:
             self.assertIn(required, source)
         self.assertEqual(source.count('#[test]'), 10)
