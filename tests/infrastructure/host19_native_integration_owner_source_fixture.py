@@ -265,11 +265,82 @@ SOURCE_LAYERS = {
 }
 
 
-def restore_integration_owner_before_schema19(path, raw):
-    """Recover exactly the prior file for a pinned raw input and path."""
-    if type(path) is not str or path not in SOURCE_LAYERS or type(raw) is not bytes:
-        raise ValueError("Unknown path or invalid raw Integration Owner source type")
-    current_sha, parent_sha, edits = SOURCE_LAYERS[path]
+# Undo the current Grant/Factory Store19 change before the pinned Integration layer.
+OWNER_RUNNER = 'scripts/native-owner-dialog-smoke.py'
+GRANT_FACTORY_STORE19_LAYER = (
+    '65a0398c8b97dc55967624a417d74c50b0994c33b41708a4b68f3456206b8dc1',
+    SOURCE_LAYERS[OWNER_RUNNER][0],
+    (
+        (
+            b'\n'
+            b'\n',
+            b'# Grant and Factory evidence must come from the current Store schema.\n'
+            b'GRANT_FACTORY_SCHEMA_VERSION = 19\n',
+            b'# Exact schema18 tables: never substitute old test DDL or silently skip absent\n'
+            b'# tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.\n',
+            b"GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',\n"
+            b"               'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',\n",
+        ),
+        (
+            b"INTEGRATION_TABLES = ('integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences')\n"
+            b"CONVERSATION_TABLES = ('conversations', 'conversation_dispatches', 'conversation_turns', 'conversation_budgets')\n",
+            b"HOST_TABLES = ('host_registrations',)\n"
+            b"ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES, *INTEGRATION_TABLES, *CONVERSATION_TABLES, *HOST_TABLES)\n",
+            b"ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES, *INTEGRATION_TABLES, *CONVERSATION_TABLES)\n",
+            b'\n'
+            b'\n',
+        ),
+        (
+            b"        conn.execute('BEGIN')\n"
+            b"        schema = conn.execute('PRAGMA user_version').fetchone()[0]\n",
+            b'        if type(schema) is not int or schema != GRANT_FACTORY_SCHEMA_VERSION:\n'
+            b"            raise ValueError('Actual Store19 Grant/Factory SQLite required')\n"
+            b'        tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type=\'table\'")}\n'
+            b'        missing = set(ZERO_TABLES) - tables\n'
+            b'        if missing:\n'
+            b"            raise sqlite3.OperationalError('Missing Grant/Factory evidence tables: ' + ', '.join(sorted(missing)))\n",
+            b'',
+            b"        sequence = conn.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]\n"
+            b"        rows = conn.execute('SELECT document,result FROM approval_proposals WHERE id=?', (proposal_id,)).fetchall()\n",
+        ),
+        (
+            b"    if (type(sequence) is not int or type(proposal.get('revision')) is not int\n"
+            b"            or proposal['revision'] <= 0\n",
+            b"            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)\n",
+            b"            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)\n",
+            b"            or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)\n"
+            b"            or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'\n",
+        ),
+        (
+            b"    if (type(baseline) is not int or type(proposal.get('revision')) is not int\n"
+            b"            or proposal['revision'] <= 0\n",
+            b"            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)\n",
+            b"            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)\n",
+            b'            or not isinstance(grants, list) or len(grants) != 1\n'
+            b"            or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])\n",
+        ),
+        (
+            b"    proposal = fixture['proposal']\n"
+            b"    if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int\n",
+            b"            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)\n",
+            b"            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)\n",
+            b"            or not json_exact(value.get('sequence'), before['sequence'])\n"
+            b"            or proposal.get('kind') != 'factory' or proposal.get('consumed') is not False\n",
+        ),
+        (
+            b"    if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int\n"
+            b"            or proposal['revision'] <= 0 or not isinstance(scope, dict) or response.get('error') is not None\n",
+            b"            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)\n",
+            b"            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)\n",
+            b"            or not json_exact(value.get('sequence'), before['sequence'] + 1)\n"
+            b"            or not json_exact(value.get('proposal'), current)\n",
+        ),
+    ),
+)
+
+
+def _restore_pinned_source(raw, layer):
+    current_sha, parent_sha, edits = layer
     if hashlib.sha256(raw).hexdigest() != current_sha:
         raise ValueError("Current Integration Owner source has changed")
     for leading, current, parent, trailing in edits:
@@ -280,3 +351,19 @@ def restore_integration_owner_before_schema19(path, raw):
     if hashlib.sha256(raw).hexdigest() != parent_sha:
         raise ValueError("Integration Owner inverse did not restore the pinned predecessor")
     return raw
+
+
+def restore_grant_factory_owner_before_store19(raw):
+    """Recover the pinned Integration Owner input from the current runner."""
+    if type(raw) is not bytes:
+        raise ValueError("Invalid raw Grant and Factory Owner source type")
+    return _restore_pinned_source(raw, GRANT_FACTORY_STORE19_LAYER)
+
+
+def restore_integration_owner_before_schema19(path, raw):
+    """Recover exactly the prior file for a pinned raw input and path."""
+    if type(path) is not str or path not in SOURCE_LAYERS or type(raw) is not bytes:
+        raise ValueError("Unknown path or invalid raw Integration Owner source type")
+    if path == OWNER_RUNNER:
+        raw = restore_grant_factory_owner_before_store19(raw)
+    return _restore_pinned_source(raw, SOURCE_LAYERS[path])
