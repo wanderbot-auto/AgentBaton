@@ -1,0 +1,116 @@
+collab: task runtime /private/tmp/ab-collab-zmqtq1or
+package_source=37adc84966e6748fdd942651f3971e9bc6d850fc
+package_tree=561ac8ee3fd5f1290a2de2bd07f97dd3b6741099
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+v26.7.0
+Xcode 27.2
+Build version 27B52
+replay_dir=/private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV
+预计CRC32 $C76B0B4C
+/dev/disk4          	GUID_partition_scheme
+/dev/disk4s1        	Apple_APFS
+/dev/disk5          	EF57347C-0000-11AA-AA11-0030654
+/dev/disk5s1        	41504653-0000-11AA-AA11-0030654	/private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV/reference-volume
+"disk4" ejected.
+apps/desktop/src-tauri/target/release/agentbaton-desktop: OK
+target/release/baton: OK
+target/release/batond: OK
+case=positive
+PASS no native harness identifiers in default application executable
+created: /private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV/source/artifacts/.development.oaF3S3/output/AgentBaton-arm64-37adc84966e6748fdd942651f3971e9bc6d850fc-development.dmg
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $1E1D13B8
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $A140BABF
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $6DC35B12
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $01E82E26
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $6DC35B12
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $078FEC42
+已验证CRC32 $830024AE
+/dev/disk4          	GUID_partition_scheme
+/dev/disk4s1        	Apple_APFS
+/dev/disk5          	EF57347C-0000-11AA-AA11-0030654
+/dev/disk5s1        	41504653-0000-11AA-AA11-0030654	/private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV/source/artifacts/.development.oaF3S3/volume
+PASS no inspected native harness identifiers in pinned ARM64 bundle executables
+"disk4" ejected.
+PASS no owned candidate attachment or private packaging directory remains
+./AgentBaton-arm64-37adc84966e6748fdd942651f3971e9bc6d850fc-development.dmg: OK
+consumer=macos_arm64_read_only_dmg_detached
+archive_sha256=80d931cf0a6bee665d08e170c064f008b159d2e18df9dbd31270a471a9e6a8b7
+candidate_sha256=209c1c8846cbdf8bc2581427113ab28eafd84d4becaafa2e2fdabd7db9b66188
+case=mixed
+created: /private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV/source/artifacts/.development.IZcoTz/output/AgentBaton-arm64-37adc84966e6748fdd942651f3971e9bc6d850fc-development.dmg
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $C87A564B
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $3FB30589
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $5CC03CF6
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $19D30A76
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $5CC03CF6
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $42BE4205
+已验证CRC32 $A7685DD5
+/dev/disk4          	GUID_partition_scheme
+/dev/disk4s1        	Apple_APFS
+/dev/disk5          	EF57347C-0000-11AA-AA11-0030654
+/dev/disk5s1        	41504653-0000-11AA-AA11-0030654	/private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV/source/artifacts/.development.IZcoTz/volume
+Native bundle inspection failed. SHA-256 mismatch for batond.
+"disk4" ejected.
+package_exit=1
+Native bundle inspection failed. SHA-256 mismatch for batond.
+PASS no owned candidate attachment or private packaging directory remains
+case=missing
+created: /private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV/source/artifacts/.development.X46c8p/output/AgentBaton-arm64-37adc84966e6748fdd942651f3971e9bc6d850fc-development.dmg
+正在检查“Protective Master Boot Record（MBR：0）”的校验和…
+Protective Master Boot Record（MBR：0）：已验证CRC32 $81B63723
+正在检查“GPT Header（Primary GPT Header：1）”的校验和…
+    GPT Header（Primary GPT Header：1）：已验证CRC32 $EC15162F
+正在检查“GPT Partition Data（Primary GPT Table：2）”的校验和…
+GPT Partition Data（Primary GPT Table：已验证CRC32 $4F1F08EE
+正在检查“（Apple_Free：3）”的校验和…
+                      （Apple_Free：3）：已验证CRC32 $00000000
+正在检查“disk image（Apple_APFS：4）”的校验和…
+            disk image（Apple_APFS：4）：已验证CRC32 $E4DCB5EC
+正在检查“（Apple_Free：5）”的校验和…
+                      （Apple_Free：5）：已验证CRC32 $00000000
+正在检查“GPT Partition Data（Backup GPT Table：6）”的校验和…
+GPT Partition Data（Backup GPT Table：：已验证CRC32 $4F1F08EE
+正在检查“GPT Header（Backup GPT Header：7）”的校验和…
+     GPT Header（Backup GPT Header：7）：已验证CRC32 $24F6FF3D
+已验证CRC32 $F25605AD
+/dev/disk4          	GUID_partition_scheme
+/dev/disk4s1        	Apple_APFS
+/dev/disk5          	EF57347C-0000-11AA-AA11-0030654
+/dev/disk5s1        	41504653-0000-11AA-AA11-0030654	/private/tmp/ab-collab-zmqtq1or/package-replay.T7HwSV/source/artifacts/.development.X46c8p/volume
+Native bundle inspection failed. Contents/MacOS must contain exactly agentbaton-desktop, baton and batond.
+"disk4" ejected.
+package_exit=1
+Native bundle inspection failed. Contents/MacOS must contain exactly agentbaton-desktop, baton and batond.
+PASS no owned candidate attachment or private packaging directory remains
+apps/desktop/src-tauri/target/release/agentbaton-desktop: OK
+target/release/baton: OK
+target/release/batond: OK
