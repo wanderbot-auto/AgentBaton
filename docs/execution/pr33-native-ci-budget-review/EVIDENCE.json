@@ -1,0 +1,795 @@
+{
+  "base": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "tested_source": "443556eedd09a74ff51dc13859c78a142e7fdacc",
+  "tested_tree": "b1b705e2581c0da061dd8441e0ebf294d6062f7b",
+  "previous_hosted": {
+    "job_id": 135252128867,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44432204086/job/135252128867",
+    "head": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+    "tested_merge": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+    "tested_tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+    "status": "completed",
+    "conclusion": "failure",
+    "started_at": "2026-11-19T00:50:23Z",
+    "completed_at": "2026-11-19T01:25:05Z",
+    "elapsed_s": 2082.0,
+    "runner_image": "macos-15-arm64 20261104.0514.1",
+    "sha256_full_raw_log": "df7ffa62feabbc3178750a2c0463aa6a431bb18815ebb0e00eb2c64a9f8c7848",
+    "steps": [
+      {
+        "number": 1,
+        "name": "Set up job",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:50:25Z",
+        "completed_at": "2026-11-19T00:50:26Z",
+        "elapsed_s": 1.0
+      },
+      {
+        "number": 2,
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:50:26Z",
+        "completed_at": "2026-11-19T00:50:36Z",
+        "elapsed_s": 10.0
+      },
+      {
+        "number": 3,
+        "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:50:36Z",
+        "completed_at": "2026-11-19T00:50:37Z",
+        "elapsed_s": 1.0
+      },
+      {
+        "number": 4,
+        "name": "Toolchain",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:50:37Z",
+        "completed_at": "2026-11-19T00:50:47Z",
+        "elapsed_s": 10.0
+      },
+      {
+        "number": 5,
+        "name": "Frontend dependencies and validation",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:50:47Z",
+        "completed_at": "2026-11-19T00:52:50Z",
+        "elapsed_s": 123.0
+      },
+      {
+        "number": 6,
+        "name": "Build genuine native schema14 history for the required migration gate",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:52:50Z",
+        "completed_at": "2026-11-19T00:54:03Z",
+        "elapsed_s": 73.0
+      },
+      {
+        "number": 7,
+        "name": "Build genuine schema15 Task history for the required migration gate",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:54:03Z",
+        "completed_at": "2026-11-19T00:55:11Z",
+        "elapsed_s": 68.0
+      },
+      {
+        "number": 8,
+        "name": "Build genuine schema16 workspace history for the required migration gate",
+        "conclusion": "success",
+        "started_at": "2026-11-19T00:55:11Z",
+        "completed_at": "2026-11-19T00:56:11Z",
+        "elapsed_s": 60.0
+      },
+      {
+        "number": 9,
+        "name": "Core and native host tests",
+        "conclusion": "failure",
+        "started_at": "2026-11-19T00:56:11Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 1725.0
+      },
+      {
+        "number": 10,
+        "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 11,
+        "name": "Migrate genuine nonempty schema15 Task history with corruption and receipt controls",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 12,
+        "name": "Migrate genuine nonempty schema16 workspace history with corruption and receipt controls",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 13,
+        "name": "Migrate and restore a freshly built genuine schema18 database",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 14,
+        "name": "Actual macOS WebView and daemon lifecycle acceptance",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 15,
+        "name": "Actual native Owner Grant dialog and private database acceptance",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 16,
+        "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 17,
+        "name": "Native library tests with smoke features",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 18,
+        "name": "Actual Native background registration IPC in generated private paths",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 19,
+        "name": "Actual Native integration approval and early cancellation",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 20,
+        "name": "Retain finite Native integration evidence without private snapshots",
+        "conclusion": "failure",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:56Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 21,
+        "name": "Retain bounded native migration metadata without private history",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:24:56Z",
+        "completed_at": "2026-11-19T01:24:57Z",
+        "elapsed_s": 1.0
+      },
+      {
+        "number": 22,
+        "name": "Retain finite rework progress without private runtime data",
+        "conclusion": "failure",
+        "started_at": "2026-11-19T01:24:57Z",
+        "completed_at": "2026-11-19T01:24:57Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 23,
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:24:57Z",
+        "completed_at": "2026-11-19T01:24:59Z",
+        "elapsed_s": 2.0
+      },
+      {
+        "number": 24,
+        "name": "Build desktop UI and application",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:59Z",
+        "completed_at": "2026-11-19T01:24:59Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 25,
+        "name": "Audit the actual default release application for test controls",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:59Z",
+        "completed_at": "2026-11-19T01:24:59Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 26,
+        "name": "Package development application and evidence",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:59Z",
+        "completed_at": "2026-11-19T01:24:59Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 27,
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:59Z",
+        "completed_at": "2026-11-19T01:24:59Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 53,
+        "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T01:24:59Z",
+        "completed_at": "2026-11-19T01:24:59Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 54,
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:24:59Z",
+        "completed_at": "2026-11-19T01:24:59Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 55,
+        "name": "Complete job",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:24:59Z",
+        "completed_at": "2026-11-19T01:25:02Z",
+        "elapsed_s": 3.0
+      }
+    ],
+    "workspace_bin_compile_s": 195,
+    "workspace_test_compile_s": 364,
+    "root_core_lib_executed": {
+      "passed": 468,
+      "elapsed_s": 612.75
+    },
+    "integration_ipc": {
+      "passed": 31,
+      "failed": 3,
+      "elapsed_s": 145.61
+    },
+    "core_step_to_integration_result_s": 1725.468691
+  },
+  "current_hosted": {
+    "job_id": 135276914703,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44439619004/job/135276914703",
+    "head": "ae844ca33406aabd62f44ea73818f9127f211748",
+    "tested_merge": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+    "tested_tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+    "status": "completed",
+    "conclusion": "failure",
+    "started_at": "2026-11-19T01:48:11Z",
+    "completed_at": "2026-11-19T02:41:24Z",
+    "elapsed_s": 3193.0,
+    "runner_image": "macos-15-arm64 20261104.0514.1",
+    "sha256_full_raw_log": "ab1b7ca329f25b097bad75a0e791711f98c96a0c8416487e5f458647d192f855",
+    "steps": [
+      {
+        "number": 1,
+        "name": "Set up job",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:48:12Z",
+        "completed_at": "2026-11-19T01:48:12Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 2,
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:48:12Z",
+        "completed_at": "2026-11-19T01:48:20Z",
+        "elapsed_s": 8.0
+      },
+      {
+        "number": 3,
+        "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:48:20Z",
+        "completed_at": "2026-11-19T01:48:21Z",
+        "elapsed_s": 1.0
+      },
+      {
+        "number": 4,
+        "name": "Toolchain",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:48:21Z",
+        "completed_at": "2026-11-19T01:48:31Z",
+        "elapsed_s": 10.0
+      },
+      {
+        "number": 5,
+        "name": "Frontend dependencies and validation",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:48:31Z",
+        "completed_at": "2026-11-19T01:50:06Z",
+        "elapsed_s": 95.0
+      },
+      {
+        "number": 6,
+        "name": "Build genuine native schema14 history for the required migration gate",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:50:06Z",
+        "completed_at": "2026-11-19T01:50:54Z",
+        "elapsed_s": 48.0
+      },
+      {
+        "number": 7,
+        "name": "Build genuine schema15 Task history for the required migration gate",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:50:54Z",
+        "completed_at": "2026-11-19T01:51:31Z",
+        "elapsed_s": 37.0
+      },
+      {
+        "number": 8,
+        "name": "Build genuine schema16 workspace history for the required migration gate",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:51:31Z",
+        "completed_at": "2026-11-19T01:52:06Z",
+        "elapsed_s": 35.0
+      },
+      {
+        "number": 9,
+        "name": "Core and native host tests",
+        "conclusion": "success",
+        "started_at": "2026-11-19T01:52:06Z",
+        "completed_at": "2026-11-19T02:29:12Z",
+        "elapsed_s": 2226.0
+      },
+      {
+        "number": 10,
+        "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:29:12Z",
+        "completed_at": "2026-11-19T02:31:22Z",
+        "elapsed_s": 130.0
+      },
+      {
+        "number": 11,
+        "name": "Migrate genuine nonempty schema15 Task history with corruption and receipt controls",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:31:22Z",
+        "completed_at": "2026-11-19T02:33:17Z",
+        "elapsed_s": 115.0
+      },
+      {
+        "number": 12,
+        "name": "Migrate genuine nonempty schema16 workspace history with corruption and receipt controls",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:33:17Z",
+        "completed_at": "2026-11-19T02:35:17Z",
+        "elapsed_s": 120.0
+      },
+      {
+        "number": 13,
+        "name": "Migrate and restore a freshly built genuine schema18 database",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:35:17Z",
+        "completed_at": "2026-11-19T02:40:12Z",
+        "elapsed_s": 295.0
+      },
+      {
+        "number": 14,
+        "name": "Actual macOS WebView and daemon lifecycle acceptance",
+        "conclusion": "failure",
+        "started_at": "2026-11-19T02:40:12Z",
+        "completed_at": "2026-11-19T02:41:15Z",
+        "elapsed_s": 63.0
+      },
+      {
+        "number": 15,
+        "name": "Actual native Owner Grant dialog and private database acceptance",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:15Z",
+        "completed_at": "2026-11-19T02:41:15Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 16,
+        "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:15Z",
+        "completed_at": "2026-11-19T02:41:15Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 17,
+        "name": "Native library tests with smoke features",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:15Z",
+        "completed_at": "2026-11-19T02:41:15Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 18,
+        "name": "Actual Native background registration IPC in generated private paths",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:15Z",
+        "completed_at": "2026-11-19T02:41:15Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 19,
+        "name": "Actual Native integration approval and early cancellation",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:15Z",
+        "completed_at": "2026-11-19T02:41:15Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 20,
+        "name": "Retain finite Native integration evidence without private snapshots",
+        "conclusion": "failure",
+        "started_at": "2026-11-19T02:41:15Z",
+        "completed_at": "2026-11-19T02:41:16Z",
+        "elapsed_s": 1.0
+      },
+      {
+        "number": 21,
+        "name": "Retain bounded native migration metadata without private history",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:41:16Z",
+        "completed_at": "2026-11-19T02:41:16Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 22,
+        "name": "Retain finite rework progress without private runtime data",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:41:16Z",
+        "completed_at": "2026-11-19T02:41:16Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 23,
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:41:16Z",
+        "completed_at": "2026-11-19T02:41:18Z",
+        "elapsed_s": 2.0
+      },
+      {
+        "number": 24,
+        "name": "Build desktop UI and application",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:18Z",
+        "completed_at": "2026-11-19T02:41:18Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 25,
+        "name": "Audit the actual default release application for test controls",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:18Z",
+        "completed_at": "2026-11-19T02:41:18Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 26,
+        "name": "Package development application and evidence",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:18Z",
+        "completed_at": "2026-11-19T02:41:18Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 27,
+        "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:18Z",
+        "completed_at": "2026-11-19T02:41:18Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 53,
+        "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "skipped",
+        "started_at": "2026-11-19T02:41:18Z",
+        "completed_at": "2026-11-19T02:41:18Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 54,
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:41:18Z",
+        "completed_at": "2026-11-19T02:41:18Z",
+        "elapsed_s": 0.0
+      },
+      {
+        "number": 55,
+        "name": "Complete job",
+        "conclusion": "success",
+        "started_at": "2026-11-19T02:41:18Z",
+        "completed_at": "2026-11-19T02:41:21Z",
+        "elapsed_s": 3.0
+      }
+    ],
+    "workspace_bin_compile_s": 150,
+    "workspace_test_compile_s": 273,
+    "workspace_test_execution_s": 1428.693874,
+    "root_core_lib_executed": {
+      "passed": 468,
+      "elapsed_s": 460.94
+    },
+    "integration_ipc": {
+      "passed": 34,
+      "failed": 0,
+      "elapsed_s": 101.83
+    },
+    "core_step_to_integration_result_s": 1314.237186,
+    "repeated_root_debug_builds_s": [
+      0.22,
+      0.4
+    ],
+    "release_sidecar_compile_s": 134,
+    "tauri_default_test_compile_s": 222,
+    "native_default_host_tests": {
+      "passed": 189,
+      "ignored": 2,
+      "elapsed_s": 9.59
+    },
+    "native_webview_feature_unit_compile_s": 33.88,
+    "native_webview_feature_unit": {
+      "passed": 37,
+      "elapsed_s": 14.45
+    },
+    "native_webview_driver_compile_s": 2.9,
+    "nominal_job_budget_s": 3600,
+    "nominal_margin_at_webview_start_s": 479,
+    "nominal_margin_at_terminal_s": 407,
+    "genuine_migration_counts": {
+      "14": 7,
+      "15": 6,
+      "16": 11,
+      "18": 1
+    },
+    "fresh_schema18": {
+      "contract": "agentbaton.fresh-schema18-ci.v1",
+      "historical_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "historical_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+      "source": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+      "stage": "complete",
+      "status": "passed",
+      "test_exit": 0,
+      "tree": "6a55867536d7900bafecc1467590edf5b4eff046"
+    }
+  },
+  "hosted_native_artifact": {
+    "id": 14493545935,
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44439619004/artifacts/14493545935",
+    "zip_sha256": "4c4882c14436d8b11cc680fdec8cbe444bbfbd9c03482c789398b6f93cb58f70",
+    "zip_bytes": 180975,
+    "original_report_sha256": "13c4a29967157ab8b5021e03f19a21a0e43f4af4ad20f007d6a8c846efc40e3f",
+    "producer_status": "passed",
+    "runner": {
+      "exit_code": 0,
+      "timeout": false,
+      "owned_group_cleanup": true,
+      "leader_observation": "waitid-WNOWAIT",
+      "group_signals": [
+        {
+          "signal": "SIGTERM",
+          "result": "observed_quiescent"
+        },
+        {
+          "signal": "SIGKILL",
+          "result": "observed_quiescent"
+        }
+      ],
+      "adopted_owned_group_children_reaped": 0,
+      "status": "failed",
+      "evidence_error": "native report Goal execution schema/counts/sequence changed or are incomplete"
+    },
+    "owned_lifecycle": {
+      "owned_daemon_cleanup": true,
+      "owned_daemon_restarted": true,
+      "second_writer_rejected": true,
+      "window_close_daemon_survived": true,
+      "window_lifecycle_action": "forced_destroy_for_existing_restart_test",
+      "close_to_background_restore_acceptance": "not_run"
+    },
+    "restart_persisted": true,
+    "database_evidence": {
+      "goal_execution_readonly_database": {
+        "before_schema": 19,
+        "after_schema": 19,
+        "unchanged": true
+      },
+      "goal_graph_readonly_database": {
+        "before_schema": 19,
+        "after_schema": 19,
+        "unchanged": true
+      },
+      "factory_readonly_database": {
+        "before_schema": 19,
+        "after_schema": 19,
+        "unchanged": true
+      },
+      "integration_readonly_database": {
+        "before_schema": 19,
+        "after_schema": 19,
+        "unchanged": true
+      }
+    },
+    "integration_approval_projection": {
+      "contract": "agentbaton.integration-native-ci.v1",
+      "status": "failed",
+      "cases": {
+        "last-page": {
+          "driver_exit": null,
+          "projection_exit": null,
+          "complete": false
+        },
+        "first-page": {
+          "driver_exit": null,
+          "projection_exit": null,
+          "complete": false
+        }
+      },
+      "private_history_published": false,
+      "visual_review": "not_established",
+      "runtime_acceptance": false
+    }
+  },
+  "build_overlap": {
+    "registry_identity_matches": 80,
+    "compiled_name_version_pairs_observed_in_both_cold_steps": 60,
+    "root_registry_packages": 87,
+    "tauri_registry_packages": 437,
+    "proposed_reuse_performance_measured": false
+  },
+  "replay": {
+    "red": {
+      "replay": "red",
+      "dimension": "offline replay of original hosted report; no GUI launched",
+      "zip_sha256": "4c4882c14436d8b11cc680fdec8cbe444bbfbd9c03482c789398b6f93cb58f70",
+      "input_sha256": "13c4a29967157ab8b5021e03f19a21a0e43f4af4ad20f007d6a8c846efc40e3f",
+      "report_sections_store19": 4,
+      "native_runner_exit": 1,
+      "replay_child_exit": 0,
+      "replay_owned_group_cleanup": true,
+      "evidence_error": "native report Goal execution schema/counts/sequence changed or are incomplete",
+      "shell_assertions_exit": 1,
+      "shell_error": [
+        "AssertionError: native Factory schema18 or one of twelve independent zero counts is invalid"
+      ],
+      "accepted_bytes_match_original": false
+    },
+    "green": {
+      "replay": "green",
+      "dimension": "offline replay of original hosted report; no GUI launched",
+      "zip_sha256": "4c4882c14436d8b11cc680fdec8cbe444bbfbd9c03482c789398b6f93cb58f70",
+      "input_sha256": "13c4a29967157ab8b5021e03f19a21a0e43f4af4ad20f007d6a8c846efc40e3f",
+      "report_sections_store19": 4,
+      "native_runner_exit": 0,
+      "replay_child_exit": 0,
+      "replay_owned_group_cleanup": true,
+      "evidence_error": null,
+      "shell_assertions_exit": 0,
+      "shell_error": [],
+      "accepted_bytes_match_original": true
+    },
+    "dimension": "offline report-validation only"
+  },
+  "checks": {
+    "bash_syntax": "passed",
+    "source_guards": 53,
+    "linux_arm64_runner_tests": 38,
+    "linux_image": "rust:1.91.1-bookworm sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "linux_python": "3.11.2",
+    "linux_first_image": "python:3.12-slim lacked strings and ps; failure kept",
+    "macos_arm64_runner_tests": {
+      "passed": 36,
+      "failed": 1,
+      "skipped": 1,
+      "same_failure_reproduced_on_exact_base": "observation error injected; owned_group_cleanup false at line185"
+    }
+  },
+  "not_run": [
+    "new hosted CI candidate",
+    "new GUI validation",
+    "default release App audit",
+    "development DMG",
+    "native Owner/Factory/background/Integration approval on current hosted candidate",
+    "build directory reuse benchmark"
+  ],
+  "logs": {
+    "old-job-excerpt.log": {
+      "path": "logs/old-job-excerpt.log.gz",
+      "sha256_uncompressed": "5406313cac40e204035c254f36799e24bef5e7861fe1a80ca30d54b2558c6e6b",
+      "bytes_uncompressed": 9976
+    },
+    "current-job-excerpt.log": {
+      "path": "logs/current-job-excerpt.log.gz",
+      "sha256_uncompressed": "cd4a9aa44059604a4aec6f99ced62d0f6b008df75a73da9612e5f39966a76fe4",
+      "bytes_uncompressed": 21625
+    },
+    "hosted-native-runner.json": {
+      "path": "logs/hosted-native-runner.json.gz",
+      "sha256_uncompressed": "5bcec6b3c02a5b7645a0d41bb7d7785893a00289a8dc32fbabe335a95be34a6c",
+      "bytes_uncompressed": 460
+    },
+    "hosted-integration-execution.json": {
+      "path": "logs/hosted-integration-execution.json.gz",
+      "sha256_uncompressed": "6a3121cf53339c66e327e23492bb0a4131112e10878a13054bf6439e6a3bb78d",
+      "bytes_uncompressed": 419
+    },
+    "offline-red.log": {
+      "path": "logs/offline-red.log.gz",
+      "sha256_uncompressed": "f6d01abee6c2ab38a36e984c076fbe70aced662fc3248a870c507354bf275b4c",
+      "bytes_uncompressed": 686
+    },
+    "offline-green.log": {
+      "path": "logs/offline-green.log.gz",
+      "sha256_uncompressed": "9bb5aab5b23264ea4ef4469216b8b9d80ef3a1ab0d9cd62913079df1fd20e278",
+      "bytes_uncompressed": 511
+    },
+    "native-source-guards.log": {
+      "path": "logs/native-source-guards.log.gz",
+      "sha256_uncompressed": "38c8d6f385f76876e8753eef2e413335f42151c29f446ced25535a5b68f9262b",
+      "bytes_uncompressed": 12230
+    },
+    "native-runner-linux.log": {
+      "path": "logs/native-runner-linux.log.gz",
+      "sha256_uncompressed": "e5fc2ce899dc7fbd6fa46436cef725d339fe9f7fde1954cd1d2b7750f4ec750c",
+      "bytes_uncompressed": 6638
+    },
+    "native-runner-linux-slim-missing-tools.log": {
+      "path": "logs/native-runner-linux-slim-missing-tools.log.gz",
+      "sha256_uncompressed": "2070d874f01bb4cd71ff03b00216d873554964a4039e7b30302593ed67f63301",
+      "bytes_uncompressed": 8337
+    },
+    "native-runner-macos.log": {
+      "path": "logs/native-runner-macos.redacted.log.gz",
+      "sha256_uncompressed": "15aad87546612fc3f091e924ac8c2d7285a18241dd02783272e0ea221cae5b70",
+      "bytes_uncompressed": 7404,
+      "original_local": {
+        "path": "logs/native-runner-macos.log.gz",
+        "sha256_uncompressed": "e97a29e278688b9ec570440952fca9f229ffd49bedee30deeacadbe41f8fdb3a",
+        "bytes_uncompressed": 7400,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 1
+    },
+    "native-runner-macos-baseline-observation.log": {
+      "path": "logs/native-runner-macos-baseline-observation.redacted.log.gz",
+      "sha256_uncompressed": "455e49d66112f958ef558b2f40f97b6c3ad07fe703f653b7dd137941b7c88649",
+      "bytes_uncompressed": 1110,
+      "original_local": {
+        "path": "logs/native-runner-macos-baseline-observation.log.gz",
+        "sha256_uncompressed": "c7fcfd73e9cde24c7a07790bc1d72718eaf97924c0017588a45af6300829594f",
+        "bytes_uncompressed": 1106,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 1
+    },
+    "replay_native_report.py": {
+      "path": "logs/replay_native_report.py.gz",
+      "sha256_uncompressed": "95eda65d97e546adc94215fdbdba4fe8414d09a1f42ebcfe1b127182b082cbdb",
+      "bytes_uncompressed": 3622
+    }
+  }
+}

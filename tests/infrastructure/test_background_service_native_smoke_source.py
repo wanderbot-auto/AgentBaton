@@ -10,6 +10,10 @@ from tests.infrastructure.host19_native_smoke_source_fixture import (
     NATIVE_SMOKE_PATH,
     restore_native_smoke_before_schema19,
 )
+from tests.infrastructure.host19_native_webview_source_fixture import (
+    NATIVE_WEBVIEW_PATHS,
+    restore_native_webview_before_schema19,
+)
 from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
 from tests.infrastructure.host_native_schema19_source_fixture import restore_host_native_schema18
 
@@ -366,6 +370,8 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
                 raw = restore_integration_owner_before_schema19(path, raw)
             if path == NATIVE_SMOKE_PATH:
                 raw = restore_native_smoke_before_schema19(path, raw)
+            if path in NATIVE_WEBVIEW_PATHS:
+                raw = restore_native_webview_before_schema19(path, raw)
             if path in layers:
                 layer = layers[path]
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), layer['after'], path)
@@ -394,6 +400,27 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             manifest = manifest.replace(addition, '', 1)
         self.assertEqual(hashlib.sha256(manifest.encode()).hexdigest(),
                          '3b6bb5205adb7610d639fb42cb7154c189e04030d8e18ccf71d2c42070bcb028')
+
+    def test_webview_schema19_inverse_refuses_unknown_and_historical_inputs(self):
+        anchor = b'READONLY_SCHEMA_VERSION'
+        for path in NATIVE_WEBVIEW_PATHS:
+            source = (ROOT/path).read_bytes()
+            parent = restore_native_webview_before_schema19(path, source)
+            self.assertIn(anchor, source)
+            variants = {
+                'historical input': parent,
+                'removed anchor': source.replace(anchor, b'', 1),
+                'duplicate anchor': source.replace(anchor, anchor + anchor, 1),
+                'moved anchor': source.replace(anchor, b'', 1) + anchor,
+                'CRLF normalization': source.replace(b'\n', b'\r\n'),
+                'unrelated suffix': source + b'# unknown bytes\n',
+                'non-byte input': source.decode('utf-8'),
+            }
+            for label, changed in variants.items():
+                with self.subTest(path=path, variant=label), self.assertRaises(ValueError):
+                    restore_native_webview_before_schema19(path, changed)
+            with self.assertRaises(ValueError):
+                restore_native_webview_before_schema19('other/path', source)
 
     def test_dev_profile_layer_matches_root_and_refuses_changed_or_repeated_layer(self):
         layer = tomllib.loads(DESKTOP_DEV_PROFILE_LAYER)

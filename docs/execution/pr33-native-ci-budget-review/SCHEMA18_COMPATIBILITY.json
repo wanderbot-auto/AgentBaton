@@ -1,0 +1,185 @@
+{
+  "base": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "prior_delivery": "e8060878b4df5c0f40d2e59647ee82a6d1c4e00b",
+  "tested_source": "5d55e86356f6f1269d850dcbcdfcc4474d0a756a",
+  "tested_tree": "0923ac09962040f11a8e625e9187c7bc72bcb010",
+  "changed_file_sha256": {
+    "scripts/prepare-schema18-migration-fixture.py": "d8f973c84f3d491b1a5d874f4df0775c3041c9f727c74f3c5ce17a3a10fac234",
+    "tests/infrastructure/test_schema18_migration_preparation.py": "e48d73444f54511d738523c45ae4c85945298847b16da327cb9db6c9c1e96ad3"
+  },
+  "baseline_failure": "Changed immutable helper before schema18/19 test import",
+  "independent_baseline_log_sha256": "c7e555ea8be6517864fa7622732beaa24855398347397ad914edae17636c89f9",
+  "execution_inputs": {
+    "current_runner_sha256": "12ae8dbc28abef5fbdd0031fffbb5d45d9ae78c724242abdf747432cc201e503",
+    "reviewed_inverse_sha256": "f573280d9f1617b8b4807f57e796f387cba4ec5c0597f58032b5148921792da3",
+    "executed_historical_helpers": {
+      "prepare-schema16-migration-fixture.py": "5e814e979115d15a9696b78d586f63a30c01df3548b323dd99f8f5acbd48713a",
+      "prepare-legacy-migration-fixture.py": "b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90",
+      "native-run.py": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a"
+    }
+  },
+  "python_checks": {
+    "isolated_cli": [
+      "builder",
+      "generator"
+    ],
+    "targeted_schema18": 14,
+    "targeted_schema19": 8,
+    "full_infrastructure": {
+      "run": 1065,
+      "passed": 1049,
+      "skipped": 16,
+      "failed": 0
+    },
+    "first_full": "missing jsonschema",
+    "install_attempts": "two TLS refusals; preinstalled read-only pinned dependency environment reused"
+  },
+  "actual_apple_silicon_gate": {
+    "platform": "macOS 26.6.1 arm64, Rust 1.100.0, Python 3.14.0a7",
+    "argv": "cargo test --locked --offline -p agentbaton-core --features fresh-schema18-migration-tests --test host_registry_fresh18_migration -- --nocapture --test-threads=1",
+    "status": "passed",
+    "passed": 1,
+    "execution_s": 79.11,
+    "negative_checks": 14,
+    "historical_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "historical_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+    "archive_sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+    "lock_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+    "compiled_manifest_sha256": "5f375412828877184e25f8389fb787ba287e77281e60d746fe10fecad5ce8ecd",
+    "retained_report_sha256": "c045fa7e12d3edd0648c0a80dc785e2fbb6e9f8e0d7bfb486b47318bda00e572",
+    "fixture_sha256": "f25323690612bea1d1b4985cbdf3686399717a2f4afbd5ccbc5a7f7e09843891",
+    "backup_sha256": "3db081e675f353229bfb251e2ce6fdcc2ecfea99be06eaacfc6a9295d52bd9c7",
+    "checks": {
+      "backup_rows_preserved": true,
+      "input_tools_unchanged": true,
+      "original_rows_preserved": true,
+      "reopen19_exact": true
+    },
+    "in_run_seals_rechecked": {
+      "archive": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+      "baton": "c83a565f0d5126c4cab43b873a46ebcd9a977343887eae30c52567ff6b3d8030",
+      "batond": "15149e46f1a7496dfca2d4dee3f39f46a58b1a3b4d2d147adb2a3ad5cb87754c",
+      "build": "5f375412828877184e25f8389fb787ba287e77281e60d746fe10fecad5ce8ecd",
+      "database": "f25323690612bea1d1b4985cbdf3686399717a2f4afbd5ccbc5a7f7e09843891",
+      "fixture": "74d45699e0e931af16557edfa24d2a43a5390f24dd2cb288203da84d933055b2",
+      "provenance": "5f375412828877184e25f8389fb787ba287e77281e60d746fe10fecad5ce8ecd",
+      "transcript": "193a15e0f7db703c2d37ff2001140309e11099d82cc017bf91b649589df193e2"
+    },
+    "private_root": "/private/tmp/ab19-f18-1UiC4g",
+    "compiler_group_quiescent_before_reap": true
+  },
+  "not_run": [
+    "new GitHub-hosted candidate",
+    "new GUI acceptance"
+  ],
+  "logs": {
+    "independent-import-failures.log": {
+      "path": "logs/schema18-compat--independent-import-failures.redacted.log.gz",
+      "sha256_uncompressed": "22f7244725b5211b99550cd3df68ef39a39759f007248c7d7f2f66bbf36960c4",
+      "bytes_uncompressed": 3451,
+      "original_local": {
+        "path": "logs/schema18-compat--independent-import-failures.log.gz",
+        "sha256_uncompressed": "6a824d274825bfc2d8c711158d5dc7153232ff835629b99aaad33e87d8a3d8a3",
+        "bytes_uncompressed": 3435,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 4
+    },
+    "schema18-19-native-helper-baseline-red.log": {
+      "path": "logs/schema18-compat--schema18-19-native-helper-baseline-red.redacted.log.gz",
+      "sha256_uncompressed": "650a0de2df0249d2506e31dc672fb13b4ff54a1af6833a60b2ee6c0786a04907",
+      "bytes_uncompressed": 2469,
+      "original_local": {
+        "path": "logs/schema18-compat--schema18-19-native-helper-baseline-red.log.gz",
+        "sha256_uncompressed": "62e75394c0884395b6d458fb7e6078aadf90a36f840bfb348a978d0a760bedad",
+        "bytes_uncompressed": 2453,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 4
+    },
+    "schema18-builder-isolated-cli.log": {
+      "path": "logs/schema18-compat--schema18-builder-isolated-cli.log.gz",
+      "sha256_uncompressed": "7eaf21042d3dca89782e5dfecc7233126484f67c328830f9d348a4d6855c19c8",
+      "bytes_uncompressed": 528
+    },
+    "schema18-generator-isolated-cli.log": {
+      "path": "logs/schema18-compat--schema18-generator-isolated-cli.log.gz",
+      "sha256_uncompressed": "58f989ade818ba25adb5ff33e6c93abf502109ce146e48eb5008fd4e158d6a9a",
+      "bytes_uncompressed": 420
+    },
+    "schema18-preparation-fixed.log": {
+      "path": "logs/schema18-compat--schema18-preparation-fixed.log.gz",
+      "sha256_uncompressed": "1f08d85f656136cde0ed40e552fd40926cfb8bd4fffe7ec88727fd7188e7c2c4",
+      "bytes_uncompressed": 3461
+    },
+    "schema19-migration-evidence-fixed.log": {
+      "path": "logs/schema18-compat--schema19-migration-evidence-fixed.log.gz",
+      "sha256_uncompressed": "ad317e9e7a0aae2f2b77555d1e9de963c7bf239a45660a213e45c9da1e39d398",
+      "bytes_uncompressed": 2000
+    },
+    "schema18-helper-full-infrastructure-first.log": {
+      "path": "logs/schema18-compat--schema18-helper-full-infrastructure-first.redacted.log.gz",
+      "sha256_uncompressed": "af0ac41246cf0938361cb301a800cf86403e100b7cd6576ec632af2d39c7d298",
+      "bytes_uncompressed": 269268,
+      "original_local": {
+        "path": "logs/schema18-compat--schema18-helper-full-infrastructure-first.log.gz",
+        "sha256_uncompressed": "3de1dffce7f088765fd933cba50c586edb8a5d4c80f5915c1aaf683b4a9c35aa",
+        "bytes_uncompressed": 269192,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 19
+    },
+    "schema18-helper-dependencies-mirror-failure.log": {
+      "path": "logs/schema18-compat--schema18-helper-dependencies-mirror-failure.log.gz",
+      "sha256_uncompressed": "91e55788568dc1452f543db939a8a2bf6f2a0a83de8f5f5b5af60a40ef9ee91a",
+      "bytes_uncompressed": 2105
+    },
+    "schema18-helper-dependencies-official-failure.log": {
+      "path": "logs/schema18-compat--schema18-helper-dependencies-official-failure.log.gz",
+      "sha256_uncompressed": "abc397ce95839e949c865f5844ab8834fb3227e6bbb591aa280df6fb6a8881a8",
+      "bytes_uncompressed": 2010
+    },
+    "schema18-helper-dependencies.log": {
+      "path": "logs/schema18-compat--schema18-helper-dependencies.redacted.log.gz",
+      "sha256_uncompressed": "937eb571cc1fc849b37e2cbb8b829cb4e07e1cf4539b207f9d6bb2e6cffcd2d9",
+      "bytes_uncompressed": 151,
+      "original_local": {
+        "path": "logs/schema18-compat--schema18-helper-dependencies.log.gz",
+        "sha256_uncompressed": "2becd20991f6dbc9cf7c70792e650c8df9504cec06ea1a0b73a06d102e19f62b",
+        "bytes_uncompressed": 147,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 1
+    },
+    "schema18-helper-full-infrastructure.log": {
+      "path": "logs/schema18-compat--schema18-helper-full-infrastructure.redacted.log.gz",
+      "sha256_uncompressed": "f63e138882786ca71f09498d940181c12d8874e1956b3de0bfd3e5e81bdd8c95",
+      "bytes_uncompressed": 269102,
+      "original_local": {
+        "path": "logs/schema18-compat--schema18-helper-full-infrastructure.log.gz",
+        "sha256_uncompressed": "09f3f509727c65f45e07f34966e49338f062674d624dfbca44b87a2c901cee5c",
+        "bytes_uncompressed": 269030,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 18
+    },
+    "schema18-helper-genuine-arm64.log": {
+      "path": "logs/schema18-compat--schema18-helper-genuine-arm64.redacted.log.gz",
+      "sha256_uncompressed": "76bf137b17fd161cf1cdd270e610230aeed6080f092ae2a2ce90d7f08b161dae",
+      "bytes_uncompressed": 14920,
+      "original_local": {
+        "path": "logs/schema18-compat--schema18-helper-genuine-arm64.log.gz",
+        "sha256_uncompressed": "77865ef44c7c8ceddd7bb1d1a2c9f1c62accf5088d5611b0b423027c699067a5",
+        "bytes_uncompressed": 14896,
+        "local_worker_head": "dce15555c39734d88b10bf21df9997e30ca00496",
+        "storage": "Retained in the original local worker handoff"
+      },
+      "redactions": 6
+    }
+  }
+}

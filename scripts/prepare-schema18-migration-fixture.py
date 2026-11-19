@@ -31,6 +31,9 @@ HELPERS = {
     'prepare-legacy-migration-fixture.py': 'b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90',
     'native-run.py': '205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a',
 }
+CURRENT_NATIVE_HELPER_SHA256 = '12ae8dbc28abef5fbdd0031fffbb5d45d9ae78c724242abdf747432cc201e503'
+NATIVE_WEBVIEW_INVERSE = Path('tests/infrastructure/host19_native_webview_source_fixture.py')
+NATIVE_WEBVIEW_INVERSE_SHA256 = 'f573280d9f1617b8b4807f57e796f387cba4ec5c0597f58032b5148921792da3'
 BUILD_ARGS = ['build', '--offline', '--locked', '-j', '2', '--bin', 'batond', '--bin', 'baton']
 
 
@@ -47,12 +50,38 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
 
 
-def load_helper(name):
-    path = ROOT / 'scripts' / name
+def read_native_layer(path):
     info = path.lstat()
-    require(stat.S_ISREG(info.st_mode) and not info.st_mode & 0o022, 'Unsafe helper source')
-    raw = path.read_bytes()
-    require(sha(raw) == HELPERS[name], 'Changed immutable helper')
+    require(path.resolve(strict=True) == path and stat.S_ISREG(info.st_mode)
+            and not info.st_mode & 0o022, 'Unsafe native helper source')
+    return OLD.read_regular(path, 65_536, stat.S_IMODE(info.st_mode))
+
+
+def helper_bytes(name):
+    expected = HELPERS[name]
+    path = ROOT / 'scripts' / name
+    if name == 'native-run.py':
+        # Pin both inputs before invoking the exact, side-effect-free inverse.
+        # Only the recovered historical runner may supply lifecycle functions.
+        raw = read_native_layer(path)
+        require(sha(raw) == CURRENT_NATIVE_HELPER_SHA256, 'Changed current native helper')
+        inverse_path = ROOT / NATIVE_WEBVIEW_INVERSE
+        inverse_raw = read_native_layer(inverse_path)
+        require(sha(inverse_raw) == NATIVE_WEBVIEW_INVERSE_SHA256, 'Changed immutable native inverse')
+        inverse = types.ModuleType('pinned18_native_webview_inverse')
+        exec(compile(inverse_raw, str(inverse_path), 'exec'), inverse.__dict__)
+        raw = inverse.restore_native_webview_before_schema19('scripts/native-run.py', raw)
+    else:
+        info = path.lstat()
+        require(stat.S_ISREG(info.st_mode) and not info.st_mode & 0o022, 'Unsafe helper source')
+        raw = path.read_bytes()
+    require(sha(raw) == expected, 'Changed immutable helper')
+    return raw
+
+
+def load_helper(name):
+    raw = helper_bytes(name)
+    path = ROOT / 'scripts' / name
     module = types.ModuleType('pinned18_' + name.replace('-', '_'))
     module.__file__ = str(path)
     exec(compile(raw, str(path), 'exec'), module.__dict__)

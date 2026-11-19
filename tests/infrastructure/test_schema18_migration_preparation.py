@@ -66,8 +66,67 @@ class Normal18BuildContracts(unittest.TestCase):
         self.assertEqual(H.SOURCE_FILES_SHA256, '6f064dafeed10bdd60470301262f57472531a935f8f9fc4e849d021ca2412db4')
         self.assertEqual(len(H.SCHEMA_TABLES), 63)
         self.assertNotIn('host_registrations', H.SCHEMA_TABLES)
+        self.assertEqual(H.HELPERS['native-run.py'], '205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a')
         for name, pin in H.HELPERS.items():
-            self.assertEqual(H.sha((ROOT / 'scripts' / name).read_bytes()), pin)
+            raw = (ROOT / 'scripts' / name).read_bytes()
+            if name == 'native-run.py':
+                self.assertEqual(H.sha(raw), H.CURRENT_NATIVE_HELPER_SHA256)
+                raw = H.helper_bytes(name)
+            self.assertEqual(H.sha(raw), pin)
+
+    def test_native_helper_compiles_only_pinned_inverse_and_exact_historical_runner(self):
+        with mock.patch.object(H, 'compile', wraps=compile, create=True) as compiler:
+            native = H.load_helper('native-run.py')
+        self.assertEqual([H.sha(call.args[0]) for call in compiler.call_args_list],
+                         [H.NATIVE_WEBVIEW_INVERSE_SHA256, H.HELPERS['native-run.py']])
+        self.assertNotIn('READONLY_SCHEMA_VERSION', vars(native))
+        self.assertTrue(callable(native.owned_child_exited))
+        self.assertTrue(callable(native.owned_group_is_quiescent))
+
+    def test_native_layer_refuses_unknown_downgraded_or_unsafe_sources_before_execution(self):
+        current = (ROOT / 'scripts/native-run.py').read_bytes()
+        historical = H.helper_bytes('native-run.py')
+        inverse = (ROOT / H.NATIVE_WEBVIEW_INVERSE).read_bytes()
+        unknown = b'raise AssertionError("unverified helper ran")\n'
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            runner_path = root / 'scripts/native-run.py'
+            inverse_path = root / H.NATIVE_WEBVIEW_INVERSE
+            runner_path.parent.mkdir()
+            inverse_path.parent.mkdir(parents=True)
+            runner_path.write_bytes(current)
+            inverse_path.write_bytes(inverse)
+            runner_path.chmod(0o644)
+            inverse_path.chmod(0o644)
+            with mock.patch.object(H, 'ROOT', root), \
+                 mock.patch.object(H, 'compile', side_effect=AssertionError('unverified compilation'), create=True) as compiler:
+                for payload in (historical, current + b'\n', unknown):
+                    runner_path.write_bytes(payload)
+                    with self.subTest(current_sha=H.sha(payload)), self.assertRaisesRegex(ValueError, 'Changed current native helper'):
+                        H.load_helper('native-run.py')
+                runner_path.write_bytes(current)
+                inverse_path.write_bytes(unknown)
+                with self.assertRaisesRegex(ValueError, 'Changed immutable native inverse'):
+                    H.load_helper('native-run.py')
+                inverse_path.write_bytes(inverse)
+                inverse_path.chmod(0o664)
+                with self.assertRaisesRegex(ValueError, 'Unsafe native helper source'):
+                    H.load_helper('native-run.py')
+                inverse_path.unlink()
+                inverse_path.symlink_to(ROOT / H.NATIVE_WEBVIEW_INVERSE)
+                with self.assertRaisesRegex(ValueError, 'Unsafe native helper source'):
+                    H.load_helper('native-run.py')
+                compiler.assert_not_called()
+
+    def test_native_inverse_output_must_match_the_original_helper_pin(self):
+        current = (ROOT / 'scripts/native-run.py').read_bytes()
+        inverse = b'def restore_native_webview_before_schema19(path, raw):\n    return raw\n'
+        with mock.patch.object(H, 'read_native_layer', side_effect=[current, inverse]), \
+             mock.patch.object(H, 'NATIVE_WEBVIEW_INVERSE_SHA256', H.sha(inverse)), \
+             mock.patch.object(H, 'compile', wraps=compile, create=True) as compiler:
+            with self.assertRaisesRegex(ValueError, 'Changed immutable helper'):
+                H.load_helper('native-run.py')
+        self.assertEqual([call.args[0] for call in compiler.call_args_list], [inverse])
 
     def test_finite_synthetic_metadata_positive_and_source_tool_feature_negatives(self):
         # This patches ONLY the synthetic index for finite parser tests. It is
