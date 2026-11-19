@@ -1,0 +1,224 @@
+{
+  "requirement": "AB-REL-007",
+  "dimension": "pinned_apple_silicon_development_package_sidecar_on_real_generated_schema18",
+  "branch": "collab/development-update-rehearsal",
+  "base_commit": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+  "base_tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+  "tested_code_commit": "d38934919cf8b44e7bab44f2123f68d4faf5af89",
+  "tested_code_tree": "e91b9465334c44c631f792238d1ae23336639a6a",
+  "environment": {
+    "os": "macOS 26.6.1 (25G76)",
+    "architecture": "arm64",
+    "positive_python": "3.14.0a7",
+    "positive_sqlite": "3.49.1",
+    "infrastructure_python": "3.13.2",
+    "infrastructure_sqlite": "3.45.3",
+    "node": "v26.7.0",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)"
+  },
+  "artifact_binding": {
+    "candidate": {
+      "arch": "aarch64",
+      "artifact_sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498",
+      "bundled_daemon_sha256": "0b18add53fc794e6684690a90b74542e487f18409216b2724c8d3d438785a1a1",
+      "channel": "development",
+      "commit": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+      "developer_id_signed": false,
+      "os": "macos",
+      "target_schema": 19,
+      "tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+      "version": "0.1.0"
+    },
+    "prior_build_evidence_commit": "e7471cea0b46bdfd1ae56a5f329d40fa70633752",
+    "prior_build_evidence_path": "docs/execution/development-bundle-provenance/current-pr33/EVIDENCE.json",
+    "locked_build_provenance_path": "/private/tmp/ab-collab-0dgnp8ti/ci-14530c62/locked-build/output/provenance.json",
+    "locked_build_provenance_sha256": "bdb071600df4c6677408cdc951323591e6050b5d570647422d9bd1d16d466d88",
+    "verified_bundle_sidecar_relative_path": "AgentBaton.app/Contents/MacOS/batond",
+    "fresh_gui_or_dmg_mount": false
+  },
+  "historical_fixture": {
+    "commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "prior_evidence": "docs/execution/schema19-genuine-legacy18-runner/EVIDENCE.json",
+    "origin": "pre-v19 backup emitted during the retained genuine Schema 18 to 19 acceptance run",
+    "retained_originals": [
+      {
+        "path": "/private/tmp/ab-collab-0dgnp8ti/ci-14530c62/locked-build/source/artifacts/development/AgentBaton-arm64-14530c62a0b532e2ba43ca4be4fbc75ccc41d856-development.dmg",
+        "sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498",
+        "device": 16777234,
+        "inode": 72586033,
+        "mode": 384,
+        "mtime_ns": 1795050379152220323,
+        "ctime_ns": 1795050495010327002,
+        "bytes": 14510581
+      },
+      {
+        "path": "/private/tmp/ab-collab-0dgnp8ti/ci-14530c62/locked-build/source/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/batond",
+        "sha256": "0b18add53fc794e6684690a90b74542e487f18409216b2724c8d3d438785a1a1",
+        "device": 16777234,
+        "inode": 72586013,
+        "mode": 448,
+        "mtime_ns": 1795050269492260717,
+        "ctime_ns": 1795050369959841432,
+        "bytes": 18338352
+      },
+      {
+        "path": "/private/tmp/ab19-a18-EZZlOj/input.pre-v19-75b6f92d-db51-478b-b7e4-9c30c88f38e9.sqlite3",
+        "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+        "device": 16777234,
+        "inode": 71481621,
+        "mode": 384,
+        "mtime_ns": 1795041377798498665,
+        "ctime_ns": 1795041377809447812,
+        "bytes": 737280
+      },
+      {
+        "path": "/private/tmp/ab19-a18-EZZlOj/input.pre-v19-75b6f92d-db51-478b-b7e4-9c30c88f38e9.sqlite3-wal",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "device": 16777234,
+        "inode": 71481631,
+        "mode": 384,
+        "mtime_ns": 1795041377867839523,
+        "ctime_ns": 1795041377867852773,
+        "bytes": 0
+      },
+      {
+        "path": "/private/tmp/ab19-a18-EZZlOj/input.pre-v19-75b6f92d-db51-478b-b7e4-9c30c88f38e9.sqlite3-shm",
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "device": 16777234,
+        "inode": 71481632,
+        "mode": 384,
+        "mtime_ns": 1795041377867942731,
+        "ctime_ns": 1795041377868592435,
+        "bytes": 32768
+      }
+    ],
+    "before_after_original_sha256_and_metadata_match": true,
+    "journal_absent": true,
+    "old_wal_file_bytes": 0,
+    "staged_copy_contains_only_main_file": true
+  },
+  "rehearsal": {
+    "receipt_path": "/private/tmp/ab-collab-pdc6cxg2/update-tses0yy4-evidence/receipt.json",
+    "receipt_sha256": "36855f1a0b609daa016b8a7e67bda0f82daae16b0f17370505d805e64d2faef7",
+    "standalone_database_outputs_reinspected": 3,
+    "output_file_inodes_distinct": true,
+    "backup_and_recovered_bytes_equal": true,
+    "source_schema": 18,
+    "target_schema": 19,
+    "restored_schema": 18,
+    "event_sequence": 5,
+    "existing_rows_and_objects_preserved": true,
+    "temporary_candidate_runtime_removed": true,
+    "installation_authorized": false
+  },
+  "negative_controls": {
+    "results_path": "negative-controls.json",
+    "no_candidate_started_or_receipt_written": 5,
+    "live_approval_or_fixture_pins_changed": false,
+    "fixture_pin_overridden_within_two_test_cases_to_isolate_state_guards": true
+  },
+  "unit_tests": {
+    "run": 15,
+    "passed": 15
+  },
+  "full_python": {
+    "run": 1049,
+    "passed": 1033,
+    "skipped": 16
+  },
+  "node_tests": {
+    "run": 4,
+    "passed": 4
+  },
+  "rust_smoke": {
+    "run": 2,
+    "passed": 2,
+    "strict_clippy_exit": 0
+  },
+  "commands": [
+    "scripts/collab.sh run -- python3 -I scripts/rehearse-development-update.py",
+    "python scripts/verify_bootstrap_manifest.py",
+    "python scripts/validate_design.py",
+    "python scripts/validate_infrastructure.py",
+    "python -m unittest tests.infrastructure.test_rehearse_development_update -v",
+    "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+    "npm test",
+    "cargo test --offline --locked --manifest-path tools/environment-smoke/Cargo.toml",
+    "cargo clippy --offline --locked --manifest-path tools/environment-smoke/Cargo.toml --all-targets -- -D warnings"
+  ],
+  "raw_logs": {
+    "positive": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/positive.log",
+      "exit": 0,
+      "sha256": "e88256f9f9ba10caabd30b37cb813815565ebf7dad1cd2c8a9f63e211cca1176"
+    },
+    "negatives": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/negatives.log",
+      "exit": 0,
+      "sha256": "4af548095335c2a173cd6e6619dfa1643fd32f5fa24f7ec14bb265157f6bf92d"
+    },
+    "original_inputs": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/original_inputs.log",
+      "exit": 0,
+      "sha256": "c34d8ea978c17b4751054e5c4d9aee0395e846e10b82e113930c936782e4d633"
+    },
+    "bootstrap": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/bootstrap.log",
+      "exit": 0,
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    },
+    "design": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/design.log",
+      "exit": 0,
+      "sha256": "3f1fd068d3bd185fbdd9592948e9fbed870a2b1b9900c853f83feee5f01af492"
+    },
+    "static_infrastructure": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/static_infrastructure.log",
+      "exit": 0,
+      "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+    },
+    "targeted": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/targeted.log",
+      "exit": 0,
+      "sha256": "84c2051f215142993cf315c09ab9f8d87f895a3a1453439acc2d5ae5021282aa"
+    },
+    "full_python": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/full_python.log",
+      "exit": 0,
+      "sha256": "9f35b679929033c1aa1fe35cc7103ca19cdab7ec77f5718ae6d8dd89800c13bc"
+    },
+    "node": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/node.log",
+      "exit": 0,
+      "sha256": "7763589d789a30daaf245a517b60ef2755618f85fc74a7381cc59a814593b74e"
+    },
+    "rust_smoke": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/rust_smoke.log",
+      "exit": 0,
+      "sha256": "5c7e5cc1d42bf843f0b12b8537c13ffed41fd9a1ef102155c3affba06d077233"
+    },
+    "rust_smoke_clippy": {
+      "path": "/private/tmp/ab-collab-pdc6cxg2/frozen-d3893491/rust_smoke_clippy.log",
+      "exit": 0,
+      "sha256": "d062fa27adc685456f7a04f74be9616c384d4d5e9e30afd4d17c2582a3c164e4"
+    }
+  },
+  "first_real_run": {
+    "exit": 1,
+    "refusal": "MIGRATION_CONTENT_MISMATCH",
+    "cause": "The initial check expected an extra Host autoindex.",
+    "observation_note": "/private/tmp/ab-collab-pdc6cxg2/first-real.log",
+    "observation_note_sha256": "e14949bf065ac3ec76f572c90d3f183aa4dd7e3b960f684b699ea07b3333781c"
+  },
+  "recorded_artifact_sha256": {
+    "receipt.json": "36855f1a0b609daa016b8a7e67bda0f82daae16b0f17370505d805e64d2faef7",
+    "negative-controls.json": "07da02c3f15c92af5c2c25ae0c1b48e6a0264149204791fb93c02aca99194819",
+    "checks.log": "103eedb81a1b497df02b2514ee6209ec45881bf00b7c3ea681dc8340d898e763"
+  },
+  "limits": [
+    "No real Store, live runtime readiness, maintenance admission or installation.",
+    "Restore is a private byte-for-byte replacement and SQLite reopen; no old application started.",
+    "No GUI, Provider calls, IPC requests, signing, publishing or global service operations.",
+    "The digest set only covers this exact development build and sealed historical fixture."
+  ]
+}
