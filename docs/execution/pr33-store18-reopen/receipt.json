@@ -1,0 +1,140 @@
+{
+  "status": "passed",
+  "old_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "old_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "prior_rehearsal_receipt_sha256": "36855f1a0b609daa016b8a7e67bda0f82daae16b0f17370505d805e64d2faef7",
+  "compiler_source_archive_sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+  "historical_build_manifest_sha256": "038103f396747859a3b9c62354ce11a2d9acb6bec4213aa7a0a4acb476bf7433",
+  "historical_tool_sha256": {
+    "baton": "82f6c54bfd49be8ae19a9cd66b1c32a4b1a5edc8d33145a564b80c792ca2fc61",
+    "batond": "d418f8c1a97a430d21f77c0fc52953eee215cd536523dd4582bfb48f10739603"
+  },
+  "historical_build_features": [],
+  "historical_build_input_files_verified": 244,
+  "tests": {
+    "reopened_store18": {
+      "process": {
+        "owned_identity": {
+          "pid": 35866,
+          "pgid": 35866
+        },
+        "sigterm_sent": true,
+        "forced_kill": false,
+        "sid": 35866,
+        "cleanup_errors": [],
+        "leader_unreaped_until_signalling": true,
+        "daemon_wait_exit": 0,
+        "group_quiescent_before_reaping": true,
+        "identity_gone_after_join": true
+      },
+      "commands": {
+        "snapshot": {
+          "argv": [
+            "snapshot"
+          ],
+          "exit": 0,
+          "stdout_sha256": "e4e8e328694092e5e330c194b87add2b328fd29894ef5c3aabe780b7d6f0a16a",
+          "stdout_bytes": 1247,
+          "stderr_bytes": 0
+        },
+        "projects": {
+          "argv": [
+            "projects",
+            "list"
+          ],
+          "exit": 0,
+          "stdout_sha256": "4ce16e41a5209835d134c37b92e6b9c6257288471659e46a7a0f7a075e1b48d0",
+          "stdout_bytes": 582,
+          "stderr_bytes": 0
+        },
+        "tasks": {
+          "argv": [
+            "tasks",
+            "list"
+          ],
+          "exit": 0,
+          "stdout_sha256": "3f70980854e050b514531b5844350ab85cfeb4ddfb6a4e18a1981e101fbbc759",
+          "stdout_bytes": 1090,
+          "stderr_bytes": 0
+        },
+        "events": {
+          "argv": [
+            "events",
+            "0"
+          ],
+          "exit": 0,
+          "stdout_sha256": "d55cca9d52674c12ededf6332a158a87c5047e9f0b3f134c9bd096b7e18a17c8",
+          "stdout_bytes": 2171,
+          "stderr_bytes": 0
+        }
+      },
+      "snapshot": {
+        "api_version": 1,
+        "database_schema_version": 18,
+        "sequence": 5
+      },
+      "journal": {
+        "sequence": 5,
+        "event_sequences": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "task_states": [
+        "cancelled",
+        "draft",
+        "draft"
+      ],
+      "project_count": 1,
+      "ipc_rows_equal_restored_sqlite": true,
+      "ready_on_owned_private_socket": true,
+      "status": "passed",
+      "standalone_input_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "runtime_copy_after_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "full_logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+      "logical_schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+      "all_63_tables_equal_after_normal_stop": true,
+      "nonempty_tables": {
+        "projects": 1,
+        "tasks": 3,
+        "events": 5,
+        "idempotency": 4,
+        "sqlite_sequence": 1
+      },
+      "process_environment_keys": [
+        "BATON_RUNTIME_DIR",
+        "HOME",
+        "LC_ALL",
+        "PATH",
+        "TMPDIR",
+        "XDG_CACHE_HOME",
+        "XDG_CONFIG_HOME",
+        "XDG_DATA_HOME",
+        "XDG_STATE_HOME"
+      ],
+      "old_daemon_log_sha256": "183357925a2faf1eaebb3a1cd28819a20e8e6348fb82f133bb3fe6cce594db3b"
+    },
+    "future_store19": {
+      "process": {
+        "pid": 35873,
+        "pgid": 35873,
+        "sid": 35873,
+        "wait_exit": 1
+      },
+      "forced_cleanup": false,
+      "status": "refused_as_expected",
+      "reason": "VERSION_UNSUPPORTED",
+      "ipc_endpoint_created": false,
+      "copied_input_sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5",
+      "copied_output_sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5",
+      "log_sha256": "21b40d638573d128a5b73e1b68ca86f655715cac467f0fb20601dd7fe2d2f792"
+    }
+  },
+  "installation_authorized": false,
+  "original_inputs_with_byte_and_identity_pins": 8,
+  "backup_and_restored_input_bytes_equal": true,
+  "private_tool_copy_digests_unchanged": true
+}
