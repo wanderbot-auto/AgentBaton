@@ -213,6 +213,15 @@ def finite_diagnostics(value):
         require(value['failure_class']is not None)
         capture_failure_diagnostic(value['capture_failure'],value['failure_class'])
         return value
+    if type(value) is dict and type(value.get('version')) is int and value['version'] == 6:
+        require('start_failure' in value)
+        legacy = {key: item for key, item in value.items() if key != 'start_failure'}
+        legacy['version'] = 5 if 'capture_failure' in legacy else 4
+        finite_diagnostics(legacy)
+        require(value['phase'] == 'runtime' and value['failure_class'] is not None
+                and value['last_completed_check'] == 'CG02')
+        start_failure_diagnostic(value['start_failure'])
+        return value
     # V4 is an explicit extension; validate its unchanged v3 payload first.
     if type(value)is dict and type(value.get('version'))is int and value['version']==4:
         require(set(value)==set(unobserved_diagnostics())|{'owner_ui_state'})
@@ -497,6 +506,9 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
     diagnostics=finite_diagnostics(report.get('finite_diagnostics'))
     if diagnostics.get('version')==5:
         require(report['status']=='failed_or_interrupted'and exit_code!=0)
+    if diagnostics.get('version') == 6:
+        require(report['status'] == 'failed_or_interrupted' and exit_code != 0
+                and seen == {'CG01', 'CG02'})
     passed=(exit_code==0 and report['status']=='passed' and report['cleanup_complete']is True
         and not report.get('failure') and report.get('http_unexpected_errors')==[] and seen==EXPECTED[case]
         and diagnostics.get('graph_provider_argv')is None)
@@ -505,6 +517,109 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         'cleanup_complete':report['cleanup_complete'],'cleanup_record_count':len(cleanup),
         'failure_kind':'none'if passed else 'runtime_failed','screenshots_published':False,
         'private_history_published':False,'finite_diagnostics':diagnostics}
+
+def start_failure_diagnostic(value):
+    require(type(value) is dict and set(value) == {
+        'stage', 'bridge_start_requests', 'start_reply', 'start_refusal',
+        'first_context_refusal', 'unmapped_context_error', 'truncated', 'click_causality',
+    })
+    require(type(value['stage']) is str and value['stage'] in {'click', 'receipt_wait'})
+    require(type(value['bridge_start_requests']) is str
+            and value['bridge_start_requests'] in {'zero', 'one', 'multiple', 'unobserved'})
+    require(type(value['start_reply']) is str
+            and value['start_reply'] in {'unobserved', 'result', 'error', 'unmapped'})
+    require(type(value['truncated']) is bool and type(value['unmapped_context_error']) is bool
+            and value['click_causality'] == 'not_established')
+    if value['truncated']:
+        require(value['bridge_start_requests'] in {'unobserved', 'multiple'})
+    else:
+        require(value['bridge_start_requests'] != 'unobserved')
+    if value['bridge_start_requests'] != 'one':
+        require(value['start_reply'] == 'unobserved')
+    if value['start_reply'] == 'error':
+        require(diagnostic_error(value['start_refusal'])['method'] == 'factory_child_goals.start')
+    else:
+        require(value['start_refusal'] is None)
+    if value['first_context_refusal'] is not None:
+        require(diagnostic_error(value['first_context_refusal'])['method'] == 'factory_child_plans.context')
+    return value
+
+
+def start_bridge_reply(method, reply):
+    if reply is None:
+        return 'unobserved', None
+    if type(reply) is dict and 'error' not in reply and 'result' in reply:
+        return 'result', None
+    if type(reply) is dict and 'result' not in reply and type(reply.get('error')) is dict:
+        raw = reply['error']
+        try:
+            return 'error', diagnostic_error({
+                'method': method, **{key: raw.get(key) for key in ('code', 'retryable', 'side_effect_state')},
+            })
+        except Refused:
+            pass
+    return 'unmapped', None
+
+
+def start_failure_observation(stage, traces, scope_id, task_id):
+    """Project matching bridge entries observed after entry to the Start click.
+
+    A decoded bridge request without a Core reply does not prove Unix IPC send,
+    and a nearby Context error does not prove which UI action caused that read.
+    """
+    start_count = 0
+    reply_class, start_error, context_error = 'unobserved', None, None
+    unmapped_context = False
+    for row in traces[:MAX_DIAGNOSTIC_REPLIES]:
+        method, params = row.get('method'), row.get('params')
+        if type(params) is not dict or params.get('scope_id') != scope_id:
+            continue
+        if method == 'factory_child_goals.start':
+            request = params.get('request')
+            if type(request) is not dict or request.get('task_id') != task_id:
+                continue
+            start_count = min(start_count + 1, 2)
+            if start_count == 1:
+                reply_class, start_error = start_bridge_reply(method, row.get('response'))
+            else:
+                reply_class, start_error = 'unobserved', None
+        elif method == 'factory_child_plans.context' and params.get('task_id') == task_id:
+            kind, closed = start_bridge_reply(method, row.get('response'))
+            if context_error is None and kind == 'error':
+                context_error = closed
+            if kind == 'unmapped':
+                unmapped_context = True
+    truncated = len(traces) > MAX_DIAGNOSTIC_REPLIES
+    bridge_count = ('zero', 'one', 'multiple')[start_count]
+    if truncated and start_count < 2:
+        bridge_count, reply_class, start_error = 'unobserved', 'unobserved', None
+    return start_failure_diagnostic({
+        'stage': stage, 'bridge_start_requests': bridge_count,
+        'start_reply': reply_class, 'start_refusal': start_error, 'first_context_refusal': context_error,
+        'unmapped_context_error': unmapped_context, 'truncated': truncated,
+        'click_causality': 'not_established',
+    })
+
+
+class StartFailureRecorder:
+    def __init__(self):
+        self._error = None
+        self._observation = None
+
+    def capture(self, stage, traces, scope_id, task_id, error):
+        self._observation = start_failure_observation(stage, traces, scope_id, task_id)
+        self._error = error
+
+    def snapshot(self, finite):
+        value = finite.snapshot()
+        if (self._error is None or value.get('version') not in (4, 5)
+                or value.get('phase') != 'runtime' or value.get('last_completed_check') != 'CG02'):
+            return value
+        with finite._lock:
+            if self._error is not getattr(finite, '_failure_identity', None):
+                return value
+        return {**value, 'version': 6, 'start_failure': dict(self._observation)}
+
 
 def exact_integer(value, expected):
     return type(value) is int and value == expected

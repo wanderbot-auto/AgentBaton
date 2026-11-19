@@ -628,6 +628,50 @@ SERIAL_PLAN_HISTORY_LAYER = ('64e27e2d1b49750542933ea50d9ad6a85ec93964ec1c21411a
    "        root_region.get_by_role('button', name='Discard local draft', exact=True).click()\n"
    "        raw4 = next_raw(stored, 'Actual lost-response UI revision four')\n")])
 
+# Reverse only the pinned Start-failure observation layer before existing inverses.
+START_FAILURE_LAYERS = {
+    'apps/desktop/tests/factory-child-goal-real-ipc.py': (
+        '320af1df2802e6e543c68ca3f5ce26d15bcba4a3beba057314fbd561ef44b73d',
+        '06d78e2c4df8af6beb816ae85d9cec37256ea7315263e8fb3038be2439bb6855',
+        [
+            (1789, 1790,
+             '0da2dd1350c272a3b7e483a3378cc1e1bc574af8b4b8f0780e1e09e041f39ccf',
+             ''),
+            (2136, 2152,
+             'ab66a49ef732feb48aa3d0de3ba5844aa5baa58ed176ab6141d80b0acf57dfa8',
+             "        start_button.click()\n        started=wait(lambda:[r for r in report['http']if r['method']=='factory_child_goals.start'and not r.get('response',{}).get('error')and r.get('response')],lambda v:len(v)==1)[0]\n"),
+            (2443, 2444,
+             '335975afdc497e1f153508ee66d2f3343efee9c63862a5f0c55ae9beb4b51afc',
+             "        report['finite_diagnostics']=finite.snapshot()\n"),
+        ],
+    ),
+    'scripts/record-child-goal-ci-evidence.py': (
+        '8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741',
+        '6d11ba710b957c5cc894960211457ba1771767b25603a1584c7c3b2b71ca02bb',
+        [
+            (214, 223,
+             '06afc0dbd7534e463d6792c1699b1262aadcc565c7ed19c6c62c1067b9142bf7',
+             ''),
+            (508, 511,
+             'fe610a2df2ae3c77ad169bcc943898cc63eef54ef7fc365c761393cd23ddf6e7',
+             ''),
+            (519, 622,
+             '4f48d34720a21e91d7967c9014c5233e512d129b7b05d933505e2991c5b43e08',
+             ''),
+        ],
+    ),
+    'tests/infrastructure/test_child_goal_ci_evidence.py': (
+        '6622dfa6aa6f4309d9bfd6a5e95c6ad49a9320c4028f2b4ff924e6211e009682',
+        'e1578f63960af2cf5ad296b1c5300e763595b484223a088fee8ae78169e6f914',
+        [
+            (210, 355,
+             '311576530834190c0b5fe218755af75706519f71acd2411368f8d9404034ccd6',
+             ''),
+        ],
+    ),
+}
+
+
 def sha(text):
     return hashlib.sha256(text.encode()).hexdigest()
 
@@ -647,9 +691,17 @@ def reverse_pinned_spans(source, layer, error=AssertionError):
     return restored
 
 
+def without_start_failure_layer(path, source, error):
+    layer = START_FAILURE_LAYERS.get(path)
+    if layer is not None and sha(source) == layer[0]:
+        return reverse_pinned_spans(source, layer, error)
+    return source
+
+
 def restore_child_goal_before_schema19(path, source, *, error=AssertionError):
     if type(path) is not str or path not in LAYERS or type(source) is not str:
         raise error('Unknown Child Goal schema19 inverse arguments')
+    source = without_start_failure_layer(path, source, error)
     layer = LAYERS[path]
     digest = sha(source)
     if digest == layer[1]:
@@ -662,6 +714,7 @@ def restore_child_goal_before_schema19(path, source, *, error=AssertionError):
 
 
 def normalize_child_goal_outer_layer(path, source, *, error=AssertionError):
+    source = without_start_failure_layer(path, source, error)
     layer = LAYERS.get(path)
     digest = sha(source)
     if path == PLANNING_DRIVER and digest == SERIAL_PLAN_HISTORY_LAYER[0]:
