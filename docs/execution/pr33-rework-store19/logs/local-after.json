@@ -1,0 +1,286 @@
+{
+  "cases": [
+    {
+      "actor_thread_joined": true,
+      "code": "FINITE_PROJECTION_COLLECTED",
+      "daemon_result": "ok",
+      "last_readonly_observation": {
+        "approved_scope_remaining_ms": 54128,
+        "call_elapsed_ms": 6,
+        "call_number": 56,
+        "configured_actor_request_budget_ms": 60000,
+        "configured_client_read_timeout_ms": 5000,
+        "list_progress": null,
+        "method": "factory_runs.get",
+        "method_calls": {
+          "factory_child_goals.get": 1,
+          "factory_child_goals.list": 27,
+          "factory_runs.get": 28
+        },
+        "method_total_elapsed_ms": {
+          "factory_child_goals.get": 132,
+          "factory_child_goals.list": 2611,
+          "factory_runs.get": 730
+        },
+        "node_count": null,
+        "observation_overdue_ms": 0,
+        "observation_remaining_ms": 50380,
+        "phase": "wait_parent_resume_completed",
+        "plan_revision": null,
+        "received_before_original_deadline": true,
+        "reply_is_error": false,
+        "reply_object_supplied": true,
+        "reply_revision": 158,
+        "run_completed": true,
+        "run_outcome_unknown": false,
+        "run_revision": 12,
+        "scenario_elapsed_ms": 6513,
+        "stage": "response_received",
+        "wall_ms": 1795048608124
+      },
+      "post_shutdown": {
+        "associated_events": {
+          "code": "unknown_not_available",
+          "events": [],
+          "previous_node_settlement": null,
+          "prior_capture_settlements": [],
+          "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+          "status": "pending"
+        },
+        "attempt_budget_observations": {
+          "code": "original_row_node_event_or_session_fields_match",
+          "coverage": "selected_child_original_graph_and_factory_descendant_records_only",
+          "not_an_admission_stop_or_authority_verdict": true,
+          "other_root_project_records_not_projected": true,
+          "records": [
+            {
+              "actual_output_bytes": 0,
+              "actual_runtime_ms": 338,
+              "declared_output_bytes": 1024,
+              "declared_runtime_ms": 6000,
+              "ordinal": 1,
+              "output_exceeds_declared": false,
+              "plan_revision": "2",
+              "record_kind": "graph_validate",
+              "runtime_exceeds_declared": false,
+              "settled": true
+            },
+            {
+              "actual_output_bytes": 21,
+              "actual_runtime_ms": 327,
+              "declared_output_bytes": 1024,
+              "declared_runtime_ms": 4000,
+              "ordinal": 2,
+              "output_exceeds_declared": false,
+              "plan_revision": "1",
+              "record_kind": "graph_work",
+              "runtime_exceeds_declared": false,
+              "settled": true
+            },
+            {
+              "actual_output_bytes": 0,
+              "actual_runtime_ms": 243,
+              "declared_output_bytes": 1024,
+              "declared_runtime_ms": 6000,
+              "ordinal": 3,
+              "output_exceeds_declared": false,
+              "plan_revision": "1",
+              "record_kind": "graph_validate",
+              "runtime_exceeds_declared": false,
+              "settled": true
+            },
+            {
+              "actual_output_bytes": 20,
+              "actual_runtime_ms": 399,
+              "declared_output_bytes": 1024,
+              "declared_runtime_ms": 4000,
+              "ordinal": 4,
+              "output_exceeds_declared": false,
+              "plan_revision": "2",
+              "record_kind": "graph_work",
+              "runtime_exceeds_declared": false,
+              "settled": true
+            },
+            {
+              "actual_output_bytes": 21,
+              "actual_runtime_ms": 683,
+              "declared_output_bytes": 4096,
+              "declared_runtime_ms": 19430,
+              "ordinal": 5,
+              "output_exceeds_declared": false,
+              "plan_revision": null,
+              "record_kind": "factory_task",
+              "runtime_exceeds_declared": false,
+              "settled": true
+            }
+          ],
+          "snapshot_time": "post_owned_shutdown_not_admission_instant",
+          "status": "collected_bound_record_facts"
+        },
+        "budget_usage": {
+          "child": {
+            "settled_actual_runtime_ms": 1990,
+            "settled_count": 5,
+            "settled_runtime_unknown": false,
+            "unsettled_count": 0,
+            "unsettled_reserved_runtime_ms": 0
+          },
+          "code": "existing_ledger_and_child_records",
+          "fee_kind_observations": {
+            "code": "unique_original_fee_records",
+            "groups": [
+              {
+                "declared_reserved_runtime_ms": 19430,
+                "direct_binding_established": true,
+                "factory_queued_ms": 32,
+                "plan_relation": "failed_graph_context",
+                "plan_revision": 1,
+                "queue_observation": "observed",
+                "record_count": 1,
+                "settled_actual_output_bytes": 21,
+                "settled_actual_runtime_ms": 683,
+                "settled_count": 1,
+                "source_kind": "factory_recovery_planner",
+                "unsettled_count": 0,
+                "unsettled_reserved_output_bytes": 0,
+                "unsettled_reserved_runtime_ms": 0
+              },
+              {
+                "declared_reserved_runtime_ms": 6000,
+                "direct_binding_established": true,
+                "factory_queued_ms": null,
+                "plan_relation": "graph_plan",
+                "plan_revision": 1,
+                "queue_observation": "not_applicable",
+                "record_count": 1,
+                "settled_actual_output_bytes": 0,
+                "settled_actual_runtime_ms": 243,
+                "settled_count": 1,
+                "source_kind": "graph_validator",
+                "unsettled_count": 0,
+                "unsettled_reserved_output_bytes": 0,
+                "unsettled_reserved_runtime_ms": 0
+              },
+              {
+                "declared_reserved_runtime_ms": 6000,
+                "direct_binding_established": true,
+                "factory_queued_ms": null,
+                "plan_relation": "graph_plan",
+                "plan_revision": 2,
+                "queue_observation": "not_applicable",
+                "record_count": 1,
+                "settled_actual_output_bytes": 0,
+                "settled_actual_runtime_ms": 338,
+                "settled_count": 1,
+                "source_kind": "graph_validator",
+                "unsettled_count": 0,
+                "unsettled_reserved_output_bytes": 0,
+                "unsettled_reserved_runtime_ms": 0
+              },
+              {
+                "declared_reserved_runtime_ms": 4000,
+                "direct_binding_established": true,
+                "factory_queued_ms": null,
+                "plan_relation": "graph_plan",
+                "plan_revision": 1,
+                "queue_observation": "not_applicable",
+                "record_count": 1,
+                "settled_actual_output_bytes": 21,
+                "settled_actual_runtime_ms": 327,
+                "settled_count": 1,
+                "source_kind": "graph_work",
+                "unsettled_count": 0,
+                "unsettled_reserved_output_bytes": 0,
+                "unsettled_reserved_runtime_ms": 0
+              },
+              {
+                "declared_reserved_runtime_ms": 4000,
+                "direct_binding_established": true,
+                "factory_queued_ms": null,
+                "plan_relation": "graph_plan",
+                "plan_revision": 2,
+                "queue_observation": "not_applicable",
+                "record_count": 1,
+                "settled_actual_output_bytes": 20,
+                "settled_actual_runtime_ms": 399,
+                "settled_count": 1,
+                "source_kind": "graph_work",
+                "unsettled_count": 0,
+                "unsettled_reserved_output_bytes": 0,
+                "unsettled_reserved_runtime_ms": 0
+              }
+            ],
+            "not_an_authority_admission_or_stop_verdict": true,
+            "record_count": 5,
+            "snapshot_time": "post_owned_shutdown_not_admission_instant",
+            "status": "observed"
+          },
+          "not_an_authority_or_admission_verdict": true,
+          "project": {
+            "actual_runtime_ms": 3396,
+            "observed_attempts": 8,
+            "runtime_unknown": false
+          },
+          "root": {
+            "actual_runtime_ms": 3396,
+            "observed_attempts": 8,
+            "runtime_unknown": false
+          },
+          "snapshot_time": "post_owned_shutdown_not_admission_instant",
+          "status": "collected_post_shutdown_budget_facts"
+        },
+        "child_graph_count": 1,
+        "integration_counts": {
+          "integration_attempts": 0,
+          "integration_policies": 0,
+          "integration_ref_fences": 0,
+          "integrations": 0
+        },
+        "node_counts": {
+          "1:owner_approval:not_started": 1,
+          "1:validate:failed": 1,
+          "1:work:candidate": 1,
+          "2:owner_approval:accepted": 1,
+          "2:validate:validated": 1,
+          "2:work:candidate": 1
+        },
+        "runs": [
+          {
+            "cancel_requested": false,
+            "plan_revision": "2",
+            "state": "accepted",
+            "task_accepted": true
+          }
+        ],
+        "schema": 19,
+        "validation_counts": {
+          "1:failed:passed_false:stopped_true:worker_joined": 1,
+          "2:passed:passed_true:stopped_true:worker_joined": 1
+        },
+        "validation_observations": {
+          "1": {
+            "actual_runtime_ms": 243,
+            "error_code": null,
+            "exit_code": 1,
+            "goal_io_state": "observed",
+            "process_started": true
+          },
+          "2": {
+            "actual_runtime_ms": 338,
+            "error_code": null,
+            "exit_code": 0,
+            "goal_io_state": "observed",
+            "process_started": true
+          }
+        }
+      },
+      "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+      "status": "collected_post_shutdown",
+      "test_panicking": false
+    }
+  ],
+  "code": "FINITE_PROJECTION_COLLECTED",
+  "contract": "agentbaton.factory-rework-progress.v1",
+  "not_a_product_or_test_pass": true,
+  "status": "collected_post_shutdown"
+}

@@ -1,0 +1,12 @@
+test_each_existing_function_body_is_byte_exact_except_five_budget_insertions (test_root_parent_fee_kind_composition.RootParentFeeSourceComposition.test_each_existing_function_body_is_byte_exact_except_five_budget_insertions) ... ok
+test_every_single_missing_duplicate_moved_or_modified_insertion_refuses (test_root_parent_fee_kind_composition.RootParentFeeSourceComposition.test_every_single_missing_duplicate_moved_or_modified_insertion_refuses) ... ok
+test_exact_full_root_source_restores_and_parent_helper_stays_exact (test_root_parent_fee_kind_composition.RootParentFeeSourceComposition.test_exact_full_root_source_restores_and_parent_helper_stays_exact) ... ok
+test_missing_duplicate_moved_changed_parent_helper_refuse (test_root_parent_fee_kind_composition.RootParentFeeSourceComposition.test_missing_duplicate_moved_changed_parent_helper_refuse) ... ok
+test_original_attempt_guard_full_file_and_parent_fee_tests_restore_exact (test_root_parent_fee_kind_composition.RootParentFeeSourceComposition.test_original_attempt_guard_full_file_and_parent_fee_tests_restore_exact) ... ok
+test_unknown_outer_region_schema_budget_fees_and_output_cap_tamper_refuse (test_root_parent_fee_kind_composition.RootParentFeeSourceComposition.test_unknown_outer_region_schema_budget_fees_and_output_cap_tamper_refuse) ... ok
+test_unknown_types_foreign_source_and_changed_descriptor_refuse (test_root_parent_fee_kind_composition.RootParentFeeSourceComposition.test_unknown_types_foreign_source_and_changed_descriptor_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.060s
+
+OK
