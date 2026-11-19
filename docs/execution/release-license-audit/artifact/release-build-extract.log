@@ -1,0 +1,7 @@
+5797: 2026-11-17T17:01:34.8429160Z npm run tauri -- build --bundles app
+5913: 2026-11-17T17:01:55.3689970Z    Compiling dtoa-short v0.3.5
+5919: 2026-11-17T17:01:57.1145340Z    Compiling selectors v0.38.0
+5928: 2026-11-17T17:01:58.4081970Z    Compiling cssparser v0.37.0
+5984: 2026-11-17T17:02:23.9944360Z    Compiling option-ext v0.2.0
+6073: 2026-11-17T17:06:57.4256180Z     Finished `release` profile [optimized] target(s) in 5m 19s
+6075: 2026-11-17T17:06:57.5431750Z     Bundling AgentBaton.app (/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app)

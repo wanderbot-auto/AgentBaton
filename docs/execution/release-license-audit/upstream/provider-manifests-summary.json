@@ -1,0 +1,77 @@
+{
+  "codex": {
+    "name": "@openai/codex",
+    "version": "0.0.0-dev",
+    "license": "Apache-2.0",
+    "engines": {
+      "node": ">=16"
+    },
+    "direct_dependencies": null,
+    "official_record_sha256": "40909fd0a5b9678dc40dca40e19880dea2edf3ef028eafee2ab9ebad516d1dce",
+    "published_artifact_integrity": null,
+    "published_artifact_url": null
+  },
+  "codex-acp": {
+    "name": "@agentclientprotocol/codex-acp",
+    "version": "2.3.0",
+    "license": "Apache-2.0",
+    "engines": null,
+    "direct_dependencies": {
+      "@agentclientprotocol/sdk": "~2.0.2",
+      "@openai/codex": "^0.164.0",
+      "cross-spawn": "^7.0.6",
+      "diff": "^9.0.0",
+      "open": "^11.0.1",
+      "vscode-jsonrpc": "^9.0.1",
+      "zod": "^4.0.0"
+    },
+    "official_record_sha256": "36f919ab20d1dbf57a8dcc5be629d6678fb01330db399c0057c14aac7268b09a",
+    "published_artifact_integrity": null,
+    "published_artifact_url": null
+  },
+  "claude-agent-acp": {
+    "name": "@agentclientprotocol/claude-agent-acp",
+    "version": "0.97.0",
+    "license": "Apache-2.0",
+    "engines": {
+      "node": ">=22"
+    },
+    "direct_dependencies": {
+      "@agentclientprotocol/sdk": "2.0.2",
+      "@anthropic-ai/claude-agent-sdk": "0.3.310",
+      "diff": "9.0.0",
+      "zod": "4.6.7"
+    },
+    "official_record_sha256": "a90eefc101b1d6b87a797c3ad8aea8128964aa47460bb088aebb2cb4cfb01de5",
+    "published_artifact_integrity": null,
+    "published_artifact_url": null
+  },
+  "qoder-cli": {
+    "name": "@qoder-ai/qodercli",
+    "version": "1.1.92",
+    "license": null,
+    "engines": {
+      "node": ">=20.0.0"
+    },
+    "direct_dependencies": {
+      "sharp": "^0.34.5",
+      "@crosscopy/clipboard": "0.3.6",
+      "@silvia-odwyer/photon-node": "0.3.4"
+    },
+    "official_record_sha256": "45c39e9d48dd05f5685ee0bb8ae54d4a60b06f4947af8c72608e960b562fca99",
+    "published_artifact_integrity": "sha512-QZ+eEaMSW6ysqNyzDF0og+FwYh1BXBH5HjQc3pPxoDsgG9W5ml2BpTlT+VIURzLSbMgSqmFwrk/Y2BL8U4SBYA==",
+    "published_artifact_url": "https://registry.npmjs.org/@qoder-ai/qodercli/-/qodercli-1.1.92.tgz"
+  },
+  "claude-agent-sdk": {
+    "name": "@anthropic-ai/claude-agent-sdk",
+    "version": "0.3.310",
+    "license": "SEE LICENSE IN README.md",
+    "engines": {
+      "node": ">=18.0.0"
+    },
+    "direct_dependencies": null,
+    "official_record_sha256": "f2c8e67e24ffe522ae62986fa54cf912b64469b78f1cf6937bc9cb78988b2232",
+    "published_artifact_integrity": "sha512-fo+sr+9Ks73P001f6XKRQlyzfIBAJMgXArLUkH5Tu98NikRDZeGtFQVj23d5/hj2ijpFgzffrr4fHywY9qUkoQ==",
+    "published_artifact_url": "https://registry.npmjs.org/@anthropic-ai/claude-agent-sdk/-/claude-agent-sdk-0.3.310.tgz"
+  }
+}
