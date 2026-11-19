@@ -1,0 +1,107 @@
+{
+  "backup": {
+    "name": "backup.sqlite3",
+    "nonempty_tables": {
+      "events": 5,
+      "idempotency": 4,
+      "projects": 1,
+      "sqlite_sequence": 1,
+      "tasks": 3
+    },
+    "schema": 18,
+    "sequence": 5,
+    "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d"
+  },
+  "candidate": {
+    "arch": "aarch64",
+    "artifact_sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498",
+    "bundled_daemon_sha256": "0b18add53fc794e6684690a90b74542e487f18409216b2724c8d3d438785a1a1",
+    "channel": "development",
+    "commit": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+    "developer_id_signed": false,
+    "os": "macos",
+    "target_schema": 19,
+    "tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+    "version": "0.1.0"
+  },
+  "contract": "agentbaton.development-update-rehearsal.v1",
+  "core_migration_backup": {
+    "nonempty_tables": {
+      "events": 5,
+      "idempotency": 4,
+      "projects": 1,
+      "sqlite_sequence": 1,
+      "tasks": 3
+    },
+    "schema": 18,
+    "sequence": 5,
+    "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d"
+  },
+  "inputs": {
+    "AgentBaton-arm64-14530c62a0b532e2ba43ca4be4fbc75ccc41d856-development.dmg": {
+      "after_sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498",
+      "before_sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498"
+    },
+    "batond": {
+      "after_sha256": "0b18add53fc794e6684690a90b74542e487f18409216b2724c8d3d438785a1a1",
+      "before_sha256": "0b18add53fc794e6684690a90b74542e487f18409216b2724c8d3d438785a1a1"
+    },
+    "historical-store.sqlite3": {
+      "after_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "before_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d"
+    }
+  },
+  "installation_authorized": false,
+  "migration": {
+    "input_backup_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+    "name": "migrated.sqlite3",
+    "nonempty_tables": {
+      "events": 5,
+      "idempotency": 4,
+      "projects": 1,
+      "sqlite_sequence": 1,
+      "tasks": 3
+    },
+    "schema": 19,
+    "sequence": 5,
+    "sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5"
+  },
+  "process": {
+    "exit": 0,
+    "joined": true,
+    "only_unreaped_leader_before_join": true,
+    "pgid": 48195,
+    "pid": 48195,
+    "ready": true,
+    "sid": 48195,
+    "stop_signal": "SIGTERM"
+  },
+  "recovery": {
+    "migration_output_sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5",
+    "name": "restored.sqlite3",
+    "nonempty_tables": {
+      "events": 5,
+      "idempotency": 4,
+      "projects": 1,
+      "sqlite_sequence": 1,
+      "tasks": 3
+    },
+    "schema": 18,
+    "sequence": 5,
+    "sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d"
+  },
+  "scope": "isolated_generated_fixture_only",
+  "source": {
+    "historical_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "nonempty_tables": {
+      "events": 5,
+      "idempotency": 4,
+      "projects": 1,
+      "sqlite_sequence": 1,
+      "tasks": 3
+    },
+    "schema": 18,
+    "sequence": 5
+  },
+  "status": "rehearsed"
+}

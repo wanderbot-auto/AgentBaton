@@ -1,0 +1,37 @@
+[
+  {
+    "candidate_started": false,
+    "case": "wrong_package_with_correct_name",
+    "code": "CANDIDATE_PACKAGE_MISMATCH",
+    "fixture_pin_overridden_in_control_only": false,
+    "receipt_created": false
+  },
+  {
+    "candidate_started": false,
+    "case": "mutated_historical_database_real_pin",
+    "code": "HISTORICAL_FIXTURE_MISMATCH",
+    "fixture_pin_overridden_in_control_only": false,
+    "receipt_created": false
+  },
+  {
+    "candidate_started": false,
+    "case": "active_tasks_independent_of_digest_guard",
+    "code": "FIXTURE_WORK_OR_CONTENT_UNPROVED",
+    "fixture_pin_overridden_in_control_only": true,
+    "receipt_created": false
+  },
+  {
+    "candidate_started": false,
+    "case": "unknown_task_state_independent_of_digest_guard",
+    "code": "FIXTURE_WORK_OR_CONTENT_UNPROVED",
+    "fixture_pin_overridden_in_control_only": true,
+    "receipt_created": false
+  },
+  {
+    "candidate_started": false,
+    "case": "unexpected_wal",
+    "code": "SQLITE_SIDECAR_PRESENT",
+    "fixture_pin_overridden_in_control_only": false,
+    "receipt_created": false
+  }
+]
