@@ -10,6 +10,25 @@ from pathlib import Path
 CHILD_PLANNING_PATH = 'apps/desktop/tests/factory-child-planning-real-ipc.py'
 LAYERS = json.loads((Path(__file__).parent / 'fixtures/schema18_source_inverse.json').read_text())
 
+# Admit the exact current projector, then reconstruct the previous source
+# before running any of the unchanged Schema18 and inner inverse layers.
+LAYERS['scripts/record-factory-rework-ci-evidence.py']['followup'] = {
+    'after': '59654aacd1d57da3d7e5edb48841e1fd471c2eaadad923a8055c593266948f34',
+    'edits': [{
+        'start': 19, 'end': 20,
+        'expected': 'SCHEMA = 19\n',
+        'replacement': 'SCHEMA = 18\n',
+    }],
+}
+LAYERS['tests/infrastructure/test_factory_rework_attempt_budget.py']['followup'] = {
+    'after': '1b1eb64a5ebbd9675f96ff68c1448dfc3d6cc2dc98487ba1d50d329f6c99ce60',
+    'edits': [{
+        'start': 617, 'end': 618,
+        'expected': "            if sql=='PRAGMA user_version':return Cursor([(19,)])\n",
+        'replacement': "            if sql=='PRAGMA user_version':return Cursor([(18,)])\n",
+    }],
+}
+
 
 def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
     if type(path) is not str or path not in LAYERS or type(text) is not str:
