@@ -1,0 +1,166 @@
+{
+  "contract": "agentbaton.child-goal-ci.v1",
+  "case": "lost-start",
+  "status": "failed",
+  "schema": 19,
+  "source_head": "bbddded63d74216427f2adc8cf44122d78e63206",
+  "compiled_core_source_head": "bbddded63d74216427f2adc8cf44122d78e63206",
+  "manifest_sha256": "78c30eefeafbee628c8a0c68785f782cc86dbbace8408ae481321f8ba1539170",
+  "tools_sha256": {
+    "batond": "fcef299dfeb6c43bbe4a9f60d59e465ac22c538c5db4365c5e1b3189ffaf1728",
+    "baton": "3d448c529876767e7cee32ea16cc717eb117c5a2e67b6f73e7fb761af5765d0b"
+  },
+  "frontend_asset_count": 3,
+  "frontend_assets_sha256": "d016f20517a5fdb6a6b3322066d2e855ec3a17899fe2107a3053640885e3224a",
+  "git_tree": "af8b4c5ba4b6677d49353e3467ceb2de85ab2eab",
+  "harness_sha256": "320af1df2802e6e543c68ca3f5ce26d15bcba4a3beba057314fbd561ef44b73d",
+  "exit_code": 1,
+  "command_state": "returned",
+  "checks": [
+    {
+      "id": "CG01",
+      "status": "passed"
+    },
+    {
+      "id": "CG02",
+      "status": "passed"
+    }
+  ],
+  "cleanup_complete": false,
+  "cleanup_record_count": 6,
+  "failure_kind": "runtime_failed",
+  "screenshots_published": false,
+  "private_history_published": false,
+  "finite_diagnostics": {
+    "version": 6,
+    "failure_class": "assertion",
+    "driver_lines": [
+      2143,
+      1801
+    ],
+    "lines_truncated": false,
+    "phase": "runtime",
+    "last_completed_check": "CG02",
+    "core_replies": {
+      "observation": "observed",
+      "captured_count": 270,
+      "truncated": false,
+      "unmapped_error_count": 0,
+      "errors": [
+        {
+          "method": "factory_child_goals.start",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_scopes.propose",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        },
+        {
+          "method": "factory_runs.get",
+          "code": "NOT_FOUND",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_child_goals.start",
+          "code": "STALE_REVISION",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        },
+        {
+          "method": "factory_child_plans.context",
+          "code": "WORKSPACE_BUSY",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        }
+      ]
+    },
+    "graph_provider_argv": null,
+    "owner_refresh": {
+      "observation": "unobserved",
+      "source_epoch": null,
+      "started_ns": null,
+      "click_finished_ns": null,
+      "finished_ns": null,
+      "refresh_completed": null,
+      "full_fresh": null,
+      "loading": null,
+      "pending_kind": "unobserved",
+      "correlation": "temporal_only",
+      "click_causality": "not_established",
+      "reads": [],
+      "scope_task_only_read_count": 0,
+      "truncated": false
+    },
+    "graph_provider_identity": null,
+    "owner_ui_state": {
+      "source": "renderer_local_untrusted",
+      "authority": "none",
+      "begin": {
+        "observation": "unobserved",
+        "sampled_ns": null,
+        "epoch": null,
+        "fresh": null,
+        "loading": null,
+        "capacity": null,
+        "connected": null,
+        "busy": null,
+        "cancel_reading": null,
+        "disabled": null,
+        "has_view": null,
+        "summary_fresh": null,
+        "parent_ready": null,
+        "parent_refresh_only": null,
+        "pending_kind": null,
+        "pending_unknown": null,
+        "owner_present": null,
+        "owner_disabled": null
+      },
+      "end": {
+        "observation": "unobserved",
+        "sampled_ns": null,
+        "epoch": null,
+        "fresh": null,
+        "loading": null,
+        "capacity": null,
+        "connected": null,
+        "busy": null,
+        "cancel_reading": null,
+        "disabled": null,
+        "has_view": null,
+        "summary_fresh": null,
+        "parent_ready": null,
+        "parent_refresh_only": null,
+        "pending_kind": null,
+        "pending_unknown": null,
+        "owner_present": null,
+        "owner_disabled": null
+      }
+    },
+    "start_failure": {
+      "stage": "receipt_wait",
+      "bridge_start_requests": "zero",
+      "start_reply": "unobserved",
+      "start_refusal": null,
+      "first_context_refusal": {
+        "method": "factory_child_plans.context",
+        "code": "WORKSPACE_BUSY",
+        "retryable": false,
+        "side_effect_state": "not_started"
+      },
+      "unmapped_context_error": false,
+      "truncated": false,
+      "click_causality": "not_established"
+    }
+  },
+  "projector_sha256": "8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741"
+}
