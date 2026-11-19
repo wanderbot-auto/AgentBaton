@@ -202,6 +202,7 @@ def repackage(private, deliverables, report):
             "main_signature": files[f"{APP}/{ROLE_DIR / MAIN}"]["signature"],
         }
         assert_clean(source, private)
+        report["accepted_package_removed_from_output_for_controls"] = True
 
         staged_helper = private_app / ROLE_DIR / "batond"
         try:
@@ -213,6 +214,7 @@ def repackage(private, deliverables, report):
         finally:
             shutil.copy2(app / ROLE_DIR / "batond", staged_helper)
         assert_clean(source, private)
+        report["compiled_pin_rejection_clean"] = True
 
         command_dir = private / "negative-tools"
         command_dir.mkdir()
@@ -222,11 +224,13 @@ def repackage(private, deliverables, report):
         rejected = package("refused_mounted_sealed_resource_change",
                            PATH=f"{command_dir}{os.pathsep}{env['PATH']}",
                            AB_ADMISSION_FIXTURE_REPOSITORY=str(source))
-        require(rejected.returncode != 0
-                and "CONTROL: changed a sealed icon" in rejected.stderr
-                and "sealed resource is missing or invalid" in rejected.stderr
-                and "icon.icns" in rejected.stderr, "Real mounted verification missed an icon mutation")
         assert_clean(source, private)
+        report["mounted_resource_rejection_clean"] = True
+        require(rejected.returncode == 1
+                and "CONTROL: changed a sealed icon before real hdiutil create" in rejected.stderr
+                and "/volume/AgentBaton.app: a sealed resource is missing or invalid" in rejected.stderr
+                and rejected.stdout.count("PASS no inspected native harness identifiers") == 2,
+                "Real mounted verification missed an icon mutation")
         report["build_copy_unchanged"] = hash_build({role: release / role for role in roles}, private_app) == before
         require(report["build_copy_unchanged"], "Packager changed private compiler or assembled originals")
     finally:
