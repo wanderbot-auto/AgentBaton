@@ -1046,11 +1046,11 @@ fn supports_private_copy(source: &File) -> bool {
 }
 
 fn preserved_security_metadata(source: &File, staged: &File) -> bool {
-    if !supports_private_copy(source) || !supports_private_copy(staged) {
-        return false;
-    }
     #[cfg(target_os = "macos")]
     {
+        if !supports_private_copy(source) || !supports_private_copy(staged) {
+            return false;
+        }
         let mut before = [0u8; 64];
         let mut after = [0u8; 64];
         match (
@@ -1064,7 +1064,7 @@ fn preserved_security_metadata(source: &File, staged: &File) -> bool {
     }
     #[cfg(target_os = "linux")]
     {
-        true
+        supports_private_copy(source) && supports_private_copy(staged)
     }
 }
 
