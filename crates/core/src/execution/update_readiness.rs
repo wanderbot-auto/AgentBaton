@@ -1,4 +1,4 @@
-//! Read-only preflight for a specifically approved development update.
+//! Private backup evidence and preflight for a specifically approved development update.
 //! The caller must resolve evidence in the trusted actor, then stop new
 //! admissions and recheck under its exclusive maintenance boundary.
 use crate::{
@@ -6,16 +6,25 @@ use crate::{
     storage::{db_error, Store},
     CoreError, Result,
 };
-use agentbaton_providers::installation::{verify_executable, BinaryDigest};
-use rusqlite::{Connection, OpenFlags};
+use agentbaton_providers::installation::{executable_digest, verify_executable, BinaryDigest};
+use rusqlite::{
+    backup::{Backup, StepResult},
+    Connection, OpenFlags,
+};
+use rustix::fs::{self as rfs, AtFlags, Mode, OFlags};
 use std::{
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     fmt::Write,
-    fs,
+    fs::{self, File},
     os::unix::{ffi::OsStrExt, fs::MetadataExt},
     path::{Path, PathBuf},
+    time::{Duration, Instant},
 };
 use uuid::Uuid;
+
+const UPDATE_SCHEMA: u32 = 19;
+const BACKUP_TEMP_NAME: &str = "snapshot.sqlite3";
+const SIDECAR_SUFFIXES: [&str; 3] = ["-wal", "-shm", "-journal"];
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DevelopmentUpdate {
@@ -84,6 +93,29 @@ pub struct UpdateBackupProof<'a> {
     pub receipt_ref: &'a str,
     pub database: &'a UpdateDatabaseBoundary,
     pub backup: UpdateEvidenceFile<'a>,
+}
+
+/// A private backup issued by the Store. The receipt can become stale when
+/// the Store or the evidence file changes. It grants no update authority.
+#[derive(Debug)]
+pub struct IssuedUpdateBackup {
+    receipt_ref: String,
+    database: UpdateDatabaseBoundary,
+    path: PathBuf,
+    digest: BinaryDigest,
+}
+
+impl IssuedUpdateBackup {
+    pub fn proof(&self) -> UpdateBackupProof<'_> {
+        UpdateBackupProof {
+            receipt_ref: &self.receipt_ref,
+            database: &self.database,
+            backup: UpdateEvidenceFile {
+                path: &self.path,
+                sha256: &self.digest,
+            },
+        }
+    }
 }
 
 /// Receipt of an isolated successful run of the exact target build against
@@ -203,6 +235,23 @@ impl Store {
         database_boundary(&self.conn)
     }
 
+    /// Copy the current Store through its existing SQLite connection. The
+    /// trusted actor chooses an unused absolute path in a private directory.
+    /// An online backup does not settle work or acquire maintenance authority.
+    pub fn issue_update_backup(&mut self, destination: &Path) -> Result<IssuedUpdateBackup> {
+        let mut stage = BackupStage::allocate(destination)?;
+        let result = (|| {
+            let database = copy_update_database(&mut self.conn, &mut stage)?;
+            finish_update_backup(&self.conn, &mut stage, database)
+        })();
+        if result.is_ok() {
+            stage.published = false;
+        } else if stage.discard().is_err() {
+            return Err(backup_cleanup_failed());
+        }
+        result
+    }
+
     /// Does not stop workers, change admission, write SQLite or install anything.
     pub fn assess_update_readiness(&self, request: &UpdateReadinessRequest<'_>) -> UpdateReadiness {
         let mut result = UpdateReadiness {
@@ -267,6 +316,397 @@ impl Store {
         }
         current
     }
+}
+
+fn backup_failed() -> CoreError {
+    CoreError::new(
+        "UPDATE_BACKUP_FAILED",
+        "Cannot verify a private Store backup",
+    )
+}
+
+fn backup_occupied() -> CoreError {
+    CoreError::new(
+        "UPDATE_BACKUP_DESTINATION_OCCUPIED",
+        "The backup path or a SQLite sidecar already exists",
+    )
+}
+
+fn backup_source_changed() -> CoreError {
+    CoreError::new(
+        "UPDATE_BACKUP_SOURCE_CHANGED",
+        "The Store changed before the backup proof could be issued",
+    )
+}
+
+fn backup_cleanup_failed() -> CoreError {
+    let mut error = CoreError::new(
+        "UPDATE_BACKUP_CLEANUP_FAILED",
+        "Private backup cleanup could not be confirmed",
+    );
+    error.side_effect_state = "unknown".into();
+    error
+}
+
+fn same_descriptor_entry(file: &File, directory: &File, name: &OsStr) -> bool {
+    match (
+        rfs::fstat(file),
+        rfs::statat(directory, name, AtFlags::SYMLINK_NOFOLLOW),
+    ) {
+        (Ok(held), Ok(named)) => (held.st_dev, held.st_ino) == (named.st_dev, named.st_ino),
+        _ => false,
+    }
+}
+
+fn with_suffix(name: &OsStr, suffix: &str) -> OsString {
+    let mut result = name.to_os_string();
+    result.push(suffix);
+    result
+}
+
+struct BackupStage<'a> {
+    destination: &'a Path,
+    name: &'a OsStr,
+    parent_path: &'a Path,
+    parent: File,
+    directory_name: String,
+    directory: File,
+    receipt: Uuid,
+    file: Option<File>,
+    staging_file_exists: bool,
+    staging_directory_exists: bool,
+    published: bool,
+}
+
+impl<'a> BackupStage<'a> {
+    fn allocate(destination: &'a Path) -> Result<Self> {
+        let invalid = || {
+            CoreError::new(
+                "UPDATE_BACKUP_PATH_INVALID",
+                "Backup destination requires a canonical owned private directory",
+            )
+        };
+        let name = destination.file_name().ok_or_else(invalid)?;
+        let parent_path = destination.parent().ok_or_else(invalid)?;
+        if !destination.is_absolute()
+            || fs::canonicalize(parent_path).ok().as_deref() != Some(parent_path)
+        {
+            return Err(invalid());
+        }
+        let directory_flags =
+            OFlags::RDONLY | OFlags::DIRECTORY | OFlags::NOFOLLOW | OFlags::CLOEXEC;
+        let parent = File::from(
+            rfs::open(parent_path, directory_flags, Mode::empty()).map_err(|_| invalid())?,
+        );
+        let metadata = parent.metadata().map_err(|_| invalid())?;
+        if metadata.uid() != rustix::process::geteuid().as_raw()
+            || metadata.mode() & 0o7777 != 0o700
+        {
+            return Err(invalid());
+        }
+        Self::ensure_unused(&parent, name)?;
+        let receipt = Uuid::new_v4();
+        let directory_name = format!(".update-backup-{receipt}");
+        rfs::mkdirat(&parent, directory_name.as_str(), Mode::RWXU).map_err(|_| backup_failed())?;
+        let directory = match rfs::openat(
+            &parent,
+            directory_name.as_str(),
+            directory_flags,
+            Mode::empty(),
+        ) {
+            Ok(fd) => File::from(fd),
+            Err(_) => {
+                rfs::unlinkat(&parent, directory_name.as_str(), AtFlags::REMOVEDIR)
+                    .map_err(|_| backup_cleanup_failed())?;
+                return Err(backup_failed());
+            }
+        };
+        Ok(Self {
+            destination,
+            name,
+            parent_path,
+            parent,
+            directory_name,
+            directory,
+            receipt,
+            file: None,
+            staging_file_exists: false,
+            staging_directory_exists: true,
+            published: false,
+        })
+    }
+
+    fn ensure_unused(directory: &File, name: &OsStr) -> Result<()> {
+        for entry in std::iter::once(name.to_os_string())
+            .chain(SIDECAR_SUFFIXES.map(|suffix| with_suffix(name, suffix)))
+        {
+            match rfs::statat(directory, &entry, AtFlags::SYMLINK_NOFOLLOW) {
+                Ok(_) => return Err(backup_occupied()),
+                Err(rustix::io::Errno::NOENT) => (),
+                Err(_) => return Err(backup_failed()),
+            }
+        }
+        Ok(())
+    }
+
+    fn staging_path(&self) -> PathBuf {
+        self.parent_path
+            .join(&self.directory_name)
+            .join(BACKUP_TEMP_NAME)
+    }
+
+    fn check_directories(&self) -> Result<()> {
+        let named = fs::symlink_metadata(self.parent_path).map_err(|_| backup_failed())?;
+        let held = self.parent.metadata().map_err(|_| backup_failed())?;
+        let stage = self.directory.metadata().map_err(|_| backup_failed())?;
+        let uid = rustix::process::geteuid().as_raw();
+        if (named.dev(), named.ino()) != (held.dev(), held.ino())
+            || !named.is_dir()
+            || named.uid() != uid
+            || named.mode() & 0o7777 != 0o700
+            || fs::canonicalize(self.parent_path).ok().as_deref() != Some(self.parent_path)
+            || !stage.is_dir()
+            || stage.uid() != uid
+            || stage.mode() & 0o7777 != 0o700
+            || !same_descriptor_entry(&self.directory, &self.parent, self.directory_name.as_ref())
+        {
+            return Err(backup_failed());
+        }
+        Ok(())
+    }
+
+    fn create_file(&mut self) -> Result<()> {
+        self.check_directories()?;
+        let file = File::from(
+            rfs::openat(
+                &self.directory,
+                BACKUP_TEMP_NAME,
+                OFlags::RDWR | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+                Mode::from_raw_mode(0o600),
+            )
+            .map_err(|_| backup_failed())?,
+        );
+        self.file = Some(file);
+        self.staging_file_exists = true;
+        Ok(())
+    }
+
+    fn check_file_at(&self, directory: &File, name: &OsStr) -> Result<&File> {
+        let file = self.file.as_ref().ok_or_else(backup_failed)?;
+        let meta = file.metadata().map_err(|_| backup_failed())?;
+        if !meta.is_file()
+            || meta.uid() != rustix::process::geteuid().as_raw()
+            || meta.mode() & 0o7777 != 0o600
+            || !same_descriptor_entry(file, directory, name)
+        {
+            return Err(backup_failed());
+        }
+        Ok(file)
+    }
+
+    fn remove_file_at(&self, directory: &File, name: &OsStr) -> Result<()> {
+        if !self
+            .file
+            .as_ref()
+            .is_some_and(|file| same_descriptor_entry(file, directory, name))
+        {
+            return Err(backup_cleanup_failed());
+        }
+        rfs::unlinkat(directory, name, AtFlags::empty()).map_err(|_| backup_cleanup_failed())
+    }
+
+    fn publish(&mut self) -> Result<()> {
+        self.check_directories()?;
+        let staged = self.check_file_at(&self.directory, BACKUP_TEMP_NAME.as_ref())?;
+        staged.sync_all().map_err(|_| backup_failed())?;
+        self.directory.sync_all().map_err(|_| backup_failed())?;
+        Self::ensure_unused(&self.parent, self.name)?;
+        match rfs::linkat(
+            &self.directory,
+            BACKUP_TEMP_NAME,
+            &self.parent,
+            self.name,
+            AtFlags::empty(),
+        ) {
+            Ok(()) => self.published = true,
+            Err(rustix::io::Errno::EXIST) => return Err(backup_occupied()),
+            Err(_) => return Err(backup_failed()),
+        }
+        self.remove_stage()?;
+        self.parent.sync_all().map_err(|_| backup_failed())?;
+        Ok(())
+    }
+
+    fn remove_stage(&mut self) -> Result<()> {
+        if !self.staging_directory_exists {
+            return Ok(());
+        }
+        if !same_descriptor_entry(&self.directory, &self.parent, self.directory_name.as_ref()) {
+            return Err(backup_cleanup_failed());
+        }
+        if self.staging_file_exists {
+            self.remove_file_at(&self.directory, BACKUP_TEMP_NAME.as_ref())?;
+            self.staging_file_exists = false;
+        }
+        // The fresh directory belongs only to this backup operation. Remove
+        // the SQLite-owned sidecar names without following or recursing links.
+        for suffix in SIDECAR_SUFFIXES {
+            let name = with_suffix(BACKUP_TEMP_NAME.as_ref(), suffix);
+            match rfs::statat(&self.directory, &name, AtFlags::SYMLINK_NOFOLLOW) {
+                Err(rustix::io::Errno::NOENT) => (),
+                Ok(meta)
+                    if rfs::FileType::from_raw_mode(meta.st_mode) == rfs::FileType::RegularFile
+                        && meta.st_uid == rustix::process::geteuid().as_raw()
+                        && meta.st_nlink == 1 =>
+                {
+                    rfs::unlinkat(&self.directory, &name, AtFlags::empty())
+                        .map_err(|_| backup_cleanup_failed())?;
+                }
+                _ => return Err(backup_cleanup_failed()),
+            }
+        }
+        self.directory
+            .sync_all()
+            .map_err(|_| backup_cleanup_failed())?;
+        rfs::unlinkat(
+            &self.parent,
+            self.directory_name.as_str(),
+            AtFlags::REMOVEDIR,
+        )
+        .map_err(|_| backup_cleanup_failed())?;
+        self.staging_directory_exists = false;
+        Ok(())
+    }
+
+    fn discard(&mut self) -> Result<()> {
+        let final_cleanup = (|| {
+            if self.published {
+                self.remove_file_at(&self.parent, self.name)?;
+                self.published = false;
+            }
+            Ok(())
+        })();
+        let stage_cleanup = self.remove_stage();
+        let sync = self.parent.sync_all().map_err(|_| backup_cleanup_failed());
+        final_cleanup.and(stage_cleanup).and(sync)
+    }
+}
+
+impl Drop for BackupStage<'_> {
+    fn drop(&mut self) {
+        if self.published || self.staging_directory_exists {
+            let _ = self.discard();
+        }
+    }
+}
+
+fn check_backup_boundary(conn: &Connection, database: &UpdateDatabaseBoundary) -> Result<()> {
+    if database_boundary(conn).ok().as_ref() != Some(database) {
+        return Err(backup_source_changed());
+    }
+    Ok(())
+}
+
+fn copy_update_database(
+    conn: &mut Connection,
+    stage: &mut BackupStage<'_>,
+) -> Result<UpdateDatabaseBoundary> {
+    let database = database_boundary(conn)?;
+    if database.schema != UPDATE_SCHEMA {
+        return Err(CoreError::new(
+            "VERSION_UNSUPPORTED",
+            "Update backups require the current Core Store schema",
+        ));
+    }
+    let source = conn.transaction().map_err(db_error)?;
+    check_backup_boundary(&source, &database)?;
+    stage.create_file()?;
+    let mut target = Connection::open_with_flags(
+        stage.staging_path(),
+        OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NOFOLLOW,
+    )
+    .map_err(db_error)?;
+    stage.check_directories()?;
+    stage.check_file_at(&stage.directory, BACKUP_TEMP_NAME.as_ref())?;
+    target
+        .busy_timeout(Duration::from_millis(100))
+        .map_err(db_error)?;
+    target
+        .pragma_update(None, "synchronous", "FULL")
+        .map_err(db_error)?;
+    {
+        let backup = Backup::new(&source, &mut target).map_err(db_error)?;
+        let deadline = Instant::now() + Duration::from_secs(30);
+        loop {
+            if Instant::now() >= deadline {
+                return Err(CoreError::new(
+                    "WORKSPACE_BUSY",
+                    "The update backup deadline expired",
+                ));
+            }
+            match backup.step(64).map_err(db_error)? {
+                StepResult::Done => break,
+                StepResult::More => (),
+                StepResult::Busy | StepResult::Locked => {
+                    std::thread::sleep(Duration::from_millis(5))
+                }
+                _ => return Err(backup_failed()),
+            }
+        }
+    }
+    target.close().map_err(|(_, error)| db_error(error))?;
+    check_backup_boundary(&source, &database)?;
+    source.commit().map_err(db_error)?;
+    check_backup_boundary(conn, &database)?;
+    Ok(database)
+}
+
+fn finish_update_backup(
+    conn: &Connection,
+    stage: &mut BackupStage<'_>,
+    database: UpdateDatabaseBoundary,
+) -> Result<IssuedUpdateBackup> {
+    stage.check_directories()?;
+    let staged = stage.staging_path();
+    let digest = executable_digest(&staged).map_err(|_| backup_failed())?;
+    let (copy, copied_schema, copied_sequence) = sqlite_evidence(&UpdateEvidenceFile {
+        path: &staged,
+        sha256: &digest,
+    })
+    .ok_or_else(backup_failed)?;
+    if copied_schema != database.schema
+        || copied_sequence != database.sequence
+        || !separate_database_copy(&copy, &database, &[])
+    {
+        return Err(backup_failed());
+    }
+    check_backup_boundary(conn, &database)?;
+    stage.publish()?;
+    let final_file = stage.check_file_at(&stage.parent, stage.name)?;
+    let metadata = final_file.metadata().map_err(|_| backup_failed())?;
+    let path = stage.destination;
+    if (metadata.dev(), metadata.ino()) != (copy.device, copy.inode)
+        || !standalone(path)
+        || file_pin(
+            &UpdateEvidenceFile {
+                path,
+                sha256: &digest,
+            },
+            true,
+        ) != Some(FilePin {
+            path: path.into(),
+            ..copy
+        })
+    {
+        return Err(backup_failed());
+    }
+    check_backup_boundary(conn, &database)?;
+    Ok(IssuedUpdateBackup {
+        receipt_ref: format!("update-backup:{}", stage.receipt),
+        database,
+        path: path.into(),
+        digest,
+    })
 }
 
 fn sequence(conn: &Connection) -> Result<u64> {
@@ -394,7 +834,7 @@ fn observe_store(conn: &Connection) -> Result<(UpdateDatabaseBoundary, Vec<Updat
     use UpdateWorkState as State;
     let tx = conn.unchecked_transaction().map_err(db_error)?;
     let database = database_boundary(&tx)?;
-    if database.schema != 19 {
+    if database.schema != UPDATE_SCHEMA {
         return Err(CoreError::new(
             "VERSION_UNSUPPORTED",
             "Update readiness requires the schema 19 Core state model",
@@ -863,7 +1303,7 @@ fn file_pin(proof: &UpdateEvidenceFile<'_>, private: bool) -> Option<FilePin> {
 }
 
 fn standalone(path: &Path) -> bool {
-    ["-wal", "-shm", "-journal"].iter().all(|suffix| {
+    SIDECAR_SUFFIXES.iter().all(|suffix| {
         let mut name = OsString::from(path.as_os_str());
         name.push(suffix);
         fs::symlink_metadata(name).is_err_and(|error| error.kind() == std::io::ErrorKind::NotFound)
@@ -902,4 +1342,87 @@ fn sqlite_evidence(proof: &UpdateEvidenceFile<'_>) -> Option<(FilePin, u32, u64)
         return None;
     }
     Some((before, inspected.0, inspected.1))
+}
+
+#[cfg(test)]
+mod update_backup_issuer_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+
+    fn private_fixture() -> (tempfile::TempDir, PathBuf, Store) {
+        let sandbox = tempfile::tempdir().unwrap();
+        let root = sandbox.path().canonicalize().unwrap();
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        let store = Store::open(&root.join("core.sqlite3")).unwrap();
+        (sandbox, root, store)
+    }
+
+    #[test]
+    fn issued_snapshot_is_rejected_and_cleaned_on_eventless_external_write() {
+        let (_sandbox, root, mut store) = private_fixture();
+        let database = root.join("core.sqlite3");
+        store.create("fixture", "Draft", "backup-drift").unwrap();
+        let destination = root.join("backup.sqlite3");
+        let mut stage = BackupStage::allocate(&destination).unwrap();
+        let captured = copy_update_database(&mut store.conn, &mut stage).unwrap();
+        let external = Connection::open(&database).unwrap();
+        external
+            .execute_batch("CREATE TABLE update_backup_eventless_drift(id INTEGER);")
+            .unwrap();
+        let changed = store.update_database_boundary().unwrap();
+        assert_eq!(captured.sequence, changed.sequence);
+        assert_ne!(captured.external_version, changed.external_version);
+        assert_eq!(
+            finish_update_backup(&store.conn, &mut stage, captured)
+                .unwrap_err()
+                .code,
+            "UPDATE_BACKUP_SOURCE_CHANGED"
+        );
+        let staged_path = stage.staging_path();
+        stage.discard().unwrap();
+        assert!(!destination.exists());
+        assert!(!staged_path.parent().unwrap().exists());
+        assert_eq!(store.update_database_boundary().unwrap(), changed);
+    }
+
+    #[test]
+    fn late_destination_collision_cleans_only_the_owned_staging_directory() {
+        let (_sandbox, root, mut store) = private_fixture();
+        let destination = root.join("backup.sqlite3");
+        let mut stage = BackupStage::allocate(&destination).unwrap();
+        let captured = copy_update_database(&mut store.conn, &mut stage).unwrap();
+        fs::write(&destination, b"existing evidence").unwrap();
+        assert_eq!(
+            finish_update_backup(&store.conn, &mut stage, captured.clone())
+                .unwrap_err()
+                .code,
+            "UPDATE_BACKUP_DESTINATION_OCCUPIED"
+        );
+        let staged_path = stage.staging_path();
+        stage.discard().unwrap();
+        assert_eq!(fs::read(destination).unwrap(), b"existing evidence");
+        assert!(!staged_path.parent().unwrap().exists());
+        assert_eq!(store.update_database_boundary().unwrap(), captured);
+    }
+
+    #[test]
+    fn staged_copy_with_sidecar_is_rejected_and_removed() {
+        let (_sandbox, root, mut store) = private_fixture();
+        let destination = root.join("backup.sqlite3");
+        let mut stage = BackupStage::allocate(&destination).unwrap();
+        let captured = copy_update_database(&mut store.conn, &mut stage).unwrap();
+        let staged_path = stage.staging_path();
+        let sidecar = with_suffix(staged_path.as_os_str(), "-journal");
+        fs::write(&sidecar, b"staged sidecar").unwrap();
+        assert_eq!(
+            finish_update_backup(&store.conn, &mut stage, captured.clone())
+                .unwrap_err()
+                .code,
+            "UPDATE_BACKUP_FAILED"
+        );
+        stage.discard().unwrap();
+        assert!(!destination.exists());
+        assert!(!staged_path.parent().unwrap().exists());
+        assert_eq!(store.update_database_boundary().unwrap(), captured);
+    }
 }
