@@ -1,0 +1,4 @@
+agentbaton-desktop verify_exit=1
+/private/tmp/ab-collab-0dgnp8ti/accept-459f2ae0/volume/AgentBaton.app/Contents/MacOS/agentbaton-desktop: code has no resources but signature indicates they must be present
+baton verify_exit=0
+batond verify_exit=0

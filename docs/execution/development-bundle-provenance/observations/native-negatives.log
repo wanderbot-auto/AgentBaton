@@ -1,0 +1,13 @@
+development bundle provenance: archive SHA-256 mismatch
+corrupt exit=1 report_bytes=0
+development bundle provenance: build record commit mismatch
+mixed_commit exit=1 report_bytes=0
+development bundle provenance: receipt package identity mismatch
+reused_receipt exit=1 report_bytes=0
+/private/tmp/ab-collab-0dgnp8ti/accept-459f2ae0/negatives/wrong-arch-volume/AgentBaton.app/Contents/MacOS/baton: Mach-O 64-bit executable x86_64
+development bundle provenance: expected a thin ARM64 Mach-O executable
+wrong_arch exit=1 report_bytes=0
+8a90f67680ca1f4f8c7c22d80007ed0c3448e183e77751b76336d4470944ca37  /private/tmp/ab-collab-0dgnp8ti/accept-459f2ae0/negatives/corrupt.zip
+017d1da242c10201ef7349b212da9fb30e106aab463fffd482080a7794dd0aa2  /private/tmp/ab-collab-0dgnp8ti/accept-459f2ae0/negatives/mixed.zip
+b4577edc6865fe9e2181c1611ea3eff0fb9ed709fb1881e7f41efd9e4d6a4d65  /private/tmp/ab-collab-0dgnp8ti/accept-459f2ae0/negatives/wrong-arch.zip
+0ca3bb2eed5f1814d09db0657df4f9423c90c6c0a22f49cb9d73cfa7ba011a0d  /private/tmp/ab-collab-0dgnp8ti/accept-459f2ae0/negatives/AgentBaton-arm64-1d1c35dc7301e0811d0126ce41fa861aaeca4585-development.dmg

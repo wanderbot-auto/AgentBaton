@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "chunk": "fixture-web.js",
+  "chunk_sha256": "76a67f3aa924a49ff7b8b3b0337332a995e5ced573f875b23537c4fff1b21752",
+  "modules": [
+    {
+      "id": "src/label.js",
+      "rendered_length": 160
+    },
+    {
+      "id": "src/entry.js",
+      "rendered_length": 155
+    }
+  ]
+}
