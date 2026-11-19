@@ -1,0 +1,222 @@
+{
+  "requirement": "AB-REL-003",
+  "base": {
+    "head": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+    "tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135"
+  },
+  "tested_source": {
+    "head": "370289977c5789522e9652ea35938eeca33d9faf",
+    "tree": "2bcae57af42377327d0848e2cd4d28eb343f4f28"
+  },
+  "mac_environment": [
+    "Darwin arm64",
+    "ProductName:\t\tmacOS",
+    "ProductVersion:\t\t26.6.1",
+    "BuildVersion:\t\t25G76",
+    "GNU bash, version 3.2.57(1)-release (arm64-apple-darwin25)",
+    "Python 3.14.0a7"
+  ],
+  "scope": "Read-only static audit of known native test-entry identifiers in three pinned development-bundle executables",
+  "legacy_invocation": [
+    "bash",
+    "scripts/native-audit-release.sh",
+    "<executable>"
+  ],
+  "bundle_invocation": [
+    "bash",
+    "scripts/native-audit-release.sh",
+    "--bundle",
+    "<AgentBaton.app>",
+    "--sha256-manifest",
+    "<known expected SHA-256 rows>"
+  ],
+  "feature_gates": {
+    "desktop": "native-smoke",
+    "core": "preview-evidence"
+  },
+  "source_markers": [
+    {
+      "source": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "git_blob": "99c58a54d0641ee32f4154a47e316bc3e992d93f",
+      "markers": [
+        "native_smoke_report",
+        "native-smoke-create",
+        "AGENTBATON_SMOKE_COMMIT"
+      ]
+    },
+    {
+      "source": "apps/desktop/src-tauri/src/native_owner_dialog_test/macos.rs",
+      "git_blob": "6b760e8b00691676853f71ae6e8ce50dab541221",
+      "markers": [
+        "owner_dialog_report"
+      ]
+    },
+    {
+      "source": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "git_blob": "085415d82293730ea71951f89d6c24b79f353833",
+      "markers": [
+        "native_integration_os_dialog_fixture",
+        "native_factory_planning_os_dialog_fixture"
+      ]
+    },
+    {
+      "source": "apps/desktop/src-tauri/src/native_background_service_test/mod.rs",
+      "git_blob": "3d39bbf1cbbef577c558b39178159275da766898",
+      "markers": [
+        "native_background_service_fixture_report",
+        "native_background_fixture_alarm"
+      ]
+    },
+    {
+      "source": "apps/desktop/src-tauri/src/native_background_service_test/fixture.rs",
+      "git_blob": "95a80bf3bb4e24712e383dc25b63b2141984c69f",
+      "markers": [
+        "abg-registration-fixture-v1"
+      ]
+    },
+    {
+      "source": "apps/desktop/src-tauri/Cargo.toml",
+      "git_blob": "9bc466e16f9b1496b5e1cd9eb3b9a3aa4acb4542",
+      "markers": [
+        "agentbaton-native-smoke",
+        "agentbaton-native-owner-dialog-smoke",
+        "agentbaton-native-background-service-smoke"
+      ]
+    },
+    {
+      "source": "crates/core/src/preview_evidence_gate.rs",
+      "git_blob": "e812672c7c982548856c4db8b7345826a0ae6f83",
+      "markers": [
+        "agentbaton_preview_evidence_gate_v1",
+        ".agentbaton-preview-evidence-v1.json",
+        ".agentbaton-preview-evidence-ready-v1.json"
+      ]
+    },
+    {
+      "source": "crates/core/src/copy_evidence_gate.rs",
+      "git_blob": "d92e7a3a3ea11e96ad619f479f90a54e708093c9",
+      "markers": [
+        "agentbaton_copy_evidence_gate_v1",
+        ".agentbaton-copy-evidence-v1.json",
+        ".agentbaton-copy-evidence-ready-v1.json"
+      ]
+    }
+  ],
+  "baseline": {
+    "unit_passed": 8,
+    "app_input_exit": 1,
+    "first_synthetic_fixture_exit": 1,
+    "first_fixture_observation": "On the Apple inspector an executable header without a cstring section yielded no role marker.",
+    "raw": [
+      {
+        "path": "logs/baseline-unit.log",
+        "sha256": "6ab4901e68e42a338f87945e3cb39adcfd54cb244c0fd6745ce7206581751d51"
+      },
+      {
+        "path": "logs/baseline-app.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "logs/baseline-single.log",
+        "sha256": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85"
+      },
+      {
+        "path": "logs/baseline-mach-o.log",
+        "sha256": "e306b93d6c0d441f8794cb6b741313473352995f805f8b325aa57d93913f380c"
+      },
+      {
+        "path": "logs/first-focused.log.gz",
+        "sha256": "6acba4a3e12e4534b9af57ed7a256a6815740787fdc21f7573faaf5c2cd5eeb6"
+      }
+    ]
+  },
+  "exact": {
+    "mac_unit_passed": 21,
+    "mac_existing_ci_interface_passed": 18,
+    "linux_unit_passed": 21,
+    "linux_platform": "Linux aarch64 container, readonly source, network none",
+    "raw": [
+      {
+        "path": "logs/mac-unit.log",
+        "sha256": "30f433548d99dbd1fad50adb0afa35d73110ce369e2f997383ec215a7a5b7cf7"
+      },
+      {
+        "path": "logs/mac-ci-contract.log",
+        "sha256": "4a568140a48fec1b95df8a3a8deb3e40e49651a3cfeef2da76259622d5078eb0"
+      },
+      {
+        "path": "logs/linux-unit.log",
+        "sha256": "7a29e760d2914906c98bbe00648415e23943319d50ca5a44cd5b8ea169e9d319"
+      },
+      {
+        "path": "logs/linux-image",
+        "sha256": "c9298d2849043134dc33a5b61c74092e5deaf1827dee45e6f5af371484e167a7"
+      },
+      {
+        "path": "logs/candidate-mount-mode",
+        "sha256": "ac6c089c1c8924a9960866395603f7747a2d4c6dfc7164f7c03da1580c0af869"
+      },
+      {
+        "path": "logs/candidate-attach.log.gz",
+        "sha256": "9a38e33b07b7378619e51a64e47cbd77cec40d2861041fb5c9235adc65d5ca58"
+      },
+      {
+        "path": "logs/candidate-detach.log",
+        "sha256": "7a042615bf3722a3771413c5ae0834a1153311a88abad4deef4d8ad80a5c7273"
+      },
+      {
+        "path": "logs/historical-legacy.log",
+        "sha256": "8ff1b93356831bc288ee26b9dfbae0dbcddae0bad376b6815370d10ea375cd85"
+      },
+      {
+        "path": "logs/historical-candidate.log",
+        "sha256": "3a3a3d2719612ce2a65b0a795b1464487ad12a1812ac1162f1d9c89be2716c02"
+      },
+      {
+        "path": "logs/historical-executables.sha256",
+        "sha256": "d899341cdcb16fb4898413b7f6069a1cc0f837424cc313aacbd1db42c226a36f"
+      },
+      {
+        "path": "logs/historical-shadow-restored.log",
+        "sha256": "3a3a3d2719612ce2a65b0a795b1464487ad12a1812ac1162f1d9c89be2716c02"
+      },
+      {
+        "path": "logs/historic-missing-batond.log",
+        "sha256": "8d0f849a869b2f074ab0e5c870856c2dd234a151a6427be00ae68e5611f93b87"
+      },
+      {
+        "path": "logs/historic-mixed-sidecar.log",
+        "sha256": "daba03859cb7295f269c5816d7b4ae069a9ad905ccb15d3496927e7307f3f1f6"
+      }
+    ]
+  },
+  "historical": {
+    "artifact_id": 14350183579,
+    "run_id": 44122458362,
+    "build_commit": "df35231eab29aa2d4a043fd9be60888504507716",
+    "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f",
+    "expected_digest_source": "docs/execution/release-license-audit/artifact/bundle-observations.log",
+    "mode": "read_only",
+    "detached": true,
+    "bundle_audit_exit": 0,
+    "legacy_audit_exit": 0,
+    "rejected_missing_batond_exit": 1,
+    "rejected_mixed_sidecar_exit": 1,
+    "restored_copy_exit": 0,
+    "before_after_snapshots_identical": true,
+    "snapshots": [
+      {
+        "path": "logs/historical-app-before.json",
+        "sha256": "7968750d11ecfcd5ff32c96f4f7c622d0c218bba803fbe5674aae25673c33b54"
+      },
+      {
+        "path": "logs/historical-app-after.json",
+        "sha256": "7968750d11ecfcd5ff32c96f4f7c622d0c218bba803fbe5674aae25673c33b54"
+      },
+      {
+        "path": "logs/historical-app-after-negatives.json",
+        "sha256": "7968750d11ecfcd5ff32c96f4f7c622d0c218bba803fbe5674aae25673c33b54"
+      }
+    ]
+  }
+}

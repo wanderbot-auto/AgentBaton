@@ -1,0 +1,14 @@
+collab: task runtime /private/tmp/ab-collab-73tvrth2
+test_every_existing_marker_is_independently_rejected (test_native_release_audit.NativeReleaseAuditTests.test_every_existing_marker_is_independently_rejected) ... ok
+test_grep_error_never_becomes_no_match_success (test_native_release_audit.NativeReleaseAuditTests.test_grep_error_never_becomes_no_match_success) ... ok
+test_legitimate_integration_production_identifiers_are_not_test_markers (test_native_release_audit.NativeReleaseAuditTests.test_legitimate_integration_production_identifiers_are_not_test_markers) ... ok
+test_missing_input_fails_without_success (test_native_release_audit.NativeReleaseAuditTests.test_missing_input_fails_without_success) ... ok
+test_missing_inspector_fails_before_success_or_inspection (test_native_release_audit.NativeReleaseAuditTests.test_missing_inspector_fails_before_success_or_inspection) ... ok
+test_new_integration_os_test_marker_is_rejected (test_native_release_audit.NativeReleaseAuditTests.test_new_integration_os_test_marker_is_rejected) ... ok
+test_strings_failure_after_clean_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_clean_output_never_reports_pass) ... ok
+test_strings_failure_after_forbidden_output_never_reports_pass (test_native_release_audit.NativeReleaseAuditTests.test_strings_failure_after_forbidden_output_never_reports_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.924s
+
+OK
