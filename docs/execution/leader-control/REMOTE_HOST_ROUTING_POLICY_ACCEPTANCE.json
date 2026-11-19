@@ -1,0 +1,63 @@
+{
+  "scope": "pure Host selection over caller-verified binding and observations; no dispatch or new authority",
+  "status": "accepted_closed_published_feature",
+  "base": "ec2ca48b12241451905157240238987c821e2b2a",
+  "source": "7e504de5e080db98cfa091760cb0576e01566a4e",
+  "delivery_and_stop": "a8ebd042b98d32d6a26ba3931043f43cf02e7e0e",
+  "worker_evidence_sha256": "d304bf0f76970143ba480a4209a3c4b0ffb3c87ca410fbbf2bcdee7d1eacd782",
+  "published_feature": "46e38016256dfe3ff2646eb546cad5b8179e27ef",
+  "published_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "combined_tree": "6f8d1604a0403b71976ccc9f99b44d5c92795aff",
+  "exact_tested_crate_tree": "dbaa123680fa3a688d0f1dbf591f821df8b83a72",
+  "verification": {
+    "fixed_source_files": 3,
+    "worker_logs": 13,
+    "new_targeted": 10,
+    "whole_crate": 36,
+    "fmt": "passed",
+    "strict_clippy": "passed",
+    "combined_infra": {
+      "total": 952,
+      "passed": 936,
+      "skipped_existing": 16,
+      "failed": 0
+    },
+    "bootstrap": 93,
+    "main_preview": "no conflict",
+    "scope": "passed"
+  },
+  "limits": [
+    "Caller verification and dispatch-time reauthorization are later scheduler requirements. No remote Host contact, transfer, routing integration or CI run here."
+  ],
+  "claim": {
+    "closed": "534760b41855db6dd0d2a2b7fb3673f52ac36b6b5e388620d6d82545ed770fff",
+    "paths": [
+      "crates/remote-host/src/lib.rs",
+      "crates/remote-host/src/routing.rs",
+      "crates/remote-host/tests/routing.rs",
+      "docs/execution/remote-host-routing-policy"
+    ],
+    "parent_before": "1970b3197e82b4bb88643a8293885057817464b36e31aca8c5756a85b37d32ad",
+    "parent_after": "03921b16422c2a9cbf1dc53ad794bd05f0c56af3b9c08f7b334ad3f4a0164a0e"
+  },
+  "logs": {
+    "preview": {
+      "path": "raw/remote-host-routing-combined-preview.log.gz",
+      "raw_sha256": "8fad40c896e5cae441cbe51e13b91abbad3d7fdf5028b471f931ebf0b88ef193",
+      "archive_sha256": "b9588adf33baa7415d94b31c5216e9c940fa51dfb1aebf10fe6047515752ccf9",
+      "bytes": 263
+    },
+    "infra": {
+      "path": "raw/remote-host-routing-combined-infra.log.gz",
+      "raw_sha256": "bc5c4d8607e66f81c982e7c6b141926f3be5598179b9e0581ccb90756896c616",
+      "archive_sha256": "ce2ab41aaf4bb85785ee9e017e4626476ab17f801b159b4846a5274589768224",
+      "bytes": 2758
+    },
+    "bootstrap": {
+      "path": "raw/remote-host-routing-combined-bootstrap.log.gz",
+      "raw_sha256": "bc157a054558daa0e61fb32eb633fb020f2b3eb5251ca7d8024060042f858906",
+      "archive_sha256": "f791a639c399e549e78f462ec8a0f998ab99558f20b6cf25e2cce1260584b01f",
+      "bytes": 124
+    }
+  }
+}

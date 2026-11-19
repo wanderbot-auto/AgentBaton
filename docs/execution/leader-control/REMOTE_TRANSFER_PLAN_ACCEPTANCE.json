@@ -1,0 +1,60 @@
+{
+  "status": "accepted_closed_published_feature",
+  "base": "46e38016256dfe3ff2646eb546cad5b8179e27ef",
+  "source": "a15b4990a1e9837039990619a8affeed17bfa21f",
+  "delivery_and_stop": "750c89f057a8a01b59b98b9392206d8ecd8340a3",
+  "worker_evidence_sha256": "ed144b88095aa010038488c1db1f77d5082cb6514f830a9e7a92b94abebb20dd",
+  "first_parent": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+  "feature_verified_remote": "4be7d4493a3e82624e2eb45329ec5c358503486a",
+  "tree": "8a93e6f4cf29c173b00c2078252eb4ce922269c0",
+  "tested_crate_tree": "2bd5102b43d3038d9990d2f827a29cd0483884c3",
+  "main_verified_remote": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "verification": {
+    "source_files": 3,
+    "raw_logs": 12,
+    "both_locks_unchanged": true,
+    "targeted": 11,
+    "crate_tests": 47,
+    "fmt_check_and_strict_clippy": "pass",
+    "combined_infra": {
+      "total": 963,
+      "passed": 947,
+      "skipped_existing": 16,
+      "failed": 0
+    },
+    "scope": "pass before new ownership transfer",
+    "bootstrap_files": 93
+  },
+  "limits": "Pure planning and content checks over verified approval and synthetic in-memory bytes. Actual collection, transport, dispatch-time revalidation and remote runtime not implemented here.",
+  "claim": {
+    "paths": [
+      "crates/remote-host/src/lib.rs",
+      "crates/remote-host/src/transfer.rs",
+      "crates/remote-host/tests/transfer.rs",
+      "docs/execution/remote-transfer-plan"
+    ],
+    "closed": "da450af94c4acaa1b044ec9b9a69be3d2f06c4628794c1040dcf82b23f344885",
+    "previous": "b6a05bc657065e80416012b83f35ab2dcfb27b13973d9448f4680427221636bb",
+    "after": "6a899f1c7c9184ab9c024d0f5faeab788697adcec63e0e4b3cce00eaf986abf2"
+  },
+  "logs": {
+    "preview": {
+      "archive": "raw/remote-transfer-combined-preview.log.gz",
+      "sha256": "98a515803e6981f148c9a69a2c7f7b34a26bb7d60a8aaf3d028c3ffbd57f587e",
+      "archive_sha256": "14dbe269e652056959b8a25713635421bc365791e8f29ba1c2192d25d84f6f9c",
+      "bytes": 263
+    },
+    "infra": {
+      "archive": "raw/remote-transfer-combined-infra.log.gz",
+      "sha256": "81f017b4592ee13a3cc2345a952cc2555bfcbf060e0ff82a124d7669aaee2eb7",
+      "archive_sha256": "37765cfb8aebbae4a9e556d66bc52e758925893d3a276d7bc2cbaaf6b6612a04",
+      "bytes": 2769
+    },
+    "bootstrap": {
+      "archive": "raw/remote-transfer-combined-bootstrap.log.gz",
+      "sha256": "bc157a054558daa0e61fb32eb633fb020f2b3eb5251ca7d8024060042f858906",
+      "archive_sha256": "f791a639c399e549e78f462ec8a0f998ab99558f20b6cf25e2cce1260584b01f",
+      "bytes": 124
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "integration_head": "b5681ec4fa3ff2f48fe0c40bc24b436ce4e1c4ea",
+  "goal_graph": {
+    "source": "4e67136acc90a273fae03603cb6ad49d536e6a7f",
+    "delivery": "0ba174e55f58f0e7eb17302ac524a7340b6892e9",
+    "feature": "7e41a4834af2ee592c9bba94b00152a40eda9b7a",
+    "tree": "fce06805e537b3e6bd6902dcb70f34e5297f0a74",
+    "delivery_evidence": "docs/execution/host19-goal-graph-ci/EVIDENCE.json",
+    "evidence_sha256": "33da0a22a7748510a5adaccd41bf9d190b69b5aa9f263f73f7dc9ee947b18911",
+    "independent_raw_review": {
+      "receipt": "/tmp/ab-c-graph-acceptance.ijt1tnd6/receipt.json",
+      "sha256": "a00b22c3594f232af744b2801d575d847755e0006792dd4feb96f4e4024b4078",
+      "business_cases": 6,
+      "business_checks": 40,
+      "business_pngs": 14,
+      "negative_close_controls": 2,
+      "owned_provider_identities_checked": 19,
+      "macos_preflight_refusals": 9,
+      "macos_sqlite_mismatch_refusals": 2,
+      "targeted_exact_source_checks": 18
+    },
+    "combined": {
+      "log": "/tmp/ab-c-graph-joined-infra.2tSaG4mh",
+      "sha256": "6c144aff55540428cf32a6e4f4795c028166d235668374f0826952090ccb2eb3",
+      "total": 1001,
+      "pass": 985,
+      "skipped": 16,
+      "manifest": 93
+    }
+  },
+  "session_recovery": {
+    "source": "ff13dd587b8b69001700245f7d2edd28d8ad0d31",
+    "delivery": "aad88a41f6621b5af1218bc58ba4e00e4892cde2",
+    "feature": "b5681ec4fa3ff2f48fe0c40bc24b436ce4e1c4ea",
+    "tree": "f010fb2cc3e163390ee335797068d4378c1a8fe6",
+    "delivery_evidence": "docs/execution/session-recovery-admission/EVIDENCE.json",
+    "evidence_sha256": "5047a62bf390aa89f59c184777233ebd2be7ac3178bad5418e33ba7f7c381f38",
+    "independent": {
+      "log": "/tmp/ab-b-session-recovery-review.1RRjaS4h",
+      "sha256": "ff5a3a5bc38d45346279efc40a73cd77ab963d7e594b89ee08a56a10b151a1b7",
+      "focused": 9,
+      "scope": "Private real Core with generated ACP and injected trusted identity and compatibility data. Assessment only; no ACP native load, identity registration, automatic replay, new attempt, or IPC exposure."
+    },
+    "other_worker_verification": {
+      "ipc_regression": 3,
+      "sessions_unit": 2,
+      "fmt": true,
+      "check": true,
+      "strict_clippy": true
+    },
+    "combined": {
+      "log": "/tmp/ab-b-session-recovery-joined-infra.vtpd1fOI",
+      "sha256": "4bdd721bc7d83cc2962e1158921c81599e44af4b812a812eea3f7608c3f02d07",
+      "total": 1001,
+      "pass": 985,
+      "skipped": 16,
+      "manifest": 93
+    }
+  },
+  "core_socket_replay": {
+    "log": "/tmp/ab-current-core-ipc.UOqbb3fy",
+    "sha256": "54169a31a29ea23c4035debede78532da8de62ef90e77c0ac30c78cea1cc8f90",
+    "source": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
+    "environment": "macOS ARM64 local private socket",
+    "tests": 5,
+    "passed": 5,
+    "limits": [
+      "Server fixture exercises real Unix IPC and SQLite restart.",
+      "No complete native App/CLI checkpoint or load claim."
+    ]
+  },
+  "dispatch": {
+    "B": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "project-config-import",
+      "branch": "collab/project-config-import",
+      "base": "b5681ec4fa3ff2f48fe0c40bc24b436ce4e1c4ea",
+      "thread": "01a1eecb-645b-7de1-9d87-eb1afdee751c",
+      "turn": "01a1f01e-6250-7ac2-9152-d221f80013a6",
+      "started_utc": "2026-11-18T19:24:45.551Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "contract": "PROJECT_CONFIG_IMPORT_TASK.md",
+      "claim": [
+        "crates/config/src/lib.rs",
+        "crates/config/src/project_import.rs",
+        "crates/config/tests/project_import.rs",
+        "docs/execution/project-config-import"
+      ],
+      "claim_sha256": "cf72295cedc00c6be9b5bc591157944882ebb053551f6e0fe162ba9deb92a2d9",
+      "requirements_started": [
+        "AB-CFG-009"
+      ]
+    },
+    "C": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "host19-factory-ci",
+      "branch": "collab/host19-factory-ci",
+      "base": "7e41a4834af2ee592c9bba94b00152a40eda9b7a",
+      "thread": "01a1efa9-c805-7e22-a70c-bdcac85f1ea2",
+      "turn": "01a1f01b-fad4-7712-9d9f-d77270c2e4fb",
+      "started_utc": "2026-11-18T19:22:07.979Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "contract": "HOST19_FACTORY_CI_TASK.md",
+      "claim": [
+        "apps/desktop/tests/factory-real-ipc.py",
+        "apps/desktop/tests/test_factory_schema19.py",
+        "docs/execution/host19-factory-ci"
+      ],
+      "claim_sha256": "b1985d1f1b75609f896020dda7b55ff594a42466ca2824450f8852a393c70426",
+      "requirements_started": []
+    }
+  },
+  "metrics": {
+    "total": 130,
+    "partial": 119,
+    "starts_pending_review": 1,
+    "no_verified_start": 10,
+    "whole_accepted": 0
+  }
+}

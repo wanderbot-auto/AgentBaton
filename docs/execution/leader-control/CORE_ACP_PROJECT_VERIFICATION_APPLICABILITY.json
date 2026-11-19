@@ -1,0 +1,379 @@
+{
+  "specification": "specs/requirements.json",
+  "sources": [
+    "docs/11-engineering-program.md",
+    "docs/04-providers-sessions.md",
+    "docs/15-validation-gates.md",
+    "AGENTS.md"
+  ],
+  "scope": "Applicability of WP02 Core, WP03 ACP contract and WP05 Project/workspace acceptance. This record does not change test results.",
+  "common_rationale": {
+    "provider": "These contract, data, and fault boundaries are verifiable with controlled protocol or worker processes. Separate WP04 gates must supply live Provider interoperability.",
+    "native_arm64": "Applicable where the criterion requires an actual native entry point, approval dialog, or platform-dependent process identity. For other rows independent app-wide native gates still apply.",
+    "native_x86_64": "Historical only under the owner-approved ARM64 scope.",
+    "ci": "For these contract and integration gates, rerun applicable tests on the actual PR candidate. A selected dimension does not imply CI has run or that the present workflow includes all necessary tests."
+  },
+  "requirements": {
+    "AB-PRJ-001": {
+      "work_package": "WP05",
+      "source_criterion": {
+        "given": "目录含未知脚本",
+        "when": "导入项目",
+        "then": "只登记批准目录，不执行脚本或自动初始化Git"
+      },
+      "required_unit": "导入操作仅登记授权路径；未授权路径拒绝。",
+      "required_integration": "真实导入有无害执行标记的私有目录，确认脚本未运行且未生成 .git。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-PRJ-002": {
+      "work_package": "WP05",
+      "source_criterion": {
+        "given": "仓库和独立数据目录",
+        "when": "分别导入",
+        "then": "两者均成为可追踪workspace并保留路径/host身份"
+      },
+      "required_unit": "区分 Git 与数据目录的路径、Host 与持久身份。",
+      "required_integration": "分别实际导入 Git 仓库与私有数据目录，重启后按两种类型读回同一身份。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-PRJ-003": {
+      "work_package": "WP05",
+      "source_criterion": {
+        "given": "项目路径变化",
+        "when": "重新关联目录",
+        "then": "验证身份并保留历史，不把相同路径文本当唯一身份"
+      },
+      "required_unit": "目录身份与指定路径文字独立，拒绝错误重关联。",
+      "required_integration": "移动真实私有目录后重新关联，并验证替换同名目录不会继承旧身份，已有任务历史仍可读。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-PRJ-004": {
+      "work_package": "WP05",
+      "source_criterion": {
+        "given": "用户有未提交改动",
+        "when": "采纳Agent变更",
+        "then": "提示冲突，不自动stash/reset或覆盖"
+      },
+      "required_unit": "计划和采用阶段的 dirty、冲突和漂移拒绝。",
+      "required_integration": "真实目标工作树存在原始未提交编辑，采用候选必须保留 HEAD、索引及用户字节，UI 报告正确冲突。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-PRJ-005": {
+      "work_package": "WP05",
+      "source_criterion": {
+        "given": "单个或多个写代码任务",
+        "when": "解析工作区并启动",
+        "then": "单任务与并行任务均使用独立工作区，写入不直接影响原项目；不以提示风险替代默认隔离"
+      },
+      "required_unit": "写请求分配隔离、锁及未确认结果的处理。",
+      "required_integration": "实际创建单项与并发写代码任务，独立工作树运行并确认主工作区不受写入；验收后按授权路径采用。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-PRJ-006": {
+      "work_package": "WP05",
+      "source_criterion": {
+        "given": "项目有任务和原始文件",
+        "when": "删除Baton记录",
+        "then": "不默认删除用户仓库和数据"
+      },
+      "required_unit": "项目归档、删除内部记录和原始文件留存为独立操作。",
+      "required_integration": "真实持久化项目归档和删除 Baton 记录，校验任务数据的处理范围与仓库、数据文件逐字保留。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-COR-001": {
+      "work_package": "WP02",
+      "source_criterion": {
+        "given": "多个UI/CLI启动",
+        "when": "连接本地Core",
+        "then": "单写入权威、版本握手和连接认证生效"
+      },
+      "required_unit": "IPC 协议及凭据边界的正常与拒绝分支。",
+      "required_integration": "并发启动真实 daemon，验证只有一个有写权限；用实际 CLI 连接验证版本/身份与错误令牌拒绝。",
+      "required_native_arm64": "原生 App 与 CLI 通过实际侧车连接同一个本地 Core。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-COR-002": {
+      "work_package": "WP02",
+      "source_criterion": {
+        "given": "一次业务状态改变",
+        "when": "持久化",
+        "then": "状态与domain event同事务，不丢关键控制事件"
+      },
+      "required_unit": "事务写入与故障注入的状态和事件检查。",
+      "required_integration": "真实 SQLite 持久化状态与事件，写入中断后检查两者不存在部分提交。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-COR-003": {
+      "work_package": "WP02",
+      "source_criterion": {
+        "given": "派发前后Core崩溃",
+        "when": "重启",
+        "then": "读取intent并确认结果，不盲目重复执行"
+      },
+      "required_unit": "派发 intent 和停止、未知结果状态的转移。",
+      "required_integration": "在真实私有 Core 的关键边界中断并重启；以执行标记、intent 及事件核对没有盲目重复派发。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-COR-004": {
+      "work_package": "WP02",
+      "source_criterion": {
+        "given": "UI断线后cursor过期",
+        "when": "重新订阅",
+        "then": "补发或要求snapshot，缺口可见"
+      },
+      "required_unit": "序列与游标边界，包括保留期外游标。",
+      "required_integration": "真实客户端断开、重连，校验补发或要求重取快照，且 UI 明确显示缺口。",
+      "required_native_arm64": "在 ARM64 原生 App 中复核断连与恢复状态。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-COR-005": {
+      "work_package": "WP02",
+      "source_criterion": {
+        "given": "多个Agent大量输出",
+        "when": "持续运行",
+        "then": "控制事件不丢，日志限流/分片/截断可见"
+      },
+      "required_unit": "限额、截断、日志与优先控制事件队列行为。",
+      "required_integration": "多个受管生成进程持续输出，检查控制事件完整性与 UI 的限流/截断标识。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-COR-006": {
+      "work_package": "WP02",
+      "source_criterion": {
+        "given": "PID复用或进程退出",
+        "when": "恢复/终止",
+        "then": "检查启动身份，不能杀错外部进程"
+      },
+      "required_unit": "启动时间、所有者和进程身份不同时拒绝，覆盖 PID 复用逻辑。",
+      "required_integration": "以真实目标系统进程作证，终止只作用于匹配身份的私有子进程；以控制条件覆盖 PID 复用而无需杀外部 PID。",
+      "required_native_arm64": "在真实 ARM64 macOS 验证 Darwin 进程身份读取得到相同保护。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-COR-007": {
+      "work_package": "WP02",
+      "source_criterion": {
+        "given": "CLI/UI/MCP调用相同动作",
+        "when": "执行任务",
+        "then": "共用Core权限和状态机，不各建私有规则"
+      },
+      "required_unit": "权限与状态机的公共规则及未知方法拒绝。",
+      "required_integration": "同一个实际任务由支持的 CLI、UI 和 MCP 请求操作，核对持久权限、错误及事件一致。",
+      "required_native_arm64": "ARM64 原生 UI 使用同一 Core 行为，验证实际 App 入口。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-ACP-001": {
+      "work_package": "WP03",
+      "source_criterion": {
+        "given": "不同协议实现",
+        "when": "initialize",
+        "then": "先协商后调用，不假定草案与稳定版本一致"
+      },
+      "required_unit": "协议版本与能力交集、版本和不支持方法拒绝。",
+      "required_integration": "至少两种受控协议实现走真实 ACP 管道，证明 initialize 之后才调用能力。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-ACP-002": {
+      "work_package": "WP03",
+      "source_criterion": {
+        "given": "向Agent声明fs/terminal能力",
+        "when": "Agent调用",
+        "then": "有受控实现与错误处理，不空声明支持"
+      },
+      "required_unit": "声明字段与受控 fs/terminal 能力边界及错误。",
+      "required_integration": "受控 Agent 实际调用已声明能力与未授权能力，在私有目录证明真实读写或命令边界。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-ACP-003": {
+      "work_package": "WP03",
+      "source_criterion": {
+        "given": "Provider出现扩展消息",
+        "when": "消费事件",
+        "then": "保留原始引用并安全降级，不随意丢失含义"
+      },
+      "required_unit": "扩展消息、未知字段和错误事件对原始引用的安全归一。",
+      "required_integration": "生成执行进程通过真实管道发送扩展消息，记录并正常读回原始引用及相应 UI 降级。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-ACP-004": {
+      "work_package": "WP03",
+      "source_criterion": {
+        "given": "原生审批请求",
+        "when": "界面确认",
+        "then": "按原生可表达语义匹配已有授权，合法范围内自动应答；新增范围/强制当次人工确认不绕过"
+      },
+      "required_unit": "预授权语义映射、扩权拒绝及明确人工触发。",
+      "required_integration": "执行生成 ACP 审批场景，核对等效许可自动响应、新权限进入人工流程并保留完整证据。",
+      "required_native_arm64": "在 Apple Silicon 实机走完 Native Owner 允许和取消，并核对没有绕过批准。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-ACP-005": {
+      "work_package": "WP03",
+      "source_criterion": {
+        "given": "Agent只确认收到取消",
+        "when": "状态归一化",
+        "then": "区分请求/停止/未知并仅按支持恢复"
+      },
+      "required_unit": "取消请求、确认停止、未知与具备恢复能力的独立状态。",
+      "required_integration": "真实 ACP 管道使用分别确认收到、延迟退出和失联的受控进程，核对恢复能力门与源事件。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-ACP-006": {
+      "work_package": "WP03",
+      "source_criterion": {
+        "given": "adapter崩溃或输出畸形",
+        "when": "Core运行",
+        "then": "不拖垮整个工作台，产生有来源错误"
+      },
+      "required_unit": "畸形、超限和崩溃错误的来源及类型。",
+      "required_integration": "实际启动生成 Adapter，将一条连接故障与并行另一条正常连接隔离，Core 继续响应。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    }
+  }
+}

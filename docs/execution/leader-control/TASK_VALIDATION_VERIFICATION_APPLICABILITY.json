@@ -1,0 +1,472 @@
+{
+  "spec": "specs/requirements.json",
+  "sources": [
+    "docs/06-orchestration.md",
+    "docs/11-engineering-program.md",
+    "docs/09-testing-release.md",
+    "AGENTS.md"
+  ],
+  "scope": "WP08 orchestrated tasks and WP09 validation/acceptance. The checks describe evidence obligations, not recorded passes. Real Provider and production authorization remain separate.",
+  "requirements": {
+    "AB-TSK-001": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "只有自然语言目标",
+        "when": "创建正式Task",
+        "then": "自动补齐可推导字段，合同关联项目已批准范围；只对实质缺失/扩权请求确认"
+      },
+      "required_unit": "自动补齐与必须询问的字段边界。",
+      "required_integration": "App 中只输入目标，实际 Core 生成受已批准项目限制的合同，缺失或扩权才请求确认。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-002": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "Codex和Qoder均已真实接入",
+        "when": "双向发起批准任务",
+        "then": "统一Router记录父子关系和返回产物"
+      },
+      "required_unit": "父子关系、各路径权限与回传校验。",
+      "required_integration": "受控双 Provider fixture 经过真实统一 Router，固定双向父子和产物来源。",
+      "required_provider": "获准真实 Codex 和 Qoder 双向运行并记录最终产物。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-003": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "子任务请求更大目录或工具权限",
+        "when": "处理请求",
+        "then": "拒绝或需明确追加批准，不继承daemon全权"
+      },
+      "required_unit": "目录、工具、主机及数据权限不得继承放宽。",
+      "required_integration": "在真实 Router 发起越权和等效子任务，验证拒绝、追加审批或限定执行，无未授权副作用。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-004": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "同caller重复提交同key",
+        "when": "任务请求重试",
+        "then": "返回同一请求结果；不同payload报冲突"
+      },
+      "required_unit": "相同 key/相同 payload 重用，改 payload 冲突。",
+      "required_integration": "并发重复实际提交及失去响应后复用，持久层仅有一份任务。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-005": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "互相委派形成环或超预算",
+        "when": "排队",
+        "then": "拒绝或阻塞并解释，不无限执行"
+      },
+      "required_unit": "图环、fanout、深度与预算拒绝。",
+      "required_integration": "构造真实跨尝试循环与超上限队列，核实不启动子进程并可解释阻塞。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-006": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "父任务占用并发槽等待子任务",
+        "when": "调度",
+        "then": "释放/保留必要子任务容量并检测循环等待"
+      },
+      "required_unit": "父子等待图与可调度容量约束。",
+      "required_integration": "并发槽已用尽时实际父进程委派等待，子任务在保留容量执行，循环被检测而非卡死。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-007": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "Provider未确认cancel",
+        "when": "取消任务",
+        "then": "显示cancel_requested或unknown，不直接cancelled"
+      },
+      "required_unit": "请求、确认停止和结果未知分离。",
+      "required_integration": "受控 Provider 只确认收到取消或失联，实际 Core、日志与 App 同时保留未确认状态。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-008": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "断线时可能已外部写入",
+        "when": "重连",
+        "then": "先对账，不盲目重放"
+      },
+      "required_unit": "必要对账、已发生与未知动作不得盲重试。",
+      "required_integration": "实际私有任务在外部写入边界断线，重连读真实副作用标记和 durable intent，核对没有重复。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-009": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "目标、验收、权限、预算已经批准",
+        "when": "执行和修订计划",
+        "then": "范围内自主规划、委派、验证返工；不逐步弹确认，超范围与关键阻塞才询问"
+      },
+      "required_unit": "授权上限、根预算、策略内修订与返工。",
+      "required_integration": "从一个批准目标实际经过规划、委派、验证和返工至结果，核对新风险只按批准入口阻塞。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-010": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "无Provider token/成本数据",
+        "when": "展示预算",
+        "then": "标未知，仅执行可靠的时间/并发/次数约束"
+      },
+      "required_unit": "已知/未知计量及硬阈值。",
+      "required_integration": "实际运行无可靠 token/成本的提供方夹具，UI 标未知并验证时间、次数、并发落实。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-001": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "Agent回复已完成但文件缺失",
+        "when": "验收",
+        "then": "判定缺交付，不接受自然语言作为文件证据"
+      },
+      "required_unit": "文本自述与正式产物的接口分离。",
+      "required_integration": "真实受管候选自述完成但未提交文件，验证器与 UI 拒绝接受。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-002": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "数据或代码变更",
+        "when": "重用旧验证",
+        "then": "使旧验证过期或明确不适用"
+      },
+      "required_unit": "输入输出版本、验证器及尝试精确对应。",
+      "required_integration": "真实更换代码或数据版本后重新验收，旧记录明确过期/不适用。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-003": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "Agent提出自有检查",
+        "when": "验证结果",
+        "then": "仅用批准validator或独立审核后执行"
+      },
+      "required_unit": "受批准 Validator、受限命令与未知检查拒绝。",
+      "required_integration": "用实际验证执行核对已批准检查、未批准自定义检查、独立批准后有限运行。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-004": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "分析任务输出结论",
+        "when": "登记产物",
+        "then": "包含脚本/环境/单位/输入版本和适用范围"
+      },
+      "required_unit": "分析合同要求脚本、环境、单位、输入及适用范围。",
+      "required_integration": "用私有数据与真实分析过程生成完整可重放产物，检查各源标识可以重建。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-005": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "只分析部分数据",
+        "when": "生成报告",
+        "then": "不标成全量分析，并记录抽样方法"
+      },
+      "required_unit": "抽样标记和方法不可遗漏。",
+      "required_integration": "处理实际私有抽样数据，导出和 UI 不声称全量并留抽样方法与版本。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-006": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "结果引用越界或symlink",
+        "when": "读取结果",
+        "then": "拒绝越界，不执行预览内容"
+      },
+      "required_unit": "文件根标识、路径遍历、符号链接和不执行内容。",
+      "required_integration": "真实临时文件验证越界/链接拒绝，含脚本内容只读预览且无进程启动。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-007": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "验证通过",
+        "when": "任务结束",
+        "then": "按预批准确定性规则生成可追溯acceptance记录，不把Agent完成自述当验收"
+      },
+      "required_unit": "预批准规则与 accepted 状态依据。",
+      "required_integration": "通过真实验证槽和事件生成可追溯验收，失败或仅自述均不能成为 accepted。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-008": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "任务成功产生总结",
+        "when": "保存模板/Skill",
+        "then": "生成提案，不自动改全局长期指令"
+      },
+      "required_unit": "经验提案缺审批不生效，批准精确内容。",
+      "required_integration": "由真实已验收 Task 发起提案，经独立批准与撤销，检查没有隐式修改全局配置。",
+      "required_provider": null,
+      "required_native_arm64": "实际 App 正常入口复核可见内容及确认交互。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-011": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "已授权目标",
+        "when": "自动生成/修订流程",
+        "then": "固定plan revision，UI可改步骤/执行者/验收，Agent不自降验收"
+      },
+      "required_unit": "固定版本、更新权限及必须保留验证。",
+      "required_integration": "经实际 App 修订计划的步骤、执行者或验收，通过 Core 和事件核对固定修订，无 Agent 自降。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-TSK-012": {
+      "work_package": "WP08",
+      "source_criterion": {
+        "given": "子任务与父任务共享项目预算",
+        "when": "达到硬上限",
+        "then": "不通过拆子任务重置预算，保存进度并停止新派发/安全暂停"
+      },
+      "required_unit": "项目层预算与任务覆盖的合并。",
+      "required_integration": "真实根并发子任务触发硬预算，拒绝继续派发并保存状态，无拆任务重置或静默计费。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-009": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "候选通过规定检查",
+        "when": "采纳代码",
+        "then": "隔离集成候选验证＋expected target head检查；target变化重新验证，不覆盖dirty用户文件"
+      },
+      "required_unit": "孤立候选、目标 CAS 与旧检查失效。",
+      "required_integration": "实际 Git 工作树隔离验证自动采用，故意改变 target head 必须重新验证，未提交用户内容保持。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-010": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "仓库/分支/测试环境已授权",
+        "when": "push/PR/测试部署",
+        "then": "自动执行并记副作用与结果，遵守分支保护及secret边界"
+      },
+      "required_unit": "授权目标、分支规则、最小 secrets 和结果对账。",
+      "required_integration": "按获准仓库/分支与开发测试环境自动 push、PR、测试部署，分别保存远端结果，结果未知应先核对。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-VAL-011": {
+      "work_package": "WP09",
+      "source_criterion": {
+        "given": "开发流程已全部通过",
+        "when": "准备生产发布",
+        "then": "仍需绑定确定产物/commit/环境的批准，改变任何绑定使批准失效"
+      },
+      "required_unit": "生产批准固定产物、提交和目标环境，任一变化拒绝。",
+      "required_integration": "在获准安全环境实测发布准备、变更失效与拒绝，真正生产交付只按当次固定批准执行。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    }
+  }
+}

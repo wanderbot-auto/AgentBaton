@@ -1,0 +1,178 @@
+{
+  "main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "integration_head": "ae236688c1727e1a4610c424dd42bdd832f76dab",
+  "factory": {
+    "tested_source": "29f6a14147880a2a1744e1044278165d8c11f4db",
+    "delivery": "01cc5dcfc99ae21de06434b7e1a7a2dbb01539b4",
+    "prior_feature": "b5681ec4fa3ff2f48fe0c40bc24b436ce4e1c4ea",
+    "feature": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+    "tree": "6e200f6f21355571f7175ca225a0da868f10b7dd",
+    "delivery_evidence": "docs/execution/host19-factory-ci/EVIDENCE.json",
+    "evidence_sha256": "28b843dc1853941b89418c2cef9c4f182784275762001ff4b7daba7d5cc7a2b1",
+    "combined": {
+      "path": "/tmp/ab-c-factory-joined-infra.L6XsEGKC",
+      "sha256": "843e231059749a6e3113e79641b6cf8bec1444fa62bd406fdc44e62fb3ecf1c6",
+      "total": 1001,
+      "passed": 985,
+      "skipped": 16,
+      "manifest_files": 93
+    },
+    "raw_review": {
+      "path": "/tmp/ab-factory-acceptance.cyycddag/receipt.json",
+      "sha256": "8d475dc7684bdde5f56a45cdfac299f5c26fc708ac500ba30c2d8b4faf6e24de"
+    },
+    "checks": {
+      "local_linux_cases": 3,
+      "business_checks": 15,
+      "original_pngs": 6,
+      "guard_controls": 12,
+      "source_focused": 13,
+      "cleanup_self_check": 28
+    },
+    "baseline_red": "Optional diagnostic self-check refused the same missing prior identity in historical source and candidate. Bare local image originally lacked strip. Hosted CI and native dialog remain pending."
+  },
+  "goal_execution": {
+    "tested_source": "258c52e653bf069b3a85c02c59ac4477a9d77d9b",
+    "delivery": "ed7c0d0145b043e042e940ab5780968a983f5557",
+    "prior_feature": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+    "feature": "502c053479ba03827d47b795a79d82ded5ee5100",
+    "tree": "e55224b87d39f26bdc4b4544cd2662a1b43ae1b1",
+    "delivery_evidence": "docs/execution/host19-goal-execution-ci/CLEANUP_EVIDENCE.json",
+    "evidence_sha256": "1e69501af78c17d5fe2c673283f68724e9dec044f1b8644f4f2778e204091bac",
+    "combined": {
+      "path": "/tmp/ab-a-goal-joined-infra.EZv5bUma",
+      "sha256": "6b1a5e4f73c1bda4c5114e7f43f745004d28b2300235724d22d72aaf1d464494",
+      "total": 1001,
+      "passed": 985,
+      "skipped": 16,
+      "manifest_files": 93
+    },
+    "raw_review": {
+      "path": "/tmp/ab-goal-cleanup-review.tf1mi94b/receipt.json",
+      "sha256": "f2ee199e18a0143e341986f278bb9e4caa9d620c9b9914f22de6426823da465d"
+    },
+    "checks": {
+      "exact_source_focused": 16,
+      "local_linux_x64_business_checks": 10,
+      "durable_stop_chains": 7,
+      "original_pngs": 9
+    },
+    "archive": "76 bounded regular files, SHA matched delivery; no raw report embedded."
+  },
+  "project_config": {
+    "tested_source": "d601689a0dc85c47ef3b483bccef867de2d5d747",
+    "delivery": "424e32134dec1905a731938ef6e73671aeaeea94",
+    "prior_feature": "502c053479ba03827d47b795a79d82ded5ee5100",
+    "feature": "ae236688c1727e1a4610c424dd42bdd832f76dab",
+    "tree": "e6dd798128e64f5cb30d74c58bc5f6ffc29fb528",
+    "delivery_evidence": "docs/execution/project-config-import/EVIDENCE.json",
+    "evidence_sha256": "1bcf69becbfb009b0630425a4b407de2c53bd488f5d45c7c816390ca144b614e",
+    "combined": {
+      "path": "/tmp/ab-b-import-joined-infra.i9LBXzhL",
+      "sha256": "944b92d7204b575c32ef1452fafe8716051634587b20c5ac42b7f77242ccdb5a",
+      "total": 1001,
+      "passed": 985,
+      "skipped": 16,
+      "manifest_files": 93
+    },
+    "checks": {
+      "external": {
+        "path": "/tmp/ab-b-config-fd-review.ZMPN9BpD",
+        "sha256": "54c635a0092186aba5bd8e1f851e41cb13c07ca8396e8bdfa292fc34009492c2"
+      },
+      "internal": {
+        "path": "/tmp/ab-b-config-root-control.CKVWwgIG",
+        "sha256": "bfc46cbba32a71c743e4cf9a7f9b9c2ad68944b5758358046507ee7d09d07f7e"
+      },
+      "worker_full_config": 99
+    },
+    "scope": "First-import Config inspection, trusted approval binding and private managed snapshot with exact directory FD source and recovery. Core/App owner entry, unsupported Hook activation and real Provider remain pending."
+  },
+  "coverage_report": {
+    "path": "/private/tmp/ab-complete-applicability.paZZ4yfp/receipt.json",
+    "sha256": "2ca7084ba311b099478307a57e3bf7494a2544bba0f8af0966ba86dfc7cdcad7",
+    "independent_review_agent": "host19_validation_review",
+    "applied_review": "AB-PRO-003/009 now explicitly native ARM64; remote Host cases require evidence for both approved macOS and Linux; AB-EXT-006 documentary visible and not_run."
+  },
+  "child_planning_source_review": {
+    "path": "/tmp/ab-child-planning-evidence-review.ajxmu0jh/receipt.json",
+    "sha256": "b4e45c2c7336bc1acba01b2bd0850e0c46f48ca3c58659b22bcb22be707e8343"
+  },
+  "dispatch": {
+    "A": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "ci-repair-decision",
+      "branch": "collab/ci-repair-decision",
+      "base": "502c053479ba03827d47b795a79d82ded5ee5100",
+      "thread": "01a1e9df-6dc0-7223-bf07-df0d2bcf6042",
+      "turn": "01a1f034-2add-79b3-8b20-b0b648bfc015",
+      "started_utc": "2026-11-18T19:48:33.150Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "contract": "CI_REPAIR_DECISION_TASK.md",
+      "claim": [
+        "crates/core/src/integration.rs",
+        "crates/core/src/integration/ci_repair.rs",
+        "crates/core/tests/ci_repair_decision.rs",
+        "docs/execution/ci-repair-decision"
+      ],
+      "claim_sha256": "116edca9ac0b297e6ed91392758d7adee27f8e542006b43cc32ec1e98812f9df",
+      "requirements_started": [
+        "AB-REL-006"
+      ]
+    },
+    "B": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "update-readiness",
+      "branch": "collab/update-readiness",
+      "base": "ae236688c1727e1a4610c424dd42bdd832f76dab",
+      "thread": "01a1eecb-645b-7de1-9d87-eb1afdee751c",
+      "turn": "01a1f035-8fd5-7df2-9fb4-041d78ee6c6e",
+      "started_utc": "2026-11-18T19:50:04.536Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "contract": "UPDATE_READINESS_TASK.md",
+      "claim": [
+        "crates/core/src/execution.rs",
+        "crates/core/src/execution/update_readiness.rs",
+        "crates/core/tests/update_readiness.rs",
+        "docs/execution/update-readiness"
+      ],
+      "claim_sha256": "e1b1b0481c8634273ead7d68f4627346eab665280bfba9deb44499be02a4f315",
+      "requirements_started": [
+        "AB-REL-007"
+      ]
+    },
+    "C": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "host19-child-planning-ci",
+      "branch": "collab/host19-child-planning-ci",
+      "base": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+      "thread": "01a1efa9-c805-7e22-a70c-bdcac85f1ea2",
+      "turn": "01a1f02d-2a9a-7163-b21a-a6e9d942f0ea",
+      "started_utc": "2026-11-18T19:40:54.346Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "contract": "HOST19_CHILD_PLANNING_CI_TASK.md",
+      "claim": [
+        "apps/desktop/tests/factory-child-planning-real-ipc.py",
+        "apps/desktop/tests/test_factory_child_planning_schema19.py",
+        "tests/infrastructure/schema18_source_fixture.py",
+        "tests/infrastructure/fixtures/schema18_source_inverse.json",
+        "tests/infrastructure/test_child_planning_local_activation_inverse.py",
+        "docs/execution/host19-child-planning-ci"
+      ],
+      "claim_sha256": "9a60b7a9129c20d089e2bef79a843fcc0a3f3a94cfad2075adef948158ed89f5",
+      "requirements_started": []
+    }
+  },
+  "coverage": {
+    "total": 130,
+    "partial": 120,
+    "no_implementation_evidence": 10,
+    "starts_pending_review": 2,
+    "no_verified_start": 8,
+    "whole_accepted": 0,
+    "verification_layers_registered": 130
+  }
+}

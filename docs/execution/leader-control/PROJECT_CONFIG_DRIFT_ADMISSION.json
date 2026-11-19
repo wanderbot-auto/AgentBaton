@@ -1,0 +1,29 @@
+{
+  "requirement": "AB-CFG-010",
+  "worker_base": "c89085fa90187a30df32735b1089d967766f1306",
+  "reviewed_source": "97f3e9e4c0d577aea1adaaf56953ab25495a90d5",
+  "integration_base": "1060ff834f170de39e51cf14336525f53c2eb475",
+  "merged_feature": "7b04514caaf7807b46018547a8b10f2a5e7fc3d6",
+  "exact_composed_tree": "2185d47c1181374fc4a531bd2d20a074f8dd1dcc",
+  "independent_mac_arm64": {
+    "cargo_package": "agentbaton-config",
+    "passed": 105,
+    "failed": 0,
+    "original_first_import_preserved": true,
+    "raw": {
+      "path": "/tmp/ab-a-config-drift-review.yB7vR7wi/cargo.log",
+      "sha256": "926f21dc36ec52525fe11fb9f7ce24007960ba5d89faa28e34ee0d78c9c1fa12"
+    }
+  },
+  "exact_composition": {
+    "bootstrap_files": 93,
+    "infrastructure_passed": 1003,
+    "infrastructure_skipped": 16,
+    "raw": {
+      "path": "/tmp/ab-a-config-drift-composed.YfvfUG27/checks.log",
+      "sha256": "548d7232fefc7925af68e27f400a0ce26f1e02da64e49badf544f664cb475d8e"
+    }
+  },
+  "verified": "The exact approved instruction update and immutable local successor workflow. The Core/App entry and full requirement acceptance are pending.",
+  "next_worktree": "project-config-core-ipc"
+}
