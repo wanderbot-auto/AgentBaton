@@ -1,0 +1,9 @@
+     Running tests/host_registry_migration.rs (target/debug/deps/host_registry_migration-5fc3ce07f67068bf)
+
+running 4 tests
+test malformed_predeclared_host18_is_backed_up_but_never_partially_migrated ... ok
+test rejected_legacy_host_receipt_does_not_commit19_or_any_schema_change ... ok
+test normal19_registration_reopen_audits_receipt_and_preserves_creation_replay ... ok
+test structural18_increment_preserves_raw_opaque_idempotency_and_exact_host_objects ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.52s
