@@ -1,0 +1,221 @@
+{
+  "task": "pr33-rework-store19",
+  "verification": "passed_local_reproduction_and_infrastructure",
+  "repository": "wanderbot-auto/AgentBaton",
+  "branch": "collab/pr33-rework-store19",
+  "base_commit": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+  "base_tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+  "tested_code_commit": "2153d11ae79f0573ac3439f6823c1539645f7cbd",
+  "tested_code_tree": "5906c73e3841cfb2a4485bf770a532f852ec10f0",
+  "hosted_failure": {
+    "pull_request": 33,
+    "run_id": 44432204086,
+    "job_id": 135252128889,
+    "job": "Product / Rust",
+    "job_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44432204086/job/135252128889",
+    "artifact_id": 14487249998,
+    "artifact_url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44432204086/artifacts/14487249998",
+    "artifact_sha256": "950f45f399fcf1fe5a599cd280ce356aca5a7559ba73ac154bced5054fdd9243",
+    "public_case_code": "INVALID_PRIVATE_EVIDENCE",
+    "public_projection_matches_local_baseline_byte_for_byte": true,
+    "other_failure": {
+      "path": "crates/core/src/managed_mcps/diagnostics.rs",
+      "line": 1049,
+      "lint": "clippy::needless_bool",
+      "exit": 101
+    },
+    "new_hosted_run_verified": false
+  },
+  "local_reproduction": {
+    "retained_root": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema19-default-early-migrations/artifacts/factory-child-goal-core",
+    "snapshot": "Previously retained real output of the owned Factory actor test",
+    "observed_store_version": 19,
+    "host_registrations_present_in_source_db": true,
+    "baseline": {
+      "exit": 1,
+      "first_rejection": "project_db:1226 PRAGMA user_version",
+      "expected_store_version": 18,
+      "case_code": "INVALID_PRIVATE_EVIDENCE"
+    },
+    "in_memory_single_change": "Switching only expected Store version to 19 collected the original case",
+    "candidate": {
+      "exit": 0,
+      "stderr_bytes": 0,
+      "public_output_bytes": 10532,
+      "finite_cases": 1,
+      "verified_empty_integration_tables": 4,
+      "input_entries_compared": 42,
+      "input_bytes_and_metadata_unchanged": true,
+      "not_a_product_or_test_pass": true
+    }
+  },
+  "source_guards": {
+    "scripts/record-factory-rework-ci-evidence.py": {
+      "store19_source_sha256": "59654aacd1d57da3d7e5edb48841e1fd471c2eaadad923a8055c593266948f34",
+      "store18_source_sha256": "881a76401945fb31d2e5c61d49b264f6efdc6ff1c3c28e0a5ef2a2a2ad5cc761",
+      "restored_line_range_zero_based": [
+        19,
+        20
+      ]
+    },
+    "tests/infrastructure/test_factory_rework_attempt_budget.py": {
+      "store19_source_sha256": "1b1eb64a5ebbd9675f96ff68c1448dfc3d6cc2dc98487ba1d50d329f6c99ce60",
+      "store18_source_sha256": "052276a813b02b9e631a8d37bd5ec56e2d318086dcc2b1bb25fb43c56dd24826",
+      "restored_line_range_zero_based": [
+        617,
+        618
+      ]
+    }
+  },
+  "targeted_test_counts": {
+    "factory_rework_ci_evidence": 82,
+    "factory_rework_stop_correlation": 23,
+    "ancestor_admission": 12,
+    "schema18_source_inverse": 3,
+    "root_parent_fee_kind_composition": 7,
+    "factory_rework_attempt_budget": 25,
+    "factory_rework_fee_kinds": 26
+  },
+  "full_infrastructure": {
+    "platform": "macOS 26.6.1 (25G76), Apple Silicon arm64",
+    "python": "3.13.2",
+    "sqlite": "3.45.3",
+    "pyyaml": "6.0.3",
+    "jsonschema": "4.26.0",
+    "node": "v26.7.0",
+    "rustc": "1.91.1",
+    "cargo": "1.91.1",
+    "runner": "scripts/collab.sh run",
+    "rust_working_tree": "Exact tools/environment-smoke subtree from tested commit, archived outside worktree",
+    "python_counts": {
+      "run": 1034,
+      "passed": 1018,
+      "skipped": 16,
+      "failed": 0
+    },
+    "node_counts": {
+      "passed": 4,
+      "failed": 0
+    },
+    "rust_smoke_counts": {
+      "passed": 2,
+      "failed": 0
+    },
+    "local_full_logs": "/private/tmp/ab-collab-52j6gp_r/infra-2153d11a",
+    "steps": {
+      "bootstrap": {
+        "argv": [
+          "python",
+          "scripts/verify_bootstrap_manifest.py"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      },
+      "design": {
+        "argv": [
+          "python",
+          "scripts/validate_design.py"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "2c277c56b0f265e5c84432405bcd065bb9d2f723f9e7deb81f1bab06c5c61b72"
+      },
+      "static_infra": {
+        "argv": [
+          "python",
+          "scripts/validate_infrastructure.py"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      },
+      "positive_retained": {
+        "argv": [
+          "python",
+          "scripts/record-factory-rework-ci-evidence.py",
+          "--evidence-root",
+          "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema19-default-early-migrations/artifacts/factory-child-goal-core"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "d159c5051027201f4da76a697b945a39fd8677ce6a6353f1707b901ce634301d"
+      },
+      "python_infrastructure": {
+        "argv": [
+          "python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests/infrastructure",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "e3a4658e890ac28b0dd859b64deb1dfbb3b019217c80f173a2965320298cd938"
+      },
+      "node_infrastructure": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "66db03295b9b80c0368669ce658305b1a1142784a8511402594380f40fdfeab5"
+      },
+      "rust_smoke": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "--manifest-path",
+          "tools/environment-smoke/Cargo.toml"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "eeeed3731088baf11d83bee387491b488f1b76f4ea15c0231ef8ac2d57069db0"
+      },
+      "rust_smoke_clippy": {
+        "argv": [
+          "cargo",
+          "clippy",
+          "--offline",
+          "--locked",
+          "--manifest-path",
+          "tools/environment-smoke/Cargo.toml",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 0,
+        "raw_log_sha256": "3455f3fd0d2792cd85ad147dc11b640ce947aa88300b3e45a0fface84ad4dc75"
+      }
+    }
+  },
+  "local_intermediate_red_controls": {
+    "raw_log_directory": "/private/tmp/ab-collab-52j6gp_r",
+    "source_inverse": {
+      "raw_log_sha256": "be6cfecfae34de7ccc6405abf229a7d957ee9c6b6f32a5dc2215205bfd76754a",
+      "failures": 3
+    },
+    "attempt_budget": {
+      "raw_log_sha256": "6021077985704f6d9c33cc31b1256e2286e80fc1e89da1d50ba9b07eab9328f9",
+      "failures": 2,
+      "errors": 1
+    }
+  },
+  "committed_log_sha256": {
+    "logs/baseline-source-inverse.log": "9abfd201662f8b9662356b67b398324184caa761a00629d5b3d80a416524372e",
+    "logs/candidate-source-inverse.log": "47965a5a094fdb2aa884d089a6a98ef8b343b1ea77e890a6ebea3cea8e225aab",
+    "logs/full-infrastructure-node-summary.log": "d46003dfc933315e6283ef7b64c83221e26d361a5a8ef0e4d8807c1efefb5cc9",
+    "logs/full-infrastructure-python-summary.log": "93ff277f532fdf040d42c7984104af40b819d6c5b9f3d0d865716345389e153b",
+    "logs/full-infrastructure-results.log": "e051d8437419795b36ca184262848f5fba74f964a7113dfce3b3549979ab5548",
+    "logs/full-infrastructure-rust-summary.log": "c4dd2c75954937cc3994c40c56a9a946b245171d76a272741bbfa56652be361b",
+    "logs/full-infrastructure-tested-code.log": "a4e1f5a6e03946990d8d4251be654af30cc3dc53136224f341307561aaf6bd27",
+    "logs/full-infrastructure-versions.log": "b2a2cb9d86a341595df1cf9f69f83e6c6ba856934b7ac57585cbb4af626c9662",
+    "logs/hosted-red.json": "67e7ef7999000cab743b32b60db9f40229ecd418c32a9628236d05667fb06c56",
+    "logs/local-after.json": "d159c5051027201f4da76a697b945a39fd8677ce6a6353f1707b901ce634301d",
+    "logs/local-before.json": "67e7ef7999000cab743b32b60db9f40229ecd418c32a9628236d05667fb06c56",
+    "logs/retained-verification.log": "cb02ae64810c1a4137a9d9ed5c1cdacd305a5c36db32fd21bae43547bc04fbeb",
+    "logs/schema-trial.log": "a16c6590b75abf0f7afeb59e07e7515701d5a9a06589be14b65737d2bff255a9",
+    "logs/test_factory_rework_attempt_budget.log": "fb129fad811ade83a8ce28a0d121b8220dd0ecdf1b3ba746c1fd6f6297a92844"
+  }
+}

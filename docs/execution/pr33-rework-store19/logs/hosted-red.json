@@ -1,0 +1,13 @@
+{
+  "cases": [
+    {
+      "code": "INVALID_PRIVATE_EVIDENCE",
+      "snapshot_time": "post_owned_shutdown_not_deadline_instant",
+      "status": "invalid"
+    }
+  ],
+  "code": "INCOMPLETE_PRIVATE_EVIDENCE",
+  "contract": "agentbaton.factory-rework-progress.v1",
+  "not_a_product_or_test_pass": true,
+  "status": "invalid_or_pending"
+}
