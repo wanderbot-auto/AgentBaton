@@ -32,13 +32,25 @@ _LAYERS = {
     ),
 }
 NATIVE_WEBVIEW_PATHS = frozenset(_LAYERS)
+_NATIVE_RUNNER = 'scripts/native-run.py'
+_DARWIN_CLEANUP_LAYER = (
+    'aa8930e9aeefb72811c599e7d8ee6e781fee53c8bf9f8b428173e387ca17eca8',
+    _LAYERS[_NATIVE_RUNNER][0],
+    (
+        (b'        timed_out = False\n        observation_error = None\n',
+         b'        timed_out = False\n        exited = False\n        observation_error = None\n', 1),
+        (b'            while True:\n                if owned_child_exited(child.pid):\n',
+         b'            while True:\n                exited = owned_child_exited(child.pid)\n'
+         b'                if exited:\n', 1),
+        (b'                        # Recheck the original group while its leader is still unreaped.\n'
+         b'                        quiescent = (error.errno == errno.EPERM\n',
+         b'                        quiescent = (error.errno == errno.EPERM and exited\n', 1),
+    ),
+)
 
 
-def restore_native_webview_before_schema19(path: str, source: bytes) -> bytes:
-    """Peel only the reviewed current files and require the complete old bytes."""
-    if path not in _LAYERS or type(source) is not bytes:
-        raise ValueError('Unknown WebView source path or non-byte input')
-    current, previous, edits = _LAYERS[path]
+def _restore(source, layer):
+    current, previous, edits = layer
     if sha256(source).hexdigest() != current:
         raise ValueError('Unknown complete Store19 WebView source')
     for new, old, count in edits:
@@ -48,3 +60,19 @@ def restore_native_webview_before_schema19(path: str, source: bytes) -> bytes:
     if sha256(source).hexdigest() != previous:
         raise ValueError('WebView inverse did not restore the exact historical source')
     return source
+
+
+def restore_native_runner_before_darwin_cleanup(source: bytes) -> bytes:
+    """Peel the cleanup change back to the pinned Store19 runner."""
+    if type(source) is not bytes:
+        raise ValueError('Non-byte native runner input')
+    return _restore(source, _DARWIN_CLEANUP_LAYER)
+
+
+def restore_native_webview_before_schema19(path: str, source: bytes) -> bytes:
+    """Peel only the reviewed current files and require the complete old bytes."""
+    if path not in _LAYERS or type(source) is not bytes:
+        raise ValueError('Unknown WebView source path or non-byte input')
+    if path == _NATIVE_RUNNER:
+        source = restore_native_runner_before_darwin_cleanup(source)
+    return _restore(source, _LAYERS[path])

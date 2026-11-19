@@ -14,6 +14,10 @@ import tempfile
 import unittest
 from unittest import mock
 
+from tests.infrastructure.host19_native_webview_source_fixture import (
+    restore_native_runner_before_darwin_cleanup,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location('build18_controls', ROOT / 'scripts/prepare-schema18-migration-fixture.py')
 H = importlib.util.module_from_spec(SPEC)
@@ -86,6 +90,7 @@ class Normal18BuildContracts(unittest.TestCase):
     def test_native_layer_refuses_unknown_downgraded_or_unsafe_sources_before_execution(self):
         current = (ROOT / 'scripts/native-run.py').read_bytes()
         historical = H.helper_bytes('native-run.py')
+        intermediate = restore_native_runner_before_darwin_cleanup(current)
         inverse = (ROOT / H.NATIVE_WEBVIEW_INVERSE).read_bytes()
         unknown = b'raise AssertionError("unverified helper ran")\n'
         with tempfile.TemporaryDirectory() as directory:
@@ -100,7 +105,7 @@ class Normal18BuildContracts(unittest.TestCase):
             inverse_path.chmod(0o644)
             with mock.patch.object(H, 'ROOT', root), \
                  mock.patch.object(H, 'compile', side_effect=AssertionError('unverified compilation'), create=True) as compiler:
-                for payload in (historical, current + b'\n', unknown):
+                for payload in (historical, intermediate, current + b'\n', unknown):
                     runner_path.write_bytes(payload)
                     with self.subTest(current_sha=H.sha(payload)), self.assertRaisesRegex(ValueError, 'Changed current native helper'):
                         H.load_helper('native-run.py')

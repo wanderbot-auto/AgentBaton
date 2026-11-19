@@ -184,6 +184,32 @@ class NativeRunnerTests(unittest.TestCase):
         self.assertIn('OSError:22', report['observation_error'])
         self.assertTrue(report['owned_group_cleanup'])
 
+    def test_fresh_quiescence_after_observation_failure_keeps_valid_native_report_failed(self):
+        observe_child_exit = native_run.owned_child_exited
+
+        def fail_once_leader_is_zombie(pid):
+            if observe_child_exit(pid):
+                raise OSError(22, 'controlled observation failure')
+            return False
+
+        with (mock.patch.object(native_run, 'owned_child_exited', side_effect=fail_once_leader_is_zombie),
+              mock.patch.object(native_run.os, 'killpg', side_effect=PermissionError(1, 'controlled denial'))):
+            status, report, native = self.run_fixture('WRITE_GOOD;pass')
+        self.assertEqual(status, 1)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['exit_code'], 0)
+        self.assertFalse(report['timeout'])
+        self.assertEqual(report['observation_error'], 'OSError:22')
+        self.assertTrue(report['owned_group_cleanup'])
+        self.assertNotIn('evidence_error', report)
+        self.assertNotIn('cleanup_errors', report)
+        self.assertEqual(report['group_signals'], [
+            {'signal': 'SIGTERM', 'result': 'observed_quiescent'},
+            {'signal': 'SIGKILL', 'result': 'observed_quiescent'},
+        ])
+        self.assertEqual(native['status'], 'failed')
+        self.assertEqual(native['external_runner'], report)
+
     def test_group_query_requires_the_original_zombie_leader_and_no_live_members(self):
         for output in ['', '99 99 Z\n', '42 42 S\n', '42 42 Z\n43 42 S\n', 'malformed\n']:
             with self.subTest(output=output):

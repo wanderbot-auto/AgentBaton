@@ -12,6 +12,7 @@ from tests.infrastructure.host19_native_smoke_source_fixture import (
 )
 from tests.infrastructure.host19_native_webview_source_fixture import (
     NATIVE_WEBVIEW_PATHS,
+    restore_native_runner_before_darwin_cleanup,
     restore_native_webview_before_schema19,
 )
 from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
@@ -400,6 +401,22 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             manifest = manifest.replace(addition, '', 1)
         self.assertEqual(hashlib.sha256(manifest.encode()).hexdigest(),
                          '3b6bb5205adb7610d639fb42cb7154c189e04030d8e18ccf71d2c42070bcb028')
+
+    def test_darwin_cleanup_inverse_recovers_only_the_pinned_store19_runner(self):
+        path = 'scripts/native-run.py'
+        raw = (ROOT / path).read_bytes()
+        previous = restore_native_runner_before_darwin_cleanup(raw)
+        self.assertEqual(hashlib.sha256(previous).hexdigest(),
+                         '12ae8dbc28abef5fbdd0031fffbb5d45d9ae78c724242abdf747432cc201e503')
+        self.assertEqual(hashlib.sha256(restore_native_webview_before_schema19(path, raw)).hexdigest(),
+                         UNCHANGED_FILE_PINS[path])
+        with self.assertRaises(ValueError):
+            restore_native_webview_before_schema19(path, previous)
+        anchor = b'# Recheck the original group while its leader is still unreaped.\n'
+        self.assertEqual(raw.count(anchor), 1)
+        for invalid in (previous, raw.replace(anchor, b'', 1), raw + anchor, bytearray(raw)):
+            with self.subTest(source_type=type(invalid).__name__, size=len(invalid)), self.assertRaises(ValueError):
+                restore_native_runner_before_darwin_cleanup(invalid)
 
     def test_webview_schema19_inverse_refuses_unknown_and_historical_inputs(self):
         anchor = b'READONLY_SCHEMA_VERSION'

@@ -31,9 +31,9 @@ HELPERS = {
     'prepare-legacy-migration-fixture.py': 'b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90',
     'native-run.py': '205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a',
 }
-CURRENT_NATIVE_HELPER_SHA256 = '12ae8dbc28abef5fbdd0031fffbb5d45d9ae78c724242abdf747432cc201e503'
+CURRENT_NATIVE_HELPER_SHA256 = 'aa8930e9aeefb72811c599e7d8ee6e781fee53c8bf9f8b428173e387ca17eca8'
 NATIVE_WEBVIEW_INVERSE = Path('tests/infrastructure/host19_native_webview_source_fixture.py')
-NATIVE_WEBVIEW_INVERSE_SHA256 = 'f573280d9f1617b8b4807f57e796f387cba4ec5c0597f58032b5148921792da3'
+NATIVE_WEBVIEW_INVERSE_SHA256 = '681cdc51c8c72b8da42d55d17e21f47bd0e7f675bab604524a77347b26224329'
 BUILD_ARGS = ['build', '--offline', '--locked', '-j', '2', '--bin', 'batond', '--bin', 'baton']
 
 

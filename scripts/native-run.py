@@ -284,7 +284,6 @@ def run(command, output, timeout):
                                  stdin=subprocess.DEVNULL, start_new_session=True)
         deadline = time.monotonic() + timeout
         timed_out = False
-        exited = False
         observation_error = None
         cleanup_errors = []
         signal_outcomes = []
@@ -293,8 +292,7 @@ def run(command, output, timeout):
         method = 'waitid-WNOWAIT' if hasattr(os, 'waitid') else 'ps-owned-child-zombie-state'
         try:
             while True:
-                exited = owned_child_exited(child.pid)
-                if exited:
+                if owned_child_exited(child.pid):
                     break
                 if time.monotonic() >= deadline:
                     timed_out = True
@@ -316,7 +314,8 @@ def run(command, output, timeout):
                     signal_outcomes.append({'signal': sig.name, 'result': 'already_absent'})
                 except PermissionError as error:
                     try:
-                        quiescent = (error.errno == errno.EPERM and exited
+                        # Recheck the original group while its leader is still unreaped.
+                        quiescent = (error.errno == errno.EPERM
                                      and owned_group_is_quiescent(child.pid))
                     except (OSError, subprocess.SubprocessError):
                         quiescent = False
