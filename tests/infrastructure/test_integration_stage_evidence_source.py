@@ -61,6 +61,8 @@ SCHEMA17_EVIDENCE_SHA256 = '3d031567da3589972027bb8fadf96bca0a9830334883e1d557b7
 SCHEMA18_EVIDENCE_SHA256 = 'a46dafdb9313d8a48448b5564afd55b6cd5699099bda1688e05983a245692027'
 SCHEMA18_RUST_TEST_SHA256 = '8b2734bbde5acaecf791f81b92ae9ff584c8bbc15afe5b02228ea48e195dfed3'
 SCHEMA18_RUST_TEST_MARKER = '\n#[test]\nfn readonly_collector_projects_only_exact_schema18() {\n'
+SCHEMA19_EVIDENCE_SHA256 = '20d7ceb6befb4c50d21518ba12a36eff4eb6cf31b9b90ad64038aef85506bc02'
+SCHEMA19_RUST_TEST_SHA256 = '02e798d167c83c4179e6e8558b04b84c8a502bba7b98e7d4c45158596359e951'
 PREPARATION_PAYLOAD = 'json!({"attempt_id":attempt.view.attempt_id,"io":io,"measurement_not_authority":true,"whole_filesystem_output":null})'
 PHASE_PAYLOAD_ALIAS = ("            let payload = " + PREPARATION_PAYLOAD + ";\n" +
     """            #[cfg(debug_assertions)]
@@ -79,6 +81,35 @@ PHASE_PAYLOAD_ALIAS = ("            let payload = " + PREPARATION_PAYLOAD + ";\n
 def exact_source_pin(text, expected):
     if hashlib.sha256(text.encode()).hexdigest() != expected:
         raise AssertionError('unreviewed debug-phase source composition')
+
+
+def evidence_before_schema19(text):
+    exact_source_pin(text, SCHEMA19_EVIDENCE_SHA256)
+    text = remove_once(text, 'const STORE_SCHEMA: i64 = 19;\n')
+    for current, previous in [
+        ('result["schema"] = json!(STORE_SCHEMA);', 'result["schema"] = json!(18);'),
+        ('require(schema == STORE_SCHEMA)?;', 'require(schema == 18)?;'),
+    ]:
+        if text.count(current) != 1:
+            raise AssertionError('unique Store19 evidence boundary required')
+        text = text.replace(current, previous, 1)
+    exact_source_pin(text, SCHEMA18_EVIDENCE_SHA256)
+    return text
+
+
+def rust_controls_before_schema19(text):
+    exact_source_pin(text, SCHEMA19_RUST_TEST_SHA256)
+    for current, previous in [
+        ('fn readonly_collector_projects_only_exact_schema19()', 'fn readonly_collector_projects_only_exact_schema18()'),
+        ('for schema in [17, 18, 19, 20]', 'for schema in [17, 18, 19]'),
+        ('if schema == 19 {', 'if schema == 18 {'),
+        ('assert_eq!(value["schema"], 19);', 'assert_eq!(value["schema"], 18);'),
+    ]:
+        if text.count(current) != 1:
+            raise AssertionError('unique Store19 Rust control required')
+        text = text.replace(current, previous, 1)
+    exact_source_pin(text, SCHEMA18_RUST_TEST_SHA256)
+    return text
 
 
 def evidence_before_schema18(text):
@@ -130,8 +161,28 @@ def rust_controls_before_phase(text):
 
 
 class IntegrationStageEvidenceSourceTests(unittest.TestCase):
+    def test_current_schema19_preserves_each_historical_collector_and_control(self):
+        current = MODULE.read_text()
+        self.assertIn('const STORE_SCHEMA: i64 = 19;', current)
+        self.assertIn('result["schema"] = json!(STORE_SCHEMA);', current)
+        self.assertIn('require(schema == STORE_SCHEMA)?;', current)
+        original = evidence_before_schema19(current)
+        exact_source_pin(evidence_before_schema18(original), SCHEMA17_EVIDENCE_SHA256)
+        for changed in (current + '// changed bytes\n',
+                        current.replace('STORE_SCHEMA: i64 = 19', 'STORE_SCHEMA: i64 = 20'),
+                        current.replace('schema == STORE_SCHEMA', 'schema >= STORE_SCHEMA'),
+                        original):
+            with self.assertRaises(AssertionError):
+                evidence_before_schema19(changed)
+        current_controls = RUST_TEST.read_text()
+        original_controls = rust_controls_before_schema19(current_controls)
+        exact_source_pin(rust_controls_before_phase(original_controls), BEFORE_PHASE_RUST_TEST_SHA256)
+        for changed in (current_controls + '\n', original_controls):
+            with self.assertRaises(AssertionError):
+                rust_controls_before_schema19(changed)
+
     def test_exact_schema18_evidence_changes_preserve_original_source_and_refuse_tampering(self):
-        text = MODULE.read_text()
+        text = evidence_before_schema19(MODULE.read_text())
         self.assertIn('result["schema"] = json!(18);', text)
         self.assertIn('require(schema == 18)?;', text)
         self.assertEqual(hashlib.sha256(evidence_before_schema18(text).encode()).hexdigest(),
@@ -275,7 +326,7 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
         self.assertRegex(source, r'shape\(\s*&value')
 
     def test_rust_controls_cover_required_negative_dimensions(self):
-        source = rust_controls_before_phase(RUST_TEST.read_text())
+        source = rust_controls_before_phase(rust_controls_before_schema19(RUST_TEST.read_text()))
         for required in ['must not read', 'PRIVATE_CANARY_DO_NOT_PUBLISH', 'other-attempt', 'foreign', '33', '65', 'worker_thread_joined', 'git_stdout_observed_bytes', 'source_commit', 'unrecognized', 'server.finish()', 'result.is_ok()']:
             self.assertIn(required, source)
         self.assertEqual(source.count('#[test]'), 10)
