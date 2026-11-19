@@ -16,9 +16,10 @@ def git_blob(commit, path):
 
 
 def load_tracer():
-    raw = git_blob("5ecb480bdde47cf48918fa0adf54d734b39bde59",
-                   "docs/execution/pr33-darwin-cleanup-control/diagnose.py")
-    assert sha256(raw).hexdigest() == "49ae2025e83fca185d5c6aaba5b706c5f49b54b1bcac008d227f82a34662da82"
+    tracer_path = Path(__file__).with_name("diagnose.py")
+    raw = tracer_path.read_bytes()
+    if sha256(raw).hexdigest() != "49ae2025e83fca185d5c6aaba5b706c5f49b54b1bcac008d227f82a34662da82":
+        raise ValueError("Unexpected Darwin tracer bytes")
     source = raw.decode()
     # Reuse the same observer. Parameterize only the pre-/post-fix assertions.
     changes = {
@@ -31,7 +32,7 @@ def load_tracer():
         assert source.count(original) == 1
         source = source.replace(original, replacement)
     tracer = types.ModuleType("pinned_darwin_tracer")
-    exec(compile(source, "diagnose.py from 5ecb480b", "exec"), tracer.__dict__)
+    exec(compile(source, str(tracer_path), "exec"), tracer.__dict__)
     return tracer
 
 
