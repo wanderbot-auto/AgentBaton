@@ -1,0 +1,10 @@
+checkout_head=2150da0f413f4312b958faddcfbab71d48f534dd
+checkout_tree=ade45ca4891fca310bc8b350d1d757b42ef9ef88
+shallow=true
+alternates=absent
+unpublished_object=absent_before_replay
+49ae2025e83fca185d5c6aaba5b706c5f49b54b1bcac008d227f82a34662da82  docs/execution/pr33-darwin-cleanup-proof/diagnose.py
+unpublished_object=absent_after_replay
+replay_exit=0
+checkout_status=clean
+tampered_local_tracer=rejected

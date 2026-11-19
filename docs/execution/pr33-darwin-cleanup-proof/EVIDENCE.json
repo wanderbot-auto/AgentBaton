@@ -32,9 +32,22 @@
       "verify_bootstrap_manifest.py"
     ],
     "real_syscall_contrast": "logs/real-syscalls.json",
-    "native_and_loader_original_bytes": "logs/source-bytes.json"
+    "native_and_loader_original_bytes": "logs/source-bytes.json",
+    "self_contained_replay": {
+      "checkout_commit": "2150da0f413f4312b958faddcfbab71d48f534dd",
+      "checkout_tree": "ade45ca4891fca310bc8b350d1d757b42ef9ef88",
+      "clone": "local transport, --no-local --single-branch --depth 8",
+      "unpublished_tracer_commit_absent_before_and_after": true,
+      "unpublished_tracer_commit": "5ecb480bdde47cf48918fa0adf54d734b39bde59",
+      "replay_exit": 0,
+      "modified_tracer_refused_before_comparison": true,
+      "checkout_proof": "logs/clean-checkout-proof.txt",
+      "real_syscall_contrast": "logs/clean-checkout-syscalls.json"
+    }
   },
   "sanitized_evidence_sha256": {
+    "clean-checkout-proof.txt": "fb86839f47c9990b9848a5c09fb367bd0ebd7ba9a99b22cd2533e40300d9fa66",
+    "clean-checkout-syscalls.json": "b63eca4e391512f46be4d2f528e98728ad8d3db5a52982b02523e951d08c66d9",
     "real-syscalls.json": "6dfe3c4a3bce07e9106c0a4255e0a510dad87493ef00da4349f4625a061b4fa7",
     "source-bytes.json": "8c34f8fb286a6cf20f464745da014a4602755bd1f599c2d8f069adf9b71366a7",
     "test-summary.txt": "435ecd20530e2d3aeb99ca73289e7b48caa6fb22d337bcde68948c65c9497276"
@@ -48,11 +61,12 @@
     "infrastructure.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
     "bootstrap.log": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
   },
-  "replay_comparison_sha256": "90bac5f47e318a854bd8ad460028fdf86556632538c287ae8cfc9d0143f97bf5",
+  "replay_comparison_sha256": "185e696ba34ca1a798ea524042f39beda5f1906642382efd28b57225b39d97d6",
   "not_run": [
     "native GUI",
     "local Linux replay",
     "full historical compilation and migration",
     "hosted CI"
-  ]
+  ],
+  "local_tracer_sha256": "49ae2025e83fca185d5c6aaba5b706c5f49b54b1bcac008d227f82a34662da82"
 }

@@ -15,7 +15,11 @@ Apple Silicon 上直接套件由 38 项中唯一原失败转为 39 项中 38 项
 
 当前 runner 先逐字恢复 `53da4ce2` 的 runner，再逐字恢复 `ae844ca3` 的历史 runner。迁移 loader 输出与后者完全相同。原 Store19 反演条目、Store18 固定值和历史 shell 原件均经比较。 [原件和 SHA](logs/source-bytes.json)
 
-在证据工作树设置 `PYTHON312` 为实际 Python 3.12 的绝对路径，可串行重跑直接套件和精确源码对照。
+回放从证据目录读取原样 `diagnose.py`，先校验固定 SHA-256，再加载 tracer。基准与待测 runner 来自分支历史中已有的两个 Git 提交。 [固定 tracer](diagnose.py)
+
+Apple Silicon 上使用 `git clone --no-local --single-branch --depth 8` 从本地分支建了独立浅克隆。克隆无 alternates，回放前后均确认缺少原诊断提交 `5ecb480b` 的对象。真实回放退出 0，基准与修复的清理证据差异和实际回收结果均复现。私有副本追加一个换行后，tracer 加载被拒绝。 [独立检出护栏](logs/clean-checkout-proof.txt) [独立检出真实对照](logs/clean-checkout-syscalls.json)
+
+在已认领的证据工作树中设置 `PYTHON312` 为实际 Python 3.12 的绝对路径，然后串行重跑直接套件和精确源码对照。
 
 ```bash
 bash scripts/collab.sh run --native -- "$PYTHON312" -B \
