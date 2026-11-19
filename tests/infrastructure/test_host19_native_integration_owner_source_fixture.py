@@ -5,7 +5,9 @@ from pathlib import Path
 import unittest
 
 from tests.infrastructure.host19_native_integration_owner_source_fixture import (
+    GRANT_FACTORY_STORE19_LAYER,
     SOURCE_LAYERS,
+    restore_grant_factory_owner_before_store19,
     restore_integration_owner_before_schema19,
 )
 from tests.infrastructure.schema18_source_fixture import restore
@@ -25,11 +27,32 @@ class NativeIntegrationOwnerSourceFixture(unittest.TestCase):
             with self.subTest(path=path):
                 source = ROOT / path
                 raw = source.read_bytes()
+                integration_source = (restore_grant_factory_owner_before_store19(raw)
+                                      if path == PYTHON else raw)
                 for leading, current, _, trailing in edits:
-                    self.assertEqual(raw.count(leading + current + trailing), 1)
+                    self.assertEqual(integration_source.count(leading + current + trailing), 1)
                 parent = restore_integration_owner_before_schema19(path, raw)
                 self.assertEqual(digest(parent), parent_sha)
                 self.assertEqual(source.read_bytes(), raw)
+
+    def test_grant_factory_store19_restores_the_exact_pinned_integration_input(self):
+        raw = (ROOT / PYTHON).read_bytes()
+        current_sha, parent_sha, edits = GRANT_FACTORY_STORE19_LAYER
+        self.assertEqual(digest(raw), current_sha)
+        self.assertEqual(parent_sha, SOURCE_LAYERS[PYTHON][0])
+        integration_source = restore_grant_factory_owner_before_store19(raw)
+        self.assertEqual(digest(integration_source), parent_sha)
+        for leading, current, predecessor, trailing in edits:
+            anchor = leading + current + trailing
+            self.assertEqual(raw.count(anchor), 1)
+            self.assertEqual(integration_source.count(leading + predecessor + trailing), 1)
+            for changed in (raw + anchor, raw.replace(anchor, b'', 1)):
+                with self.subTest(anchor=current, changed_size=len(changed)), self.assertRaises(ValueError):
+                    restore_grant_factory_owner_before_store19(changed)
+        with self.assertRaises(ValueError):
+            restore_grant_factory_owner_before_store19(integration_source)
+        with self.assertRaises(ValueError):
+            restore_integration_owner_before_schema19(PYTHON, integration_source)
 
     def test_old_native_python_inverse_still_recovers_original_pin(self):
         legacy = (Path(__file__).parent / 'fixtures/native_acceptance_followup.json').read_bytes()

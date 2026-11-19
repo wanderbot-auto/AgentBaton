@@ -7,7 +7,7 @@ own explicit enclosing nondelegating Grant; the target Factory is finalized ONLY
 by the real production factory_scope_approve bridge after actual OS confirmation.
 """
 import argparse
-from contextlib import contextmanager, ExitStack
+from contextlib import closing, contextmanager, ExitStack
 import hashlib
 import importlib.util
 import ctypes
@@ -28,8 +28,8 @@ import time
 import uuid
 
 
-# Exact schema18 tables: never substitute old test DDL or silently skip absent
-# tables. Every Goal store/runtime/graph table is empty in this Grant-only probe.
+# Grant and Factory evidence must come from the current Store schema.
+GRANT_FACTORY_SCHEMA_VERSION = 19
 GOAL_TABLES = ('goal_grant_revisions', 'goal_scopes', 'goal_plan_heads',
                'goal_plan_revisions', 'goal_plan_proposals', 'goal_ledgers',
                'goal_node_evidence', 'goal_external_action_journal', 'goal_runs',
@@ -42,7 +42,8 @@ FACTORY_TABLES = ('factory_scopes', 'factory_runs', 'factory_task_lineage',
                   'factory_child_plan_heads', 'factory_child_plan_revisions', 'factory_child_goal_runs')
 INTEGRATION_TABLES = ('integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences')
 CONVERSATION_TABLES = ('conversations', 'conversation_dispatches', 'conversation_turns', 'conversation_budgets')
-ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES, *INTEGRATION_TABLES, *CONVERSATION_TABLES)
+HOST_TABLES = ('host_registrations',)
+ZERO_TABLES = ('attempts', 'sessions', *GOAL_TABLES, *FACTORY_TABLES, *INTEGRATION_TABLES, *CONVERSATION_TABLES, *HOST_TABLES)
 
 
 def save(path, value):
@@ -90,10 +91,17 @@ class NativeCoreClient:
 
 
 def database(runtime, proposal_id, *, factory_planning=False):
-    with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as conn:
+    uri = (runtime / 'baton.sqlite3').as_uri() + '?mode=ro'
+    with closing(sqlite3.connect(uri, uri=True)) as conn, conn:
         conn.execute('PRAGMA query_only=ON')
         conn.execute('BEGIN')
         schema = conn.execute('PRAGMA user_version').fetchone()[0]
+        if type(schema) is not int or schema != GRANT_FACTORY_SCHEMA_VERSION:
+            raise ValueError('Actual Store19 Grant/Factory SQLite required')
+        tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        missing = set(ZERO_TABLES) - tables
+        if missing:
+            raise sqlite3.OperationalError('Missing Grant/Factory evidence tables: ' + ', '.join(sorted(missing)))
         sequence = conn.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]
         rows = conn.execute('SELECT document,result FROM approval_proposals WHERE id=?', (proposal_id,)).fetchall()
         if len(rows) != 1:
@@ -138,7 +146,7 @@ def json_exact(left, right):
 def pending_error(value, proposal, sequence):
     if (type(sequence) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)
             or type(value.get('sequence')) is not int or not json_exact(value['sequence'], sequence)
             or not json_exact(value.get('proposal'), proposal) or proposal.get('kind') != 'grant'
             or proposal.get('consumed') is not False or value.get('proposal_result') is not None
@@ -176,7 +184,7 @@ def approved_error(value, proposal, baseline, response):
     current = value.get('proposal', {})
     if (type(baseline) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)
             or not isinstance(grants, list) or len(grants) != 1
             or current.get('id') != proposal['id'] or not json_exact(current.get('snapshot'), proposal['snapshot'])
             or current.get('kind') != 'grant' or current.get('consumed') is not True
@@ -889,7 +897,7 @@ def factory_database(runtime, proposal_id):
 def factory_pending_error(value, fixture, before):
     proposal = fixture['proposal']
     if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
-            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)
+            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)
             or not json_exact(value.get('sequence'), before['sequence'])
             or proposal.get('kind') != 'factory' or proposal.get('consumed') is not False
             or not json_exact(value.get('proposal'), proposal) or value.get('proposal_result') is not None
@@ -916,7 +924,7 @@ def factory_approved_error(value, fixture, before, response):
     counts = {name: int(name == 'factory_scopes') for name in ZERO_TABLES}
     if (type(before.get('sequence')) is not int or type(proposal.get('revision')) is not int
             or proposal['revision'] <= 0 or not isinstance(scope, dict) or response.get('error') is not None
-            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)
+            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), GRANT_FACTORY_SCHEMA_VERSION)
             or not json_exact(value.get('sequence'), before['sequence'] + 1)
             or not json_exact(value.get('proposal'), current)
             or not json_exact(value.get('proposal_result'), scope)
