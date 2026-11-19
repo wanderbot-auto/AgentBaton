@@ -17,6 +17,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 AUDIT = ROOT / "scripts/native-audit-release.sh"
+BUNDLE_AUDIT = ROOT / "scripts/native-audit-release-bundle.sh"
 OLD_MARKERS = (
     "native_background_service_fixture_report",
     "native_background_fixture_alarm",
@@ -44,6 +45,7 @@ ROLE_MARKERS = {
 
 
 class AuditShellTest(unittest.TestCase):
+    audit_script = AUDIT
     required_tools = ("strings", "grep", "mktemp", "rm")
 
     def setUp(self):
@@ -73,7 +75,7 @@ class AuditShellTest(unittest.TestCase):
         if mocked:
             path = str(self.tools) + os.pathsep + path
         reply = subprocess.run(
-            [self.bash, str(AUDIT), *map(str, args)],
+            [self.bash, str(self.audit_script), *map(str, args)],
             cwd=self.root,
             env={"PATH": path, "LC_ALL": "C", "TMPDIR": str(self.inspection)},
             capture_output=True,
@@ -182,7 +184,8 @@ class NativeReleaseAuditTests(AuditShellTest):
 
 
 class NativeBundleAuditTests(AuditShellTest):
-    required_tools = (*AuditShellTest.required_tools, "file", "shasum", "python3")
+    audit_script = BUNDLE_AUDIT
+    required_tools = (*AuditShellTest.required_tools, "dirname", "file", "shasum", "python3")
 
     def setUp(self):
         super().setUp()
@@ -303,8 +306,12 @@ class NativeBundleAuditTests(AuditShellTest):
                 self.write_slot(role, self.image_for(role, extra=marker.encode() + b"\x00"))
                 self.write_pins()
                 result = self.invoke_bundle()
-                self.assert_rejected(result, f"Test-only native harness content is present in {role}")
-                self.assertIn(marker, result.stdout)
+                if role == "agentbaton-desktop":
+                    self.assert_rejected(result, f"Test-only native harness content is present in {role}")
+                    self.assertIn(marker, result.stdout)
+                else:
+                    self.assert_rejected(result, f"Legacy native marker audit rejected {role}")
+                    self.assertIn("Test-only native harness content is present", result.stderr)
                 self.write_slot(role, self.image_for(role))
 
     def test_all_pins_must_be_present_and_unique(self):
@@ -335,6 +342,13 @@ exec {strings} "$@" """)
         result = self.invoke_bundle(mocked=True)
         self.assertEqual(result.returncode, 42)
         self.assertNotIn(BUNDLE_PASS, result.stdout)
+
+    def test_failure_in_legacy_marker_audit_never_reports_bundle_pass(self):
+        strings = shlex.quote(shutil.which("strings"))
+        self.mock("strings", f'if [[ "$#" == 1 ]]; then exit 38; fi\nexec {strings} "$@"')
+        result = self.invoke_bundle(mocked=True)
+        self.assertEqual(result.returncode, 38)
+        self.assert_rejected(result, "Legacy native marker audit rejected agentbaton-desktop")
 
     def test_role_inspection_error_never_reports_pass(self):
         grep = shlex.quote(shutil.which("grep"))
