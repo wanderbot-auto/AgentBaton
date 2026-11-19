@@ -1400,7 +1400,7 @@ mod update_backup_issuer_tests {
         );
         let staged_path = stage.staging_path();
         stage.discard().unwrap();
-        assert_eq!(fs::read(destination).unwrap(), b"existing evidence");
+        assert_eq!(fs::read(&destination).unwrap(), b"existing evidence");
         assert!(!staged_path.parent().unwrap().exists());
         assert_eq!(store.update_database_boundary().unwrap(), captured);
     }
