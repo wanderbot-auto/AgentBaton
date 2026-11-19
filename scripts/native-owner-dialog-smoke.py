@@ -7,7 +7,7 @@ own explicit enclosing nondelegating Grant; the target Factory is finalized ONLY
 by the real production factory_scope_approve bridge after actual OS confirmation.
 """
 import argparse
-from contextlib import contextmanager, ExitStack
+from contextlib import closing, contextmanager, ExitStack
 import hashlib
 import importlib.util
 import ctypes
@@ -91,7 +91,8 @@ class NativeCoreClient:
 
 
 def database(runtime, proposal_id, *, factory_planning=False):
-    with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as conn:
+    uri = (runtime / 'baton.sqlite3').as_uri() + '?mode=ro'
+    with closing(sqlite3.connect(uri, uri=True)) as conn, conn:
         conn.execute('PRAGMA query_only=ON')
         conn.execute('BEGIN')
         schema = conn.execute('PRAGMA user_version').fetchone()[0]

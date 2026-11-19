@@ -1,5 +1,6 @@
 """Runner/controller unit controls. No OS dialog or real Core success claimed."""
 import copy
+from contextlib import closing
 import importlib.util
 import os
 import subprocess
@@ -77,7 +78,8 @@ class OwnerRunnerControls(unittest.TestCase):
                 self.assertIsNone(runner.pending_error(observed, proposal, observed['sequence']))
                 self.assertEqual(observed['schema_version'], 19)
                 self.assertEqual(observed['counts']['host_registrations'], 0)
-                with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as actual:
+                uri = (runtime / 'baton.sqlite3').as_uri() + '?mode=ro'
+                with closing(sqlite3.connect(uri, uri=True)) as actual, actual:
                     actual.execute('PRAGMA query_only=ON')
                     tables = {row[0] for row in actual.execute("SELECT name FROM sqlite_master WHERE type='table'") if row[0].startswith('goal_')}
                     self.assertEqual(tables, set(runner.GOAL_TABLES))
@@ -88,7 +90,7 @@ class OwnerRunnerControls(unittest.TestCase):
                         ('id', 'name', 'name_key', 'revision', 'created_sequence', 'document'))
                     clone = output / 'real-core-copy'
                     clone.mkdir()
-                    with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                    with closing(sqlite3.connect(clone / 'baton.sqlite3')) as copy_db, copy_db:
                         actual.backup(copy_db)
                 self.assertEqual(set(observed['counts']), set(runner.ZERO_TABLES))
                 self.assertEqual(len(observed['counts']), 40)
@@ -96,26 +98,26 @@ class OwnerRunnerControls(unittest.TestCase):
                               *runner.CONVERSATION_TABLES, *runner.HOST_TABLES):
                     missing_copy = output / ('missing-' + table)
                     missing_copy.mkdir()
-                    with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as actual:
+                    with closing(sqlite3.connect(uri, uri=True)) as actual, actual:
                         actual.execute('PRAGMA query_only=ON')
-                        with sqlite3.connect(missing_copy / 'baton.sqlite3') as copy_db:
+                        with closing(sqlite3.connect(missing_copy / 'baton.sqlite3')) as copy_db, copy_db:
                             actual.backup(copy_db)
-                    with sqlite3.connect(missing_copy / 'baton.sqlite3') as copy_db:
+                    with closing(sqlite3.connect(missing_copy / 'baton.sqlite3')) as copy_db, copy_db:
                         copy_db.execute('DROP TABLE ' + table)
                     with self.assertRaisesRegex(sqlite3.OperationalError, table):
                         runner.database(missing_copy, proposal['id'])
                 host_copy = output / 'missing-host_registrations'
-                with sqlite3.connect(host_copy / 'baton.sqlite3') as copy_db:
+                with closing(sqlite3.connect(host_copy / 'baton.sqlite3')) as copy_db, copy_db:
                     copy_db.execute('CREATE VIEW host_registrations AS SELECT 1 WHERE 0')
                 for observe in (runner.database, runner.factory_database):
                     with self.assertRaisesRegex(sqlite3.OperationalError, 'host_registrations'):
                         observe(host_copy, proposal['id'])
                 # Negative controls mutate only an isolated backup of the REAL
                 # migration DB. The running Core database/schema is untouched.
-                with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                with closing(sqlite3.connect(clone / 'baton.sqlite3')) as copy_db, copy_db:
                     copy_db.execute("INSERT INTO goal_graph_jobs(id,run_id,node_id,plan_revision,state,attempt_id,workspace_id,document) VALUES('negative-job','absent-run','node',1,'running',NULL,'absent-workspace','{}')")
                 self.assertIsNotNone(runner.pending_error(runner.database(clone, proposal['id']), proposal, observed['sequence']))
-                with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                with closing(sqlite3.connect(clone / 'baton.sqlite3')) as copy_db, copy_db:
                     copy_db.execute('DELETE FROM goal_graph_jobs')
                     copy_db.execute(
                         'INSERT INTO host_registrations (id,name,name_key,revision,created_sequence,document)'
@@ -126,14 +128,14 @@ class OwnerRunnerControls(unittest.TestCase):
                 self.assertEqual(contaminated['counts']['host_registrations'], 1)
                 self.assertIsNotNone(runner.pending_error(contaminated, proposal, observed['sequence']))
                 for version in (18, 20):
-                    with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                    with closing(sqlite3.connect(clone / 'baton.sqlite3')) as copy_db, copy_db:
                         copy_db.execute('DELETE FROM host_registrations')
                         copy_db.execute(f'PRAGMA user_version={version}')
                     for observe in (runner.database, runner.factory_database):
                         with self.subTest(version=version, observer=observe.__name__):
                             with self.assertRaisesRegex(ValueError, 'Actual Store19'):
                                 observe(clone, proposal['id'])
-                with sqlite3.connect(clone / 'baton.sqlite3') as copy_db:
+                with closing(sqlite3.connect(clone / 'baton.sqlite3')) as copy_db, copy_db:
                     copy_db.execute('PRAGMA user_version=19')
                     copy_db.execute('DROP TABLE goal_plan_heads')
                 with self.assertRaisesRegex(sqlite3.OperationalError, 'goal_plan_heads'):

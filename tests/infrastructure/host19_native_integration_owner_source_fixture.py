@@ -268,9 +268,17 @@ SOURCE_LAYERS = {
 # Undo the current Grant/Factory Store19 change before the pinned Integration layer.
 OWNER_RUNNER = 'scripts/native-owner-dialog-smoke.py'
 GRANT_FACTORY_STORE19_LAYER = (
-    '65a0398c8b97dc55967624a417d74c50b0994c33b41708a4b68f3456206b8dc1',
+    'c29a8e2e117a88894a1068301f494e4c286c37635e884598ed34af74e3067e84',
     SOURCE_LAYERS[OWNER_RUNNER][0],
     (
+        (
+            b'"""\n'
+            b'import argparse\n',
+            b'from contextlib import closing, contextmanager, ExitStack\n',
+            b'from contextlib import contextmanager, ExitStack\n',
+            b'import hashlib\n'
+            b'import importlib.util\n',
+        ),
         (
             b'\n'
             b'\n',
@@ -291,15 +299,23 @@ GRANT_FACTORY_STORE19_LAYER = (
             b'\n',
         ),
         (
+            b'\n'
+            b'def database(runtime, proposal_id, *, factory_planning=False):\n',
+            b"    uri = (runtime / 'baton.sqlite3').as_uri() + '?mode=ro'\n"
+            b'    with closing(sqlite3.connect(uri, uri=True)) as conn, conn:\n'
+            b"        conn.execute('PRAGMA query_only=ON')\n"
             b"        conn.execute('BEGIN')\n"
-            b"        schema = conn.execute('PRAGMA user_version').fetchone()[0]\n",
+            b"        schema = conn.execute('PRAGMA user_version').fetchone()[0]\n"
             b'        if type(schema) is not int or schema != GRANT_FACTORY_SCHEMA_VERSION:\n'
             b"            raise ValueError('Actual Store19 Grant/Factory SQLite required')\n"
             b'        tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type=\'table\'")}\n'
             b'        missing = set(ZERO_TABLES) - tables\n'
             b'        if missing:\n'
             b"            raise sqlite3.OperationalError('Missing Grant/Factory evidence tables: ' + ', '.join(sorted(missing)))\n",
-            b'',
+            b"    with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as conn:\n"
+            b"        conn.execute('PRAGMA query_only=ON')\n"
+            b"        conn.execute('BEGIN')\n"
+            b"        schema = conn.execute('PRAGMA user_version').fetchone()[0]\n",
             b"        sequence = conn.execute('SELECT coalesce(max(sequence),0) FROM events').fetchone()[0]\n"
             b"        rows = conn.execute('SELECT document,result FROM approval_proposals WHERE id=?', (proposal_id,)).fetchall()\n",
         ),
