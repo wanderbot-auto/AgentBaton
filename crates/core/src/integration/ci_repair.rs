@@ -14,6 +14,9 @@ use crate::{
 use serde::Serialize;
 use std::collections::BTreeSet;
 
+#[path = "ci_repair_github.rs"]
+pub mod github;
+
 const MAX_HISTORY: usize = 1_000;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]

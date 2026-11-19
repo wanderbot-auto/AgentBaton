@@ -1,0 +1,56 @@
+{
+  "requirement": "AB-REL-006",
+  "base_commit": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "tested_source_commit": "708f64fd537ecd4ccf8b2dce773729ffb9abbb45",
+  "tested_source_tree": "64ac214a71dec6a9d007d08059ce50bb5f527aaf",
+  "environment": [
+    "Darwin arm64",
+    "ProductName:\t\tmacOS",
+    "ProductVersion:\t\t26.6.1",
+    "BuildVersion:\t\t25G76",
+    "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "binary: rustc",
+    "commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb",
+    "commit-date: 2025-11-07",
+    "host: aarch64-apple-darwin",
+    "release: 1.91.1",
+    "LLVM version: 21.1.2",
+    "cargo 1.91.1 (ea2d97820 2025-10-10)"
+  ],
+  "actual_hosted_reads": {
+    "repository": "wanderbot-auto/AgentBaton",
+    "recorded_through_utc": "2026-11-19T03:38:04Z",
+    "method": "GET",
+    "repository_id": 1434422493,
+    "workflow_id": 397305968,
+    "attempt_run": 43592293854,
+    "run_attempt": 1,
+    "candidate_sha": "e8abd6bbc939bc24cf07ba5793aadfd173313b13",
+    "candidate_ref": "refs/heads/dev/macmini-agentbaton",
+    "independent_candidate_lookup_result_count": 1,
+    "attempt_job_count": 4,
+    "job_completed_at_used": "2026-11-14T12:18:57Z",
+    "report_job_id": 132439465437,
+    "pr_run_id": 44432204086,
+    "pr_run_and_job_head_sha": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+    "pr_associated_head_sha": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+    "projected_fields": "github-observed.json",
+    "projected_fields_sha256": "c853c4bfad5cfce910b8fa832d8019a52eafc78a1050f381016a8907ade4eeb2"
+  },
+  "test_results": {
+    "ci_repair_github_passed": 8,
+    "ci_repair_decision_passed": 9,
+    "failed": 0,
+    "format_check_passed": true,
+    "strict_core_clippy_passed": true,
+    "actual_response_replay_clock": "historical fixture",
+    "network_in_tests": false
+  },
+  "test_summary_sha256": "6f6aa8f5d04d9726b6fb3a371fe83d9eacdeabec931fcc932d56997311615ad6",
+  "raw_logs_sha256": {
+    "core-tests.log": "4c1b1682708c332f60b8af8032155f3c03fb900ad17bb05b3c499b8c74f5e1e6",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy.log": "f544d08abad50afc67ca5b076981e6b2fe2c9bc7f92633f461d128a48377cf0f"
+  },
+  "scope": "read-only response mapping; runtime acquisition and repair dispatch not exercised"
+}
