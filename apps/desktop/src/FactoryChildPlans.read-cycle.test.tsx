@@ -50,12 +50,30 @@ describe('child-plan explicit read cycles',()=>{
   }
   await waitFor(()=>expect(store()).toBeEnabled());expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(2);expect(factoryChildPlanApi.submit).not.toHaveBeenCalled();
  });
- it('rejects a late prior-generation read without publishing its older head',async()=>{
-  const f=childPlanningFixture(),u=userEvent.setup();setup(f);const mounted=render(<FactoryChildPlans {...props(f)}/>);await opened(u);enter(f);
-  const old=deferred<FactoryChildPlanningContext>();vi.mocked(factoryChildPlanApi.context).mockImplementationOnce(()=>old.promise);
-  mounted.rerender(<FactoryChildPlans {...props(f,2)}/>);await waitFor(()=>expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(2));
-  const v1=await f.view(),v2=await f.view(2);setup(f,[v1,v2]);mounted.rerender(<FactoryChildPlans {...props(f,3)}/>);expect(await screen.findByText(/Current plan head: r2/)).toBeVisible();
-  await act(async()=>old.resolve(structuredClone(f.context)));expect(screen.getByText(/Current plan head: r2/)).toBeVisible();expect(factoryChildPlanApi.list).toHaveBeenCalledTimes(2);expect(factoryChildPlanApi.submit).not.toHaveBeenCalled();
+ it('drains the in-flight Context and reads only the latest generation without publishing the older head',async()=>{
+  const f=childPlanningFixture(),u=userEvent.setup();
+  setup(f);
+  const mounted=render(<FactoryChildPlans {...props(f)}/>);
+  await opened(u);
+  enter(f);
+
+  const old=deferred<FactoryChildPlanningContext>();
+  vi.mocked(factoryChildPlanApi.context).mockImplementationOnce(()=>old.promise);
+  mounted.rerender(<FactoryChildPlans {...props(f,2)}/>);
+  await waitFor(()=>expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(2));
+
+  const v1=await f.view(),v2=await f.view(2);
+  setup(f,[v1,v2]);
+  mounted.rerender(<FactoryChildPlans {...props(f,3)}/>);
+  mounted.rerender(<FactoryChildPlans {...props(f,4)}/>);
+  expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(2);
+  expect(store()).toBeDisabled();
+
+  await act(async()=>old.resolve(structuredClone(f.context)));
+  expect(await screen.findByText(/Current plan head: r2/)).toBeVisible();
+  expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(3);
+  expect(factoryChildPlanApi.list).toHaveBeenCalledTimes(2);
+  expect(factoryChildPlanApi.submit).not.toHaveBeenCalled();
  });
  it('invalidates complete parent read identity even with unchanged scope, target and run',async()=>{
   const f=childPlanningFixture(),u=userEvent.setup();setup(f);const mounted=render(<FactoryChildPlans {...props(f)}/>);await opened(u);enter(f);

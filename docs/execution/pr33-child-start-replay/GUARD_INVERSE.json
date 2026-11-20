@@ -1,0 +1,31 @@
+{
+  "path": "tests/infrastructure/test_child_goal_diagnostics_v4.py",
+  "candidate_sha256": "c681f130f35f45dfaac8c57e1090a213c18539e9b7cf004ddfc8a8ca4af6a1ec",
+  "base_sha256": "2f383e2ed7fcb15dc302254c302a63a08fdba40886bb8b1df39decfb5da6d9d7",
+  "edits": [
+    {
+      "start": 44,
+      "end": 76,
+      "expected": "CONTEXT_SERIALIZATION_MANIFEST_PATH='docs/execution/pr33-child-start-replay/SOURCE_INVERSE.json'\nCONTEXT_SERIALIZATION_MANIFEST_SHA256='28e8686189055a946d3709ba1cb8f130121d025ed11a3620afbaae80cedcc3d8'\nCONTEXT_SERIALIZATION_UI_SHA256='c619626fa843ae4513b89f29ec1e6d6fd78827127b26150fc95f124eecf8c573'\n\n\ndef strip_context_serialization_layer(text, manifest_raw=None):\n    \"\"\"Restore the exact pre-serialization source before applying older inverses.\"\"\"\n    if type(text) is not str:\n        raise AssertionError('Unknown child Context serialization source')\n    if manifest_raw is None:\n        manifest_raw = (ROOT/CONTEXT_SERIALIZATION_MANIFEST_PATH).read_bytes()\n    if type(manifest_raw) is not bytes or hashlib.sha256(manifest_raw).hexdigest() != CONTEXT_SERIALIZATION_MANIFEST_SHA256:\n        raise AssertionError('Unknown child Context serialization manifest')\n    digest = source_sha(text)\n    if digest in (PLAN_READ_REUSE_UI_SHA256, PLAN_READ_REUSE_BASE_UI_SHA256):\n        return text\n    if digest != CONTEXT_SERIALIZATION_UI_SHA256:\n        raise AssertionError('Unknown child Context serialization whole source')\n    record = json.loads(manifest_raw)\n    if (record['path'] != 'apps/desktop/src/FactoryChildGoals.tsx'\n            or record['candidate_sha256'] != digest\n            or record['base_sha256'] != PLAN_READ_REUSE_UI_SHA256):\n        raise AssertionError('Unknown child Context serialization targets')\n    for edit in record['edits']:\n        if text.count(edit['expected']) != 1:\n            raise AssertionError('Missing or ambiguous child Context serialization anchor')\n        text = text.replace(edit['expected'], edit['replacement'], 1)\n    if source_sha(text) != PLAN_READ_REUSE_UI_SHA256:\n        raise AssertionError('Original planning reuse source changed')\n    return text\n\n\n",
+      "replacement": ""
+    },
+    {
+      "start": 79,
+      "end": 80,
+      "expected": "    text=strip_context_serialization_layer(text)\n",
+      "replacement": ""
+    },
+    {
+      "start": 371,
+      "end": 385,
+      "expected": "    def test_context_serialization_layer_restores_exact_predecessor_and_rejects_changes(self):\n        path='apps/desktop/src/FactoryChildGoals.tsx'\n        text=(ROOT/path).read_text()\n        manifest=(ROOT/CONTEXT_SERIALIZATION_MANIFEST_PATH).read_bytes()\n        self.assertEqual(source_sha(text),CONTEXT_SERIALIZATION_UI_SHA256)\n        restored=strip_context_serialization_layer(text,manifest)\n        self.assertEqual(source_sha(restored),PLAN_READ_REUSE_UI_SHA256)\n        self.assertEqual(inverse(path,text),inverse(path,restored))\n        for changed in (text+'\\n',text.replace('await readContext(', 'await wrongReader(',1),\n                        text.replace('if(!stillCurrent())return null;', 'if(false)return null;',1)):\n            self.assertNotEqual(changed,text)\n            with self.assertRaises(AssertionError):strip_context_serialization_layer(changed,manifest)\n        with self.assertRaises(AssertionError):strip_context_serialization_layer(text,manifest+b'\\n')\n\n",
+      "replacement": ""
+    },
+    {
+      "start": 387,
+      "end": 388,
+      "expected": "        text=strip_context_serialization_layer(text)\n",
+      "replacement": ""
+    }
+  ]
+}
