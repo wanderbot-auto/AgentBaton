@@ -1,0 +1,627 @@
+{
+  "tested_source": "d87ce5e0cf6b3d37cd32728b535d7ae671f9320b",
+  "tree": "bb2b369480b777f26e52ab0ded7750d2d05131b5",
+  "baseline_source": "91fc92d2121cfc52a76c32c21d65965b0794ac28",
+  "platform": "Linux ARM64, Chromium 151.0.7922.34, Core Store 19",
+  "candidate_pins": {
+    "manifest_sha256": "0ecd330eb04aba4d543ea2d9e1ffb3bc3821afb53b0c5e6eb571eb5e0376e1d1",
+    "tools_sha256": {
+      "batond": "418e3516d3549b8dac6e9db128ea60efec984ec55121c5c2f72a424dd6a451c1",
+      "baton": "2706cd95ecdd71793599c1b21d47ef3685040c08c107d4821d2bbf1220502b06"
+    },
+    "frontend_assets_sha256": "26c4b0d6401a9634df1c192d251e1c97bd695d6788688142a466b6995a7b4198",
+    "harness_sha256": "320af1df2802e6e543c68ca3f5ce26d15bcba4a3beba057314fbd561ef44b73d",
+    "projector_sha256": "8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741"
+  },
+  "typecheck_exit": 0,
+  "vitest": {
+    "passed": 1601,
+    "log_sha256": "3a1079b5ffd51e0b898803830590955d940bf3993499d1c1faadba3fe920a846"
+  },
+  "full_infrastructure": {
+    "total": 1108,
+    "skipped": 16,
+    "log_sha256": "5ddd44c533344d297c680c40073661477b7f555a4b6800abc65d21e0e7c15d4b"
+  },
+  "unit_focused_python": 42,
+  "private_control_sha256": {
+    "observe.py": "82ee8f52e76198a8718be96911bb802d226e33c1af9d07e79e6590e9a25c3299",
+    "observe.js": "dbd5005bf7059130ba3da50454123ab87473d4fb18db8d3282166e740561c52a",
+    "observe-panel-candidate.js": "deacb79c926c182d186108f5e3357f87ac7c622d8f0cf3d84e29c58de740edbd",
+    "launch-compare.sh": "5101cc9aa352d7a07bc813e586b4cb5824e35bd49113fab7dc92c319bd6dc380",
+    "run-cases.sh": "c21944b10615c870b216e00d0391607fd4c49511731c0c339774fe5051a7a25a",
+    "verify-final.sh": "68d55340a89ae959624f6133bd5409ed2819aeb64b40d1e6dd1de4c0a2d987d6"
+  },
+  "retained_environment_attempts": [
+    {
+      "stage": "initial candidate freeze",
+      "reason": "Core target mount absent",
+      "log_sha256": "b21d5d79ba95bda2636da69bc30b56b37be330058dd8938c1ae58cd4b3cdec3a"
+    },
+    {
+      "stage": "first infrastructure discovery",
+      "reason": "host Python lacked pinned jsonschema",
+      "log_sha256": "b2fb1a94aa93a453fb4daa5f8a8e4f2a8dc2d4355de9dfc116b1a9b8206921e4"
+    }
+  ],
+  "cases": {
+    "panel-baseline-one": {
+      "case": "normal",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": false,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "569a9e93c394b708e6b1657bbe0981cc0dd67d914eab7296046236171da6fea6",
+      "stale_cas_count": 2,
+      "bridge_start_count": 0,
+      "failure_lines": [
+        2143,
+        1801
+      ],
+      "start_failure": {
+        "stage": "receipt_wait",
+        "bridge_start_requests": "zero",
+        "start_reply": "unobserved",
+        "start_refusal": null,
+        "first_context_refusal": {
+          "method": "factory_child_plans.context",
+          "code": "WORKSPACE_BUSY",
+          "retryable": false,
+          "side_effect_state": "not_started"
+        },
+        "unmapped_context_error": false,
+        "truncated": false,
+        "click_causality": "not_established"
+      },
+      "renderer": {
+        "trace_sha256": "8404fdeb10b6093e9f61478c6f2ec778d92790c1e3dd16ad5e30d00d40c2bcce",
+        "trusted_enabled_start_clicks": 1,
+        "history": {
+          "entered_ms": 18.1,
+          "wire_ms": 58.3,
+          "reply": {
+            "ms": 95.1,
+            "error": null
+          }
+        },
+        "goal_list_delivery_ms": 57.9,
+        "foreground": {
+          "entered_ms": 58.0,
+          "reply": {
+            "ms": 92.7,
+            "error": {
+              "code": "WORKSPACE_BUSY",
+              "retryable": false,
+              "side_effect": "not_started",
+              "site": "factory_owner_read"
+            }
+          }
+        },
+        "start_wire_ms": null
+      }
+    },
+    "panel-baseline-two": {
+      "case": "normal",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": false,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "0c3a21f71d472dd8fefcb9209c2b8e8b63499d8009a1f40a0388753d262376f1",
+      "stale_cas_count": 2,
+      "bridge_start_count": 0,
+      "failure_lines": [
+        2143,
+        1801
+      ],
+      "start_failure": {
+        "stage": "receipt_wait",
+        "bridge_start_requests": "zero",
+        "start_reply": "unobserved",
+        "start_refusal": null,
+        "first_context_refusal": {
+          "method": "factory_child_plans.context",
+          "code": "WORKSPACE_BUSY",
+          "retryable": false,
+          "side_effect_state": "not_started"
+        },
+        "unmapped_context_error": false,
+        "truncated": false,
+        "click_causality": "not_established"
+      },
+      "renderer": {
+        "trace_sha256": "713003d849a3abe6d59af70ad0b8634e42dccd78b01e6fcb525ee475dfc1a7d3",
+        "trusted_enabled_start_clicks": 1,
+        "history": {
+          "entered_ms": 17.9,
+          "wire_ms": 59.2,
+          "reply": {
+            "ms": 102.4,
+            "error": {
+              "code": "WORKSPACE_BUSY",
+              "retryable": false,
+              "side_effect": "not_started",
+              "site": "factory_owner_read"
+            }
+          }
+        },
+        "goal_list_delivery_ms": 58.8,
+        "foreground": {
+          "entered_ms": 59,
+          "reply": {
+            "ms": 113.6,
+            "error": null
+          }
+        },
+        "start_wire_ms": null
+      }
+    },
+    "panel-final-one": {
+      "case": "normal",
+      "status": "passed",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "8792cd2730f46ddec175ebb78d739ba532d817fcdf5c160bb9b859b89a404cf0",
+      "stale_cas_count": 2,
+      "bridge_start_count": 1,
+      "renderer": {
+        "trace_sha256": "36d6eaf2b5ffedb0bbf21c10bc78de9a158e3a1e49385d0fa947a37078ba4de0",
+        "trusted_enabled_start_clicks": 1,
+        "history": {
+          "entered_ms": 15.6,
+          "wire_ms": 176.6,
+          "reply": {
+            "ms": 205.6,
+            "error": null
+          }
+        },
+        "goal_list_delivery_ms": 58.6,
+        "foreground": {
+          "entered_ms": 206.0,
+          "reply": {
+            "ms": 229.9,
+            "error": null
+          }
+        },
+        "start_wire_ms": 246.9
+      }
+    },
+    "panel-final-two": {
+      "case": "normal",
+      "status": "passed",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "7a9fc24103434a1454fde8fd67e5a8ba192c41846f2237bd5ad7c40b080e686d",
+      "stale_cas_count": 2,
+      "bridge_start_count": 1,
+      "renderer": {
+        "trace_sha256": "a24d0e76d5f22b0cfdb7782be6a296a160c185ee162331a37c0f9933b8fd01a2",
+        "trusted_enabled_start_clicks": 1,
+        "history": {
+          "entered_ms": 19.1,
+          "wire_ms": 180.8,
+          "reply": {
+            "ms": 207.3,
+            "error": null
+          }
+        },
+        "goal_list_delivery_ms": 56.6,
+        "foreground": {
+          "entered_ms": 207.7,
+          "reply": {
+            "ms": 235.0,
+            "error": null
+          }
+        },
+        "start_wire_ms": 252.3
+      }
+    },
+    "panel-close-final": {
+      "case": "normal",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": false,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "741ae5ea281c77a466769453329ea41f731fecd6b823fa532830f26534002448",
+      "stale_cas_count": 2,
+      "bridge_start_count": 0,
+      "failure_lines": [
+        2143,
+        1801
+      ],
+      "start_failure": {
+        "stage": "receipt_wait",
+        "bridge_start_requests": "zero",
+        "start_reply": "unobserved",
+        "start_refusal": null,
+        "first_context_refusal": null,
+        "unmapped_context_error": false,
+        "truncated": false,
+        "click_causality": "not_established"
+      },
+      "renderer": {
+        "trace_sha256": "39c94bae449dbe9d0df2843cceafd76dd0ab5d172af8b761812dbff3843c3e50",
+        "trusted_enabled_start_clicks": 1,
+        "history": {
+          "entered_ms": 17.0,
+          "wire_ms": 179.0,
+          "reply": {
+            "ms": 205.9,
+            "error": null
+          }
+        },
+        "goal_list_delivery_ms": 55.9,
+        "foreground": null,
+        "goal_details_closed_ms": 93.1,
+        "later_background_history": {
+          "next_parent_cycle_ms": 1077.7,
+          "context_ms": 1080.2,
+          "history_list_ms": 1133.6
+        },
+        "start_wire_ms": null
+      }
+    },
+    "real-final-one": {
+      "case": "normal",
+      "status": "passed",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "fad5ac53b862017feac26f83c28d9c0ac551b5135bbd8b625aa63aa704e12a79",
+      "stale_cas_count": 2,
+      "bridge_start_count": 1,
+      "renderer": {
+        "trace_sha256": "8f4b06c99c772206ca91227bdf43b3ce758868967f8209fa56caac3d628b0ade",
+        "trusted_enabled_start_clicks": 1,
+        "foreground_reply": {
+          "ms": 87.8,
+          "error": null
+        },
+        "peer_reads": [
+          {
+            "ms": 67.5,
+            "error": {
+              "code": "WORKSPACE_BUSY",
+              "retryable": false,
+              "side_effect": "not_started",
+              "site": "factory_owner_read"
+            }
+          },
+          {
+            "ms": 71.0,
+            "error": null
+          },
+          {
+            "ms": 77.7,
+            "error": {
+              "code": "WORKSPACE_BUSY",
+              "retryable": false,
+              "side_effect": "not_started",
+              "site": "factory_owner_read"
+            }
+          }
+        ],
+        "start_wire_ms": 119.4
+      }
+    },
+    "real-final-two": {
+      "case": "normal",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": false,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "f7d2021b763fb9b8b09d637445f39f543c8e22e6da2c9fe4b621918ead055ea1",
+      "stale_cas_count": 2,
+      "bridge_start_count": 0,
+      "failure_lines": [
+        2143,
+        1801
+      ],
+      "start_failure": {
+        "stage": "receipt_wait",
+        "bridge_start_requests": "zero",
+        "start_reply": "unobserved",
+        "start_refusal": null,
+        "first_context_refusal": {
+          "method": "factory_child_plans.context",
+          "code": "WORKSPACE_BUSY",
+          "retryable": false,
+          "side_effect_state": "not_started"
+        },
+        "unmapped_context_error": false,
+        "truncated": false,
+        "click_causality": "not_established"
+      },
+      "renderer": {
+        "trace_sha256": "b843816ade4705f2063f36b4151dedef266e64e4045e209a289262adaa30d1ac",
+        "trusted_enabled_start_clicks": 1,
+        "foreground_reply": {
+          "ms": 85.2,
+          "error": {
+            "code": "WORKSPACE_BUSY",
+            "retryable": false,
+            "side_effect": "not_started",
+            "site": "factory_owner_read"
+          }
+        },
+        "peer_reads": [
+          {
+            "ms": 65.7,
+            "error": {
+              "code": "WORKSPACE_BUSY",
+              "retryable": false,
+              "side_effect": "not_started",
+              "site": "factory_owner_read"
+            }
+          },
+          {
+            "ms": 68.4,
+            "error": null
+          },
+          {
+            "ms": 85.1,
+            "error": null
+          }
+        ],
+        "denied_panel": {
+          "fresh": "false",
+          "pending-kind": "none",
+          "start_disabled": true,
+          "alert": true
+        },
+        "start_wire_ms": null
+      }
+    },
+    "real-final-three": {
+      "case": "normal",
+      "status": "failed",
+      "exit_code": 1,
+      "cleanup_complete": false,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "f7d2021b763fb9b8b09d637445f39f543c8e22e6da2c9fe4b621918ead055ea1",
+      "stale_cas_count": 2,
+      "bridge_start_count": 0,
+      "failure_lines": [
+        2143,
+        1801
+      ],
+      "start_failure": {
+        "stage": "receipt_wait",
+        "bridge_start_requests": "zero",
+        "start_reply": "unobserved",
+        "start_refusal": null,
+        "first_context_refusal": {
+          "method": "factory_child_plans.context",
+          "code": "WORKSPACE_BUSY",
+          "retryable": false,
+          "side_effect_state": "not_started"
+        },
+        "unmapped_context_error": false,
+        "truncated": false,
+        "click_causality": "not_established"
+      },
+      "renderer": {
+        "trace_sha256": "176b9f17384cb8a324d8d6f94b8080b181a5ed3a77e98311ff39d3a35cb61e4c",
+        "trusted_enabled_start_clicks": 1,
+        "foreground_reply": {
+          "ms": 88.5,
+          "error": {
+            "code": "WORKSPACE_BUSY",
+            "retryable": false,
+            "side_effect": "not_started",
+            "site": "factory_owner_read"
+          }
+        },
+        "peer_reads": [
+          {
+            "ms": 69.4,
+            "error": {
+              "code": "WORKSPACE_BUSY",
+              "retryable": false,
+              "side_effect": "not_started",
+              "site": "factory_owner_read"
+            }
+          },
+          {
+            "ms": 71.5,
+            "error": null
+          },
+          {
+            "ms": 88.3,
+            "error": null
+          }
+        ],
+        "denied_panel": {
+          "fresh": "false",
+          "pending-kind": "none",
+          "start_disabled": true,
+          "alert": true
+        },
+        "start_wire_ms": null
+      }
+    },
+    "final-normal": {
+      "case": "normal",
+      "status": "passed",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "43686d2c6b8d1acf15c917c6a59009ddc80562c8d5689bc57392ce5020e2b13c",
+      "stale_cas_count": 2,
+      "bridge_start_count": 1
+    },
+    "final-lost": {
+      "case": "lost-start",
+      "status": "passed",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG03",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "47a58134cf25cfc9bcd9de9dcc9755b1590ddfe2beee63cf3f0b867ff664c1d7",
+      "stale_cas_count": 2,
+      "bridge_start_count": 2,
+      "explicit_recovery_same_key_cas_plan": true
+    },
+    "final-cancel": {
+      "case": "cancel",
+      "status": "passed",
+      "exit_code": 0,
+      "cleanup_complete": true,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG04",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "summary_sha256": "09682b3ff18482b936a30d179612f06df93fbe0ce328d1f9cdc7355cb037df32",
+      "stale_cas_count": 2,
+      "bridge_start_count": 1
+    }
+  }
+}
