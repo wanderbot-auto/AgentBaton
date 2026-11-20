@@ -14,7 +14,11 @@ import type { Language } from './i18n';
 import type { GraphOwnerDecisionResult, GraphRunDetails } from './goal-graph-types';
 import type { FactoryScope, FactoryTaskHandle, FactoryRun, FactoryRunDetails, FactoryChildPlanningContext, FactoryChildPlanView, FactoryChildGoalSummary, FactoryChildGoalView, FactoryChildGoalSubmission } from './factory-types';
 
-type Props={scope:FactoryScope;target:FactoryTaskHandle;run:FactoryRun;selected:FactoryChildPlanView|null;language:Language;connected:boolean;parentReady:boolean;parentRefreshOnly?:boolean;parentReadIdentity?:string};
+export type ReadChildPlanContext = (
+ scopeId: string, taskId: string, stillCurrent: () => boolean,
+) => Promise<FactoryChildPlanningContext | null>;
+
+type Props={scope:FactoryScope;target:FactoryTaskHandle;run:FactoryRun;selected:FactoryChildPlanView|null;language:Language;connected:boolean;parentReady:boolean;parentRefreshOnly?:boolean;parentReadIdentity?:string;readChildPlanContext?:ReadChildPlanContext};
 // Local read-state provenance only. It never enters an IPC approval/request.
 const parentIdentity=(p:Props)=>factorySafeFingerprint([p.parentReadIdentity??'',p.scope,p.target,p.run,p.selected]);
 const parentReadReady=(p:Props)=>p.parentReady||p.parentRefreshOnly===true;
@@ -99,9 +103,13 @@ function ChildGoalPanel(props:Props&{open:boolean}){
   try{
    const trusted=await readSummary(stamp);if(!trusted)return null;
    const {scope,family,target,task,rows}=trusted;
-   const context=await factoryChildPlanApi.context(scope.id,target.task_id);
-   if(!mounted.current||stamp!==epoch.current)return null;
-   if(!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);
+   const stillCurrent=()=>mounted.current&&stamp===epoch.current;
+   const readContext=current.current.readChildPlanContext;
+   const context=readContext
+    ? await readContext(scope.id,target.task_id,stillCurrent)
+    : await factoryChildPlanApi.context(scope.id,target.task_id);
+   if(!stillCurrent())return null;
+   if(!context||!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);
    if(source&&pollAuthority.current?.stamp===stamp)pollAuthority.current.same=pollAuthority.current.same===true&&factorySame(context,source.snapshot.context);
    let head:FactoryChildPlanView|null=null;
    try{head=await factoryChildPlanApi.get(scope.id,target.task_id);if(!mounted.current||stamp!==epoch.current)return null;if(!childViewShape(head,context,scope)||head.reference.revision!==context.current_plan_revision)throw new Error(t.invalid);await verifyChildRaw(head);}

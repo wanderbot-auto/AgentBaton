@@ -3,6 +3,7 @@ import { afterEach,beforeEach,it,expect,vi } from 'vitest';
 import { act,render,screen,waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FactoryChildGoals } from './FactoryChildGoals';
+import { FactoryChildPlans } from './FactoryChildPlans';
 import { api,DaemonError } from './api';
 import { sessionApi } from './session-api';
 import { factoryApi,factoryChildGoalApi,factoryChildPlanApi } from './factory-api';
@@ -11,10 +12,10 @@ import { childGoalMessages } from './factory-child-goal-i18n';
 import { childGoalFixture } from './factory-child-goal-test-fixtures';
 import { factoryScopeShape,factoryDetailsShape } from './factory-guards';
 import { childContextShape,childViewShape } from './factory-child-plan';
-import type { FactoryChildGoalView,FactoryChildGoalSummary,FactoryChildPlanView } from './factory-types';
+import type { FactoryChildGoalView,FactoryChildGoalSummary,FactoryChildPlanView,FactoryChildPlanningContext } from './factory-types';
 vi.mock('./api',async()=>{const actual=await vi.importActual<typeof import('./api')>('./api');return {...actual,api:{...actual.api,snapshot:vi.fn()}};});
 vi.mock('./session-api',()=>({sessionApi:{grantsList:vi.fn()}}));
-vi.mock('./factory-api',()=>({factoryApi:{get:vi.fn(),run:vi.fn()},factoryChildPlanApi:{context:vi.fn(),get:vi.fn()},factoryChildGoalApi:{start:vi.fn(),list:vi.fn(),get:vi.fn(),cancel:vi.fn(),advancePlan:vi.fn()}}));
+vi.mock('./factory-api',()=>({factoryApi:{get:vi.fn(),run:vi.fn()},factoryChildPlanApi:{context:vi.fn(),get:vi.fn(),list:vi.fn()},factoryChildGoalApi:{start:vi.fn(),list:vi.fn(),get:vi.fn(),cancel:vi.fn(),advancePlan:vi.fn()}}));
 vi.mock('./goal-graph-api',()=>({goalGraphApi:{approveNode:vi.fn(),rejectNode:vi.fn()}}));
 const t=childGoalMessages.en;
 type Fixture=Awaited<ReturnType<typeof childGoalFixture>>;
@@ -36,6 +37,63 @@ const props=(f:Fixture,selected:FactoryChildPlanView|null=f.plan)=>({scope:f.sco
 async function open(user:ReturnType<typeof userEvent.setup>){await user.click(screen.getByText(/^Factory child Goal execution ·/,{selector:'summary'}));await screen.findByTestId('factory-child-goal-panel');await waitFor(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());}
 it('starts the exact selected saved reference with both real CAS values and no origin/self-attested authority',async()=>{
  const user=userEvent.setup(),f=await childGoalFixture();records(f);render(<FactoryChildGoals {...props(f)}/>);await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());await user.click(screen.getByRole('button',{name:t.start}));await waitFor(()=>expect(factoryChildGoalApi.start).toHaveBeenCalledOnce());expect(factoryChildGoalApi.start).toHaveBeenCalledWith(f.scope.id,{task_id:f.task.id,plan:f.plan.reference,expected_factory_run_revision:1},1,expect.any(String));await waitFor(()=>expect(screen.getByTestId('goal-graph-history')).toBeInTheDocument());expect(factoryApi).not.toHaveProperty('execute');expect(goalGraphApi.approveNode).not.toHaveBeenCalled();expect(screen.getByRole('button',{name:t.start})).toBeDisabled();
+});
+it.each(['current','external busy','new parent identity'])('serializes the clicked Start preflight behind child history with %s',async outcome=>{
+ const user=userEvent.setup(),f=await childGoalFixture();
+ records(f);
+ vi.mocked(factoryChildPlanApi.list).mockResolvedValue([f.plan.reference]);
+ const parentProps=props(f);
+ const mounted=render(<FactoryChildPlans {...parentProps} parentReadGeneration={1}/>);
+ await user.click(screen.getByText(/^Child task plans ·/,{selector:'summary'}));
+ await open(user);
+ const start=screen.getByRole('button',{name:t.start});
+ await waitFor(()=>expect(start).toBeEnabled());
+ expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+
+ let releaseSummary!:(rows:FactoryChildGoalSummary[])=>void;
+ const summary=new Promise<FactoryChildGoalSummary[]>(resolve=>{releaseSummary=resolve;});
+ vi.mocked(factoryChildGoalApi.list).mockReturnValueOnce(summary);
+ await user.click(start);
+ await waitFor(()=>expect(factoryChildGoalApi.list).toHaveBeenCalledTimes(2));
+
+ let releaseHistory!:(context:FactoryChildPlanningContext)=>void;
+ const historyContext=new Promise<FactoryChildPlanningContext>(resolve=>{releaseHistory=resolve;});
+ const readsSoFar=vi.mocked(factoryChildPlanApi.context).mock.calls.length;
+ vi.mocked(factoryChildPlanApi.context).mockReturnValueOnce(historyContext);
+ if(outcome==='external busy'){
+  vi.mocked(factoryChildPlanApi.context).mockImplementationOnce(async()=>{
+   throw new DaemonError('WORKSPACE_BUSY','External owner read occupies the data worker','not_started',false);
+  });
+ }
+ mounted.rerender(<FactoryChildPlans {...parentProps} parentReadGeneration={2}/>);
+ await waitFor(()=>expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(readsSoFar+1));
+ await act(async()=>releaseSummary([]));
+ expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(readsSoFar+1);
+ expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+
+ if(outcome==='new parent identity'){
+  mounted.rerender(<FactoryChildPlans {...parentProps} parentReadGeneration={3} parentReadIdentity="changed-owner-binding"/>);
+ }
+ await act(async()=>releaseHistory(structuredClone(f.context)));
+ if(outcome==='new parent identity'){
+  expect(await screen.findByRole('alert')).toHaveTextContent(t.stale);
+  expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+ }else if(outcome==='external busy'){
+  expect(await screen.findByRole('alert')).toHaveTextContent('External owner read occupies the data worker');
+  expect(start).toBeDisabled();
+  expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(readsSoFar+2);
+  expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+  const refresh=screen.getByRole('button',{name:t.refresh});
+  await waitFor(()=>expect(refresh).toBeEnabled());
+  await user.click(refresh);
+  await waitFor(()=>expect(start).toBeEnabled());
+  expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+ }else{
+  await waitFor(()=>expect(factoryChildGoalApi.start).toHaveBeenCalledOnce());
+  expect(factoryChildGoalApi.start).toHaveBeenCalledWith(f.scope.id,{
+   task_id:f.task.id,plan:f.plan.reference,expected_factory_run_revision:1,
+  },1,expect.any(String));
+ }
 });
 it('shows mandatory server origin, original Native approval, complete binding and exact initial/adopted raw text',async()=>{
  const user=userEvent.setup(),f=await childGoalFixture();records(f,f.makeView());render(<FactoryChildGoals {...props(f)}/>);await open(user);await screen.findByTestId('goal-graph-history');await user.click(screen.getByText(t.origin,{selector:'summary'}));expect(screen.getByText(f.scope.approval_id,{selector:'dd'})).toBeVisible();expect(screen.getByText(`${f.grant.id} · r1`,{selector:'dd'})).toBeVisible();await user.click(screen.getByText(t.initial,{selector:'summary'}));expect(screen.getByLabelText(t.initial)).toHaveTextContent(f.plan.proposal.plan_id);expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
