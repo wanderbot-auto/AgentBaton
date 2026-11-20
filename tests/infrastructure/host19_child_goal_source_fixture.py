@@ -680,6 +680,10 @@ def sha(text):
 
 def reverse_pinned_spans(source, layer, error=AssertionError):
     current, historical, spans = layer
+    if layer is START_FAILURE_LAYERS[DRIVER]:
+        cancel = CANCEL_PROC_FD_LAYERS[DRIVER]
+        if sha(source) == cancel[0]:
+            source = reverse_pinned_spans(source, cancel, error)
     if sha(source) != current:
         raise error('Unrecognized Child Goal source bytes')
     lines = source.splitlines(keepends=True)
@@ -695,7 +699,8 @@ def reverse_pinned_spans(source, layer, error=AssertionError):
 
 def without_start_failure_layer(path, source, error):
     layer = START_FAILURE_LAYERS.get(path)
-    if layer is not None and sha(source) == layer[0]:
+    digest = sha(source)
+    if layer is not None and (digest == layer[0] or path == DRIVER and digest == CANCEL_PROC_FD_LAYERS[DRIVER][0]):
         return reverse_pinned_spans(source, layer, error)
     return source
 
@@ -740,6 +745,14 @@ def restore_child_context_guard(source, error):
 
 
 CANCEL_PROC_FD_LAYERS = {
+    DRIVER: (
+        '73470592d65790678a57a17bb14b13351f261902fc87411039e6ec5ff31c2e11',
+        '320af1df2802e6e543c68ca3f5ce26d15bcba4a3beba057314fbd561ef44b73d',
+        [
+            (34, 35, '3a766f0e8ebf72bdfc99030057a3f398ed38f49788ac9b47d694a71771fe2093',
+             "PLANNING_SHA256 = '64e27e2d1b49750542933ea50d9ad6a85ec93964ec1c21411a82c2a1451a6ea6'\n"),
+        ],
+    ),
     'apps/desktop/tests/factory-real-ipc.py': (
         '6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93',
         'e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464',

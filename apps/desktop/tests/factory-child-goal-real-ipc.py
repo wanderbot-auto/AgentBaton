@@ -32,7 +32,7 @@ import re
 import sys
 
 PLANNING_PATH = Path(__file__).with_name('factory-child-planning-real-ipc.py')
-PLANNING_SHA256 = '64e27e2d1b49750542933ea50d9ad6a85ec93964ec1c21411a82c2a1451a6ea6'
+PLANNING_SHA256 = 'fe607d2c8bfeaf9ee34a0656b823bec9e00c11c9152501ebbd1e273bfbf79f39'
 PLANNING_SOURCE = PLANNING_PATH.read_bytes()
 _spec = importlib.util.spec_from_file_location('_child_goal_planning_support', PLANNING_PATH)
 planning = importlib.util.module_from_spec(_spec)
