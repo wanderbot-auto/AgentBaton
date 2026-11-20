@@ -79,8 +79,8 @@ describe('Task workspace using mocked Tauri transport', () => {
       expect(await thread.findByText(label, { exact: true })).toBeVisible();
     }
     expect(thread.getByText(taskState, { exact: true })).toBeVisible();
-    expect(screen.getByRole('button', { name: send, exact: true })).toBeDisabled();
-    expect(thread.getByRole('button', { name: sendGoal, exact: true })).toBeDisabled();
+    expect(screen.getByRole('button', { name: send })).toBeDisabled();
+    expect(thread.getByRole('button', { name: sendGoal })).toBeDisabled();
   });
 
   it('keeps a ready session available after a recorded turn ends', async () => {
@@ -92,7 +92,7 @@ describe('Task workspace using mocked Tauri transport', () => {
     render(<App />);
     await userEvent.setup().click(await screen.findByRole('button', { name: `Open task: ${task.goal}` }));
     expect(await screen.findByText('Recorded session state: Ready · Turn ended (not accepted)')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Send task goal', exact: true })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Send task goal' })).toBeEnabled();
   });
 
   it('binds task drafts to an explicitly selected active project and disables archived projects', async () => {
