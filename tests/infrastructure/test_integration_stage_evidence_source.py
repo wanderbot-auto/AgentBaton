@@ -124,6 +124,8 @@ def evidence_before_schema18(text):
 
 
 def rust_controls_before_schema18(text):
+    if hashlib.sha256(text.encode()).hexdigest() == SCHEMA19_RUST_TEST_SHA256:
+        text = rust_controls_before_schema19(text)
     exact_source_pin(text, SCHEMA18_RUST_TEST_SHA256)
     if text.count(SCHEMA18_RUST_TEST_MARKER) != 1 or text.count(PHASE_TEST_MARKER) != 1:
         raise AssertionError('unique reviewed schema18 control required')
@@ -145,9 +147,7 @@ def settlement_before_phase(text):
 
 
 def rust_controls_before_phase(text):
-    if hashlib.sha256(text.encode()).hexdigest() == SCHEMA19_RUST_TEST_SHA256:
-        text = rust_controls_before_schema19(text)
-    if hashlib.sha256(text.encode()).hexdigest() == SCHEMA18_RUST_TEST_SHA256:
+    if hashlib.sha256(text.encode()).hexdigest() in (SCHEMA18_RUST_TEST_SHA256, SCHEMA19_RUST_TEST_SHA256):
         text = rust_controls_before_schema18(text)
     exact_source_pin(text, PHASE_RUST_TEST_SHA256)
     if text.count(PHASE_TEST_MARKER) != 1:
@@ -178,7 +178,12 @@ class IntegrationStageEvidenceSourceTests(unittest.TestCase):
                 evidence_before_schema19(changed)
         current_controls = RUST_TEST.read_text()
         original_controls = rust_controls_before_schema19(current_controls)
+        phase_controls = rust_controls_before_schema18(current_controls)
+        self.assertEqual(phase_controls, rust_controls_before_schema18(original_controls))
         exact_source_pin(rust_controls_before_phase(current_controls), BEFORE_PHASE_RUST_TEST_SHA256)
+        for changed in (current_controls + '\n', phase_controls):
+            with self.assertRaises(AssertionError):
+                rust_controls_before_schema18(changed)
         for changed in (current_controls + '\n', original_controls):
             with self.assertRaises(AssertionError):
                 rust_controls_before_schema19(changed)
