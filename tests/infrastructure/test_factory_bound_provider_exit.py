@@ -6,6 +6,7 @@ No fake result from these controls is used as runtime/stop/Owner acceptance.
 """
 import ast
 import copy
+import errno
 import hashlib
 import importlib.util
 import io
@@ -34,7 +35,7 @@ def load_collector():
     support_tree = ast.parse(SUPPORT.read_text(), filename=str(SUPPORT))
     support_nodes = [n for n in support_tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))
                      and n.name in ('BoundaryRefusal', 'require', 'unique_object')]
-    ns = {'hashlib': hashlib, 'json': json, 'os': os, 'Path': Path, 're': re,
+    ns = {'errno': errno, 'hashlib': hashlib, 'json': json, 'os': os, 'Path': Path, 're': re,
           'sqlite3': sqlite3, 'stat': stat, 'time':time, 'MAX_HTTP_BYTES': 270336}
     exec(compile(ast.Module(body=support_nodes, type_ignores=[]), str(SUPPORT), 'exec'), ns)
     exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SUBJECT), 'exec'), ns)
@@ -635,6 +636,96 @@ class BoundMcpLateDiagnosticTests(unittest.TestCase):
         detail=json.loads(str(error.exception).split(': ',1)[1])
         self.assertEqual(detail['pgid_error_type'],'PermissionError');self.assertIsNone(detail['pgid_matches'])
         self.assertNotIn('sensitive',str(error.exception));self.assertEqual(f.verified,f.original)
+
+
+class CancelProcFdSourcePins(unittest.TestCase):
+    def test_exact_factory_and_planning_sources_restore_before_historical_inverses(self):
+        from tests.infrastructure.host19_child_goal_source_fixture import (
+            CANCEL_PROC_FD_LAYERS, normalize_child_goal_outer_layer, restore_cancel_proc_fd_layer,
+        )
+        from tests.infrastructure.schema18_source_fixture import LAYERS, strip_schema18_source
+
+        self.assertEqual(CANCEL_PROC_FD_LAYERS['apps/desktop/tests/factory-real-ipc.py'][1],
+                         'e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464')
+        for path, (now, old, _) in CANCEL_PROC_FD_LAYERS.items():
+            with self.subTest(path=path):
+                current=(ROOT/path).read_text()
+                digest=lambda text:hashlib.sha256(text.encode()).hexdigest()
+                self.assertEqual(digest(current),now)
+                restored=restore_cancel_proc_fd_layer(path,current)
+                self.assertEqual(digest(restored),old)
+                self.assertEqual(restore_cancel_proc_fd_layer(path,restored),restored)
+                with self.assertRaises(AssertionError):
+                    restore_cancel_proc_fd_layer(path,current+'\n# unreviewed source\n')
+                self.assertEqual(normalize_child_goal_outer_layer(path,current),
+                                 normalize_child_goal_outer_layer(path,restored))
+                if path in LAYERS:
+                    self.assertEqual(digest(strip_schema18_source(path,current)),LAYERS[path]['before'])
+
+
+class BoundMcpLateProcFdTests(unittest.TestCase):
+    setUp=BoundExitTests.setUp
+
+    def fixture(self, bound=True):
+        return Fixture(Path(tempfile.mkdtemp(dir=self.root)), bound)
+
+    def fixture_at_late_stat(self):
+        f=self.fixture()
+        f.argv_overrides[f.companion]=b''
+        before=f.identity(f.companion,state='Z')
+        f.proc_steps[f.companion]=[before, ProcessLookupError(errno.ESRCH,'closed task on open stat FD')]
+        return f,before
+
+    def test_late_esrch_rechecks_bound_pid_once_and_only_preserves_old_history(self):
+        for next_identity in ('absent','reused'):
+            with self.subTest(next_identity=next_identity):
+                f,before=self.fixture_at_late_stat()
+                followup=None if next_identity=='absent' else {**before,'start_ticks':'99999'}
+                f.proc_steps[f.companion].append(followup)
+                original=copy.deepcopy(f.verified)
+                waits=[]
+                rows=f.collect(SimpleNamespace(reap=waits.append))
+                self.assertEqual(waits,[original[0],original[0]])
+                self.assertEqual(f.verified,original)
+                self.assertEqual(len(rows),1)
+                self.assertNotIn('stop_confirmed',rows[0])
+                self.assertEqual(f.proc_calls.count(f.companion),3)
+                self.assertEqual(f.argv_calls.count(f.companion),1)
+
+    def test_late_esrch_cannot_downgrade_an_original_or_unresolved_process(self):
+        for next_sample in ('same','foreign-pid','again','permission','unknown'):
+            with self.subTest(next_sample=next_sample):
+                f,before=self.fixture_at_late_stat()
+                followup={
+                    'same':before,'foreign-pid':{**before,'pid':99999,'start_ticks':'99999'},
+                    'again':ProcessLookupError(errno.ESRCH,'still unresolved'),
+                    'permission':PermissionError(errno.EACCES,'permission refused'),
+                    'unknown':OSError(errno.EIO,'unexpected read error'),
+                }[next_sample]
+                f.proc_steps[f.companion].append(followup)
+                error=followup if isinstance(followup,OSError) else f.proc_steps[f.companion][1]
+                with self.assertRaises(type(error)) as caught:
+                    f.collect(SimpleNamespace(reap=lambda _:None))
+                self.assertIs(caught.exception,error)
+                self.assertEqual(f.verified,f.original)
+                self.assertEqual(f.proc_calls.count(f.companion),3)
+                self.assertEqual(f.argv_calls.count(f.companion),1)
+
+    def test_other_late_errors_and_missing_prior_binding_cannot_enter_esrch_recheck(self):
+        for late_error in (PermissionError(errno.EACCES,'denied'), OSError(errno.EIO,'bad stat'),
+                           ProcessLookupError(errno.EIO,'unknown lookup error')):
+            f,_=self.fixture_at_late_stat()
+            f.proc_steps[f.companion][-1]=late_error
+            with self.subTest(late_error=late_error), self.assertRaises(type(late_error)) as caught:
+                f.collect(SimpleNamespace(reap=lambda _:None))
+            self.assertIs(caught.exception,late_error)
+            self.assertEqual(f.proc_calls.count(f.companion),2)
+            self.assertEqual(f.verified,f.original)
+        f=self.fixture(bound=False)
+        f.argv_overrides[f.companion]=b''
+        with self.assertRaises(AssertionError):
+            f.collect(SimpleNamespace(reap=lambda _:self.fail('Unbound companion must never be waited')))
+        self.assertEqual(f.verified,[])
 
 
 class BoundMcpDeferredDiscoveryTests(unittest.TestCase):

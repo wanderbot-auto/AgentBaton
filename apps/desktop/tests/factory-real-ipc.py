@@ -8,6 +8,7 @@ Default invocation records pending dependencies and exits2 without a process.
 from __future__ import annotations
 
 import argparse
+import errno
 from dataclasses import dataclass
 from functools import partial
 import hashlib
@@ -524,6 +525,17 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         reaper.reap(old)
                         try: after = support.proc_identity(expected['pid'])
                         except FileNotFoundError: after = None
+                        except ProcessLookupError as failure:
+                            if failure.errno != errno.ESRCH: raise
+                            # An already-open proc stat FD can lose its task
+                            # while the fixture's own parent waits for it.
+                            # Reopen only this bound PID. A surviving original
+                            # identity is not proof of its disappearance.
+                            try: after = support.proc_identity(expected['pid'])
+                            except FileNotFoundError: after = None
+                            else:
+                                if after['pid'] != expected['pid'] or after['start_ticks'] == expected['start_ticks']:
+                                    raise
                         late_observation = None
                         if after is not None and after['start_ticks'] == expected['start_ticks']:
                             late_observation = {'stage':'bound_MCP_late_wait_still_present',

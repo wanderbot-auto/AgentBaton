@@ -739,7 +739,39 @@ def restore_child_context_guard(source, error):
     return reverse_pinned_spans(source, (current, prior, spans), error)
 
 
+CANCEL_PROC_FD_LAYERS = {
+    'apps/desktop/tests/factory-real-ipc.py': (
+        '6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93',
+        'e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464',
+        [
+            (10, 11, 'b17c41ffb3939b0dc71fa9e725ac38888b83de0c14b844fb813deda3b5410663', ''),
+            (527, 538, 'b3ce4d06e07042b7ab3c54ebf8305a8d538029cfae4c1af893e159885533efe1', ''),
+        ],
+    ),
+    PLANNING_DRIVER: (
+        'fe607d2c8bfeaf9ee34a0656b823bec9e00c11c9152501ebbd1e273bfbf79f39',
+        '64e27e2d1b49750542933ea50d9ad6a85ec93964ec1c21411a82c2a1451a6ea6',
+        [
+            (36, 37, 'd0dd2b083e107213cd7bf2fac090dd12eadee28168f991ecefa05b0b969ed91e',
+             "FACTORY_SUPPORT_SHA256 = 'e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464'\n"),
+        ],
+    ),
+}
+
+
+def restore_cancel_proc_fd_layer(path, source, *, error=AssertionError):
+    layer = CANCEL_PROC_FD_LAYERS.get(path)
+    if layer is None or type(source) is not str:
+        raise error('Unknown cancel proc FD source')
+    if sha(source) == layer[1]:
+        return source
+    return reverse_pinned_spans(source, layer, error)
+
+
 def normalize_child_goal_outer_layer(path, source, *, error=AssertionError):
+    cancel_layer = CANCEL_PROC_FD_LAYERS.get(path)
+    if cancel_layer is not None and sha(source) == cancel_layer[0]:
+        source = restore_cancel_proc_fd_layer(path, source, error=error)
     if path == CHILD_CONTEXT_GUARD and sha(source) == CHILD_CONTEXT_GUARD_LAYER[0]:
         return restore_child_context_guard(source, error)
     source = without_start_failure_layer(path, source, error)

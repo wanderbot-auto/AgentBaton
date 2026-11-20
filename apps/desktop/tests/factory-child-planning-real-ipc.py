@@ -34,7 +34,7 @@ base = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = base
 BASE_SOURCE = BASE_PATH.read_bytes()
 exec(compile(BASE_SOURCE, str(BASE_PATH), 'exec'), base.__dict__)
-FACTORY_SUPPORT_SHA256 = 'e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464'
+FACTORY_SUPPORT_SHA256 = '6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93'
 FixedCall, Refusal, require = base.FixedCall, base.BoundaryRefusal, base.require
 sha, safe_integer, unique_object = base.sha, base.safe_integer, base.unique_object
 exact_json = base.support.exact_json_value
