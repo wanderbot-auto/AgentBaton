@@ -1,9 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { api, DaemonError, type Task, type Project } from './api';
-import { sessionApi } from './session-api';
+import { sessionApi, type ManagedSession } from './session-api';
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn() } }));
 
 // These tests mock only the Tauri transport. They are not native IPC evidence.
@@ -12,6 +12,12 @@ vi.mock('./api', async importOriginal => {
   return { ...actual, api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), projectsImport: vi.fn(), projectsArchive: vi.fn(), projectsReassociate: vi.fn(), workspacesCreate: vi.fn(), workspacesList: vi.fn() } };
 });
 const task: Task = { id: 'task-1', goal: 'Check cancellation evidence', state: 'draft', revision: 1, created_at: '2026-10-27T00:00:00Z', updated_at: '2026-10-27T00:00:00Z' };
+const session: ManagedSession = {
+  id: 'session-1', task_id: task.id, project_id: 'project-1', workspace_id: 'workspace-1',
+  connection_id: 'connection-1', grant_id: 'grant-1', state: 'stopped', revision: 2,
+  native_session_id: null, created_at: task.created_at, updated_at: task.updated_at,
+  last_error: null, turn_state: 'completed',
+};
 beforeEach(() => {
   vi.resetAllMocks();
   localStorage.clear();
@@ -24,6 +30,71 @@ beforeEach(() => {
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 0, sequence: 0, gap: false });
 });
 describe('Task workspace using mocked Tauri transport', () => {
+  it.each([
+    {
+      language: 'en', open: 'Open task', taskState: 'Running', send: 'Send message', sendGoal: 'Send task goal',
+      labels: [
+        'Recorded session state: Stopped (confirmed) · Turn ended (not accepted)',
+        'Recorded session state: Cancellation requested · User message queued',
+        'Recorded session state: Failed · Turn cancelled',
+        'Recorded session state: Outcome unknown · Turn interrupted',
+        'Recorded session state: Stopped (confirmed) · Outcome unknown',
+        'Recorded session state: Starting',
+        'Recorded session state: Unknown: label · Unknown: grant',
+      ],
+    },
+    {
+      language: 'zh', open: '打开任务', taskState: '运行中', send: '发送消息', sendGoal: '发送任务目标',
+      labels: [
+        '已记录的会话状态: 已停止（已确认） · 本轮已结束（未验收）',
+        '已记录的会话状态: 已请求取消 · 用户消息已入队',
+        '已记录的会话状态: 失败 · 本轮已取消',
+        '已记录的会话状态: 结果未知 · 本轮已中断',
+        '已记录的会话状态: 已停止（已确认） · 结果未知',
+        '已记录的会话状态: 正在启动',
+        '已记录的会话状态: 未知: label · 未知: grant',
+      ],
+    },
+  ])('shows recorded session and turn state independently in $language', async ({
+    language, open, taskState, send, sendGoal, labels,
+  }) => {
+    localStorage.setItem('agentbaton.language', language);
+    vi.mocked(api.snapshot).mockResolvedValue({
+      tasks: [{ ...task, project_id: session.project_id, state: 'running' }],
+      sequence: 1, api_version: 1, database_schema_version: 19,
+    });
+    vi.mocked(sessionApi.sessionsList).mockResolvedValue([
+      session,
+      { ...session, id: 'pending', state: 'cancel_requested', turn_state: 'pending' },
+      { ...session, id: 'cancelled', state: 'failed', turn_state: 'cancelled' },
+      { ...session, id: 'interrupted', state: 'outcome_unknown', turn_state: 'interrupted' },
+      { ...session, id: 'unknown-turn', turn_state: 'outcome_unknown' },
+      { ...session, id: 'starting', state: 'starting', turn_state: null },
+      { ...session, id: 'unknown', state: 'label' as ManagedSession['state'], turn_state: 'grant' },
+    ]);
+    render(<App />);
+    await userEvent.setup().click(await screen.findByRole('button', { name: `${open}: ${task.goal}` }));
+    const thread = within(screen.getByTestId('task-thread'));
+    for (const label of labels) {
+      expect(await thread.findByText(label, { exact: true })).toBeVisible();
+    }
+    expect(thread.getByText(taskState, { exact: true })).toBeVisible();
+    expect(screen.getByRole('button', { name: send, exact: true })).toBeDisabled();
+    expect(thread.getByRole('button', { name: sendGoal, exact: true })).toBeDisabled();
+  });
+
+  it('keeps a ready session available after a recorded turn ends', async () => {
+    vi.mocked(api.snapshot).mockResolvedValue({
+      tasks: [{ ...task, project_id: session.project_id, state: 'running' }],
+      sequence: 1, api_version: 1, database_schema_version: 19,
+    });
+    vi.mocked(sessionApi.sessionsList).mockResolvedValue([{ ...session, state: 'ready', turn_state: 'ended' }]);
+    render(<App />);
+    await userEvent.setup().click(await screen.findByRole('button', { name: `Open task: ${task.goal}` }));
+    expect(await screen.findByText('Recorded session state: Ready · Turn ended (not accepted)')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Send task goal', exact: true })).toBeEnabled();
+  });
+
   it('binds task drafts to an explicitly selected active project and disables archived projects', async () => {
     const user = userEvent.setup();
     const project: Project = { id: 'project-1', name: 'Product repository', identity: { canonical_root: '/source', device: 1, inode: 2, kind: { kind: 'directory' } }, archived: false, revision: 1, created_at: task.created_at, updated_at: task.updated_at };
