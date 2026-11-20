@@ -14,4 +14,4 @@
 
 - `apps/desktop/tests/factory-real-ipc.py` 的 late bound companion stat。仅对该次 ESRCH 重新观察固定 PID 一次。确实消失则保留旧记录。具有不同 birth 的新进程不会获得旧进程身份，也不读新 argv、不等待、不发信号。同一身份仍在、未知错误和没有旧绑定都不能通过该路径。
 - `tests/infrastructure/test_factory_bound_provider_exit.py` 增加一次重采样、权限拒绝、identity 不匹配及无绑定对照，保留既有 parent/PGID/收割和强拒绝。
-- `apps/desktop/tests/factory-child-planning-real-ipc.py` 的当前整文件 pin 按新 Factory fixture 固定。 `tests/infrastructure/host19_child_goal_source_fixture.py` 追加测试专用精确逆转，在旧 Schema18/串行 history 逆转之前恢复原规划驱动和 Factory support pin `e81410e1…`。所有既有 SHA 和原 Goal 驱动、投影器、CI 都可逐字核对。
+- `apps/desktop/tests/factory-child-planning-real-ipc.py` 的当前整文件 pin 按新 Factory fixture 固定。 `tests/infrastructure/host19_child_goal_source_fixture.py` 追加测试专用精确逆转，在旧 Schema18/串行 history 逆转之前恢复原规划驱动和 Factory support pin `e81410e1…`。所有既有 SHA 与原投影器、CI 都可逐字核对。初版冻结后验证到 Child Goal 消费方亦固定整个 Planning SHA，集成窗口追加认领仅更新该一行，见候选记录。
