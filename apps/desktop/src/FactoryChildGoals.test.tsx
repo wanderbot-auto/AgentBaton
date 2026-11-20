@@ -38,7 +38,7 @@ async function open(user:ReturnType<typeof userEvent.setup>){await user.click(sc
 it('starts the exact selected saved reference with both real CAS values and no origin/self-attested authority',async()=>{
  const user=userEvent.setup(),f=await childGoalFixture();records(f);render(<FactoryChildGoals {...props(f)}/>);await open(user);await waitFor(()=>expect(screen.getByRole('button',{name:t.start})).toBeEnabled());await user.click(screen.getByRole('button',{name:t.start}));await waitFor(()=>expect(factoryChildGoalApi.start).toHaveBeenCalledOnce());expect(factoryChildGoalApi.start).toHaveBeenCalledWith(f.scope.id,{task_id:f.task.id,plan:f.plan.reference,expected_factory_run_revision:1},1,expect.any(String));await waitFor(()=>expect(screen.getByTestId('goal-graph-history')).toBeInTheDocument());expect(factoryApi).not.toHaveProperty('execute');expect(goalGraphApi.approveNode).not.toHaveBeenCalled();expect(screen.getByRole('button',{name:t.start})).toBeDisabled();
 });
-it.each(['current','external busy','new parent identity'])('serializes the clicked Start preflight behind child history with %s',async outcome=>{
+it.each(['current','external busy','new parent identity','closed Goal panel'])('serializes the clicked Start preflight behind child history with %s',async outcome=>{
  const user=userEvent.setup(),f=await childGoalFixture();
  records(f);
  vi.mocked(factoryChildPlanApi.list).mockResolvedValue([f.plan.reference]);
@@ -73,9 +73,18 @@ it.each(['current','external busy','new parent identity'])('serializes the click
 
  if(outcome==='new parent identity'){
   mounted.rerender(<FactoryChildPlans {...parentProps} parentReadGeneration={3} parentReadIdentity="changed-owner-binding"/>);
+ }else if(outcome==='closed Goal panel'){
+  await user.click(screen.getByText(/^Factory child Goal execution ·/,{selector:'summary'}));
+  expect(screen.getByTestId('factory-child-goals')).not.toHaveAttribute('open');
  }
  await act(async()=>releaseHistory(structuredClone(f.context)));
- if(outcome==='new parent identity'){
+ if(outcome==='closed Goal panel'){
+  expect(factoryChildPlanApi.context).toHaveBeenCalledTimes(readsSoFar+1);
+  expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+  await open(user);
+  await waitFor(()=>expect(start).toBeEnabled());
+  expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
+ }else if(outcome==='new parent identity'){
   expect(await screen.findByRole('alert')).toHaveTextContent(t.stale);
   expect(factoryChildGoalApi.start).not.toHaveBeenCalled();
  }else if(outcome==='external busy'){

@@ -4,6 +4,8 @@ The prior schema 18 sources are those at b8573a221e152c6f47d8590739f031a7bbbd905
 Verify the whole input and each reversed span before accepting the pinned result.
 """
 import hashlib
+import json
+from pathlib import Path
 from types import ModuleType
 
 PROJECTOR = 'scripts/record-child-goal-ci-evidence.py'
@@ -713,7 +715,33 @@ def restore_child_goal_before_schema19(path, source, *, error=AssertionError):
     return reverse_pinned_spans(source, layer, error)
 
 
+CHILD_CONTEXT_GUARD = 'tests/infrastructure/test_child_goal_diagnostics_v4.py'
+CHILD_CONTEXT_GUARD_LAYER = (
+    'c681f130f35f45dfaac8c57e1090a213c18539e9b7cf004ddfc8a8ca4af6a1ec',
+    '2f383e2ed7fcb15dc302254c302a63a08fdba40886bb8b1df39decfb5da6d9d7',
+)
+CHILD_CONTEXT_GUARD_MANIFEST_SHA256 = '7e5ebe20338c90e51abc7b8b1ea56530b848910ee9629ca36b81db39ab31a92e'
+
+
+def restore_child_context_guard(source, error):
+    root = Path(__file__).resolve().parents[2]
+    path = root / 'docs/execution/pr33-child-start-replay/GUARD_INVERSE.json'
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != CHILD_CONTEXT_GUARD_MANIFEST_SHA256:
+        raise error('Unknown child Context guard manifest')
+    record = json.loads(raw)
+    current, prior = CHILD_CONTEXT_GUARD_LAYER
+    if (record['path'] != CHILD_CONTEXT_GUARD or record['candidate_sha256'] != current
+            or record['base_sha256'] != prior):
+        raise error('Unknown child Context guard source targets')
+    spans = [(edit['start'], edit['end'], sha(edit['expected']), edit['replacement'])
+             for edit in record['edits']]
+    return reverse_pinned_spans(source, (current, prior, spans), error)
+
+
 def normalize_child_goal_outer_layer(path, source, *, error=AssertionError):
+    if path == CHILD_CONTEXT_GUARD and sha(source) == CHILD_CONTEXT_GUARD_LAYER[0]:
+        return restore_child_context_guard(source, error)
     source = without_start_failure_layer(path, source, error)
     layer = LAYERS.get(path)
     digest = sha(source)

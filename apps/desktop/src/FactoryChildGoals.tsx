@@ -103,7 +103,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
   try{
    const trusted=await readSummary(stamp);if(!trusted)return null;
    const {scope,family,target,task,rows}=trusted;
-   const stillCurrent=()=>mounted.current&&stamp===epoch.current;
+   const stillCurrent=()=>mounted.current&&stamp===epoch.current&&current.current.open&&current.current.connected;
    const readContext=current.current.readChildPlanContext;
    const context=readContext
     ? await readContext(scope.id,target.task_id,stillCurrent)
@@ -214,7 +214,7 @@ function ChildGoalPanel(props:Props&{open:boolean}){
    if(!live(next)||!chosen||!current.current.selected||!childGoalRefSame(chosen.reference,current.current.selected.reference)||!next.head||!childGoalRefSame(chosen.reference,next.head.reference)||!childGoalReferenceShape(chosen.reference,next.scope,next.target,next.family)||!childViewShape(chosen,next.context,next.scope)||chosen.proposal.nodes.length>(next.scope.bindings.child_goal_execution?.policy.max_nodes??0)||!childGoalExecutionPlanReady(chosen,next.context)){setError(t.stale);return;}
    await verifyChildRaw(chosen);
    if(parentIdentity(current.current)!==parent||!live(next)){setError(t.stale);return;}
-   if(kind==='start'&&next.rows.length!==0||kind==='advance'&&(!next.view||!graphCanAdvanceView(next.view.details)||chosen.reference.revision<=next.view.summary.plan.revision))return;
+   if(kind==='start'&&(!mounted.current||!current.current.open||next.rows.length!==0)||kind==='advance'&&(!next.view||!graphCanAdvanceView(next.view.details)||chosen.reference.revision<=next.view.summary.plan.revision))return;
    await send(intent(kind,next,chosen),next);
   }else if(kind==='cancel'){
    if(!next.view||!graphRunCanCancel(next.view.summary.goal))return;await send(intent(kind,next,null),next);

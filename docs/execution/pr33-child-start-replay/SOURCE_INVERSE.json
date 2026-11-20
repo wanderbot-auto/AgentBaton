@@ -1,6 +1,6 @@
 {
   "path": "apps/desktop/src/FactoryChildGoals.tsx",
-  "candidate_sha256": "489f0b6d9a7d3ed26d057a3c9b60e0b3fe4aa6fecd5eaba92a400748eb77b86d",
+  "candidate_sha256": "c619626fa843ae4513b89f29ec1e6d6fd78827127b26150fc95f124eecf8c573",
   "base_sha256": "ec4297a52530384def5797a914b8a4e519bb264908c2df4e09cb2dea6106d5ba",
   "edits": [
     {
@@ -8,8 +8,12 @@
       "replacement": "type Props={scope:FactoryScope;target:FactoryTaskHandle;run:FactoryRun;selected:FactoryChildPlanView|null;language:Language;connected:boolean;parentReady:boolean;parentRefreshOnly?:boolean;parentReadIdentity?:string};\n"
     },
     {
-      "expected": "   const stillCurrent=()=>mounted.current&&stamp===epoch.current;\n   const readContext=current.current.readChildPlanContext;\n   const context=readContext\n    ? await readContext(scope.id,target.task_id,stillCurrent)\n    : await factoryChildPlanApi.context(scope.id,target.task_id);\n   if(!stillCurrent())return null;\n   if(!context||!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);\n",
+      "expected": "   const stillCurrent=()=>mounted.current&&stamp===epoch.current&&current.current.open&&current.current.connected;\n   const readContext=current.current.readChildPlanContext;\n   const context=readContext\n    ? await readContext(scope.id,target.task_id,stillCurrent)\n    : await factoryChildPlanApi.context(scope.id,target.task_id);\n   if(!stillCurrent())return null;\n   if(!context||!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);\n",
       "replacement": "   const context=await factoryChildPlanApi.context(scope.id,target.task_id);\n   if(!mounted.current||stamp!==epoch.current)return null;\n   if(!childContextShape(context,scope,target)||context.run_id!==family.run.id)throw new Error(t.invalid);\n"
+    },
+    {
+      "expected": "   if(kind==='start'&&(!mounted.current||!current.current.open||next.rows.length!==0)||kind==='advance'&&(!next.view||!graphCanAdvanceView(next.view.details)||chosen.reference.revision<=next.view.summary.plan.revision))return;\n",
+      "replacement": "   if(kind==='start'&&next.rows.length!==0||kind==='advance'&&(!next.view||!graphCanAdvanceView(next.view.details)||chosen.reference.revision<=next.view.summary.plan.revision))return;\n"
     }
   ]
 }
