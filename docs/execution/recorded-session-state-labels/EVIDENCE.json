@@ -1,0 +1,126 @@
+{
+  "scope": "Separate session and turn labels in the task thread",
+  "owner_acknowledged": "OWNER-001",
+  "branch": "collab/recorded-session-state-labels",
+  "base_sha": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "base_tree": "9ce195d936d5798b077f50d1b7e25102318ce9c6",
+  "tested_source_sha": "1fa62e391e4b0deaef6b5839538deff70fbc96f3",
+  "tested_source_tree": "603d15d7af51eee93a3ae4132ba6ec019a17cf0e",
+  "started_utc": "2026-11-20T16:58:21Z",
+  "finished_utc": "2026-11-20T16:58:34Z",
+  "runner": {
+    "arch": "arm64",
+    "macos": "26.6.1",
+    "build": "25G76",
+    "variant": "Apple Silicon macOS; Vitest component tests and isolated Chromium",
+    "node": "v26.7.0",
+    "npm": "11.19.0",
+    "version_lock_sha256": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d",
+    "wrapper": [
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ]
+  },
+  "production_scope_check": "Removed only the session-i18n import, pure formatter and one call site from candidate App.tsx, restoring exact base bytes. No task state, send or approval changes.",
+  "targeted_test_totals": {
+    "files": 7,
+    "passed": 117,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "test",
+        "--",
+        "src/App.test.tsx",
+        "src/QuietCanvas.test.tsx",
+        "src/TaskActions.test.tsx",
+        "src/QuickConversation.test.tsx",
+        "src/SessionWorkbench.test.tsx",
+        "src/ManagedSessionsTaskBinding.test.tsx",
+        "src/ManagedSessionsWorkspaceEntry.test.tsx"
+      ],
+      "exit_code": 0,
+      "path": "logs/targeted.txt",
+      "sha256": "4bd9cabc0190ac976a33fc0fb4b068b801f029f39fd5780b60db50e8ea6c3d06"
+    },
+    {
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "path": "logs/typecheck.txt",
+      "sha256": "ea179aee383f5f8dca56156e8a93931e8c94531659bf0ffac71b5c9a5ebb6103"
+    },
+    {
+      "command": [
+        "npm",
+        "--prefix",
+        "apps/desktop",
+        "run",
+        "build"
+      ],
+      "exit_code": 0,
+      "path": "logs/build.txt",
+      "sha256": "1ed491191dd631198347d15cf07b8415265b48b8007202a99aa3629c58b5a69f"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/verify_bootstrap_manifest.py"
+      ],
+      "exit_code": 0,
+      "path": "logs/manifest.txt",
+      "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    }
+  ],
+  "preliminary": [
+    {
+      "app_source_sha": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "exit_code": 1,
+      "finding": "All three new regression cases reproduced missing labels with the original App.tsx.",
+      "path": "logs/baseline-red.txt",
+      "sha256": "a6d45657243fc094f9ef3fdf74dceac3b0da9e0566ab5611a50cfb20e82e6dbd"
+    },
+    {
+      "source_sha": "550dce75511955a948ffdfb22e9390475685b258",
+      "exit_code": 1,
+      "finding": "First typecheck caught unsupported exact option in Testing Library role queries. Final selectors use built-in exact string matching.",
+      "path": "logs/preliminary-typecheck.txt",
+      "sha256": "e3223b0f975793b0953a4dc3a1d42e3684c7c9425db38b1ae6410ccc91300977"
+    }
+  ],
+  "browser": {
+    "exit_code": 0,
+    "fixture_source_sha": "b95aee12ad29bf27e08216972526a4cf0299c676",
+    "method": "Read-only reuse of the offline acceptance harness and Core; temporary wrapper sets the candidate checkout and asserts the exact English reopened label and disabled send.",
+    "temporary_wrapper_sha256": "87abd3428bc7c3949c9a1d9b2cd664a65560b23f4dcb3a181103f60f231acc8c",
+    "full_report_sha256": "59a92dd34a5d5b78194e4336ea9b33824d3f060ff35b709766b24419eaac82bd",
+    "report": {
+      "path": "logs/browser.json",
+      "sha256": "e93cc2ce56eb102e4171c1f60d4681338462fefbdb976b7dc003b181493298d9"
+    },
+    "screenshot": {
+      "path": "logs/reopened.png",
+      "sha256": "68cfd0f7bd9b9628e5843d52401dbf4a3237ef53267ce904a5bb203cdef2111e"
+    }
+  },
+  "source_preview": {
+    "path": "logs/source-preview.txt",
+    "sha256": "aaa98d0e37aee1644b0b039470c462fe65b627916d61079b6bc89878d2e6db9e"
+  },
+  "not_tested": [
+    "Native WebView or owner dialog",
+    "Real Provider or vendor account",
+    "CI",
+    "Chinese in isolated Chromium"
+  ]
+}

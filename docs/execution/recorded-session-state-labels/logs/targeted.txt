@@ -1,0 +1,15 @@
+
+> @agentbaton/desktop@0.1.0 test
+> vitest run src/App.test.tsx src/QuietCanvas.test.tsx src/TaskActions.test.tsx src/QuickConversation.test.tsx src/SessionWorkbench.test.tsx src/ManagedSessionsTaskBinding.test.tsx src/ManagedSessionsWorkspaceEntry.test.tsx
+
+
+ RUN  v5.0.5 [worktree]/apps/desktop
+
+
+ Test Files  7 passed (7)
+      Tests  117 passed (117)
+   Start at  00:58:21
+   Duration  6.01s (tests 73%, environment 18%, setup 4%, import 3%, transform 1%)
+
+    Isolate  7 workers spawned · ~360ms startup each (spawn + environment, per file)
+             at least ~899ms faster with isolate: false — reuses workers across files instead of one per file

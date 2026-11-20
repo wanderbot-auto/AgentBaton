@@ -12,6 +12,7 @@ import { BackgroundService } from './BackgroundService';
 import {RecoveryCenter,RecoveryBanner,useRecoveryCenter} from './RecoveryCenter';
 import { ManagedSessions, sessionEventText } from './ManagedSessions';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
+import { sessionMessages } from './session-i18n';
 import { ContextDialog } from './ContextDialog';
 import { BackgroundServiceSettings } from './BackgroundServiceSettings';
 import { Hosts, useHostRegistrationSession } from './Hosts';
@@ -38,6 +39,27 @@ type Dialog = 'projects' | 'execution' | 'search' | 'settings' | 'conversion' | 
 const activeStates = new Set(['queued', 'running', 'starting', 'ready']);
 const attentionStates = new Set(['outcome_unknown', 'unknown', 'cancel_requested', 'failed', 'awaiting_approval']);
 const finishedStates = new Set(['accepted', 'cancelled', 'failed', 'execution_succeeded', 'validation_passed']);
+
+const recordedSessionStates: readonly ManagedSession['state'][] = [
+  'starting', 'ready', 'running', 'cancel_requested', 'stopped', 'outcome_unknown', 'failed',
+];
+const recordedTurnLabels = {
+  idle: 'idle', pending: 'queuedMessage', running: 'running', cancel_requested: 'cancel_requested',
+  completed: 'completed', ended: 'ended', failed: 'failed', outcome_unknown: 'outcome_unknown',
+} as const satisfies Record<string, keyof typeof sessionMessages.en>;
+
+function recordedSessionState(session: ManagedSession, language: Language) {
+  const t = sessionMessages[language];
+  const process = recordedSessionStates.includes(session.state) ? t[session.state] : `${t.unknown}: ${session.state}`;
+  const turn = session.turn_state;
+  if (!turn) return process;
+  if (turn === 'cancelled') return `${process} · ${language === 'zh' ? '本轮已取消' : 'Turn cancelled'}`;
+  if (turn === 'interrupted') return `${process} · ${language === 'zh' ? '本轮已中断' : 'Turn interrupted'}`;
+  const turnLabel = Object.hasOwn(recordedTurnLabels, turn)
+    ? t[recordedTurnLabels[turn as keyof typeof recordedTurnLabels]]
+    : `${t.unknown}: ${turn}`;
+  return `${process} · ${turnLabel}`;
+}
 
 export function App() {
   const [language, setLanguage] = useState<Language>(initialLanguage);
@@ -341,7 +363,7 @@ export function App() {
             <p role="status">{recoveryLabels.received}</p>
             <button type="button" onClick={() => void markMessageSeen(receipt)}>{recoveryLabels.acknowledge}</button>
           </article>
-        ))}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => {setTaskIntent(null);setDialog('execution');}}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {stateText(session.state)}{session.turn_state ? ` · ${session.turn_state}` : ''}</p>)}<TaskActions task={selected} language={language} busy={busy} sendBusy={sendBusy} connected={status==='connected'} canSend={!!readySession} recipient={readySession?`${selectedConnection?.name??readySession.connection_id} · ${readySession.id}`:undefined} multipleSessions={readySessions.length>1} uncertain={uncertainTaskSend} receiptReviewHint={recoveredForTask.length ? recoveryLabels.review : undefined} onNavigate={navigateTask} onSend={task=>void sendTaskText(task,task.goal)} /><TaskPlanSummary key={selected.id} task={selected} language={language} connected={status === 'connected'} /><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{eventPager}{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
+        ))}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => {setTaskIntent(null);setDialog('execution');}}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {recordedSessionState(session, language)}</p>)}<TaskActions task={selected} language={language} busy={busy} sendBusy={sendBusy} connected={status==='connected'} canSend={!!readySession} recipient={readySession?`${selectedConnection?.name??readySession.connection_id} · ${readySession.id}`:undefined} multipleSessions={readySessions.length>1} uncertain={uncertainTaskSend} receiptReviewHint={recoveredForTask.length ? recoveryLabels.review : undefined} onNavigate={navigateTask} onSend={task=>void sendTaskText(task,task.goal)} /><TaskPlanSummary key={selected.id} task={selected} language={language} connected={status === 'connected'} /><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{eventPager}{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
         {tab === 'artifacts' && <><ArtifactValidation key={selected.id} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /><DataContractValidation key={`data-${selected.id}`} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /><CommandValidation key={`command-${selected.id}`} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /></>}
         {(tab === 'details'||detailsTaskId===selected.id) && <div className="task-details" hidden={tab!=='details'}><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || !['draft','running','outcome_unknown'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><TaskCodeWorkspace key={`code-workspace-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><GoalPlanning key={`goal-${selected.id}`} navigation={intentTask?.id===selected.id&&taskIntent?.action!=='workspace'?{target:taskIntent!.action==='review'?'execution':'plan',requestId:taskIntent!.key}:undefined} task={selected} language={language} connected={status === 'connected'} /><TaskIntegration key={`integration-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><FactoryRuntime key={`factory-${selected.id}`} task={selected} language={language} connected={status === 'connected'} />
           {tab === 'details' && status !== 'disconnected' && <TaskExperienceProposal task={selected} language={language}
