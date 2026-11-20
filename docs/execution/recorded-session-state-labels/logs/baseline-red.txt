@@ -1,0 +1,7 @@
+ FAIL  src/App.test.tsx > Task workspace using mocked Tauri transport > shows recorded session and turn state independently in en
+TestingLibraryElementError: Unable to find an element with the text: Recorded session state: Stopped (confirmed) · Turn ended (not accepted). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+ FAIL  src/App.test.tsx > Task workspace using mocked Tauri transport > shows recorded session and turn state independently in zh
+TestingLibraryElementError: Unable to find an element with the text: 已记录的会话状态: 已停止（已确认） · 本轮已结束（未验收）. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+ FAIL  src/App.test.tsx > Task workspace using mocked Tauri transport > keeps a ready session available after a recorded turn ends
+TestingLibraryElementError: Unable to find an element with the text: Recorded session state: Ready · Turn ended (not accepted). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+      Tests  3 failed | 12 skipped (15)

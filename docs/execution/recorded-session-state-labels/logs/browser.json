@@ -1,0 +1,93 @@
+{
+  "head": "1fa62e391e4b0deaef6b5839538deff70fbc96f3",
+  "tree": "603d15d7af51eee93a3ae4132ba6ec019a17cf0e",
+  "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+  "playwright_version": "1.61.0",
+  "chromium_version": "149.0.7827.55",
+  "daemon_sha256": "f3b31aaa4243c229f30f468635069f623dd1e5261c9de1335937534edd066b76",
+  "harness_sha256": "c625db05c5839a6867a8785580c3dbb386202d1fe4b5cc1406381109b2371f0c",
+  "frontend_sha256": {
+    "assets/index-CbLfEwk8.js": "c3918a89045781df11cc3b6e9c640c85e05031dc036a3ba124610530c6693858",
+    "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+    "index.html": "2ab6609c9ab8e915aa7bad56546cf7fdcb9c8473879699935eb1667de4398d04"
+  },
+  "recorded_session_label": "Recorded session state: Stopped (confirmed) \u00b7 Turn ended (not accepted)",
+  "checks": [
+    {
+      "name": "clean personal project and two browser-created drafts",
+      "project_id": "e4febc34-ff8f-44b8-b2c9-6168a9a67010",
+      "draft_id": "229755cb-92cc-46b8-8c2e-c6f0184b4f8f",
+      "execution_task_id": "f21e2125-cae7-4bce-871d-1d90fd371424"
+    },
+    {
+      "name": "Core refuses an unapproved attempt",
+      "core_code": "NOT_FOUND"
+    },
+    {
+      "name": "browser sends one authorized turn and displays the actual local ACP output",
+      "workspace_id": "f4494213-a69a-4b51-9bcb-2c7ec28fc2fc",
+      "connection_id": "dcfedad5-215a-46a5-b60e-c1f04b70346f",
+      "grant_id": "6a9a21ff-c6fc-450b-8549-2a0925f697b4",
+      "session_id": "4b0b978a-a3f1-4c17-95a6-5db809327b56",
+      "process_network_errno": 1,
+      "local_result_sha256": "5cbccf605ef8534be378cac64aebae26fe10561996708acde0e82b6cab88c8e9"
+    },
+    {
+      "name": "browser denies recorded non-loopback HTTP and WebSocket controls"
+    },
+    {
+      "name": "cold Core and browser reopen restores both local records and the stopped turn without replay",
+      "sqlite": {
+        "attempts": 1,
+        "turn_id": "d2a8fa3b-c04f-4c38-8f94-e5adc05e35fe",
+        "turn_state": "ended",
+        "session_state": "stopped",
+        "stopped_intents": 1
+      },
+      "sequence": 24,
+      "distinct_daemon_instances": true
+    }
+  ],
+  "blocked_browser": [
+    {
+      "phase": "initial",
+      "kind": "http",
+      "host": "192.0.2.1",
+      "scheme": "http",
+      "port": 9,
+      "boundary": "request_route",
+      "control": true
+    },
+    {
+      "phase": "initial",
+      "kind": "websocket",
+      "host": "192.0.2.1",
+      "scheme": "ws",
+      "port": 9,
+      "boundary": "guarded_browser_socket",
+      "control": true
+    }
+  ],
+  "kernel_negative_controls": {
+    "AF_INET": 1,
+    "AF_INET6": 1
+  },
+  "runtime_removed": true,
+  "http_joined": true,
+  "core_exits": [
+    {
+      "epoch": 1,
+      "exit_code": 0,
+      "forced": false
+    },
+    {
+      "epoch": 2,
+      "exit_code": 0,
+      "forced": false
+    }
+  ],
+  "browsers_closed": [
+    "initial",
+    "reopened"
+  ]
+}
