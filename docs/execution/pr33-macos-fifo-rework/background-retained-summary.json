@@ -1,0 +1,586 @@
+{
+  "integration_runtime::block_policy_with_three_round_limit_refuses_real_descendant_advance": {
+    "schema": 19,
+    "observation": "after owned shutdown, from private copy",
+    "runs": [],
+    "attempts": [],
+    "events": {},
+    "db_sha256": "bedaa582018db984c8f6ffd67a8f69a80240e8aead4475bd805a3e0e3d05ef3b"
+  },
+  "integration_runtime::non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds": {
+    "schema": 19,
+    "observation": "after owned shutdown, from private copy",
+    "runs": [
+      {
+        "state": "outcome_unknown",
+        "round": 1,
+        "active_stage": "preparation"
+      }
+    ],
+    "attempts": [
+      {
+        "round": 1,
+        "kind": "preparation",
+        "state": "outcome_unknown",
+        "settled": false,
+        "io_completion": "interrupted_no_join_receipt",
+        "actual_runtime_ms": null,
+        "reserved_runtime_ms": 2000
+      }
+    ],
+    "events": {
+      "integration.stage_unknown": [
+        {
+          "observed_runtime_lower_bound_ms": 2118,
+          "worker_thread_joined": true,
+          "joined_error": {
+            "code": "INPUT_CHANGED",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "reservation_refunded": false
+        }
+      ],
+      "integration.preparation_io_observed": [
+        {
+          "io": {
+            "git_calls_attempted": 41,
+            "git_calls_complete": 41,
+            "interrupted": true,
+            "io_complete": true
+          },
+          "phases": [
+            [
+              "worker_entered",
+              74
+            ],
+            [
+              "read_proof_ready",
+              320
+            ],
+            [
+              "actor_admission_received",
+              384
+            ],
+            [
+              "worker_proof_verified",
+              446
+            ],
+            [
+              "prepare_entered",
+              446
+            ],
+            [
+              "source_authorize",
+              447
+            ],
+            [
+              "source_capture",
+              610
+            ],
+            [
+              "control_isolate",
+              1690
+            ],
+            [
+              "preparation_returned",
+              2058
+            ],
+            [
+              "owned_join_observed",
+              2107
+            ]
+          ]
+        }
+      ],
+      "integration.supervisor_stop_requested": [
+        {
+          "reason_code": "DEADLINE_EXCEEDED",
+          "reservation_refunded": false
+        }
+      ]
+    },
+    "db_sha256": "dcf6518481f5972e7e84ad954989a3671f957e8f7bf17ab6535ff9340e37d7e9"
+  },
+  "integration_runtime::owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas": {
+    "schema": 19,
+    "observation": "after owned shutdown, from private copy",
+    "runs": [
+      {
+        "state": "outcome_unknown",
+        "round": 1,
+        "active_stage": "preparation"
+      }
+    ],
+    "attempts": [
+      {
+        "round": 1,
+        "kind": "preparation",
+        "state": "outcome_unknown",
+        "settled": false,
+        "io_completion": "interrupted_no_join_receipt",
+        "actual_runtime_ms": null,
+        "reserved_runtime_ms": 2000
+      }
+    ],
+    "events": {
+      "integration.stage_unknown": [
+        {
+          "observed_runtime_lower_bound_ms": 2167,
+          "worker_thread_joined": true,
+          "joined_error": {
+            "code": "INPUT_CHANGED",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "reservation_refunded": false
+        }
+      ],
+      "integration.preparation_io_observed": [
+        {
+          "io": {
+            "git_calls_attempted": 37,
+            "git_calls_complete": 37,
+            "interrupted": true,
+            "io_complete": true
+          },
+          "phases": [
+            [
+              "worker_entered",
+              90
+            ],
+            [
+              "read_proof_ready",
+              364
+            ],
+            [
+              "actor_admission_received",
+              614
+            ],
+            [
+              "worker_proof_verified",
+              653
+            ],
+            [
+              "prepare_entered",
+              653
+            ],
+            [
+              "source_authorize",
+              654
+            ],
+            [
+              "source_capture",
+              820
+            ],
+            [
+              "control_isolate",
+              1875
+            ],
+            [
+              "preparation_returned",
+              2000
+            ],
+            [
+              "owned_join_observed",
+              2152
+            ]
+          ]
+        }
+      ],
+      "integration.supervisor_stop_requested": [
+        {
+          "reason_code": "DEADLINE_EXCEEDED",
+          "reservation_refunded": false
+        }
+      ]
+    },
+    "db_sha256": "2eb662c3b6d8ac46370bcb805903e074b584709c1c079069816ed96f33588404"
+  },
+  "integration_runtime::owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas": {
+    "schema": 19,
+    "observation": "after owned shutdown, from private copy",
+    "runs": [
+      {
+        "state": "outcome_unknown",
+        "round": 1,
+        "active_stage": "preparation"
+      }
+    ],
+    "attempts": [
+      {
+        "round": 1,
+        "kind": "preparation",
+        "state": "outcome_unknown",
+        "settled": false,
+        "io_completion": "interrupted_no_join_receipt",
+        "actual_runtime_ms": null,
+        "reserved_runtime_ms": 2000
+      }
+    ],
+    "events": {
+      "integration.stage_unknown": [
+        {
+          "observed_runtime_lower_bound_ms": 2078,
+          "worker_thread_joined": true,
+          "joined_error": {
+            "code": "INPUT_CHANGED",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "reservation_refunded": false
+        }
+      ],
+      "integration.preparation_io_observed": [
+        {
+          "io": {
+            "git_calls_attempted": 50,
+            "git_calls_complete": 50,
+            "interrupted": true,
+            "io_complete": true
+          },
+          "phases": [
+            [
+              "worker_entered",
+              75
+            ],
+            [
+              "read_proof_ready",
+              318
+            ],
+            [
+              "actor_admission_received",
+              371
+            ],
+            [
+              "worker_proof_verified",
+              397
+            ],
+            [
+              "prepare_entered",
+              397
+            ],
+            [
+              "source_authorize",
+              398
+            ],
+            [
+              "source_capture",
+              502
+            ],
+            [
+              "control_isolate",
+              1476
+            ],
+            [
+              "integration_authorize",
+              1857
+            ],
+            [
+              "preparation_returned",
+              2009
+            ],
+            [
+              "owned_join_observed",
+              2066
+            ]
+          ]
+        }
+      ],
+      "integration.supervisor_stop_requested": [
+        {
+          "reason_code": "DEADLINE_EXCEEDED",
+          "reservation_refunded": false
+        }
+      ]
+    },
+    "db_sha256": "72f7ed66950d929ba613a629b0158d18911070b79e1b581cff54d7f0cd895e5a"
+  },
+  "integration_runtime::third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_cas": {
+    "schema": 19,
+    "observation": "after owned shutdown, from private copy",
+    "runs": [
+      {
+        "state": "outcome_unknown",
+        "round": 1,
+        "active_stage": "preparation"
+      }
+    ],
+    "attempts": [
+      {
+        "round": 1,
+        "kind": "preparation",
+        "state": "outcome_unknown",
+        "settled": false,
+        "io_completion": "interrupted_no_join_receipt",
+        "actual_runtime_ms": null,
+        "reserved_runtime_ms": 2000
+      }
+    ],
+    "events": {
+      "integration.stage_unknown": [
+        {
+          "observed_runtime_lower_bound_ms": 2081,
+          "worker_thread_joined": true,
+          "joined_error": {
+            "code": "INPUT_CHANGED",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "reservation_refunded": false
+        }
+      ],
+      "integration.preparation_io_observed": [
+        {
+          "io": {
+            "git_calls_attempted": 71,
+            "git_calls_complete": 71,
+            "interrupted": true,
+            "io_complete": true
+          },
+          "phases": [
+            [
+              "worker_entered",
+              118
+            ],
+            [
+              "read_proof_ready",
+              314
+            ],
+            [
+              "actor_admission_received",
+              422
+            ],
+            [
+              "worker_proof_verified",
+              448
+            ],
+            [
+              "prepare_entered",
+              448
+            ],
+            [
+              "source_authorize",
+              449
+            ],
+            [
+              "source_capture",
+              614
+            ],
+            [
+              "control_isolate",
+              1329
+            ],
+            [
+              "integration_authorize",
+              1562
+            ],
+            [
+              "candidate_prepare",
+              1705
+            ],
+            [
+              "preparation_returned",
+              2049
+            ],
+            [
+              "owned_join_observed",
+              2069
+            ]
+          ]
+        }
+      ],
+      "integration.supervisor_stop_requested": [
+        {
+          "reason_code": "DEADLINE_EXCEEDED",
+          "reservation_refunded": false
+        }
+      ]
+    },
+    "db_sha256": "3676f7ab14a61962b3733b4d6019c65f6f29201e33b7bc5011df1bd0a2b53f77"
+  },
+  "integration_runtime::three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descendant_advances": {
+    "schema": 19,
+    "observation": "after owned shutdown, from private copy",
+    "runs": [
+      {
+        "state": "outcome_unknown",
+        "round": 1,
+        "active_stage": "preparation"
+      }
+    ],
+    "attempts": [
+      {
+        "round": 1,
+        "kind": "preparation",
+        "state": "outcome_unknown",
+        "settled": false,
+        "io_completion": "interrupted_no_join_receipt",
+        "actual_runtime_ms": null,
+        "reserved_runtime_ms": 2000
+      }
+    ],
+    "events": {
+      "integration.stage_unknown": [
+        {
+          "observed_runtime_lower_bound_ms": 2068,
+          "worker_thread_joined": true,
+          "joined_error": {
+            "code": "INPUT_CHANGED",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "reservation_refunded": false
+        }
+      ],
+      "integration.preparation_io_observed": [
+        {
+          "io": {
+            "git_calls_attempted": 45,
+            "git_calls_complete": 45,
+            "interrupted": true,
+            "io_complete": true
+          },
+          "phases": [
+            [
+              "worker_entered",
+              100
+            ],
+            [
+              "read_proof_ready",
+              304
+            ],
+            [
+              "actor_admission_received",
+              391
+            ],
+            [
+              "worker_proof_verified",
+              414
+            ],
+            [
+              "prepare_entered",
+              414
+            ],
+            [
+              "source_authorize",
+              415
+            ],
+            [
+              "source_capture",
+              520
+            ],
+            [
+              "control_isolate",
+              1346
+            ],
+            [
+              "integration_authorize",
+              1979
+            ],
+            [
+              "preparation_returned",
+              2029
+            ],
+            [
+              "owned_join_observed",
+              2051
+            ]
+          ]
+        }
+      ],
+      "integration.supervisor_stop_requested": [
+        {
+          "reason_code": "DEADLINE_EXCEEDED",
+          "reservation_refunded": false
+        }
+      ]
+    },
+    "db_sha256": "ac3354195f494734f9854cfd2f5acd389dff8775c683deb93da7bccd7269b5f9"
+  },
+  "integration_runtime::unexpected_exit_with_real_descendant_advance_never_reprepares_or_refunds": {
+    "schema": 19,
+    "observation": "after owned shutdown, from private copy",
+    "runs": [
+      {
+        "state": "outcome_unknown",
+        "round": 1,
+        "active_stage": "preparation"
+      }
+    ],
+    "attempts": [
+      {
+        "round": 1,
+        "kind": "preparation",
+        "state": "outcome_unknown",
+        "settled": false,
+        "io_completion": "interrupted_no_join_receipt",
+        "actual_runtime_ms": null,
+        "reserved_runtime_ms": 2000
+      }
+    ],
+    "events": {
+      "integration.stage_unknown": [
+        {
+          "observed_runtime_lower_bound_ms": 2042,
+          "worker_thread_joined": true,
+          "joined_error": {
+            "code": "RESOURCE_LIMIT",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "reservation_refunded": false
+        }
+      ],
+      "integration.preparation_io_observed": [
+        {
+          "io": {
+            "git_calls_attempted": 24,
+            "git_calls_complete": 24,
+            "interrupted": true,
+            "io_complete": true
+          },
+          "phases": [
+            [
+              "worker_entered",
+              149
+            ],
+            [
+              "read_proof_ready",
+              520
+            ],
+            [
+              "actor_admission_received",
+              674
+            ],
+            [
+              "worker_proof_verified",
+              714
+            ],
+            [
+              "prepare_entered",
+              714
+            ],
+            [
+              "source_authorize",
+              716
+            ],
+            [
+              "source_capture",
+              943
+            ],
+            [
+              "preparation_returned",
+              2001
+            ],
+            [
+              "owned_join_observed",
+              2017
+            ]
+          ]
+        }
+      ]
+    },
+    "db_sha256": "320d5cf78751e11607eaa30121a3d5a60e5ca8b833c843bb68c90fe2b958960b"
+  }
+}

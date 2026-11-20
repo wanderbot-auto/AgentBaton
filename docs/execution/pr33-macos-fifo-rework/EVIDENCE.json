@@ -1,0 +1,255 @@
+{
+  "base": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "rust_collector_source": "6c544406108c81046dcafc28f07b05e3b6983e93",
+  "source_guard": "a2352b87ddb1b6765e54db4442256ca730292ca5",
+  "local_environment": {
+    "os": "macOS 26.6.1 (25G76), Darwin arm64",
+    "rustc_and_cargo": "1.91.1",
+    "git": "2.54.0 (Apple Git-157)",
+    "python": "3.12.12",
+    "environment_receipt": {
+      "file": "environment.txt",
+      "sha256": "7e976d6a7d887619f1b8d61f855978294966efefaf49a93b3259975ea8feb75e"
+    },
+    "command_wrapper": "scripts/collab.sh run --native -- for the native tests; scripts/collab.sh run -- for infrastructure and inverse validation",
+    "raw_receipt_directory_at_handoff": "/private/tmp/ab-collab-o8wvjzyd/fifo-rework"
+  },
+  "hosted": {
+    "target_job": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44450220780/job/135312028796",
+    "initial_diagnostic_commit": "42dac8f4c58e1ea43f5d0b2c0602af842410af48",
+    "raw_log_directory_at_handoff": "/private/tmp/ab-pr33-macos-current-red.t6yF6obf",
+    "logs": [
+      {
+        "file": "macos-red.log",
+        "sha256": "3a28164c2c16ef7a5e6dfa7006cabb0d563958ada0da6f7831b8e7122c8693a8"
+      },
+      {
+        "file": "macos-prior.log",
+        "sha256": "ab1b7ca329f25b097bad75a0e791711f98c96a0c8416487e5f458647d192f855"
+      }
+    ],
+    "metadata_receipts": [
+      {
+        "file": "hosted-job-metadata.json",
+        "sha256": "1e5290ce2daf9fefa99c38f108bc16eb40cff258ca97a4457a78eba05a42eea0"
+      },
+      {
+        "file": "hosted-artifact-index.json",
+        "sha256": "6047604750b9de021be03b63d51330b26d027e4fc6b9f12cb05e43d7797f5c8e"
+      }
+    ],
+    "red_stage": "unobserved",
+    "tracked_source_comparison": "git diff --exit-code ae844ca33406aabd62f44ea73818f9127f211748 53da4ce20fdfedae4a745e704394072ad6b742ae -- crates Cargo.lock Cargo.toml .github/workflows/product.yml",
+    "tracked_source_comparison_exit_code": 0
+  },
+  "rust_builds": [
+    {
+      "source": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "command": "cargo test --offline --locked -p agentbaton-core --test integration_ipc --no-run --message-format=json",
+      "log": {
+        "file": "baseline-build.log",
+        "sha256": "18ee5ba3bd377dfe2e32142507cd6b43d5f7ee8426ff866637a6039b40648df3"
+      },
+      "cargo_receipt": {
+        "file": "baseline-build.jsonl",
+        "sha256": "3d2af9fbb9d6fb4070385a41933f167693412303ec8c7170b0fcb5e520698daf"
+      },
+      "binary": {
+        "file": "baseline-integration-ipc",
+        "sha256": "f64f9d14ffff73674b458961a4eab23f64e0ec7e348d06a542fc519fbe6c7721"
+      }
+    },
+    {
+      "source": "6c544406108c81046dcafc28f07b05e3b6983e93",
+      "command": "cargo test --offline --locked -p agentbaton-core --test integration_ipc --no-run --message-format=json",
+      "log": {
+        "file": "collector-build.log",
+        "sha256": "6cc1037ed81d5a598312953a91aca32c90d99e15de2f8741ec1c3d9732a05e15"
+      },
+      "cargo_receipt": {
+        "file": "collector-build.jsonl",
+        "sha256": "1610e7aae4027741890fcedaec71ab9f01fda7c60e48208e1348b6a5ca6b3123"
+      },
+      "binary": {
+        "file": "collector-integration-ipc",
+        "sha256": "1bb737870425f7aa9f38700798f1de345a5bb2111c0c2350648fd9cedf36d8f2"
+      }
+    }
+  ],
+  "native_runs": [
+    {
+      "source": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "argv": [
+        "baseline-integration-ipc",
+        "--show-output",
+        "--test-threads",
+        "1"
+      ],
+      "passed": 34,
+      "total": 34,
+      "seconds": 71.34,
+      "log": {
+        "file": "baseline-run.log",
+        "sha256": "4b18266425c7c80e7bdc6b38192df6587232b9cb55688209ab05acbdae778d69"
+      },
+      "exit_code": 0
+    },
+    {
+      "source": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "result": "setup error: attempted /usr/bin/taskpolicy",
+      "log": {
+        "file": "background-run.log",
+        "sha256": "c3d8596d437ad75af98aa84ebd83ca4887a3f4f2dc1de9d24f523a4b95200a04"
+      },
+      "exit_code": 1
+    },
+    {
+      "source": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "passed": 0,
+      "total": 7,
+      "seconds": 11.57,
+      "result": "setup error: private daemon socket could not bind in the long temporary path",
+      "log": {
+        "file": "background-priority.log",
+        "sha256": "c4c09b410ce7b1185fbde853f3926b9a32cac641cf846b095dc32b19f23b6248"
+      },
+      "exit_code": 101
+    },
+    {
+      "source": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "tool": "/usr/sbin/taskpolicy -b",
+      "short_tmpdir": "bg",
+      "selection": "exactly the seven cases in hosted-observations.json, single threaded",
+      "passed": 0,
+      "total": 7,
+      "seconds": 154.19,
+      "fifo_errors": 6,
+      "earlier_ipc_errors": 1,
+      "log": {
+        "file": "background-short.log",
+        "sha256": "ad4269be05ebe7a87d466862c5fc63e93d8b7c31ab8322dc2dd04c233079f2f9"
+      },
+      "exit_code": 101
+    },
+    {
+      "source": "6c544406108c81046dcafc28f07b05e3b6983e93",
+      "argv": [
+        "collector-integration-ipc",
+        "--show-output",
+        "--test-threads",
+        "1"
+      ],
+      "passed": 34,
+      "total": 34,
+      "seconds": 70.96,
+      "log": {
+        "file": "collector-normal.log",
+        "sha256": "6ad7f71242d17f1413daf6c245709047b03abba24e989c61887df57bcc95abdd"
+      },
+      "exit_code": 0
+    },
+    {
+      "source": "6c544406108c81046dcafc28f07b05e3b6983e93",
+      "tool": "/usr/sbin/taskpolicy -b",
+      "short_tmpdir": "c1",
+      "selection": "integration_runtime::non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds",
+      "passed": 0,
+      "total": 1,
+      "seconds": 31.21,
+      "fifo_errors": 1,
+      "result": "post-owned-shutdown Store 19 projection: one round 1 preparation row",
+      "log": {
+        "file": "witness-1.log",
+        "sha256": "55ca167dc30bb120d74b1811d3d667d04d95f2dc64367831edf435e35fa72d60"
+      },
+      "exit_code": 101
+    }
+  ],
+  "source_checks": [
+    {
+      "source": "a2352b87ddb1b6765e54db4442256ca730292ca5",
+      "command": "python -B -m unittest discover -s tests/infrastructure -p \"test_integration_stage_evidence*.py\" -v",
+      "passed": 22,
+      "total": 22,
+      "log": {
+        "file": "infra-focused.log",
+        "sha256": "8f55168d9d562276dd83dfa3dd77f8155bb284eee36d9b621b08c2f3d94b59ed"
+      },
+      "exit_code": 0
+    },
+    {
+      "source": "a2352b87ddb1b6765e54db4442256ca730292ca5",
+      "result": "19→18 equals baseline Git blobs byte-for-byte; Store 17, phase-era and original digests verified; witness log JSON matches fixed projection",
+      "log": {
+        "file": "inverse-bytes.log",
+        "sha256": "288c38a6d88f68384d130c243f9fce07a4f89d315265afe941e105cb2b75a720"
+      },
+      "exit_code": 0
+    },
+    {
+      "source": "a2352b87ddb1b6765e54db4442256ca730292ca5",
+      "command": "python -B -m unittest discover -s tests/infrastructure -p \"test_*.py\" -v",
+      "tests": 1099,
+      "seconds": 87.147,
+      "skipped": 16,
+      "errors": [
+        "test_clean_pinned_arm64_slots_are_scanned_read_only (test_native_release_audit.NativeBundleAuditTests.test_clean_pinned_arm64_slots_are_scanned_read_only)",
+        "test_each_role_is_checked_for_source_gated_markers (test_native_release_audit.NativeBundleAuditTests.test_each_role_is_checked_for_source_gated_markers) (role='batond')",
+        "test_failure_in_legacy_marker_audit_never_reports_bundle_pass (test_native_release_audit.NativeBundleAuditTests.test_failure_in_legacy_marker_audit_never_reports_bundle_pass)"
+      ],
+      "failures": [],
+      "log": {
+        "file": "infra-full.log",
+        "sha256": "3579de72d3a1543e1a72dddd9a70809fef9e1aee8d26a5be57810fbf01dec3ea"
+      },
+      "exit_code": 1
+    },
+    {
+      "source": "a2352b87ddb1b6765e54db4442256ca730292ca5",
+      "command": "python -B -m unittest discover -s tests/infrastructure -p \"test_*.py\" -v",
+      "tests": 1099,
+      "seconds": 81.427,
+      "skipped": 16,
+      "errors": [],
+      "failures": [
+        "test_ignored_dependency_docs_do_not_hide_authored_broken_links (test_design_discovery.DesignDiscoveryTests.test_ignored_dependency_docs_do_not_hide_authored_broken_links)"
+      ],
+      "log": {
+        "file": "infra-retry.log",
+        "sha256": "ae733694c4e3066d0cc19a9cf61739b8b80bda330d5b43a6d6b3173baff8858e"
+      },
+      "exit_code": 1
+    },
+    {
+      "source": "a2352b87ddb1b6765e54db4442256ca730292ca5",
+      "command": "python -B -m unittest discover -s tests/infrastructure -p \"test_*.py\" -v",
+      "tests": 1099,
+      "seconds": 77.031,
+      "skipped": 16,
+      "errors": [
+        "test_role_swap_is_refused_even_with_matching_byte_digests (test_native_release_audit.NativeBundleAuditTests.test_role_swap_is_refused_even_with_matching_byte_digests)",
+        "test_strings_failure_on_the_last_role_never_reports_pass (test_native_release_audit.NativeBundleAuditTests.test_strings_failure_on_the_last_role_never_reports_pass)"
+      ],
+      "failures": [],
+      "log": {
+        "file": "infra-handoff.log",
+        "sha256": "da5d81f3820514ea7af3907c4b5d1d58a207f427db29adb44f8d5e55645731ac"
+      },
+      "exit_code": 1
+    }
+  ],
+  "fixed_artifacts": [
+    {
+      "file": "hosted-observations.json",
+      "sha256": "a58a9c54ec7c86fc3fe7abc15171095e3c0c4f2dd5d6455d0c608543152ee1ae"
+    },
+    {
+      "file": "background-retained-summary.json",
+      "sha256": "385745a3c68e9773bf483c9df9d4d68351f2a1e5696006ede5f8e7f1875f0b2c"
+    },
+    {
+      "file": "collector-real-projection.json",
+      "sha256": "edca8f7305ee4ffeb1bada347e8858a7d58b5a35789d0b1ab78d751c81808e19"
+    }
+  ]
+}

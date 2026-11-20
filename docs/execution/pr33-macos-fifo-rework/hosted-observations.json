@@ -1,0 +1,104 @@
+{
+  "new_head": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "new_tested_merge": "a319bed37cb22d8a6fb70bfbb4aa8f8bb4056b84",
+  "new_job": 135312028796,
+  "red_total": 34,
+  "red_passed": 27,
+  "red_elapsed_seconds": 163.59,
+  "red_log_sha256": "3a28164c2c16ef7a5e6dfa7006cabb0d563958ada0da6f7831b8e7122c8693a8",
+  "prior_head": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "prior_tested_merge": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+  "prior_total": 34,
+  "prior_passed": 34,
+  "prior_elapsed_seconds": 101.83,
+  "prior_log_sha256": "ab1b7ca329f25b097bad75a0e791711f98c96a0c8416487e5f458647d192f855",
+  "same_tracked_rust_targets_locks_and_workflow": true,
+  "reported_image": "macos-15-arm64 20261104.0514.1, macOS 15.8.2 (24H232)",
+  "cases": {
+    "integration_runtime::block_policy_with_three_round_limit_refuses_real_descendant_advance": {
+      "pre_marker_setup_steps": 10,
+      "marker_window_steps": 0,
+      "withdrawal_steps": 0,
+      "ready_observation_expired": true,
+      "collector": {
+        "status": "unobserved_records",
+        "actor_join": "ok",
+        "observed_rows": 0,
+        "process_stop_proven": false
+      }
+    },
+    "integration_runtime::non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds": {
+      "pre_marker_setup_steps": 8,
+      "marker_window_steps": 0,
+      "withdrawal_steps": 0,
+      "ready_observation_expired": true,
+      "collector": {
+        "status": "unobserved_records",
+        "actor_join": "ok",
+        "observed_rows": 0,
+        "process_stop_proven": false
+      }
+    },
+    "integration_runtime::owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas": {
+      "pre_marker_setup_steps": 0,
+      "marker_window_steps": 0,
+      "withdrawal_steps": 0,
+      "ready_observation_expired": true,
+      "collector": {
+        "status": "unobserved_records",
+        "actor_join": "ok",
+        "observed_rows": 0,
+        "process_stop_proven": false
+      }
+    },
+    "integration_runtime::owner_revocation_with_actual_descendant_drift_stops_without_reprepare_or_cas": {
+      "pre_marker_setup_steps": 0,
+      "marker_window_steps": 0,
+      "withdrawal_steps": 0,
+      "ready_observation_expired": true,
+      "collector": {
+        "status": "unobserved_records",
+        "actor_join": "ok",
+        "observed_rows": 0,
+        "process_stop_proven": false
+      }
+    },
+    "integration_runtime::third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_cas": {
+      "pre_marker_setup_steps": 22,
+      "marker_window_steps": 0,
+      "withdrawal_steps": 0,
+      "ready_observation_expired": true,
+      "collector": {
+        "status": "unobserved_records",
+        "actor_join": "ok",
+        "observed_rows": 0,
+        "process_stop_proven": false
+      }
+    },
+    "integration_runtime::three_real_rounds_revalidate_each_merged_candidate_after_consecutive_descendant_advances": {
+      "pre_marker_setup_steps": 0,
+      "marker_window_steps": 0,
+      "withdrawal_steps": 0,
+      "ready_observation_expired": true,
+      "collector": {
+        "status": "unobserved_records",
+        "actor_join": "ok",
+        "observed_rows": 0,
+        "process_stop_proven": false
+      }
+    },
+    "integration_runtime::unexpected_exit_with_real_descendant_advance_never_reprepares_or_refunds": {
+      "pre_marker_setup_steps": 10,
+      "marker_window_steps": 0,
+      "withdrawal_steps": 0,
+      "ready_observation_expired": true,
+      "collector": {
+        "status": "unobserved_records",
+        "actor_join": "ok",
+        "observed_rows": 0,
+        "process_stop_proven": false
+      }
+    }
+  },
+  "actual_stage_in_hosted_red": "unobserved"
+}

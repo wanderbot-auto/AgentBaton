@@ -1,0 +1,139 @@
+{
+  "active_stage": "preparation",
+  "actor_join": "ok",
+  "contract": "agentbaton.integration-stage-failure.v1",
+  "measurement_not_authority": true,
+  "process_stop_proven": false,
+  "rows": [
+    {
+      "actual_output_bytes": null,
+      "actual_runtime_ms": null,
+      "declared_output_bytes": 1024,
+      "declared_runtime_ms": 2000,
+      "io_completion": "interrupted_no_join_receipt",
+      "kind": "preparation",
+      "last_error": {
+        "code": "OUTCOME_UNKNOWN",
+        "retryable": false,
+        "side_effect_state": "unknown"
+      },
+      "ordinal": 1,
+      "preparation_io": {
+        "effects_may_have_started": true,
+        "elapsed_ms": 1162,
+        "git_calls_attempted": 29,
+        "git_calls_complete": 28,
+        "git_stderr_observed_bytes": null,
+        "git_stdout_observed_bytes": null,
+        "interrupted": true,
+        "io_complete": false
+      },
+      "preparation_phase_observation": {
+        "contract": "agentbaton.integration-preparation-phases.v1",
+        "samples": [
+          {
+            "control_elapsed_ms": null,
+            "counter_snapshot": "before_control",
+            "git_calls_attempted": null,
+            "git_calls_complete": null,
+            "original_elapsed_ms": 170,
+            "phase": "worker_entered"
+          },
+          {
+            "control_elapsed_ms": null,
+            "counter_snapshot": "before_control",
+            "git_calls_attempted": null,
+            "git_calls_complete": null,
+            "original_elapsed_ms": 536,
+            "phase": "read_proof_ready"
+          },
+          {
+            "control_elapsed_ms": null,
+            "counter_snapshot": "before_control",
+            "git_calls_attempted": null,
+            "git_calls_complete": null,
+            "original_elapsed_ms": 796,
+            "phase": "actor_admission_received"
+          },
+          {
+            "control_elapsed_ms": null,
+            "counter_snapshot": "before_control",
+            "git_calls_attempted": null,
+            "git_calls_complete": null,
+            "original_elapsed_ms": 843,
+            "phase": "worker_proof_verified"
+          },
+          {
+            "control_elapsed_ms": null,
+            "counter_snapshot": "before_control",
+            "git_calls_attempted": null,
+            "git_calls_complete": null,
+            "original_elapsed_ms": 843,
+            "phase": "prepare_entered"
+          },
+          {
+            "control_elapsed_ms": 1,
+            "counter_snapshot": "actual_control_observation",
+            "git_calls_attempted": 0,
+            "git_calls_complete": 0,
+            "original_elapsed_ms": 844,
+            "phase": "source_authorize"
+          },
+          {
+            "control_elapsed_ms": 157,
+            "counter_snapshot": "actual_control_observation",
+            "git_calls_attempted": 4,
+            "git_calls_complete": 4,
+            "original_elapsed_ms": 1001,
+            "phase": "source_capture"
+          },
+          null,
+          null,
+          null,
+          null,
+          {
+            "control_elapsed_ms": 1162,
+            "counter_snapshot": "actual_control_observation",
+            "git_calls_attempted": 29,
+            "git_calls_complete": 28,
+            "original_elapsed_ms": 2006,
+            "phase": "preparation_returned"
+          },
+          {
+            "control_elapsed_ms": 1162,
+            "counter_snapshot": "historical_preparation_returned",
+            "git_calls_attempted": 29,
+            "git_calls_complete": 28,
+            "original_elapsed_ms": 2151,
+            "phase": "owned_join_observed"
+          }
+        ]
+      },
+      "round": 1,
+      "settled": false,
+      "stage_unknown": {
+        "effects_admitted": true,
+        "historical_cas_confirmed": false,
+        "joined_error": {
+          "code": "RESOURCE_LIMIT",
+          "retryable": false,
+          "side_effect_state": "not_started"
+        },
+        "observed_runtime_lower_bound_ms": 2164,
+        "reservation_refunded": false,
+        "worker_thread_joined": true
+      },
+      "state": "outcome_unknown"
+    }
+  ],
+  "run_last_error": {
+    "code": "OUTCOME_UNKNOWN",
+    "retryable": false,
+    "side_effect_state": "unknown"
+  },
+  "run_round": 1,
+  "run_state": "outcome_unknown",
+  "schema": 19,
+  "snapshot_time": "post_owned_shutdown_not_failure_instant",
+  "status": "collected"
+}
