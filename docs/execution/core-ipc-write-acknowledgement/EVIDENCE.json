@@ -1,0 +1,169 @@
+{
+  "recorded_at": "2026-11-21T14:30:53.980417+00:00",
+  "requirement": "AB-DOM-005",
+  "source": {
+    "registered_ref": "origin/collab/host-registration-integration",
+    "registered_base": "70bcc2aeada84e454a128a4ef38db7251cc9b1fd",
+    "actual_parent": "ca6fcf4be82c1c07a367bf4ca4a3977bbb1f919b",
+    "head": "a64f0e14b6815c9906ac4a03291ee77ebaf34169",
+    "tree": "20cf25d3c9157105bcbfb765fd595f6f1001486e",
+    "changed": {
+      "crates/core/src/ipc.rs": {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/core-ipc-write-acknowledgement/crates/core/src/ipc.rs",
+        "bytes": 208053,
+        "sha256": "eb7f872cf9d90bae941df0a08527c8ff649add90087ab0c8834f852e27d18ebc"
+      },
+      "crates/core/tests/ipc.rs": {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/core-ipc-write-acknowledgement/crates/core/tests/ipc.rs",
+        "bytes": 15870,
+        "sha256": "fcc12e29b4f232fdb9ef1c0fd619fcd341f94f16dffdf35348352ff634452a95"
+      }
+    },
+    "exact_baseline_relative_scope": "passed",
+    "registered_scope_inherited_reports": [
+      ".github/workflows/product.yml",
+      "docs/execution/leader-control/CAPABILITY_STATIC_SCAN_MAIN_ACCEPTANCE.json",
+      "docs/execution/leader-control/CORE_IPC_SCHEMA_ERRORS_MAIN_ACCEPTANCE.json",
+      "docs/execution/leader-control/CORE_IPC_WRITE_OUTCOME_MAIN_REVIEW.json",
+      "docs/execution/leader-control/CORE_TASK_TRANSITIONS_MAIN_REVIEW.json",
+      "docs/execution/leader-control/TASK_SUBMISSION_IDEMPOTENCY_MAIN_ACCEPTANCE.json",
+      "docs/execution/pr33-linux-rust-job-budget/CHECKPOINT.md",
+      "docs/execution/pr33-linux-rust-job-budget/EVIDENCE.json",
+      "docs/execution/pr33-linux-rust-job-budget/PLAN.md",
+      "docs/execution/pr33-linux-rust-job-budget/PROGRESS.md",
+      "docs/execution/pr33-package-clean-source/CHECKPOINT.md",
+      "docs/execution/pr33-package-clean-source/EVIDENCE.json",
+      "docs/execution/pr33-package-clean-source/PLAN.md",
+      "docs/execution/pr33-package-clean-source/PROGRESS.md",
+      "docs/execution/requirements-progress.json",
+      "tests/infrastructure/macos_ci_partition_source_fixture.py",
+      "tests/infrastructure/test_macos_ci_partition_source_fixture.py",
+      "tests/infrastructure/test_pr_workflow_secret_isolation.py"
+    ],
+    "merge_preview": "passed"
+  },
+  "validation": {
+    "arch": "arm64",
+    "macos": "26.6.1",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "build_config": "CARGO_INCREMENTAL=0 CARGO_PROFILE_TEST_DEBUG=0 cargo test --locked --offline -j 1 --config profile.test.package.agentbaton-core.debug=0 -p agentbaton-core",
+    "fmt": "cargo fmt --all -- --check passed",
+    "integration": 6,
+    "ipc_frame_tests": 12,
+    "frame_tests_filtered": 460,
+    "products": {
+      "ipc": {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/core-ipc-write-acknowledgement/target/debug/deps/ipc-31335c93998e4d45",
+        "bytes": 26708184,
+        "sha256": "2a7e0c7f59c8bff580d36777277282231b160a1a753a7dbde0e049b9d52888e5"
+      },
+      "frames": {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/core-ipc-write-acknowledgement/target/debug/deps/agentbaton_core-4c71d06c5cc657c7",
+        "bytes": 32023360,
+        "sha256": "df7fa52ea3323e06879257cc65f856dde663c3f67882edddc5154fb3f7436488"
+      }
+    },
+    "fixture": "Actual Daemon::bind/run, Core call, isolated Unix streams and SQLite. The relay alters only acknowledgement bytes after reading real correlated committed Task success.",
+    "pre_send": "no listener returned not_started",
+    "daemon_rejection": "correlated INVALID_REQUEST returned not_started",
+    "queue_rejection": "correlated RESOURCE_LIMIT returned not_started before admission",
+    "cases": [
+      "EOF",
+      "5 second timeout",
+      "truncated JSON without newline",
+      "32 MiB plus one byte physical response limit",
+      "correlated V1 response size substitution",
+      "malformed JSON",
+      "missing result/error",
+      "correct ID and invalid side_effect_state",
+      "wrong request ID"
+    ],
+    "all_lost_replies": "unknown, retryable=false, original idempotency key reconciliation hint",
+    "automatic_second_connection": "absent for all nine",
+    "restart": "same original task returned for each manual original-key request; nine rows and nine events total",
+    "session_receipt_tests": "existing recovery and legacy refusal pass with read-only lookup behavior"
+  },
+  "baseline_evidence": "docs/execution/leader-control/CORE_IPC_WRITE_OUTCOME_MAIN_REVIEW.json",
+  "attempts": {
+    "initial_native": "ENOSPC during dependency compilation, exit101",
+    "serial_initial": "6 passed on initial variant",
+    "formatter_first": "showed only new line wrapping, preserved",
+    "one_native_lease_conflict": "cross-task lease respected, retried",
+    "pre_review": "6 integration and 12 frame tests passed",
+    "reviewed": "6 integration and 12 frame tests passed"
+  },
+  "raw_evidence": {
+    "ipc-native.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/ipc-native.log",
+      "bytes": 7297,
+      "sha256": "7a0dcd4716b01eaa71ea3cb83777b21916da517db1687537ecf0a5682a834770"
+    },
+    "ipc-native-serial.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/ipc-native-serial.log",
+      "bytes": 1568,
+      "sha256": "75ea90e2d7154e7ad2d3a83757aba6928ac0486aadafdb6a3a04b2d23da76869"
+    },
+    "fmt-changed.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/fmt-changed.log",
+      "bytes": 4401,
+      "sha256": "7f15fe71117a9e02daf6c4d5b5c508e012faef83004112f7ac4aeae2e6698f21"
+    },
+    "cargo-fmt.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/cargo-fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ipc-native-final.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/ipc-native-final.log",
+      "bytes": 792,
+      "sha256": "6e144904b72c4b5165099c6d3216e39687de4257b67bfe7d35d973ba39df1acf"
+    },
+    "ipc-session-frames.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/ipc-session-frames.log",
+      "bytes": 1578,
+      "sha256": "0dbdf02c30b22ced3174097ccdfaf07853aac134b2e4be4fe3c8810e5b799593"
+    },
+    "reviewed-source.sha256": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/reviewed-source.sha256",
+      "bytes": 180,
+      "sha256": "74762e9ae5f2273e646ef5337a6b6a25269470008776d48ead75b903dd4c67a4"
+    },
+    "reviewed-source.patch": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/reviewed-source.patch",
+      "bytes": 22533,
+      "sha256": "fc01012baa13fd4489db0370967d940a3db738ce119ecf0c44e597bccc50a4bc"
+    },
+    "cargo-fmt-reviewed.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/cargo-fmt-reviewed.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ipc-native-reviewed.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/ipc-native-reviewed.log",
+      "bytes": 792,
+      "sha256": "33506e81ca57c8ea17b58465e7df4164c2b94b505cb4cc8c2270858d62b870bc"
+    },
+    "ipc-session-reviewed.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/ipc-session-reviewed.log",
+      "bytes": 1578,
+      "sha256": "6f7a9b23e5811e5588723891a988092f928e674ebfb1edbc93124b8d3f30a834"
+    },
+    "registered-scope.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/registered-scope.log",
+      "bytes": 1418,
+      "sha256": "82f4b80fe0a8176f93267d7792fd25944ec807ebd8e22f2b56e7bb656447dbed"
+    },
+    "exact-base-preview.log": {
+      "path": "/private/tmp/ab-ipc-ack.cryoVb/exact-base-preview.log",
+      "bytes": 263,
+      "sha256": "98b3c41d907e0085562649a679ce763483672e732bb98252347cf8866d9d5fa9"
+    }
+  },
+  "honest_scope": {
+    "separate_cli_process": "not_run",
+    "full_workspace": "not_run",
+    "hosted": "not_run_by_this_window",
+    "provider_calls": "none",
+    "remote_mutations": []
+  }
+}

@@ -37,6 +37,9 @@ mod host_registry_wire;
 
 pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
+const MAX_REPLY_FRAME: u64 = 32 * MAX_FRAME;
+const REPLY_LIMIT_MESSAGE: &str = "Response exceeds local IPC limit; request a smaller batch";
+const WRITE_REPLY_LIMIT_MESSAGE: &str = "Local IPC response exceeds its frame limit";
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Request {
@@ -531,12 +534,25 @@ fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
     stream.set_read_timeout(Some(Duration::from_secs(3)))?;
     stream.set_write_timeout(Some(Duration::from_secs(3)))
 }
+
+#[derive(Deserialize)]
+struct RequestHeader {
+    method: String,
+    idempotency_key: Option<String>,
+}
+
 fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
     if configure_accepted_stream(&stream).is_err() {
         return; // Configuration failure closes only this client worker.
     }
+    let mut write_has_key = None;
     let response = match read_frame(&stream, MAX_FRAME) {
         Ok(raw) => {
+            // Keep the original request semantics before handing it to the
+            // actor. A response replaces the result and no longer has them.
+            let header = serde_json::from_str::<RequestHeader>(&raw).ok();
+            let is_write =
+                !is_read_only_method(header.as_ref().map(|request| request.method.as_str()));
             let (reply, receive): (_, Receiver<Value>) = mpsc::sync_channel(1);
             let job = ReadyRequest {
                 raw,
@@ -544,17 +560,47 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
                 deadline: Instant::now() + Duration::from_secs(60),
                 factory_dispatch: None,
             };
-            if requests.try_send(job).is_err() {
-                json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Local request queue is unavailable"),"revision":0,"warnings":[]})
+            if let Err(mpsc::TrySendError::Full(job) | mpsc::TrySendError::Disconnected(job)) =
+                requests.try_send(job)
+            {
+                json!({
+                    "request_id": response_request_id(&job.raw),
+                    "error": CoreError::new("RESOURCE_LIMIT", "Local request queue is unavailable"),
+                    "revision": 0,
+                    "warnings": [],
+                })
             } else {
-                receive.recv_timeout(Duration::from_secs(60)).unwrap_or_else(|_|json!({"request_id":null,"error":CoreError::transport(),"revision":0,"warnings":[]}))
+                if is_write {
+                    write_has_key = Some(
+                        header
+                            .and_then(|request| request.idempotency_key)
+                            .is_some_and(|key| !key.is_empty()),
+                    );
+                }
+                receive.recv_timeout(Duration::from_secs(60)).unwrap_or_else(|_| {
+                    json!({"request_id":null,"error":CoreError::transport(),"revision":0,"warnings":[]})
+                })
             }
         }
         Err(error) => json!({"request_id":null,"error":error,"revision":0,"warnings":[]}),
     };
     if let Ok(mut output) = serde_json::to_vec(&response) {
-        if output.len() as u64 > 32 * MAX_FRAME {
-            output=serde_json::to_vec(&json!({"request_id":response["request_id"],"error":CoreError::new("RESOURCE_LIMIT","Response exceeds local IPC limit; request a smaller batch"),"revision":0,"warnings":[]})).unwrap_or_default();
+        if output.len() as u64 >= MAX_REPLY_FRAME {
+            let error = if let Some(has_key) = write_has_key {
+                unverified_write_reply(
+                    CoreError::new("RESOURCE_LIMIT", WRITE_REPLY_LIMIT_MESSAGE),
+                    has_key,
+                )
+            } else {
+                CoreError::new("RESOURCE_LIMIT", REPLY_LIMIT_MESSAGE)
+            };
+            output = serde_json::to_vec(&json!({
+                "request_id": response["request_id"],
+                "error": error,
+                "revision": 0,
+                "warnings": [],
+            }))
+            .unwrap_or_default();
         }
         output.push(b'\n');
         let _ = stream.write_all(&output);
@@ -1941,15 +1987,139 @@ fn lookup_session_send(
     Some(wire)
 }
 
+fn response_request_id(raw: &str) -> Option<String> {
+    serde_json::from_str::<Value>(raw)
+        .ok()
+        .and_then(|value| value["request_id"].as_str().map(str::to_owned))
+}
+
+// New methods default to requiring a trustworthy acknowledgement. Review the
+// read-only contract before adding an exception, including reads with a key.
+fn is_read_only_method(method: Option<&str>) -> bool {
+    matches!(
+        method,
+        Some(
+            "command_validation_policies.list"
+                | "command_validations.get"
+                | "command_validations.list"
+                | "connections.inspect"
+                | "connections.list"
+                | "connections.probe.find"
+                | "connections.probe.get"
+                | "conversations.get"
+                | "conversations.history"
+                | "conversations.list"
+                | "data_validation_policies.list"
+                | "data_validations.list"
+                | "data_workspace_previews.get"
+                | "data_workspace_previews.list"
+                | "data_workspaces.get"
+                | "data_workspaces.list"
+                | "events.subscribe"
+                | "factory_child_goals.get"
+                | "factory_child_goals.list"
+                | "factory_child_plans.context"
+                | "factory_child_plans.get"
+                | "factory_child_plans.list"
+                | "factory_runs.get"
+                | "factory_scopes.get"
+                | "factory_scopes.list"
+                | "goal_graph_runs.get"
+                | "goal_graph_runs.list"
+                | "goal_planning.get"
+                | "goal_planning.list"
+                | "goal_plans.get"
+                | "goal_plans.list"
+                | "goal_plans.ready_preview"
+                | "goal_runs.get"
+                | "goal_runs.list"
+                | "goal_scopes.get"
+                | "goal_scopes.list"
+                | "grants.list"
+                | "hosts.find_registration"
+                | "hosts.get"
+                | "hosts.list"
+                | "integration_context.get"
+                | "integration_policies.get"
+                | "integration_policies.list"
+                | "integration_targets.list"
+                | "integrations.get"
+                | "integrations.list"
+                | "managed_creations.get"
+                | "managed_creations.status"
+                | "managed_mcps.find"
+                | "managed_mcps.get"
+                | "managed_mcps.list"
+                | "managed_mcps.preview"
+                | "managed_skills.find"
+                | "managed_skills.get"
+                | "managed_skills.list"
+                | "managed_skills.preview"
+                | "projects.config.get"
+                | "projects.config.preview"
+                | "projects.list"
+                | "sessions.get"
+                | "sessions.list"
+                | "sessions.saved_message_receipts"
+                | "sessions.send_receipt"
+                | "system.background"
+                | "system.snapshot"
+                | "tasks.get"
+                | "tasks.list"
+                | "validation_policies.list"
+                | "validations.list"
+                | "workspace_open.context"
+                | "workspaces.list"
+                | "workspaces.resolve"
+        )
+    )
+}
+
+fn unverified_write_reply(mut error: CoreError, has_key: bool) -> CoreError {
+    error.side_effect_state = "unknown".into();
+    error.retryable = false;
+    if error.code == "PROVIDER_DISCONNECTED" {
+        error.message = "Local IPC could not verify the write acknowledgement".into();
+    }
+    error.message.push_str(if has_key {
+        ". Reconcile the write using the original idempotency key before retrying"
+    } else {
+        ". Reconcile the write outcome before retrying"
+    });
+    error
+}
+
 /// Host-selected runtime only. Reads private session authentication and applies the version envelope.
 pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
+    let method = command["method"].as_str();
+    let session_send = matches!(method, Some("sessions.send" | "sessions.send_recoverable"));
+    let session_receipt = matches!(
+        method,
+        Some("sessions.send_receipt" | "sessions.saved_message_receipts")
+    );
+    let is_write = !is_read_only_method(method);
+    let has_key = command["idempotency_key"]
+        .as_str()
+        .is_some_and(|key| !key.is_empty());
     let before_write = || {
         let mut error = CoreError::transport();
-        if command["method"] == "sessions.send_recoverable" {
+        if method == Some("sessions.send_recoverable") {
             error.side_effect_state = "not_started".into();
             error.message = "Local daemon connection failed before sending the task message".into();
+        } else if is_write && !session_send {
+            error.side_effect_state = "not_started".into();
+            error.message = "Local daemon connection failed before sending the request".into();
         }
         error
+    };
+    let unverified = |error| {
+        if session_send {
+            CoreError::transport()
+        } else if is_write {
+            unverified_write_reply(error, has_key)
+        } else {
+            error
+        }
     };
     check_private(runtime_dir, true)?;
     let token_path = runtime_dir.join("session.token");
@@ -1981,34 +2151,37 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .map_err(|_| before_write())?;
-    serde_json::to_writer(&mut stream, &object).map_err(|_| CoreError::transport())?;
+    serde_json::to_writer(&mut stream, &object).map_err(|_| unverified(CoreError::transport()))?;
     stream
         .write_all(b"\n")
-        .map_err(|_| CoreError::transport())?;
-    let raw = read_frame(&stream, 32 * MAX_FRAME).map_err(|error| {
-        if matches!(
-            object["method"].as_str(),
-            Some("sessions.send" | "sessions.send_recoverable")
-        ) {
-            // An EOF or truncated reply after sending cannot prove that the
-            // daemon did not commit the turn.
-            CoreError::transport()
-        } else {
-            error
+        .map_err(|_| unverified(CoreError::transport()))?;
+    let raw = read_frame(&stream, MAX_REPLY_FRAME).map_err(unverified)?;
+    let response: Value =
+        serde_json::from_str(&raw).map_err(|_| unverified(CoreError::transport()))?;
+    if (is_write || session_receipt) && response["request_id"] != object["request_id"] {
+        return Err(unverified(CoreError::transport()));
+    }
+    if is_write {
+        match (response.get("result"), response.get("error")) {
+            (Some(_), None) => (),
+            (None, Some(error)) => {
+                let mut reported = CoreError::deserialize(error)
+                    .map_err(|_| unverified(CoreError::transport()))?;
+                if !matches!(
+                    reported.side_effect_state.as_str(),
+                    "none" | "not_started" | "confirmed" | "unknown"
+                ) {
+                    return Err(unverified(CoreError::transport()));
+                }
+                // The daemon can generate this frame after committing a write.
+                // Its request ID identifies the attempt, but the result was lost.
+                if reported.code == "RESOURCE_LIMIT" && reported.message == REPLY_LIMIT_MESSAGE {
+                    reported.message = WRITE_REPLY_LIMIT_MESSAGE.into();
+                    return Err(unverified(reported));
+                }
+            }
+            _ => return Err(unverified(CoreError::transport())),
         }
-    })?;
-    let response: Value = serde_json::from_str(&raw).map_err(|_| CoreError::transport())?;
-    if matches!(
-        object["method"].as_str(),
-        Some(
-            "sessions.send"
-                | "sessions.send_recoverable"
-                | "sessions.send_receipt"
-                | "sessions.saved_message_receipts"
-        )
-    ) && response["request_id"] != object["request_id"]
-    {
-        return Err(CoreError::transport());
     }
     Ok(response)
 }
@@ -2016,6 +2189,92 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
 #[cfg(test)]
 mod frame_tests {
     use super::*;
+
+    #[test]
+    fn actor_reply_wire_limit_accounts_for_delimiter_and_write_outcome() {
+        let request_id = "actor-reply-limit";
+        for (method, frame_size, expected_state) in [
+            ("tasks.create", MAX_REPLY_FRAME, None),
+            ("tasks.create", MAX_REPLY_FRAME + 1, Some("unknown")),
+            ("tasks.list", MAX_REPLY_FRAME + 1, Some("not_started")),
+        ] {
+            let (receiver, mut sender) = UnixStream::pair().unwrap();
+            sender
+                .set_read_timeout(Some(Duration::from_secs(5)))
+                .unwrap();
+            let (requests, ready) = mpsc::sync_channel(1);
+            let worker = std::thread::spawn(move || socket_worker(receiver, requests));
+            let mut request = json!({
+                "api_version": API_VERSION,
+                "request_id": request_id,
+                "token": "fixture",
+                "method": method,
+                "params": {},
+            });
+            if method == "tasks.create" {
+                request["params"] = json!({"goal":"generated task"});
+                request["idempotency_key"] = json!("original-test-key");
+            }
+            writeln!(sender, "{request}").unwrap();
+            let accepted = ready.recv_timeout(Duration::from_secs(5)).unwrap();
+            assert_eq!(
+                serde_json::from_str::<Value>(&accepted.raw).unwrap(),
+                request
+            );
+            let mut response = json!({"request_id": request_id, "result": ""});
+            let framing_bytes = serde_json::to_vec(&response).unwrap().len() + 1;
+            response["result"] = json!("x".repeat(frame_size as usize - framing_bytes));
+            accepted.reply.send(response).unwrap();
+            let received = read_frame(&sender, MAX_REPLY_FRAME).unwrap();
+            worker.join().unwrap();
+            if let Some(state) = expected_state {
+                assert!((received.len() as u64) < MAX_REPLY_FRAME);
+                let reply: Value = serde_json::from_str(&received).unwrap();
+                assert_eq!(reply["request_id"], request_id);
+                assert_eq!(reply["error"]["code"], "RESOURCE_LIMIT");
+                assert_eq!(reply["error"]["side_effect_state"], state);
+                assert_eq!(reply["error"]["retryable"], false);
+                let message = reply["error"]["message"].as_str().unwrap();
+                if state == "unknown" {
+                    assert!(message.contains("original idempotency key"));
+                    assert!(!message.contains("original-test-key"));
+                } else {
+                    assert_eq!(message, REPLY_LIMIT_MESSAGE);
+                }
+            } else {
+                assert_eq!(received.len() as u64, MAX_REPLY_FRAME);
+            }
+        }
+    }
+
+    #[test]
+    fn full_daemon_queue_reports_correlated_pre_dispatch_rejection() {
+        let (receiver, mut sender) = UnixStream::pair().unwrap();
+        sender
+            .set_read_timeout(Some(Duration::from_secs(2)))
+            .unwrap();
+        let (requests, _ready) = mpsc::sync_channel(0);
+        let worker = std::thread::spawn(move || socket_worker(receiver, requests));
+        writeln!(
+            sender,
+            "{}",
+            json!({
+                "api_version": API_VERSION,
+                "request_id": "queue-full",
+                "token": "fixture",
+                "method": "tasks.create",
+                "params": {"goal": "queued"},
+                "idempotency_key": "not-admitted"
+            })
+        )
+        .unwrap();
+        let response: Value =
+            serde_json::from_str(&read_frame(&sender, MAX_REPLY_FRAME).unwrap()).unwrap();
+        assert_eq!(response["request_id"], "queue-full");
+        assert_eq!(response["error"]["code"], "RESOURCE_LIMIT");
+        assert_eq!(response["error"]["side_effect_state"], "not_started");
+        worker.join().unwrap();
+    }
 
     #[test]
     fn unreachable_daemon_does_not_leave_a_pending_task_message() {
@@ -2938,9 +3197,7 @@ impl Daemon {
             goal_diagnostics::method_tag(raw),
             Some(&error.code),
         );
-        let request_id = serde_json::from_str::<Value>(raw)
-            .ok()
-            .and_then(|v| v["request_id"].as_str().map(str::to_owned));
+        let request_id = response_request_id(raw);
         json!({"request_id":request_id,"error":error,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
     }
     fn handle_ready_request(&mut self, job: ReadyRequest) {
@@ -2955,7 +3212,7 @@ impl Daemon {
                 );
                 return;
             }
-            let _ = job.reply.try_send(json!({"request_id":null,"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
+            let _ = job.reply.try_send(json!({"request_id":response_request_id(&job.raw),"error":CoreError::new("RESOURCE_LIMIT","Queued request expired before admission"),"revision":0,"warnings":[]}));
             return;
         }
         if job.factory_dispatch.is_none() {
@@ -3397,9 +3654,7 @@ impl Daemon {
         }
     }
     fn ready_success(&self, raw: &str, result: Value) -> Value {
-        let request_id = serde_json::from_str::<Value>(raw)
-            .ok()
-            .and_then(|v| v["request_id"].as_str().map(str::to_owned));
+        let request_id = response_request_id(raw);
         json!({"request_id":request_id,"result":result,"revision":self.store.sequence().unwrap_or(0),"warnings":[]})
     }
 }

@@ -194,7 +194,7 @@ fn eligible_read_keeps_its_original_expired_deadline_and_never_dispatches() {
     daemon.handle_ready_request(candidate);
     daemon.service_after_early_owner_read().unwrap();
     let actual = response.try_recv().unwrap();
-    assert_eq!(actual["request_id"], Value::Null);
+    assert_eq!(actual["request_id"], "expired");
     assert_eq!(actual["error"]["code"], "RESOURCE_LIMIT");
     assert_eq!(actual["error"]["side_effect_state"], "not_started");
     assert_eq!(actual["error"]["retryable"], false);

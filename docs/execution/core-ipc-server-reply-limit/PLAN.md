@@ -1,0 +1,3 @@
+# Core IPC server reply limit
+
+Registered on 70bcc2aeada84e454a128a4ef38db7251cc9b1fd and developed against the exact handoff 4b5a59552e903f3650e866b2b79e47d6f5d2baac. Use the existing read-only classification to carry the original request semantics through the socket worker. An oversized write reply after actor intake must be sent as unknown and non-retryable with its request ID. Preserve bounded read replies, correlated pre-dispatch rejection, old-daemon client compatibility and Session receipts. Measure the actual frame cap including the delimiter through a socket pair and private bounded actor channel on Apple Silicon.

@@ -1,0 +1,117 @@
+{
+  "utc": "2026-11-21T14:39:37.298813+00:00",
+  "requirement": "AB-DOM-005",
+  "source": {
+    "registered_ref": "origin/collab/host-registration-integration",
+    "registered_start": "70bcc2aeada84e454a128a4ef38db7251cc9b1fd",
+    "actual_parent": "4b5a59552e903f3650e866b2b79e47d6f5d2baac",
+    "head": "97dfeab06a0d97fd5c5c5d67ec685036819ae3ef",
+    "tree": "efa680a17244ee4c7dac6c76de01b7120ae9716b",
+    "changed": [
+      "crates/core/src/ipc.rs"
+    ],
+    "exact_candidate_relative_scope": "passed",
+    "registration_inherited_reports": [
+      ".github/workflows/product.yml",
+      "docs/execution/core-ipc-write-acknowledgement/CHECKPOINT.md",
+      "docs/execution/core-ipc-write-acknowledgement/EVIDENCE.json",
+      "docs/execution/core-ipc-write-acknowledgement/PLAN.md",
+      "docs/execution/core-ipc-write-acknowledgement/PROGRESS.md",
+      "docs/execution/leader-control/CAPABILITY_STATIC_SCAN_MAIN_ACCEPTANCE.json",
+      "docs/execution/leader-control/CORE_IPC_SCHEMA_ERRORS_MAIN_ACCEPTANCE.json",
+      "docs/execution/leader-control/CORE_IPC_WRITE_OUTCOME_MAIN_REVIEW.json",
+      "docs/execution/leader-control/CORE_TASK_TRANSITIONS_MAIN_REVIEW.json",
+      "docs/execution/leader-control/TASK_SUBMISSION_IDEMPOTENCY_MAIN_ACCEPTANCE.json",
+      "docs/execution/pr33-linux-rust-job-budget/CHECKPOINT.md",
+      "docs/execution/pr33-linux-rust-job-budget/EVIDENCE.json",
+      "docs/execution/pr33-linux-rust-job-budget/PLAN.md",
+      "docs/execution/pr33-linux-rust-job-budget/PROGRESS.md",
+      "docs/execution/pr33-package-clean-source/CHECKPOINT.md",
+      "docs/execution/pr33-package-clean-source/EVIDENCE.json",
+      "docs/execution/pr33-package-clean-source/PLAN.md",
+      "docs/execution/pr33-package-clean-source/PROGRESS.md",
+      "docs/execution/requirements-progress.json",
+      "tests/infrastructure/macos_ci_partition_source_fixture.py",
+      "tests/infrastructure/test_macos_ci_partition_source_fixture.py",
+      "tests/infrastructure/test_pr_workflow_secret_isolation.py"
+    ],
+    "exact_parent_preview": "passed"
+  },
+  "wire": {
+    "request_context": "method and original key presence retained before actor handoff",
+    "cap_including_delimiter": 33554432,
+    "at_cap": "entire write reply delivered",
+    "above_cap_write": "correlated RESOURCE_LIMIT, unknown, retryable=false, original-key hint without key disclosure",
+    "above_cap_read": "correlated RESOURCE_LIMIT, not_started, unchanged smaller-batch guidance",
+    "queue_full": "correlated RESOURCE_LIMIT before dispatch, not_started",
+    "older_daemon": "legacy synthetic not_started mapped to unknown on the Core client",
+    "session": "existing durable recovery and original read-only lookup controls passed"
+  },
+  "validation": {
+    "arch": "arm64",
+    "macos": "26.6.1",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "format": "cargo fmt --all -- --check passed",
+    "frame_tests": 13,
+    "core_ipc_tests": 6,
+    "products": {
+      "frame": {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/core-ipc-server-reply-limit/target/debug/deps/agentbaton_core-4c71d06c5cc657c7",
+        "bytes": 32053616,
+        "sha256": "1688ed6a331a34b8f292628948002fdacbc503a1ffdca2c5b54b64f014135e17"
+      },
+      "ipc": {
+        "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/core-ipc-server-reply-limit/target/debug/deps/ipc-31335c93998e4d45",
+        "bytes": 26725768,
+        "sha256": "f1199cedae802dfe7d27e6c6fff67cca5bcc98dcd227a2b1168bc995e67807de"
+      }
+    },
+    "wire_tests": "real socket_worker with private bounded actor channel and generated oversized payloads",
+    "core_ipc_tests_note": "real Unix daemon and SQLite plus externally manipulated reply cases",
+    "previous_target": "APFS clone; both original binaries independently hash-verified unchanged",
+    "commands": "CARGO_INCREMENTAL=0 CARGO_PROFILE_TEST_DEBUG=0 cargo test --locked --offline -j 1 --config profile.test.package.agentbaton-core.debug=0 -p agentbaton-core --lib ipc::frame_tests and --test ipc"
+  },
+  "local_raw": {
+    "source.sha256": {
+      "path": "/private/tmp/ab-ipc-wire-limit.AEFMs3/source.sha256",
+      "bytes": 180,
+      "sha256": "f0cead84182560fc6d0bdc7bb010a5f1a5503cd9f29688c35cfeaf746868272f"
+    },
+    "source.patch": {
+      "path": "/private/tmp/ab-ipc-wire-limit.AEFMs3/source.patch",
+      "bytes": 7948,
+      "sha256": "604a34d0fc2916f4587df5ea9bf995c4b02c2e4aa9125f101f86bcc8b3697aa1"
+    },
+    "fmt.log": {
+      "path": "/private/tmp/ab-ipc-wire-limit.AEFMs3/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "frame-tests.log": {
+      "path": "/private/tmp/ab-ipc-wire-limit.AEFMs3/frame-tests.log",
+      "bytes": 2309,
+      "sha256": "eafd492138cc47fe7fd8462ce208deb98b5a6d76fecfe1c488ff5296ef6ca1d6"
+    },
+    "ipc-tests.log": {
+      "path": "/private/tmp/ab-ipc-wire-limit.AEFMs3/ipc-tests.log",
+      "bytes": 789,
+      "sha256": "355466d27b86a2d8363636a3c17b0d539f9eda7c7e7914325d3f41dd26a1d7fe"
+    },
+    "registered-scope.log": {
+      "path": "/private/tmp/ab-ipc-wire-limit.AEFMs3/registered-scope.log",
+      "bytes": 1730,
+      "sha256": "4b2bc5e14a8cc4d709d3499449cfb7fb1dedc4b1dc8c3e255ddb489c28d989b7"
+    },
+    "preview.log": {
+      "path": "/private/tmp/ab-ipc-wire-limit.AEFMs3/preview.log",
+      "bytes": 263,
+      "sha256": "738011338c55afdfefb044b3fc8ce70dd06379dcf6df7376072d8b9d4d0adad8"
+    }
+  },
+  "remote_mutations": [],
+  "not_run": [
+    "full workspace tests",
+    "separate CLI process",
+    "hosted run"
+  ]
+}

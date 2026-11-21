@@ -1,10 +1,10 @@
 use agentbaton_core::ipc::{call, Daemon};
 use serde_json::{json, Value};
 use std::{
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader, Read, Write},
     os::unix::{
         fs::{symlink, PermissionsExt},
-        net::UnixStream,
+        net::{UnixListener, UnixStream},
     },
     path::{Path, PathBuf},
     sync::{
@@ -12,6 +12,7 @@ use std::{
         Arc,
     },
     thread::JoinHandle,
+    time::{Duration, Instant},
 };
 struct Server {
     runtime: PathBuf,
@@ -47,10 +48,197 @@ fn root() -> (tempfile::TempDir, PathBuf) {
 }
 fn raw(runtime: &Path, body: &[u8]) -> Value {
     let mut socket = UnixStream::connect(runtime.join("batond.sock")).unwrap();
+    socket
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .unwrap();
+    socket
+        .set_write_timeout(Some(Duration::from_secs(5)))
+        .unwrap();
     socket.write_all(body).unwrap();
     let mut result = String::new();
     BufReader::new(socket).read_line(&mut result).unwrap();
     serde_json::from_str(&result).unwrap()
+}
+
+#[derive(Debug, Clone, Copy)]
+enum LostAcknowledgement {
+    Eof,
+    Timeout,
+    Truncated,
+    Oversized,
+    ServerResponseLimit,
+    Malformed,
+    MissingPayload,
+    InvalidSideEffectState,
+    WrongRequest,
+}
+
+// The relay changes only the reply. Each request is accepted by the real
+// daemon and its original correlated success is captured before altering it.
+fn relay_committed_reply(
+    listener: &UnixListener,
+    daemon: &Path,
+    scenario: LostAcknowledgement,
+) -> Value {
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let mut client = loop {
+        match listener.accept() {
+            Ok((client, _)) => break client,
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                assert!(Instant::now() < deadline, "client did not connect to relay");
+                std::thread::sleep(Duration::from_millis(5));
+            }
+            Err(error) => panic!("relay accept: {error}"),
+        }
+    };
+    client.set_nonblocking(false).unwrap();
+    client
+        .set_read_timeout(Some(Duration::from_secs(8)))
+        .unwrap();
+    client
+        .set_write_timeout(Some(Duration::from_secs(3)))
+        .unwrap();
+    let mut request = Vec::new();
+    BufReader::new(&client)
+        .read_until(b'\n', &mut request)
+        .unwrap();
+    let received: Value = serde_json::from_slice(&request).unwrap();
+    let response = raw(daemon, &request);
+    assert_eq!(received["request_id"], response["request_id"]);
+    assert!(response["result"]["id"].is_string(), "{response}");
+    match scenario {
+        LostAcknowledgement::Eof => (),
+        LostAcknowledgement::Timeout => {
+            // Keep the socket open until the real call's deadline elapses.
+            assert_eq!(client.read(&mut [0]).unwrap(), 0);
+        }
+        LostAcknowledgement::Truncated => client.write_all(b"{\"request_id\":").unwrap(),
+        LostAcknowledgement::Oversized => {
+            // Fill the actual response budget without a newline or a giant
+            // fixture allocation. The next byte forces the bounded read to end.
+            let chunk = [b' '; 32 * 1024];
+            for _ in 0..1024 {
+                client.write_all(&chunk).unwrap();
+            }
+            client.write_all(b" ").unwrap();
+        }
+        LostAcknowledgement::ServerResponseLimit => {
+            let reply = json!({
+                "request_id": received["request_id"], "revision": 0, "warnings": [],
+                "error": agentbaton_core::CoreError::new(
+                    "RESOURCE_LIMIT", "Response exceeds local IPC limit; request a smaller batch"
+                )
+            });
+            writeln!(client, "{reply}").unwrap();
+        }
+        LostAcknowledgement::Malformed => client.write_all(b"not JSON\n").unwrap(),
+        LostAcknowledgement::MissingPayload => {
+            writeln!(client, "{}", json!({"request_id": received["request_id"]})).unwrap();
+        }
+        LostAcknowledgement::InvalidSideEffectState => {
+            let mut error =
+                agentbaton_core::CoreError::new("INVALID_REQUEST", "Purported rejection");
+            error.side_effect_state = "never_executed".into();
+            let reply = json!({"request_id": received["request_id"], "error": error});
+            writeln!(client, "{reply}").unwrap();
+        }
+        LostAcknowledgement::WrongRequest => {
+            let reply = json!({"request_id": "other", "result": response["result"]});
+            writeln!(client, "{reply}").unwrap();
+        }
+    }
+    response
+}
+
+#[test]
+fn lost_non_session_write_acknowledgements_require_same_key_reconciliation() {
+    let (directory, daemon) = root();
+    let server = Server::new(&daemon);
+    let relay_dir = directory.path().canonicalize().unwrap().join("relay");
+    std::fs::create_dir(&relay_dir).unwrap();
+    std::fs::set_permissions(&relay_dir, std::fs::Permissions::from_mode(0o700)).unwrap();
+    std::fs::copy(
+        daemon.join("session.token"),
+        relay_dir.join("session.token"),
+    )
+    .unwrap();
+
+    let command =
+        |key: &str| json!({"method":"tasks.create","params":{"goal":key},"idempotency_key":key});
+    let error = call(&relay_dir, command("never-sent")).unwrap_err();
+    assert_eq!(error.side_effect_state, "not_started");
+    let rejection = server.request(json!({
+        "method":"tasks.create", "params":{"goal":"rejected","caller":"unknown"}, "idempotency_key":"rejected"
+    }));
+    assert_eq!(rejection["error"]["code"], "INVALID_REQUEST");
+    assert_eq!(rejection["error"]["side_effect_state"], "not_started");
+    assert!(rejection["request_id"].is_string());
+    let cases = [
+        LostAcknowledgement::Eof,
+        LostAcknowledgement::Timeout,
+        LostAcknowledgement::Truncated,
+        LostAcknowledgement::Oversized,
+        LostAcknowledgement::ServerResponseLimit,
+        LostAcknowledgement::Malformed,
+        LostAcknowledgement::MissingPayload,
+        LostAcknowledgement::InvalidSideEffectState,
+        LostAcknowledgement::WrongRequest,
+    ];
+    let mut receipts = Vec::new();
+    for scenario in cases {
+        let listener = UnixListener::bind(relay_dir.join("batond.sock")).unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let key = format!("{scenario:?}");
+        let elapsed = Instant::now();
+        let (reply, committed) = std::thread::scope(|worker| {
+            let relay = worker.spawn(|| relay_committed_reply(&listener, &daemon, scenario));
+            let reply = call(&relay_dir, command(&key));
+            (reply, relay.join().unwrap())
+        });
+        assert_eq!(
+            listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock,
+            "{scenario:?} sent a second request"
+        );
+        drop(listener);
+        std::fs::remove_file(relay_dir.join("batond.sock")).unwrap();
+        let Err(error) = reply else {
+            panic!("{scenario:?} cannot acknowledge the write: {reply:?}");
+        };
+        assert_eq!(error.side_effect_state, "unknown", "{scenario:?}: {error}");
+        assert!(!error.retryable, "{scenario:?}");
+        assert!(
+            error.message.contains("original idempotency key"),
+            "{scenario:?}: {error}"
+        );
+        if matches!(
+            scenario,
+            LostAcknowledgement::Eof
+                | LostAcknowledgement::Truncated
+                | LostAcknowledgement::Oversized
+                | LostAcknowledgement::ServerResponseLimit
+        ) {
+            assert_eq!(error.code, "RESOURCE_LIMIT");
+        }
+        if matches!(scenario, LostAcknowledgement::Timeout) {
+            assert!(elapsed.elapsed() >= Duration::from_secs(5));
+            assert_eq!(error.code, "PROVIDER_DISCONNECTED");
+        }
+        receipts.push((key, committed["result"].clone()));
+    }
+    drop(server);
+
+    let restarted = Server::new(&daemon);
+    for (key, committed) in receipts {
+        let reconciled = restarted.request(command(&key));
+        assert_eq!(reconciled["result"], committed);
+    }
+    let snapshot = restarted.request(json!({"method":"system.snapshot","params":{}}));
+    assert_eq!(
+        snapshot["result"]["tasks"].as_array().unwrap().len(),
+        cases.len()
+    );
+    assert_eq!(snapshot["result"]["sequence"], cases.len() as u64);
 }
 #[test]
 fn socket_workflow_single_writer_and_restart_history() {
