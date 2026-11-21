@@ -2271,7 +2271,7 @@
     {
       "id": "AB-TSK-004",
       "work_package": "WP08",
-      "status": "implementing",
+      "status": "accepted",
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
@@ -2284,8 +2284,8 @@
         "apps/desktop/src-tauri/src/approval.rs"
       ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
@@ -2293,7 +2293,8 @@
         "schema15_child_goal_runtime": "failed_exact0469863_BUDGET_UNKNOWN; diagnostics in progress; root_self/browser/Mac not_run; perf observation is not lifecycle acceptance",
         "schema15_child_goal_normal_and_timeout_slices": "actual normal84023b1 PASS1 + original1s negative e392c9e PASS1; Linux/generated local Provider/private Owner only; requirement still partial; Rootself/Ownerfirst/browser/Mac/realProvider incomplete",
         "capture_timing_diagnostic": "Root6deb Core138/Factory30/sessionsIPC58/infra195/strictClippy/fmt pass; originalfees/order preserved; previous34f Intel failure remains; newexactCI pending, partial.",
-        "private_capture_fixture_portability": "674d actual10under022/002/077/fullCore139under022/fmt/strictClippyPASS;4344 originalCI137/1andlocalbefore0/1 retained;newexactMac/native/runtime4sdiagnosispending, partial."
+        "private_capture_fixture_portability": "674d actual10under022/002/077/fullCore139under022/fmt/strictClippyPASS;4344 originalCI137/1andlocalbefore0/1 retained;newexactMac/native/runtime4sdiagnosispending, partial.",
+        "ci": "passed"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -2317,11 +2318,11 @@
         "docs/execution/factory-child-goal-integration/CAPTURE_TIMING_AND_HEAD34F_RESULTS.json",
         "docs/execution/factory-child-goal-integration/PRIVATE_FIXTURE_AND_HEAD4344_RESULTS.json",
         "docs/execution/owner-read-before-factory-ticks/ROOT_RESULTS.json",
-        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json"
+        "docs/execution/owner-read-before-factory-ticks/OUTER_STOP_READ_CYCLE_OWNER_ORDER_RESULTS.json",
+        "docs/execution/leader-control/TASK_SUBMISSION_IDEMPOTENCY_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
-        "Planning and read-only preview dependency only. Natural-language generation, actual Router/delegation/reservation/settlement/shared command budgets/adoption and full native/provider requirement acceptance remain; legacy unknown meters never imply zero."
+        "Exact protected main local authenticated task creation and replay. Distributed dispatch and unknown external effects are covered independently."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
@@ -2331,9 +2332,10 @@
         "crates/core/tests/goal_store.rs",
         "crates/core/tests/goal_store_migration.rs",
         "apps/desktop/tests/goal-planning-real-ipc.py",
-        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/TASK_VALIDATION_VERIFICATION_APPLICABILITY.json",
+        "docs/execution/leader-control/TASK_SUBMISSION_IDEMPOTENCY_MAIN_ACCEPTANCE.json"
       ],
-      "coverage": "partial",
+      "coverage": "complete",
       "verified_slices": [
         {
           "slice": "durable_connection_approval_followed_by_probe_preparation_failure",
@@ -2561,6 +2563,12 @@
           "normal_browser_checks": 4,
           "dimension": "Linux generated ACP + actual IPC only; full requirement/native/remote not accepted",
           "source_review_sha256": "a227d1f099b771fecd51037fec02263ca023c04edc7c7c37b463327fad05f25a"
+        },
+        {
+          "slice": "exact_protected_main_task_submission_idempotency",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "evidence": "docs/execution/leader-control/TASK_SUBMISSION_IDEMPOTENCY_MAIN_ACCEPTANCE.json",
+          "scope": "One original task after an unread response, identical concurrent result, changed payload conflict with stable journal, concurrent first-write deduplication, and restart persistence."
         }
       ],
       "pr18_repair_observation": {
