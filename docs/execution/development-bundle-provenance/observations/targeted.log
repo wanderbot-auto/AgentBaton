@@ -1,0 +1,18 @@
+test_ad_hoc_observation_does_not_upgrade_a_failed_verification (test_record_development_bundle_provenance.ProvenanceTests.test_ad_hoc_observation_does_not_upgrade_a_failed_verification) ... ok
+test_archive_integrity_and_git_resource_attribution (test_record_development_bundle_provenance.ProvenanceTests.test_archive_integrity_and_git_resource_attribution) ... ok
+test_archived_bytes_cannot_drift_from_pinned_identity (test_record_development_bundle_provenance.ProvenanceTests.test_archived_bytes_cannot_drift_from_pinned_identity) ... ok
+test_build_commit_is_resolved_without_git_replace_objects (test_record_development_bundle_provenance.ProvenanceTests.test_build_commit_is_resolved_without_git_replace_objects) ... ok
+test_invalid_bundle_shortcut_and_symlink_are_rejected (test_record_development_bundle_provenance.ProvenanceTests.test_invalid_bundle_shortcut_and_symlink_are_rejected) ... ok
+test_invalid_cli_input_does_not_emit_a_report (test_record_development_bundle_provenance.ProvenanceTests.test_invalid_cli_input_does_not_emit_a_report) ... ok
+test_mismatched_link_map_name_and_unsafe_sidecar_are_rejected (test_record_development_bundle_provenance.ProvenanceTests.test_mismatched_link_map_name_and_unsafe_sidecar_are_rejected) ... ok
+test_mixed_checklist_manifest_and_dmg_are_rejected (test_record_development_bundle_provenance.ProvenanceTests.test_mixed_checklist_manifest_and_dmg_are_rejected) ... ok
+test_mixed_commit_names_and_duplicate_entries_are_rejected (test_record_development_bundle_provenance.ProvenanceTests.test_mixed_commit_names_and_duplicate_entries_are_rejected) ... ok
+test_pinned_receipts_bind_only_the_observed_carrier (test_record_development_bundle_provenance.ProvenanceTests.test_pinned_receipts_bind_only_the_observed_carrier) ... ok
+test_receipt_digest_is_independent_and_web_bytes_are_checked (test_record_development_bundle_provenance.ProvenanceTests.test_receipt_digest_is_independent_and_web_bytes_are_checked) ... ok
+test_receipt_rejects_mismatched_archive_dmg_source_tree_and_target (test_record_development_bundle_provenance.ProvenanceTests.test_receipt_rejects_mismatched_archive_dmg_source_tree_and_target) ... ok
+test_wrong_cpu_fat_binary_and_malformed_commands_are_rejected (test_record_development_bundle_provenance.ProvenanceTests.test_wrong_cpu_fat_binary_and_malformed_commands_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.259s
+
+OK

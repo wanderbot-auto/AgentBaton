@@ -1,0 +1,81 @@
+{
+  "status": "local_source_and_full_infrastructure_verified",
+  "base": "6308a3d4d3bc97727eba641a463d86ad2d21c75d",
+  "source_head": "cb427818766b95015b2335fddbdafe4f0bf476e2",
+  "source_tree": "4bd76352bc9630b432c6dbde5d0afa6e16048fcc",
+  "workflow_sha256": "75c5d5e01f7146bdbb8138abc45429d9c52e251fb04b885d5d602ccb8ebaba79",
+  "workflow_inverse_sha256": {
+    "two_job_partition": "854c9502d344002ff81535d62a002c9af63c96dbb5d01ea167c7724699f39b57",
+    "monolithic_previous": "80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c",
+    "two_job_exact_git_blob_bytes": true
+  },
+  "preserved_before": {
+    "hosted_run": 44888955721,
+    "attempt": 1,
+    "release_job": 136811304329,
+    "cancel_step": "Package development application and evidence",
+    "observation_commit": "6bf3e299e914f5a3cca24e2e968c72ae08199446",
+    "observation_evidence_sha256": "b014e8fbc0bc401d158a1d92b8ecac5b4b8c03881ef68033f020cb13c0205fd6"
+  },
+  "command": "bash scripts/collab.sh run -- /Users/wander/Documents/code/agentBaton-next/.venv/bin/python -B -m unittest discover -s tests/infrastructure -p test_*.py -v",
+  "environment": [
+    "3.12.12 arm64",
+    "jsonschema 4.26.0",
+    "PyYAML 6.0.3"
+  ],
+  "infrastructure": {
+    "total": 1130,
+    "passed": 1114,
+    "skipped": 16,
+    "failed": 0,
+    "seconds": 66.168,
+    "skip_cases": [
+      "test_actual_worker_cannot_adopt_new_fence_lease (test_remote_host.RealCompanionTests.test_actual_worker_cannot_adopt_new_fence_lease) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_clock_rollback_stops_actual_worker_but_keeps_cancel_and_reconcile (test_remote_host.RealCompanionTests.test_clock_rollback_stops_actual_worker_but_keeps_cancel_and_reconcile) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_disconnect_cancel_reconcile_and_join (test_remote_host.RealCompanionTests.test_disconnect_cancel_reconcile_and_join) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_half_frame_unknown_fields_unknown_version_and_oversize (test_remote_host.RealCompanionTests.test_half_frame_unknown_fields_unknown_version_and_oversize) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_journal_failure_after_file_effect_remains_unknown_without_retry (test_remote_host.RealCompanionTests.test_journal_failure_after_file_effect_remains_unknown_without_retry) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_journal_write_failure_before_any_spawn (test_remote_host.RealCompanionTests.test_journal_write_failure_before_any_spawn) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_lease_expires_during_actual_worker (test_remote_host.RealCompanionTests.test_lease_expires_during_actual_worker) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_lost_response_and_lost_ack_reopen_exactly_one_effect (test_remote_host.RealCompanionTests.test_lost_response_and_lost_ack_reopen_exactly_one_effect) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_old_companion_deadline_cannot_pause_new_fence (test_remote_host.RealCompanionTests.test_old_companion_deadline_cannot_pause_new_fence) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_parallel_owned_workers_do_not_false_pause_on_highwater (test_remote_host.RealCompanionTests.test_parallel_owned_workers_do_not_false_pause_on_highwater) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_partial_frame_deadline (test_remote_host.RealCompanionTests.test_partial_frame_deadline) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_process_kill_after_dispatch_is_unknown_not_replayed (test_remote_host.RealCompanionTests.test_process_kill_after_dispatch_is_unknown_not_replayed) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_real_auth_budget_permission_and_binding_denials (test_remote_host.RealCompanionTests.test_real_auth_budget_permission_and_binding_denials) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_real_idle_is_not_partial_frame_timeout (test_remote_host.RealCompanionTests.test_real_idle_is_not_partial_frame_timeout) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_reopen_fails_on_corrupt_or_future_schema_without_effects (test_remote_host.RealCompanionTests.test_reopen_fails_on_corrupt_or_future_schema_without_effects) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+      "test_symlink_output_cannot_overwrite_source (test_remote_host.RealCompanionTests.test_symlink_output_cannot_overwrite_source) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'"
+    ]
+  },
+  "static_validation": {
+    "command": "bash scripts/collab.sh run -- python3 -B scripts/validate_infrastructure.py",
+    "workflows": 2,
+    "pinned_action_references": 20,
+    "status": "passed"
+  },
+  "negative_tests": [
+    "required dependency failures/skips/cancellations and blank upload fields",
+    "stale source, run/attempt and workflow identities, same-tree wrong checkout",
+    "wrong artifact IDs/digests or role collisions",
+    "forged or missing integration cases and duplicate JSON keys",
+    "fresh schema18 original command/normal-success mode",
+    "unapproved output and shared executable path"
+  ],
+  "retained_failures": {
+    "initial_full_infra": "one failure caused by missing jsonschema on system Python; 16 skipped",
+    "task_local_pinned_install": "default configured package index rejected by certificate validation",
+    "recovery": "leader-provided repository Python used read-only after verifying both exact requirement versions"
+  },
+  "raw_local_directory": "/private/tmp/ab-collab-dcyxxscd",
+  "raw_sha256": {
+    "packaging-focus.log": "42156e91995a6e827ba37864d85d355ae227242de4b70fe4d6c1a6ac05a37782",
+    "packaging-infra.log": "3af723df30f295f32cac730900590c6cfc14ff920d67a7110cab93fffaa0dbb7",
+    "packaging-venv.log": "91e55788568dc1452f543db939a8a2bf6f2a0a83de8f5f5b5af60a40ef9ee91a",
+    "packaging-python-env.log": "58963b3a3f4eb87884940397f48c3fbace5d8a1efca6e4f1a2202017d20138f0",
+    "packaging-infra-pinned.log": "46e739fb7269cce5ce0fae06d2024129844736e75c6984225385722a845ca21f"
+  },
+  "remote_ci_executed_for_this_commit": false,
+  "native_for_this_commit": "not_run; separately scoped prior-source hosted evidence and independent prior-source local package rehearsal",
+  "remote_mutations": []
+}

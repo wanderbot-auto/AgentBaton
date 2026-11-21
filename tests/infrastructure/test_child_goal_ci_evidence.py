@@ -14,9 +14,10 @@ import types
 import unittest
 from unittest import mock
 
+from tests.infrastructure.host19_child_goal_source_fixture import load_historical_projector
+
 ROOT=Path(__file__).resolve().parents[2]
-P=types.ModuleType('child_goal_projection');P.__file__=str(ROOT/'scripts/record-child-goal-ci-evidence.py')
-exec(compile(Path(P.__file__).read_bytes(),P.__file__,'exec'),P.__dict__)
+P=load_historical_projector(ROOT)
 SECRET='PRIVATE_SENTINEL_TOKEN_GRANT_RPC_HTML'
 
 def inputs(case='normal'):
@@ -206,5 +207,150 @@ class ChildGoalProjectionTests(unittest.TestCase):
         outer.assertEqual(result.testsRun,1);outer.assertEqual(len(result.errors),0)
         outer.assertEqual(len(result.failures),2)
         outer.assertTrue(all('canonical private case root'in message for _,message in result.failures))
+
+
+
+class StartFailureProjectionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        current = ROOT / 'scripts/record-child-goal-ci-evidence.py'
+        cls.projector = types.ModuleType('current_child_goal_projection')
+        cls.projector.__file__ = str(current)
+        exec(compile(current.read_bytes(), str(current), 'exec'), cls.projector.__dict__)
+
+    def bridge(self, method, reply=None, *, scope='scope', task='task'):
+        target = {'task_id': task}
+        params = {'scope_id': scope}
+        params.update({'request': {**target, 'plan': SECRET}} if method == 'factory_child_goals.start' else target)
+        row = {'method': method, 'params': params, 'key': SECRET, 'private_path': '/private/' + SECRET}
+        if reply is not None:
+            row['response'] = reply
+        return row
+
+    def error(self, code='WORKSPACE_BUSY'):
+        return {'error': {'code': code, 'retryable': False, 'side_effect_state': 'not_started',
+                          'message': SECRET, 'details_ref': SECRET}}
+
+    def observe(self, *traces, stage='receipt_wait'):
+        return self.projector.start_failure_observation(stage, list(traces), 'scope', 'task')
+
+    def recorder(self, traces=(), *, stage='receipt_wait', phase='runtime', primary=True):
+        recorder = self.projector.FiniteRuntimeDiagnosticsV5()
+        start = self.projector.StartFailureRecorder()
+        error = AssertionError(SECRET)
+        recorder.completed('CG02')
+        if not primary:
+            recorder.failure(RuntimeError(SECRET), 'runtime', __file__, ValueError)
+        start.capture(stage, list(traces), 'scope', 'task', error)
+        recorder.failure(error, phase, __file__, ValueError)
+        return start.snapshot(recorder)
+
+    def test_context_busy_with_no_scoped_start_reports_context_metadata_without_causality(self):
+        start, context = 'factory_child_goals.start', 'factory_child_plans.context'
+        value = self.observe(self.bridge(start, {'result': SECRET}, task='other'),
+                             self.bridge(context, self.error(), scope='other'),
+                             self.bridge(context, self.error()))
+        self.assertEqual(value['stage'], 'receipt_wait')
+        self.assertEqual(value['bridge_start_requests'], 'zero')
+        self.assertEqual(value['start_reply'], 'unobserved')
+        self.assertEqual(value['first_context_refusal'], {
+            'method': context, 'code': 'WORKSPACE_BUSY', 'retryable': False,
+            'side_effect_state': 'not_started',
+        })
+        self.assertEqual(value['click_causality'], 'not_established')
+        self.assertNotIn(SECRET, json.dumps(value))
+
+    def test_distinguishes_pending_result_error_and_unknown_for_one_decoded_start(self):
+        start = 'factory_child_goals.start'
+        for reply, expected in (
+            (None, 'unobserved'), ({'result': SECRET}, 'result'),
+            (self.error('STALE_REVISION'), 'error'), (self.error(SECRET), 'unmapped'),
+            ({'result': SECRET, **self.error()}, 'unmapped'),
+        ):
+            with self.subTest(expected=expected):
+                value = self.observe(self.bridge(start, reply), stage='click')
+                self.assertEqual(value['bridge_start_requests'], 'one')
+                self.assertEqual(value['start_reply'], expected)
+                self.assertEqual(value['start_refusal'] and value['start_refusal']['code'],
+                                 'STALE_REVISION' if expected == 'error' else None)
+                self.assertNotIn(SECRET, json.dumps(value))
+
+    def test_multiple_does_not_select_a_reply_and_truncated_prefix_does_not_claim_count(self):
+        first = self.bridge('factory_child_goals.start', self.error('STALE_REVISION'))
+        value = self.observe(first, self.bridge('factory_child_goals.start'))
+        self.assertEqual((value['bridge_start_requests'], value['start_reply']), ('multiple', 'unobserved'))
+        self.assertIsNone(value['start_refusal'])
+        context = self.bridge('factory_child_plans.context', self.error(SECRET))
+        with mock.patch.object(self.projector, 'MAX_DIAGNOSTIC_REPLIES', 2):
+            value = self.observe(first, context, first)
+        self.assertEqual(value['bridge_start_requests'], 'unobserved')
+        self.assertTrue(value['truncated'])
+        self.assertTrue(value['unmapped_context_error'])
+        self.assertNotIn(SECRET, json.dumps(value))
+
+    def test_original_first_error_only_and_success_keeps_version_four(self):
+        start = self.projector.StartFailureRecorder()
+        recorder = self.projector.FiniteRuntimeDiagnosticsV5()
+        self.assertEqual(start.snapshot(recorder)['version'], 4)
+        self.assertEqual(self.recorder(primary=False)['version'], 4)
+        self.assertEqual(self.recorder(phase='cleanup')['version'], 4)
+        value = self.recorder()
+        self.assertEqual(value['version'], 6)
+        self.assertEqual(value['last_completed_check'], 'CG02')
+        self.assertNotIn(SECRET, json.dumps(value))
+
+    def test_window_can_extend_existing_capture_diagnostic_for_the_same_first_error(self):
+        recorder = self.projector.FiniteRuntimeDiagnosticsV5()
+        start = self.projector.StartFailureRecorder()
+        error = OSError(2, SECRET)
+        recorder.completed('CG02')
+        recorder.capture_failure('graph_records', error)
+        start.capture('receipt_wait', [], 'scope', 'task', error)
+        recorder.failure(error, 'runtime', __file__, ValueError)
+        value = self.projector.finite_diagnostics(start.snapshot(recorder))
+        self.assertEqual(value['version'], 6)
+        self.assertEqual(value['capture_failure']['errno'], 2)
+        self.assertNotIn(SECRET, json.dumps(value))
+
+    def test_public_projection_validates_legacy_shape_and_failure_only_scope(self):
+        _, candidate, fields, report = inputs('cancel')
+        report.update(status='failed_or_interrupted',
+                      checks=[{'id': check, 'status': 'passed'} for check in ('CG01', 'CG02')],
+                      finite_diagnostics=self.recorder())
+        project = lambda r, status: self.projector.project(r, candidate, fields, 'cancel', status, 'e'*64)
+        output = project(report, 1)
+        self.assertEqual(output['failure_kind'], 'runtime_failed')
+        self.assertEqual(output['finite_diagnostics']['version'], 6)
+        self.assertNotIn(SECRET, json.dumps(output))
+        for key, value in (
+            ('stage', SECRET), ('bridge_start_requests', True), ('start_reply', 'error'),
+            ('truncated', True), ('click_causality', 'established'),
+            ('first_context_refusal', {'method': 'factory_child_goals.start', **self.error()['error']}),
+            ('message', SECRET),
+        ):
+            with self.subTest(key=key), self.assertRaises(self.projector.Refused):
+                tampered = copy.deepcopy(report)
+                tampered['finite_diagnostics']['start_failure'][key] = value
+                project(tampered, 1)
+        for changed in ({'status': 'passed'}, {'checks': report['checks'][:1]}):
+            with self.assertRaises(self.projector.Refused):
+                project({**report, **changed}, 1)
+        with self.assertRaises(self.projector.Refused):
+            project(report, 0)
+
+    def test_pinned_outer_inverse_accepts_current_bytes_and_refuses_edits_or_moved_spans(self):
+        from tests.infrastructure.host19_child_goal_source_fixture import START_FAILURE_LAYERS, reverse_pinned_spans
+
+        for name, layer in START_FAILURE_LAYERS.items():
+            raw = (ROOT / name).read_text()
+            self.assertEqual(hashlib.sha256(reverse_pinned_spans(raw, layer).encode()).hexdigest(), layer[1])
+            with self.assertRaises(AssertionError):
+                reverse_pinned_spans(raw + '# unexpected', layer)
+            start, end, _, _ = layer[2][0]
+            lines = raw.splitlines(keepends=True)
+            moved = ''.join(lines[:start] + lines[end:] + lines[start:end])
+            with self.assertRaises(AssertionError):
+                reverse_pinned_spans(moved, layer)
+
 
 if __name__=='__main__':unittest.main()

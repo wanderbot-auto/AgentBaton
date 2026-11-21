@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "scope": "static_infrastructure_only",
+  "workflow_files": 2,
+  "pinned_action_references": 15,
+  "remote_ci_executed": false,
+  "product_development_authorized": true,
+  "product_tests_executed": false
+}

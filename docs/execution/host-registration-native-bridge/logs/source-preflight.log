@@ -1,0 +1,16 @@
+2026-11-18T14:50:09Z
+Source commit and tree:
+4cdbce3c565266892f36c7da60fd475ffefdacd2
+851caab50253d7b0b5ceac2911773fd154395882
+Scope:
+Scope OK against merge base 80eddd5997072203f3593becef47a2bf09ac9e16.
+Tracked diff whitespace:
+Pinned feature target preview:
+Previewing target 80eddd5997072203f3593becef47a2bf09ac9e16 + source 4cdbce3c565266892f36c7da60fd475ffefdacd2 (committed snapshots only).
+851caab50253d7b0b5ceac2911773fd154395882
+No Git merge conflict. Run tests; rebase can still conflict while replaying commits.
+Preview against leader feature head (conflict check only):
+Previewing target 1f756ce201b8cf10f4b1798053674f4e960ac77d + source 4cdbce3c565266892f36c7da60fd475ffefdacd2 (committed snapshots only).
+9c0589119f28c102343dedd263406888ff2c34e5
+No Git merge conflict. Run tests; rebase can still conflict while replaying commits.
+Exit: 0

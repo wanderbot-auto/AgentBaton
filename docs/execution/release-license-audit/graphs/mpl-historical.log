@@ -1,0 +1,123 @@
+dependency=cssparser@0.37.0 edges=normal,no-proc-macro
+warning: nothing to print.
+
+To find dependencies that require specific target platforms, try to use option `--target all` first, and then narrow your search scope accordingly.
+dependency=cssparser@0.37.0 edges=normal,build
+cssparser v0.37.0
+|-- dom_query v0.28.0
+|   `-- tauri-utils v2.10.2
+|       |-- tauri-build v2.7.4
+|       |   [build-dependencies]
+|       |   |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+|       |   `-- tauri v2.12.5
+|       |       |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+|       |       |-- tauri-plugin-dialog v2.8.3
+|       |       |   `-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+|       |       `-- tauri-plugin-fs v2.7.1
+|       |           `-- tauri-plugin-dialog v2.8.3 (*)
+|       |-- tauri-codegen v2.7.4
+|       |   `-- tauri-macros v2.7.4 (proc-macro)
+|       |       `-- tauri v2.12.5 (*)
+|       |-- tauri-macros v2.7.4 (proc-macro) (*)
+|       `-- tauri-plugin v2.7.2
+|           [build-dependencies]
+|           |-- tauri-plugin-dialog v2.8.3 (*)
+|           `-- tauri-plugin-fs v2.7.1 (*)
+|       [build-dependencies]
+|       |-- tauri v2.12.5 (*)
+|       `-- tauri-plugin-fs v2.7.1 (*)
+`-- selectors v0.38.0
+    `-- dom_query v0.28.0 (*)
+dependency=dtoa-short@0.3.5 edges=normal,no-proc-macro
+warning: nothing to print.
+
+To find dependencies that require specific target platforms, try to use option `--target all` first, and then narrow your search scope accordingly.
+dependency=dtoa-short@0.3.5 edges=normal,build
+dtoa-short v0.3.5
+`-- cssparser v0.37.0
+    |-- dom_query v0.28.0
+    |   `-- tauri-utils v2.10.2
+    |       |-- tauri-build v2.7.4
+    |       |   [build-dependencies]
+    |       |   |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+    |       |   `-- tauri v2.12.5
+    |       |       |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+    |       |       |-- tauri-plugin-dialog v2.8.3
+    |       |       |   `-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+    |       |       `-- tauri-plugin-fs v2.7.1
+    |       |           `-- tauri-plugin-dialog v2.8.3 (*)
+    |       |-- tauri-codegen v2.7.4
+    |       |   `-- tauri-macros v2.7.4 (proc-macro)
+    |       |       `-- tauri v2.12.5 (*)
+    |       |-- tauri-macros v2.7.4 (proc-macro) (*)
+    |       `-- tauri-plugin v2.7.2
+    |           [build-dependencies]
+    |           |-- tauri-plugin-dialog v2.8.3 (*)
+    |           `-- tauri-plugin-fs v2.7.1 (*)
+    |       [build-dependencies]
+    |       |-- tauri v2.12.5 (*)
+    |       `-- tauri-plugin-fs v2.7.1 (*)
+    `-- selectors v0.38.0
+        `-- dom_query v0.28.0 (*)
+dependency=option-ext@0.2.0 edges=normal,no-proc-macro
+option-ext v0.2.0
+`-- dirs-sys v0.5.0
+    `-- dirs v7.0.0
+        |-- tauri v2.12.5
+        |   |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+        |   |-- tauri-plugin-dialog v2.8.3
+        |   |   `-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+        |   `-- tauri-plugin-fs v2.7.1
+        |       `-- tauri-plugin-dialog v2.8.3 (*)
+        `-- wry v0.57.1
+            `-- tauri-runtime-wry v2.12.3
+                `-- tauri v2.12.5 (*)
+dependency=option-ext@0.2.0 edges=normal,build
+option-ext v0.2.0
+`-- dirs-sys v0.5.0
+    `-- dirs v7.0.0
+        `-- tauri-build v2.7.4
+            [build-dependencies]
+            |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+            `-- tauri v2.12.5
+                |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+                |-- tauri-plugin-dialog v2.8.3
+                |   `-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+                `-- tauri-plugin-fs v2.7.1
+                    `-- tauri-plugin-dialog v2.8.3 (*)
+
+option-ext v0.2.0
+`-- dirs-sys v0.5.0
+    `-- dirs v7.0.0
+        |-- tauri v2.12.5 (*)
+        `-- wry v0.57.1
+            `-- tauri-runtime-wry v2.12.3
+                `-- tauri v2.12.5 (*)
+dependency=selectors@0.38.0 edges=normal,no-proc-macro
+warning: nothing to print.
+
+To find dependencies that require specific target platforms, try to use option `--target all` first, and then narrow your search scope accordingly.
+dependency=selectors@0.38.0 edges=normal,build
+selectors v0.38.0
+`-- dom_query v0.28.0
+    `-- tauri-utils v2.10.2
+        |-- tauri-build v2.7.4
+        |   [build-dependencies]
+        |   |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+        |   `-- tauri v2.12.5
+        |       |-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+        |       |-- tauri-plugin-dialog v2.8.3
+        |       |   `-- agentbaton-desktop v0.1.0 (historical/apps/desktop/src-tauri)
+        |       `-- tauri-plugin-fs v2.7.1
+        |           `-- tauri-plugin-dialog v2.8.3 (*)
+        |-- tauri-codegen v2.7.4
+        |   `-- tauri-macros v2.7.4 (proc-macro)
+        |       `-- tauri v2.12.5 (*)
+        |-- tauri-macros v2.7.4 (proc-macro) (*)
+        `-- tauri-plugin v2.7.2
+            [build-dependencies]
+            |-- tauri-plugin-dialog v2.8.3 (*)
+            `-- tauri-plugin-fs v2.7.1 (*)
+        [build-dependencies]
+        |-- tauri v2.12.5 (*)
+        `-- tauri-plugin-fs v2.7.1 (*)

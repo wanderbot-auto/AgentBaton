@@ -178,7 +178,7 @@ pub(crate) fn accounting_records(
         }
         return Err(unknown());
     }
-    if version != 18 {
+    if version != 19 {
         return Err(unknown());
     }
     crate::conversations::validate_schema(db)?;

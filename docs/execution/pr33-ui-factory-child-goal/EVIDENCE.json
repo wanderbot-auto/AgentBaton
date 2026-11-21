@@ -1,0 +1,557 @@
+{
+  "base_commit": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "base_tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+  "branch": "collab/pr33-ui-factory-child-goal",
+  "tested_code_commit": "bbddded63d74216427f2adc8cf44122d78e63206",
+  "tested_code_tree": "af8b4c5ba4b6677d49353e3467ceb2de85ab2eab",
+  "source_sha256": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": {
+      "before": "06d78e2c4df8af6beb816ae85d9cec37256ea7315263e8fb3038be2439bb6855",
+      "after": "320af1df2802e6e543c68ca3f5ce26d15bcba4a3beba057314fbd561ef44b73d"
+    },
+    "scripts/record-child-goal-ci-evidence.py": {
+      "before": "6d11ba710b957c5cc894960211457ba1771767b25603a1584c7c3b2b71ca02bb",
+      "after": "8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741"
+    },
+    "tests/infrastructure/test_child_goal_ci_evidence.py": {
+      "before": "e1578f63960af2cf5ad296b1c5300e763595b484223a088fee8ae78169e6f914",
+      "after": "6622dfa6aa6f4309d9bfd6a5e95c6ad49a9320c4028f2b4ff924e6211e009682"
+    },
+    "tests/infrastructure/host19_child_goal_source_fixture.py": {
+      "before": "fed9b4cd5e3cc001b2232cba672c6cc1fecd4583143c4fdf57f853391faa8d64",
+      "after": "9c6955e38e24e5298f47c345110965ae70d62f2b1bcac9dd76e8150dc797c477"
+    }
+  },
+  "hosted_failure": {
+    "commit": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+    "job": 135276914307,
+    "run": 44439619004,
+    "platform": "GitHub-hosted Ubuntu x64",
+    "url": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44439619004/job/135276914307",
+    "log": {
+      "path": "/private/tmp/ab-pr33-ae-ui-raw.a0hVAMIh/job.log",
+      "bytes": 134275,
+      "sha256": "115fcc9b4a651f08fcd7b81d4ef5e71b0b95c12b3f736c92eba4ee952715b4b3"
+    },
+    "artifact": {
+      "path": "/private/tmp/ab-pr33-ae-ui-raw.a0hVAMIh/frontend.zip",
+      "bytes": 11818643,
+      "sha256": "3a1f69cde3bf3fbf3d717ed04d552d116b998218816d3b08f61921b66ceb4b1f"
+    },
+    "artifact_id": 14490593680,
+    "artifact_entry_count": 241,
+    "artifact_crc_checked": true,
+    "cases": {
+      "normal": {
+        "relative_path": "public/hosted-red-normal.json",
+        "sha256": "3031d8a5c77336586c7d995cc83c94a3b4260ae53a1795a55e58db4af9797bd9",
+        "driver_exit": 0,
+        "projection_exit": 0,
+        "status": "passed",
+        "failure_kind": "none",
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG05",
+          "CG06"
+        ],
+        "cleanup_complete": true,
+        "last_completed_check": "CG06",
+        "failure_class": null,
+        "driver_lines": null,
+        "version": 4
+      },
+      "lost-start": {
+        "relative_path": "public/hosted-red-lost-start.json",
+        "sha256": "c26f7327a1ba4f1a77c9c66470b1e224c0e0adfeb8c526d4b1e549197c7e31a8",
+        "driver_exit": 1,
+        "projection_exit": 1,
+        "status": "failed",
+        "failure_kind": "runtime_failed",
+        "checks": [
+          "CG01",
+          "CG02"
+        ],
+        "cleanup_complete": false,
+        "last_completed_check": "CG02",
+        "failure_class": "assertion",
+        "driver_lines": [
+          2137,
+          1800
+        ],
+        "version": 4,
+        "context_error": {
+          "code": "WORKSPACE_BUSY",
+          "count": 1,
+          "method": "factory_child_plans.context",
+          "retryable": false,
+          "side_effect_state": "not_started"
+        },
+        "core_replies_captured": 260
+      },
+      "cancel": {
+        "relative_path": "public/hosted-red-cancel.json",
+        "sha256": "cbebf0f7f17e62427a3d8abdcaea531e145660c3e3f9080010d8ff9a2ae10928",
+        "driver_exit": 1,
+        "projection_exit": 1,
+        "status": "failed",
+        "failure_kind": "runtime_failed",
+        "checks": [
+          "CG01",
+          "CG02"
+        ],
+        "cleanup_complete": false,
+        "last_completed_check": "CG02",
+        "failure_class": "assertion",
+        "driver_lines": [
+          2137,
+          1800
+        ],
+        "version": 4,
+        "context_error": {
+          "code": "WORKSPACE_BUSY",
+          "count": 1,
+          "method": "factory_child_plans.context",
+          "retryable": false,
+          "side_effect_state": "not_started"
+        },
+        "core_replies_captured": 263
+      }
+    },
+    "earliest_failure": {
+      "stage": "wait_for_unique_start_result_after_playwright_click",
+      "source_lines": [
+        2137,
+        1800
+      ],
+      "original_duration_seconds": 15,
+      "did_not_enter_scenario_specific_fault_or_cancellation_path": true
+    },
+    "following_integration_and_notifications": {
+      "integration_driver_step": "skipped",
+      "integration_evidence_wrapper_exit": 1,
+      "notification_evidence_wrapper_exit": 1,
+      "finite_failure_kind": "driver_step_not_successful"
+    },
+    "causality": "Public aggregate Context error counts cannot establish which read followed the click or whether a Start reached Core."
+  },
+  "hosted_old_green": {
+    "commit": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+    "job": 135252128513,
+    "run": 44432204086,
+    "artifact_id": 14486629615,
+    "artifact": {
+      "path": "/private/tmp/ab-leader-pr33-ui.Fn5ddf/archive.zip",
+      "bytes": 13519406,
+      "sha256": "b51eb4000f97fcad270ed99d4bf323d8f19f4841bdea7e0bf8452165e5470425"
+    },
+    "artifact_entry_count": 248,
+    "artifact_crc_checked": true,
+    "cases": {
+      "normal": {
+        "relative_path": "public/hosted-old-normal.json",
+        "sha256": "8f90889017b3449f301c253612b2c9f56587926855ec78f7a07a03fae4b1fa17",
+        "driver_exit": 0,
+        "projection_exit": 0,
+        "status": "passed",
+        "failure_kind": "none",
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG05",
+          "CG06"
+        ],
+        "cleanup_complete": true,
+        "last_completed_check": "CG06",
+        "failure_class": null,
+        "driver_lines": null,
+        "version": 4
+      },
+      "lost-start": {
+        "relative_path": "public/hosted-old-lost-start.json",
+        "sha256": "132b0b04b84fddef14a1b8f4d8612482b6c76d466a799217da8cde885704b3fe",
+        "driver_exit": 0,
+        "projection_exit": 0,
+        "status": "passed",
+        "failure_kind": "none",
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG03",
+          "CG05",
+          "CG06"
+        ],
+        "cleanup_complete": true,
+        "last_completed_check": "CG06",
+        "failure_class": null,
+        "driver_lines": null,
+        "version": 4
+      },
+      "cancel": {
+        "relative_path": "public/hosted-old-cancel.json",
+        "sha256": "006cdc2bbff3e432afea687ab80f0e71bf3403e1077ad628c734ce67f1803b7d",
+        "driver_exit": 0,
+        "projection_exit": 0,
+        "status": "passed",
+        "failure_kind": "none",
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG04",
+          "CG06"
+        ],
+        "cleanup_complete": true,
+        "last_completed_check": "CG06",
+        "failure_class": null,
+        "driver_lines": null,
+        "version": 4
+      }
+    }
+  },
+  "hosted_comparison": {
+    "unchanged_source_sha256": {
+      "apps/desktop/tests/factory-child-goal-real-ipc.py": "06d78e2c4df8af6beb816ae85d9cec37256ea7315263e8fb3038be2439bb6855",
+      "scripts/record-child-goal-ci-evidence.py": "6d11ba710b957c5cc894960211457ba1771767b25603a1584c7c3b2b71ca02bb",
+      ".github/workflows/product.yml": "80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c",
+      "scripts/prepare-schema19-browser-ci.py": "f06f609b44f02e6463100d56b26a6f98384fff82d605fb72820fafa4c1ca06fa"
+    },
+    "identical_frontend_asset_set_sha256": "d016f20517a5fdb6a6b3322066d2e855ec3a17899fe2107a3053640885e3224a",
+    "hosted_old_new_core_tool_and_manifest_digests_differ": true,
+    "product_source_changes": [
+      "crates/core/src/managed_mcps/diagnostics.rs"
+    ]
+  },
+  "reproduction": {
+    "component_control": {
+      "passed": true,
+      "deliberate_definitive_busy_on_start_preflight_context": true,
+      "automatic_goal_writes": 0,
+      "explicit_new_start_after_refresh": 1,
+      "test_log": {
+        "path": "/private/tmp/ab-collab-csddd_jn/component-repro.log",
+        "bytes": 250,
+        "sha256": "40c74491c9a13666b5b2f8109f67c4cbd976618c86475b8a9312a0fb4e1adabe"
+      },
+      "tested_component_sha256": "ec4297a52530384def5797a914b8a4e519bb264908c2df4e09cb2dea6106d5ba",
+      "probe_source": {
+        "path": "/private/tmp/ab-collab-csddd_jn/component-repro/apps/desktop/src/FactoryChildGoals.pr33-repro.test.tsx",
+        "bytes": 65435,
+        "sha256": "581135f4a9dc0aa7575931249c6bc1a05763bc6459b6456725993c7227e3ca21"
+      }
+    },
+    "exact_original_package_linux_replay": {
+      "source": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+      "cases": {
+        "normal": {
+          "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/out-overlay/public-normal/summary.json",
+          "bytes": 4915,
+          "sha256": "57d5a252ca6b4bbde091c27b154543b8f7d8de9284b956f60ba4f35392f29da9",
+          "driver_exit": 0,
+          "projection_exit": 0,
+          "status": "passed",
+          "failure_kind": "none",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG05",
+            "CG06"
+          ],
+          "cleanup_complete": true,
+          "last_completed_check": "CG06",
+          "failure_class": null,
+          "driver_lines": null,
+          "version": 4
+        },
+        "lost-start": {
+          "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/out-overlay/public-lost-start/summary.json",
+          "bytes": 4787,
+          "sha256": "00be3c4d888766594ead7042f5afa19723051ba486a79687948df8f5ddf58492",
+          "driver_exit": 0,
+          "projection_exit": 0,
+          "status": "passed",
+          "failure_kind": "none",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG03",
+            "CG05",
+            "CG06"
+          ],
+          "cleanup_complete": true,
+          "last_completed_check": "CG06",
+          "failure_class": null,
+          "driver_lines": null,
+          "version": 4
+        },
+        "cancel": {
+          "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/out-overlay/public-cancel/summary.json",
+          "bytes": 4410,
+          "sha256": "df9758e10b4d58bdd36c3f167047d7882331e55f2fa98a35ae227ece59770153",
+          "driver_exit": 0,
+          "projection_exit": 0,
+          "status": "passed",
+          "failure_kind": "none",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG04",
+            "CG06"
+          ],
+          "cleanup_complete": true,
+          "last_completed_check": "CG06",
+          "failure_class": null,
+          "driver_lines": null,
+          "version": 4
+        }
+      },
+      "natural_hosted_failure_reproduced": false,
+      "core_build": {
+        "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/core.log",
+        "bytes": 2672,
+        "sha256": "38b80435586fe082f1a33c5e9e931b00c684f5f94cf1c5e714854c3faf95f1e5"
+      },
+      "browser_run": {
+        "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/out-overlay/supervisor.log",
+        "bytes": 129,
+        "sha256": "9c02fb461bf88e68918565ab8d3fb1f816a112507820608fe35462f8c1d3bc41"
+      },
+      "first_build_local_node_image_missing_python": {
+        "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/frontend.log",
+        "bytes": 58,
+        "sha256": "87a2961aad5861849d7bd881b0808f1563f3ca7166bd50deb0c1bb234b6c4b79"
+      },
+      "first_runtime_private_mac_bind_socket_mode_refusal": {
+        "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/out/private-normal/daemon.log",
+        "bytes": 40,
+        "sha256": "150b53ca31f50c0a80ceea411a5da980eb35d418a6308575f57b678801bb09b4"
+      },
+      "overlay_retry_container_exit": {
+        "path": "/private/tmp/ab-collab-csddd_jn/exact-linux/out-overlay/container-exit.log",
+        "bytes": 9,
+        "sha256": "f5a2b935f2fe65ad7766a52c809cf2f75b0417ffed34bcac39b0553ba8d219a8"
+      }
+    },
+    "candidate_linux_replay": {
+      "source": "bbddded63d74216427f2adc8cf44122d78e63206",
+      "cases": {
+        "normal": {
+          "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/public-normal/summary.json",
+          "bytes": 4521,
+          "sha256": "d918be31a5d5183b31b62203b79940507c44a20cdbbd6e1be88c9a5177227b84",
+          "driver_exit": 0,
+          "projection_exit": 0,
+          "status": "passed",
+          "failure_kind": "none",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG05",
+            "CG06"
+          ],
+          "cleanup_complete": true,
+          "last_completed_check": "CG06",
+          "failure_class": null,
+          "driver_lines": null,
+          "version": 4
+        },
+        "lost-start": {
+          "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/public-lost-start/summary.json",
+          "bytes": 4787,
+          "sha256": "4c920d070e8e84f23faa594f3715321107fba7bd52b0ecfa145442bcd03a57e4",
+          "driver_exit": 0,
+          "projection_exit": 0,
+          "status": "passed",
+          "failure_kind": "none",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG03",
+            "CG05",
+            "CG06"
+          ],
+          "cleanup_complete": true,
+          "last_completed_check": "CG06",
+          "failure_class": null,
+          "driver_lines": null,
+          "version": 4
+        },
+        "cancel": {
+          "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/public-cancel/summary.json",
+          "bytes": 4410,
+          "sha256": "022b8b12100b83649056b1edf29647bfb32a1ba62161898bcd14c7da2197f3bc",
+          "driver_exit": 0,
+          "projection_exit": 0,
+          "status": "passed",
+          "failure_kind": "none",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG04",
+            "CG06"
+          ],
+          "cleanup_complete": true,
+          "last_completed_check": "CG06",
+          "failure_class": null,
+          "driver_lines": null,
+          "version": 4
+        }
+      },
+      "browser_environment": "Linux ARM64 Docker, network none, Chromium 151.0.7922.34, Playwright 1.62.0, Python 3.12.3",
+      "earliest_candidate_setup_refusal": "O_EXCL rejected existing previous checkout frontend build record; archived before retry",
+      "controlled_busy": {
+        "relative_path": "public/local-injected-context-busy.json",
+        "sha256": "18b0046d0ea3d87ce147b0d178acbaa761e2cc0eef79ddfc1ec1fe4c4a49cd32",
+        "driver_exit": 1,
+        "projection_exit": 1,
+        "status": "failed",
+        "failure_kind": "runtime_failed",
+        "checks": [
+          "CG01",
+          "CG02"
+        ],
+        "cleanup_complete": false,
+        "last_completed_check": "CG02",
+        "failure_class": "assertion",
+        "driver_lines": [
+          2143,
+          1801
+        ],
+        "version": 6,
+        "scope": "Injected only one post-click reply in the test wire adapter",
+        "start_failure": {
+          "stage": "receipt_wait",
+          "bridge_start_requests": "zero",
+          "start_reply": "unobserved",
+          "start_refusal": null,
+          "first_context_refusal": {
+            "method": "factory_child_plans.context",
+            "code": "WORKSPACE_BUSY",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "unmapped_context_error": false,
+          "truncated": false,
+          "click_causality": "not_established"
+        },
+        "injector": {
+          "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/fault-control.py",
+          "bytes": 1503,
+          "sha256": "6a59ae53f5b3e848ee2dfc9c789102a452a6d51eeba2570dad8aa4001f49f689"
+        },
+        "control_driver_log": {
+          "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/injected-context-busy.driver.log",
+          "bytes": 160,
+          "sha256": "d450f0e4b8f0cc5433db0fd7bde21c2365c0fed7b3ebb8205dd3193d968f38d2"
+        }
+      },
+      "stopped_private_container_retains_fixture": true
+    }
+  },
+  "test_evidence": {
+    "targeted_infrastructure": {
+      "passed": 108,
+      "log": {
+        "path": "/private/tmp/ab-collab-csddd_jn/targeted-v6-final/all-child-goal.log",
+        "bytes": 22486,
+        "sha256": "b6c83f25ca475937c818d09beb384a45be63e78a618180ca78293148a8fb6c6c"
+      }
+    },
+    "driver_self_checks": {
+      "passed": 392,
+      "log": {
+        "path": "/private/tmp/ab-collab-csddd_jn/targeted-v6-final/driver-selfcheck.log",
+        "bytes": 17808,
+        "sha256": "d0593b398682e1a5ab6c802911f271201e5708bc6fd5d8d673d27f4a9108bee3"
+      }
+    },
+    "wire_self_checks": {
+      "passed": 14,
+      "log": {
+        "path": "/private/tmp/ab-collab-csddd_jn/targeted-v6-final/wire-selfcheck.log",
+        "bytes": 101,
+        "sha256": "6091df839439803e5f17f26a7452e79a2e2642714b9d2b63acb03db0fd83fd8f"
+      }
+    },
+    "full_python": {
+      "run": 1068,
+      "passed": 1052,
+      "skipped": 16
+    },
+    "node": {
+      "passed": 4
+    },
+    "failed_early_contract_test_retained": {
+      "path": "/private/tmp/ab-collab-csddd_jn/targeted-v6-fixed/all-child-goal.log",
+      "bytes": 424735,
+      "sha256": "7260269417df574ced6f9a3813509dbbc7edc4a4ea41e2fecc9d53cd7b6b6fc6"
+    },
+    "raw_logs": {
+      "bootstrap": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/bootstrap.log",
+        "bytes": 71,
+        "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      },
+      "design": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/design.log",
+        "bytes": 726,
+        "sha256": "0e6fe04061558a7b1e6aa75a8ad8b86a450a8617a1e524a2443b689c04bbda98"
+      },
+      "infrastructure": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/infrastructure.log",
+        "bytes": 231,
+        "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      },
+      "full_python": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/full_python.log",
+        "bytes": 266787,
+        "sha256": "87f919b97f5982be7319f7a18d57fd44476c700edd26d1ace762f27be7b162ea"
+      },
+      "node": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/node.log",
+        "bytes": 509,
+        "sha256": "4cb1d3bae2a3c184132386be76fac07a829260da35a4bdda2831efbcb053db6b"
+      },
+      "checks": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/checks.log",
+        "bytes": 146,
+        "sha256": "5b0aebc7ec57531f9b3fab25026bf6992eae44bfa109a4e41d07bd1b84798443"
+      },
+      "build-core": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/build-core.log",
+        "bytes": 1474,
+        "sha256": "ac124dabbe6bb32448801f48eadcd4e244b43731581fdcfcbef4645407819e55"
+      },
+      "browser": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/browser.log",
+        "bytes": 1538,
+        "sha256": "94882954ce28fe26616e9ff56a86a3808aee7d9a42a1c5e50e7952cb184984f9"
+      },
+      "browser-results": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/browser-results.log",
+        "bytes": 135,
+        "sha256": "2914ed89cd79de9fd177423e017256f14d5b0ac8eff2148a779e3224a9048250"
+      },
+      "browser-record-exists": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/browser-record-exists.log",
+        "bytes": 1689,
+        "sha256": "f1c3034244210ac5b4745683ab27475c472ac812ecd6bf5108c921abe3fa249d"
+      },
+      "container-exit": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/container-exit.log",
+        "bytes": 9,
+        "sha256": "f5a2b935f2fe65ad7766a52c809cf2f75b0417ffed34bcac39b0553ba8d219a8"
+      },
+      "docker-identity": {
+        "path": "/private/tmp/ab-collab-csddd_jn/candidate-v6/docker-identity.log",
+        "bytes": 142,
+        "sha256": "7ac85b79909bbb186d4d7e59d0a74fe74ef94f037e40a7fc6c66e54be4293dfc"
+      }
+    }
+  },
+  "limits": [
+    "Diagnostic-only changes; no product or workflow changes and no change to failure handling, time limits, CAS or permissions.",
+    "Unmodified exact source browser passes locally on Linux ARM64; hosted timing and the actual refusal cause remain unestablished.",
+    "No assertion of Unix IPC send without a Core reply, or click causality for an observed Context refusal.",
+    "Hosted rerun, real Provider, macOS native, PR edits, and publication were outside this verification."
+  ]
+}

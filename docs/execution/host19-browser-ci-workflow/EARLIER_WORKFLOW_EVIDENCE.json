@@ -1,0 +1,737 @@
+{
+  "base_head": "bd97dcf2adbe2a439aa2253ed4d118cc069cc850",
+  "verified_source_head": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+  "verified_source_tree": "6211172358b1a0b72e5daa7c1454508fbf7180fc",
+  "integration_target_observed": "6b03f0cdd7686db8ccaa7cb9f9b8e865c6eb6d5a",
+  "operational_readiness": "blocked_by_existing_child_goal_renderer_pre_dispatch_stale_guard",
+  "historical_workflow_sha256": "edfffb07b5d5c8ecb3039962f5ad54e77cd187a4afd33f89941564b89603bff4",
+  "current_workflow_sha256": "4f248709236379b697ac5af503dab42b143f6ed2779e8a9f7ee8a3ebc6f29ea2",
+  "workflow_run_extraction": {
+    "workflow_sha256": "4f248709236379b697ac5af503dab42b143f6ed2779e8a9f7ee8a3ebc6f29ea2",
+    "commands": {
+      "frontend-build": "a70857ce77e43528a9be5b009140884e8d15605be1540ad3cbb10312ebc2d1e3",
+      "preview-contracts": "9560b0edfae6a7ecdd2c0a970d15bb7a51a0174fcea81c1f5583c777c7e08265",
+      "tool-provision": "08085b90e4c6b48e984db95ceb31365acb08bb3daea5c3aead63f81fe39954cb",
+      "browser-chain": "8372cd0e96c45749023a0d1ee9f91f620250ff20da24b2793ed95caf15dd385f",
+      "integration-driver": "7bef4b9396a7ede3ecb77161b505bf5e9ad2bd8befad6d39bec2150577fabfa0",
+      "integration-projection": "e2b3876c75c06703054cf29c1a694404245541b697d1eb761baad330362d96f3",
+      "notification-projection": "7925b1be85a37c6f843d331329be4ff77a1f6b68ee6d49107a63989f36c6fab6",
+      "core-build": "d2dc002d70f2cb48adcfd228db5ff5cd7685f8b254269077563a1bbff2fa6f77",
+      "core-test": "054c63177577dc1f32c05ec23f3326b03e3641afe34eb0b20b98596d3400dbe7",
+      "browser-venv": "d8e09dd9241f6b97acdb8a616217dd42ce5c1c6f4f3c31b3f03185932da640ac"
+    }
+  },
+  "local_build": {
+    "core_build_record": {
+      "source": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+      "git_tree": "6211172358b1a0b72e5daa7c1454508fbf7180fc",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton",
+        "--features",
+        "agentbaton-core/preview-evidence"
+      ],
+      "exit": 0,
+      "seconds": 107.09420259000035,
+      "source_head_and_tracked_unchanged": true,
+      "cargo_profile_dev_debug": "0",
+      "cargo_features": [
+        "agentbaton-core/preview-evidence"
+      ],
+      "cargo_inputs_sha256": {
+        "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+        "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d"
+      },
+      "tool_pins": {
+        "batond": {
+          "sha256": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2",
+          "bytes": 78081896,
+          "mode": 493,
+          "identity": [
+            49,
+            90796,
+            33261,
+            501,
+            20,
+            2,
+            78081896,
+            1795035197861940617,
+            1795035197917563095
+          ]
+        },
+        "baton": {
+          "sha256": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0",
+          "bytes": 54470984,
+          "mode": 493,
+          "identity": [
+            49,
+            90784,
+            33261,
+            501,
+            20,
+            2,
+            54470984,
+            1795035196864638489,
+            1795035196894667442
+          ]
+        }
+      }
+    },
+    "core_log_sha256": "0b8805d4ac5c0f28d9fb26ae102a79332e682aa35c429fea4b1846fb01d9f85f",
+    "node_ci_exit": 0,
+    "node_ci_log_sha256": "6e1c493437df9c4b313c819b295dd838018432aea1277080cb70fad26d551681",
+    "frontend_unit_cases_passed": 1597,
+    "frontend_preflight_reused_for_same_source_browser_reruns": true,
+    "preview_evidence_gate": {
+      "scope": "earlier workflow source with identical Rust and Cargo source",
+      "exit": 0,
+      "tests_passed": 16,
+      "log_sha256": "64a97fbbc754237797079c6d2b56760d25683a1c681a60c83924943eacdca039"
+    }
+  },
+  "local_image": {
+    "browser_base": "sha256:aa81288e738725378becba5b3e06cb0f3a7f012a610e87e8d767a090ea3f740d",
+    "python_venv_derivative": "sha256:c8d3ccc82fe9c76e85539ff9be96567d310ce9ebc2357bdbb1c2335ddfcca88d",
+    "node_image": "sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54",
+    "rust_image": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "python_local_arm64_wheel_lock_sha256": "ac4b1c66211aa39a699ebf91f06bf670f6fba01eaf8aa67dccbf52aa5cb4967f",
+    "hosted_x64_browser_lock_sha256": "89c9026218ec5d3805fd616896f87d21a7304ca5f62de32881fc8b4cb6b5d62b",
+    "actual_chromium_install_log_sha256": "8a4fbb0d13ddfaa14fab1ee7cc60b1677e41fce7856a8b86a43bf962d1196084",
+    "native_linux_runtime_directory": "Container filesystem. Mac bind-mount denial was preserved."
+  },
+  "failed_earlier_attempts": [
+    {
+      "runtime": "linux-replay.kYN7DT",
+      "failure": "Base image lacked ensurepip",
+      "failure_log_sha256": "e34a4972c6e66ef45fdc6845b7f67418e7ec10af59e40749a30b860f4cff78e5"
+    },
+    {
+      "runtime": "linux-replay.8quHi2",
+      "failure": "Local resume omitted input mount and began a redundant frontend validation. Owned container stopped before any browser or daemon."
+    },
+    {
+      "runtime": "linux-replay.8uENmG",
+      "failure": "No /usr/bin/chromium for old Goal Planning default and Mac bind mount rejected daemon socket chmod.",
+      "receipt_sha256": "2746082310e66af39e39a61fe0ba3bbcee477d583e4d1c691547e32932829fa8"
+    },
+    {
+      "runtime": "linux-replay-v2.GZTI5o",
+      "failure": "Local preinstalled Chromium ELF had mode 0777. Data and Integration guards refused it. The actual probe passed.",
+      "receipt_sha256": "aefd30a4ffb92509c7d21d2911ec4128e9c89e033a07d8d901e34e234ff96c35"
+    }
+  ],
+  "actual_linux_replays": [
+    {
+      "source": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+      "tree": "6211172358b1a0b72e5daa7c1454508fbf7180fc",
+      "platform": "aarch64",
+      "kernel": "6.12.69-linuxkit",
+      "isolated_network": "none with only loopback addresses and routes",
+      "versions": {
+        "python": "Python 3.12.3",
+        "node": "v24.22.3",
+        "npm": "11.19.1",
+        "playwright": "Version 1.62.0",
+        "chromium": "Chromium 151.0.7922.34",
+        "chromium_mode": "0o755"
+      },
+      "chromium_sha256": "f48b8e30d70593004542b4d5c16a8f2f8ec5d540111670ecc5f4715df8210eaa",
+      "candidate_sha256": "af257aac0c9fe351d47fc65bbeb087176e08ebfbf33bb50c01423f1e3de0b068",
+      "frontend_record_sha256": "a9f3c0aa9344009548220d36af07216f216d9a556635298806c58cb82c00d575",
+      "core_record_sha256": "4f82b533f9e135b2def98655a4b4f00325620ed65aa641e69f54f2fff96de979",
+      "mounted_checkouts_unmodified_tracked": true,
+      "tool_digests": {
+        "batond": {
+          "original": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2",
+          "frozen": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2",
+          "integration_private": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2"
+        },
+        "baton": {
+          "original": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0",
+          "frozen": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0",
+          "integration_private": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0"
+        }
+      },
+      "assets": {
+        "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+        "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+        "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c"
+      },
+      "schema_probe": {
+        "source": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+        "manifest_sha256": "af257aac0c9fe351d47fc65bbeb087176e08ebfbf33bb50c01423f1e3de0b068",
+        "build_record_sha256": "a9f3c0aa9344009548220d36af07216f216d9a556635298806c58cb82c00d575",
+        "tools_sha256": {
+          "batond": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2",
+          "baton": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0"
+        },
+        "api_version": 1,
+        "database_schema_version": 19,
+        "daemon_exit": 0,
+        "joined": true
+      },
+      "probe_sha256": "d75efbff2778db57d9734e51e841a4e42357b4a58a03d8c2a3cdac41e5b360fe",
+      "integration_status": {
+        "source": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+        "driver_exit": 0,
+        "probe_passed": true
+      },
+      "integration_setup_stage": "driver_returned",
+      "steps": {
+        "frontend-build": {
+          "exit": 0,
+          "seconds": 86.1,
+          "log_sha256": "fd96744b861628efb4e15f1c4e78a7146d0bae63bc29153497ce87928d4700e5",
+          "origin": "first exact Linux replay"
+        },
+        "preview-contracts": {
+          "exit": 0,
+          "seconds": 1.31,
+          "log_sha256": "d3f5694a6e12faa5a4aad282ab868bf0cd5a180e5e91f03712348f0de2af28a4",
+          "origin": "first exact Linux replay"
+        },
+        "browser-venv": {
+          "exit": 0,
+          "seconds": 2.28554637596244,
+          "log_sha256": "2d5d3df5c7b7c4180b38fa6afa5dd2ed2fce18527d94f5ecbe3b6589b6aa2839",
+          "origin": "same-source first Linux replay"
+        },
+        "install-arch-specific-browser-wheels": {
+          "exit": 0,
+          "seconds": 1.15624529204797,
+          "log_sha256": "d5937b669df85a9970a7d56e31832ba89e317018ce1102ca627799051917a1db",
+          "origin": "same-source first Linux replay"
+        },
+        "python-package-check": {
+          "exit": 0,
+          "seconds": 0.18234729202231392,
+          "log_sha256": "c1560c8e0e02626e84e591cb86f6ab08c377583c89160bd403d773067061f254",
+          "origin": "same-source first Linux replay"
+        },
+        "browser-chain": {
+          "exit": 1,
+          "seconds": 167.0092482829932,
+          "log_sha256": "40ca0c7b56e20bc6e9b13819d493a9932918dc986ccafcfc5c20c9697d33ec4b"
+        },
+        "integration-driver": {
+          "exit": 0,
+          "seconds": 24.8503902599914,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "integration-projection": {
+          "exit": 0,
+          "seconds": 0.11719424999319017,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "notification-projection": {
+          "exit": 0,
+          "seconds": 2.364243460004218,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-archived-schema": {
+          "exit": 1,
+          "seconds": 1.2065059170126915,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-wrong-tree": {
+          "exit": 1,
+          "seconds": 1.2138597089797258,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-wrong-build-pin": {
+          "exit": 1,
+          "seconds": 1.2003100010333583,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-wrong-core-pin": {
+          "exit": 1,
+          "seconds": 1.218957417004276,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "driver_predecessor_passed": false,
+      "integration_projection": {
+        "status": "passed",
+        "failure_kind": null,
+        "checks": 9,
+        "files_sha256": {
+          "command-failure-permission-before-task-acceptance.png": "b32cdd9421e0a40eb05d10b8ab5eb57abbad93db6a665c18adfbdcdc25d78b86",
+          "command-failure-task-pending-before-acceptance.png": "31d267f7c4ce70b7174ba23d91ee643e80ed4fa24965fc3d03265e222543c5e0",
+          "command-failure-terminal-receipt-desktop.png": "3aa4b51d4098f7e4a003eb2156b08f05a4ed7c3887df0ac5a5338194e4c4bcdb",
+          "command-failure-terminal-receipt-mobile.png": "fb075c3b901ae2044dbf89bbe076477396b3f38f81f5d8bbab922d06887eb090",
+          "command-failure-terminal-state-desktop.png": "27a9bff4d1f28b7036a5f7c61a0dae493c94ab168e816a63661e564a5686dee3",
+          "command-failure-terminal-state-mobile.png": "32951101b74db66de2b444f29947ac05428fe6e5c8ed081804a004bc6b6e73a6",
+          "normal-permission-before-task-acceptance.png": "debcfb8b9962b5abf259ff126eee66de08cc9053962bf6c44034228ccf059085",
+          "normal-task-pending-before-acceptance.png": "ed6a79f81dced86cdb6fed42927c66868e579fc6a57dc4ada0c5c50ab7981255",
+          "normal-terminal-receipt-desktop.png": "5145f4c6c678b062de949cebd4b72e9540c571203a35fdff36834f0d71db2268",
+          "normal-terminal-receipt-mobile.png": "fbeeec2970dd5bf945eec2a68775913768da9a16a6c31bbf2639f3c70c1cc63c",
+          "normal-terminal-state-desktop.png": "d483d5d1116c05651afdced923bb1ef96e334c3d4d68305a983caad1fa642787",
+          "normal-terminal-state-mobile.png": "ac8c753ff1884fb049c605e0b24c69e0fb6c386eb00994c528eb2a6add06a1cd",
+          "summary.json": "473f8a645b002442aa3c77a4d0e5be08e3df80ac0e5dd46a1a7e1a079f9bf3ff"
+        }
+      },
+      "notification_projection": {
+        "status": "passed",
+        "failure_kind": null,
+        "checks": 6,
+        "files_sha256": {
+          "accepted-task-desktop.png": "eb3dd5481c6ad3a207774c226d5212e01467a65c0559579edeb264aba09467e3",
+          "dnd-mobile.png": "9b2df6432850792f4e7888927ada33eb238f586ca7125a49c94e17e20124b387",
+          "original-journal-desktop.png": "9226dc55ceb6147df69808a07c4fe527993479b20079b61d96dc13d869ea40ee",
+          "real-source-desktop.png": "6bd8d4cd9aacbc38728af52499376acb1bf89f3c8fea4fd4a232330c68eed1b4",
+          "summary.json": "fe236ed4fea4f85d3e98810d761611fad65ea6f1c0413b5dd638b19fec277b3a"
+        }
+      },
+      "actual_setup_negatives": {
+        "archived-schema": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        },
+        "wrong-tree": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        },
+        "wrong-build-pin": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        },
+        "wrong-core-pin": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        }
+      },
+      "local_linux_elapsed_seconds": 201.50998383999104,
+      "runtime_artifacts": "/private/tmp/ab-collab-q13xnfbl/linux-replay-v3.T2LfmZ",
+      "public_artifacts": "/private/tmp/ab-collab-q13xnfbl/linux-checkout-v2/artifacts/ui-browser-first-secure-browser-replay",
+      "receipt_sha256": "f5b3b92be637378afe7562360e3328764bfb71d38c9cfd42d1e1b02263cebfdb",
+      "child_goal_cases": {
+        "normal": {
+          "driver_exit": 1,
+          "projector_status": "failed",
+          "checks": [
+            "CG01",
+            "CG02"
+          ],
+          "snapshot_sqlite_version": 19,
+          "owner_binding_calls": 0,
+          "browser_start_calls": 1,
+          "browser_cancel_calls": 0,
+          "actual_Core_Owner_propose_calls": 0,
+          "persisted_child_goal_count": 1,
+          "accepted_task_count": 0,
+          "all_persisted_sessions_stopped": true,
+          "daemon_wait_exit": 0,
+          "private_report_sha256": "57a5d7830f7bbe49e7b8c229cc22a80158b88fd2b370a94c66d8008dc7680dd2",
+          "retained_sqlite_sha256": "78c8ce88987ed67227bedd04e91abe8923b4edb30f053454ac60fa203ca9696f",
+          "public_summary_sha256": "d8194007d8ebe83fbfecdb522b21846af3213649db1920e29e9482728a46d76f",
+          "cleanup_complete": false,
+          "failure_phase": "owner_binding_wait",
+          "failure_class": "refusal",
+          "original_deadline_seconds": 15,
+          "stale_alert_observed": true,
+          "failure_dom_sha256": "3c015b7fd3e767623d9907b28c38f1662edda4a9c9ae4cb4ecc52202f6533045",
+          "failure_driver_lines": [
+            2130,
+            1618
+          ]
+        },
+        "lost-start": {
+          "driver_exit": 0,
+          "projector_status": "passed",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG03",
+            "CG05",
+            "CG06"
+          ],
+          "snapshot_sqlite_version": 19,
+          "owner_binding_calls": 1,
+          "browser_start_calls": 2,
+          "browser_cancel_calls": 0,
+          "actual_Core_Owner_propose_calls": 1,
+          "persisted_child_goal_count": 1,
+          "accepted_task_count": 1,
+          "all_persisted_sessions_stopped": true,
+          "daemon_wait_exit": 0,
+          "private_report_sha256": "de7de68f4ff48c50cb7af381a86ff2bc1e9de4bd776af0d8c4e633012024b5d8",
+          "retained_sqlite_sha256": "ef31207daefd6b4f0809c3d738ce01f9bef40403723e4cbfe9df7c1f416d3a5c",
+          "public_summary_sha256": "4d7a9668afc80b698962ca1e938726dfcdf764b9bde8fbe8b3044df87dd186d2",
+          "cleanup_complete": true
+        },
+        "cancel": {
+          "driver_exit": 1,
+          "projector_status": "failed",
+          "checks": [
+            "CG01",
+            "CG02"
+          ],
+          "snapshot_sqlite_version": 19,
+          "owner_binding_calls": 0,
+          "browser_start_calls": 0,
+          "browser_cancel_calls": 0,
+          "actual_Core_Owner_propose_calls": 0,
+          "persisted_child_goal_count": 0,
+          "accepted_task_count": 0,
+          "all_persisted_sessions_stopped": true,
+          "daemon_wait_exit": 0,
+          "private_report_sha256": "492b49b607887d2393e7556e92894d08dba4a0e8fa5f1412b4dd37c5783e9b62",
+          "retained_sqlite_sha256": "8bb8c3b8387fc18134b81d596e466b77bf2fc095b4b7a3d3d728e61f58ffde5c",
+          "public_summary_sha256": "db000bab8a0df484dc7cc121e1521ac4920e8c50f99fa45ddc9a80771722d5bc",
+          "cleanup_complete": false,
+          "failure_phase": "first_child_start_wait",
+          "failure_class": "assertion",
+          "original_deadline_seconds": 15,
+          "stale_alert_observed": true,
+          "failure_dom_sha256": "b067fa19a808cf8ad67156ddce12bee03488e95cfe59b9d22e9332162552cf35",
+          "failure_driver_lines": [
+            2059,
+            1752
+          ]
+        }
+      },
+      "child_goal_retained_temporary_tree_archive_sha256": null
+    },
+    {
+      "source": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+      "tree": "6211172358b1a0b72e5daa7c1454508fbf7180fc",
+      "platform": "aarch64",
+      "kernel": "6.12.69-linuxkit",
+      "isolated_network": "none with only loopback addresses and routes",
+      "versions": {
+        "python": "Python 3.12.3",
+        "node": "v24.22.3",
+        "npm": "11.19.1",
+        "playwright": "Version 1.62.0",
+        "chromium": "Chromium 151.0.7922.34",
+        "chromium_mode": "0o755"
+      },
+      "chromium_sha256": "f48b8e30d70593004542b4d5c16a8f2f8ec5d540111670ecc5f4715df8210eaa",
+      "candidate_sha256": "af257aac0c9fe351d47fc65bbeb087176e08ebfbf33bb50c01423f1e3de0b068",
+      "frontend_record_sha256": "a9f3c0aa9344009548220d36af07216f216d9a556635298806c58cb82c00d575",
+      "core_record_sha256": "4f82b533f9e135b2def98655a4b4f00325620ed65aa641e69f54f2fff96de979",
+      "mounted_checkouts_unmodified_tracked": true,
+      "tool_digests": {
+        "batond": {
+          "original": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2",
+          "frozen": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2",
+          "integration_private": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2"
+        },
+        "baton": {
+          "original": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0",
+          "frozen": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0",
+          "integration_private": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0"
+        }
+      },
+      "assets": {
+        "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+        "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+        "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c"
+      },
+      "schema_probe": {
+        "source": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+        "manifest_sha256": "af257aac0c9fe351d47fc65bbeb087176e08ebfbf33bb50c01423f1e3de0b068",
+        "build_record_sha256": "a9f3c0aa9344009548220d36af07216f216d9a556635298806c58cb82c00d575",
+        "tools_sha256": {
+          "batond": "abeca4671d40b7418d8bc226894a05dd0914252cda1df64ead8a34db20b535b2",
+          "baton": "0b2d00baf77e76fb784c101aa4b0828f6abd62cd7fb6158eec63819ae592a5a0"
+        },
+        "api_version": 1,
+        "database_schema_version": 19,
+        "daemon_exit": 0,
+        "joined": true
+      },
+      "probe_sha256": "d75efbff2778db57d9734e51e841a4e42357b4a58a03d8c2a3cdac41e5b360fe",
+      "integration_status": {
+        "source": "04e15895f28b7996cc21916beed3ba430a5ee6c4",
+        "driver_exit": 0,
+        "probe_passed": true
+      },
+      "integration_setup_stage": "driver_returned",
+      "steps": {
+        "frontend-build": {
+          "exit": 0,
+          "seconds": 86.1,
+          "log_sha256": "fd96744b861628efb4e15f1c4e78a7146d0bae63bc29153497ce87928d4700e5",
+          "origin": "first exact Linux replay"
+        },
+        "preview-contracts": {
+          "exit": 0,
+          "seconds": 1.31,
+          "log_sha256": "d3f5694a6e12faa5a4aad282ab868bf0cd5a180e5e91f03712348f0de2af28a4",
+          "origin": "first exact Linux replay"
+        },
+        "browser-venv": {
+          "exit": 0,
+          "seconds": 2.28554637596244,
+          "log_sha256": "2d5d3df5c7b7c4180b38fa6afa5dd2ed2fce18527d94f5ecbe3b6589b6aa2839",
+          "origin": "same-source first Linux replay"
+        },
+        "install-arch-specific-browser-wheels": {
+          "exit": 0,
+          "seconds": 1.15624529204797,
+          "log_sha256": "d5937b669df85a9970a7d56e31832ba89e317018ce1102ca627799051917a1db",
+          "origin": "same-source first Linux replay"
+        },
+        "python-package-check": {
+          "exit": 0,
+          "seconds": 0.18234729202231392,
+          "log_sha256": "c1560c8e0e02626e84e591cb86f6ab08c377583c89160bd403d773067061f254",
+          "origin": "same-source first Linux replay"
+        },
+        "browser-chain": {
+          "exit": 1,
+          "seconds": 198.84948113304563,
+          "log_sha256": "e9aec57c4d4346ef486611c51912a4482682e62307b65df66c64c5dff4db255a"
+        },
+        "integration-driver": {
+          "exit": 0,
+          "seconds": 25.26963547000196,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "integration-projection": {
+          "exit": 0,
+          "seconds": 0.11975116695975885,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "notification-projection": {
+          "exit": 0,
+          "seconds": 2.310194875986781,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-archived-schema": {
+          "exit": 1,
+          "seconds": 1.175047209020704,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-wrong-tree": {
+          "exit": 1,
+          "seconds": 1.2154148340341635,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-wrong-build-pin": {
+          "exit": 1,
+          "seconds": 1.1924960839678533,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "negative-wrong-core-pin": {
+          "exit": 1,
+          "seconds": 1.1838062509777956,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "driver_predecessor_passed": false,
+      "retained_child_goal_fixture_roots": 3,
+      "integration_projection": {
+        "status": "passed",
+        "failure_kind": null,
+        "checks": 9,
+        "files_sha256": {
+          "command-failure-permission-before-task-acceptance.png": "a92dddbced5e92e7c402ad184b44fadd4be17b765bb5b3509cae2fa69ca340d8",
+          "command-failure-task-pending-before-acceptance.png": "8c1bc607b8e59232efb4a4f5c8730b89d6642f6e09120c6f88f72fd6b3cc3446",
+          "command-failure-terminal-receipt-desktop.png": "5311badb231c7959322583ffd5f0b1dc67edaacc141fdb9b8e1d83eb713c1981",
+          "command-failure-terminal-receipt-mobile.png": "f8c5ed967d9233e12ca751e6c5d82889ac7a994c84a6e50b12b49b4dc3c3a86b",
+          "command-failure-terminal-state-desktop.png": "b8c70a516b3b921ac76575a2a533920db2e0cd36362760242d7540babe9acd91",
+          "command-failure-terminal-state-mobile.png": "1858425e941ca930693b6b7e3fc00061fc6119d6475cc0cde095d87ea88e0754",
+          "normal-permission-before-task-acceptance.png": "adfef5919a5ba9b57fb1e36da333e5563df950e9827216599d98f7f26174d117",
+          "normal-task-pending-before-acceptance.png": "807fc44ce4d634607401614798a28e68fee75c36b31119532991fdf490f261e6",
+          "normal-terminal-receipt-desktop.png": "83d46be03c04595df6173a8647e7682255b5d77d0920b081033304bae9f22cff",
+          "normal-terminal-receipt-mobile.png": "88a874c8e3559d859e6c2276edaa550cb4a7c4e074c2e99fdc1629ee09a7d163",
+          "normal-terminal-state-desktop.png": "afc5104bb27012c81340497064b3c05f88390bbc16ee321ef8d02dc86bf412d8",
+          "normal-terminal-state-mobile.png": "b1c7f1fb8a50c81976f429f4e964116d36d42532907e0eeb5e61eeb143c195ec",
+          "summary.json": "f3f30ec64d2ec4f112d5ae1139ce17e21ee5b4812a2477dca769b25b2525e937"
+        }
+      },
+      "notification_projection": {
+        "status": "passed",
+        "failure_kind": null,
+        "checks": 6,
+        "files_sha256": {
+          "accepted-task-desktop.png": "13d8041611a2e2798df982053a1d0f23885b0da108707a111c77c72adcc7ab8b",
+          "dnd-mobile.png": "9b2df6432850792f4e7888927ada33eb238f586ca7125a49c94e17e20124b387",
+          "original-journal-desktop.png": "ec98c7cec6a249b1f93890d074581a9d2c8cd996fdb94f470a14d4153fb27e81",
+          "real-source-desktop.png": "b29395bc1cfc1c1ee7a1e3a80f7df6d8931ec3de5292c370e6c0f09e2a2767e3",
+          "summary.json": "c449ccbf1c856eb8c7ab2090937292e476bd2e21e0bb0a913838d3d29bdd64ef"
+        }
+      },
+      "actual_setup_negatives": {
+        "archived-schema": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        },
+        "wrong-tree": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        },
+        "wrong-build-pin": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        },
+        "wrong-core-pin": {
+          "setup_sha256": "c6edb3c12e3d70f39943a1fc84eb845d70687206dfa2b75e4e86c4d07918804d",
+          "stage": "paired_metadata_guard",
+          "status_sha256": "0ba84eb1ca9b47d05601d13bab9e87e8b39063eb10f7323b77bef05f77c462ef"
+        }
+      },
+      "local_linux_elapsed_seconds": 234.39224139996804,
+      "runtime_artifacts": "/private/tmp/ab-collab-q13xnfbl/linux-replay-v4.tL3o6b",
+      "public_artifacts": "/private/tmp/ab-collab-q13xnfbl/linux-checkout-v2/artifacts/ui-browser",
+      "receipt_sha256": "2ebbd67ba9acc698628f23c315ba692383761634a3f082936a38788ddf7380f4",
+      "child_goal_cases": {
+        "normal": {
+          "driver_exit": 1,
+          "projector_status": "failed",
+          "checks": [
+            "CG01",
+            "CG02"
+          ],
+          "snapshot_sqlite_version": 19,
+          "owner_binding_calls": 0,
+          "browser_start_calls": 0,
+          "browser_cancel_calls": 0,
+          "actual_Core_Owner_propose_calls": 0,
+          "persisted_child_goal_count": 0,
+          "accepted_task_count": 0,
+          "all_persisted_sessions_stopped": true,
+          "daemon_wait_exit": 0,
+          "private_report_sha256": "8f40a34c23f1324e678380bca8c2231200eeb7c7c5d53edda0cb654e838c7f4d",
+          "retained_sqlite_sha256": "c6d7bd4ab38dc687899470d53a57d7b2312fb3e84a9d51a10a1ddabc76339ff5",
+          "public_summary_sha256": "11d6f78863ceebdb88e7203be4a67196b00c3f915147f78a2aa2442498fedfc4",
+          "cleanup_complete": false,
+          "failure_phase": "first_child_start_wait",
+          "failure_class": "assertion",
+          "original_deadline_seconds": 15,
+          "stale_alert_observed": true,
+          "failure_dom_sha256": "fef89855a94a8ab1fccb9da77ac707bdb1394558d961d7e35457332c9f765782",
+          "failure_driver_lines": [
+            2059,
+            1752
+          ]
+        },
+        "lost-start": {
+          "driver_exit": 1,
+          "projector_status": "failed",
+          "checks": [
+            "CG01",
+            "CG02",
+            "CG03"
+          ],
+          "snapshot_sqlite_version": 19,
+          "owner_binding_calls": 0,
+          "browser_start_calls": 2,
+          "browser_cancel_calls": 0,
+          "actual_Core_Owner_propose_calls": 0,
+          "persisted_child_goal_count": 1,
+          "accepted_task_count": 0,
+          "all_persisted_sessions_stopped": true,
+          "daemon_wait_exit": 0,
+          "private_report_sha256": "5be264fd529cfd10cbcd85d92eec7a59dd509b1a01461ef9938929f3dd778830",
+          "retained_sqlite_sha256": "b46eec45c99ef79c9336f8a1ff920a51925e4f81a47285f995964adc9843637d",
+          "public_summary_sha256": "2514389848bf05daf111a9f6141d1ed5eec4ccba67383ccf09e6d2d5e863b5fe",
+          "cleanup_complete": false,
+          "failure_phase": "owner_binding_wait",
+          "failure_class": "refusal",
+          "original_deadline_seconds": 15,
+          "stale_alert_observed": true,
+          "failure_dom_sha256": "0925b0969062f864b4cca3c1e486bd95fbd39b13a018800f4bfda927100d410c",
+          "failure_driver_lines": [
+            2130,
+            1618
+          ]
+        },
+        "cancel": {
+          "driver_exit": 1,
+          "projector_status": "failed",
+          "checks": [
+            "CG01",
+            "CG02"
+          ],
+          "snapshot_sqlite_version": 19,
+          "owner_binding_calls": 0,
+          "browser_start_calls": 0,
+          "browser_cancel_calls": 0,
+          "actual_Core_Owner_propose_calls": 0,
+          "persisted_child_goal_count": 0,
+          "accepted_task_count": 0,
+          "all_persisted_sessions_stopped": true,
+          "daemon_wait_exit": 0,
+          "private_report_sha256": "aa9697cc89b2a5f4ad45d23692f06d2273c827139e495fa574c700742d501097",
+          "retained_sqlite_sha256": "030985a81bcd0452294d118d7ec3a762ef98567a4233a4ad3d93b17379ddcbb2",
+          "public_summary_sha256": "2b510a9ebfe772e40d82e80b2dcadb684c2a3d0c6be231bca4328f419c12a5aa",
+          "cleanup_complete": false,
+          "failure_phase": "first_child_start_wait",
+          "failure_class": "assertion",
+          "original_deadline_seconds": 15,
+          "stale_alert_observed": true,
+          "failure_dom_sha256": "a49f9f7f4b3374f02fe816c86d23c8355ccc8e2d53057f0b05316e37a40897af",
+          "failure_driver_lines": [
+            2059,
+            1752
+          ]
+        }
+      },
+      "child_goal_retained_temporary_tree_archive_sha256": "5ea99bc86a3cf13bfe2d988b200c5d5fb237fea63291727f28614bd9c06c5834"
+    }
+  ],
+  "failure_diagnosis": {
+    "observed": "All five red Child Goal runs ended at the renderer stale alert before the required write",
+    "initial_start": "Three red runs recorded zero browser start IPC and zero durable child Goals",
+    "owner": "Two red runs had a durable accepted start but zero Owner binding entries and zero Owner proposal IPC",
+    "source": "FactoryChildGoals.tsx act checks parentIdentity again after refresh before starting or calling Owner. The Owner branch only shows this alert from that shared identity guard.",
+    "uncertainty": "The exact changed parent field and the exact start-only stale predicate were not established. Full v3 temporary roots were not archived before the container exited. Reports, DOM, screenshots, raw wire and retained SQLite are preserved. V4 full roots were archived."
+  },
+  "verification": {
+    "infra": {
+      "exit": 0,
+      "log_sha256": "858d74db171edfa68caa6398c399d3fddef5a1d5c6881fc675f05b150985644e",
+      "tests_run": 1010,
+      "skipped": 16,
+      "command": "python -B -m unittest discover -s tests/infrastructure -p 'test_*.py' -v"
+    },
+    "root-node": {
+      "exit": 0,
+      "log_sha256": "cca75a5defe44c63d68bc0573f97b2602168e82b8ce8daea66647f9e63baf409",
+      "tests_run": 4,
+      "command": "npm test"
+    },
+    "verify_bootstrap_manifest": {
+      "exit": 0,
+      "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    },
+    "validate_design": {
+      "exit": 0,
+      "log_sha256": "a9df819110d7ada30be05e92e8562de47ddc5bcec87c5b24b4b8b4734f0b1a3d"
+    },
+    "validate_infrastructure": {
+      "exit": 0,
+      "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+    },
+    "gate": {
+      "exit": 0,
+      "log_sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+    },
+    "doctor": {
+      "exit": 0,
+      "log_sha256": "0f2d5eadf0aa29a47fd5b5b022bfced14ce643cf29cd29202bddf1f973b730a8"
+    },
+    "focused": {
+      "exit": 0,
+      "tests_run": 87,
+      "log_sha256": "6872886b34c7cd993acf96e76b32fc5a07a6f2782491f3efc7d49742f4da6e49"
+    }
+  },
+  "hosted_github_actions": "not_run",
+  "production_or_native_acceptance": "not_run"
+}

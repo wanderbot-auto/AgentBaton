@@ -1,0 +1,150 @@
+{
+  "task": "AB-REL-004",
+  "status": "ready_for_leader_review",
+  "base": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "implementation_head": "7ba8387594e2fc5a4d03b930e75c1c23bbb7d98c",
+  "execution_head": "e9f7d51be270e40c8f15ae587f1ae4c0f05f76eb",
+  "execution_worktree_status": [],
+  "architecture": "arm64",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.1\nBuildVersion:\t\t25G76",
+  "xcode": "Xcode 27.2\nBuild version 27B52",
+  "bash": "3.2.57(1)-release (arm64-apple-darwin25)",
+  "packager_sha256": "9f031b30927d6b3e167cf532ebc139a733a40cf814e32df08d06464faa279646",
+  "replay_sha256": "581a33d5eaa0b8304630c74d2473802c925d14bd30eb9bbd9a09c0fd2b677109",
+  "fixed_originals": {
+    "commit": "d70362ad1fc4b080537163be60cb830849ee4167",
+    "tree": "19aba6e8f208f021bc84573dd8b496d29fce5633",
+    "files": {
+      "compiled/agentbaton-desktop": "fa09e4cdeafba5533e7418b133288e1e92445f40b752c99fc663303ef2e14a13",
+      "compiled/baton": "96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b",
+      "compiled/batond": "626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a",
+      "assembled/Contents/Info.plist": "4fd00649bf970ec48e74fe999424f4d38a63678b419c0f576e278e727da7a344",
+      "assembled/Contents/MacOS/agentbaton-desktop": "fa09e4cdeafba5533e7418b133288e1e92445f40b752c99fc663303ef2e14a13",
+      "assembled/Contents/MacOS/baton": "96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b",
+      "assembled/Contents/MacOS/batond": "626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a",
+      "assembled/Contents/Resources/icon.icns": "c06b01170670fb61780e9b79b6e4c2a3bb54834649d2eb5ccd2888086fe5fa32"
+    },
+    "receipt_sha256": "3ec3182497be2cd0c18a892677ea7e494e786bcfe1d1de297f6a9e8c9e03f127",
+    "deliverables": {
+      "build-record.txt": "156c62c31e9e3309b4166287002a447f799b6f3af72ab448542398cb9afef2ca",
+      "DEVELOPMENT_ACCEPTANCE.md": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+      "SHA256SUMS": "8d9094a1f6b3bdb7fa6c46a4b4a2c16400a8f97313995b678545ab554d99c628",
+      "AgentBaton-arm64-d70362ad1fc4b080537163be60cb830849ee4167-development.dmg": "7e7598774e7bc20bcf7ad0cf6e61d6096a21afadf1fa9543891225e928aa2055",
+      "development.zip": "2fa14871b9e9e715b25dd1f9bc5fcfbfaf67243e99ae8a25a484f4a187ef25c0",
+      "provenance.json": "9abcbb5491400d249e40c3a6cd759b12175f0f3cbd13ed9967785ab6a71033b8"
+    }
+  },
+  "fixed_originals_unchanged": true,
+  "owned_mounts_after_native_replay": 0,
+  "valid_private_package_exit": 0,
+  "valid_private_provenance_exit": 0,
+  "artifact": {
+    "files_sha256": {
+      "AgentBaton-arm64-d70362ad1fc4b080537163be60cb830849ee4167-development.dmg": "e184d9a6eb5ac3da623601840139d015d581cf610f730dc99e8d279f08fcd9c6",
+      "DEVELOPMENT_ACCEPTANCE.md": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+      "SHA256SUMS": "1de9f31a2e684e93285f16c491f60395f66c188f6f3f6c06352a32d638b0228c",
+      "build-record.txt": "7339091faf0070f554575468e5559bfb4374b7b1e34f161b5830f2893f0d980f"
+    },
+    "zip_sha256": "16281e7b8c9a4ab4b9393fbeb694313c5d665d898c75d88c15f22884d5e7b926",
+    "compiled_sha256": {
+      "agentbaton-desktop": "fa09e4cdeafba5533e7418b133288e1e92445f40b752c99fc663303ef2e14a13",
+      "baton": "96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b",
+      "batond": "626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a"
+    },
+    "shipped_sha256": {
+      "agentbaton-desktop": "85437caf8d475c4ec1c6a5f2e7521c4eed2811a9df843e088780abefdffefa8a",
+      "baton": "96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b",
+      "batond": "626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a"
+    },
+    "seal_sha256": "0e6cfdc791d929d7c9dcb86d6b699b10fac2bfdd003f62fe90ba252ac45b8d1a",
+    "main_signature": {
+      "type": "ad_hoc",
+      "cdhash": "b51b74aaeb5e3143ad3fe4ad94da66e6a67d2cb8",
+      "team_identifier": null,
+      "verification": "passed",
+      "verification_exit_code": 0,
+      "publisher_trust": "unknown"
+    }
+  },
+  "failures": {
+    "compiled_pin_change": {
+      "exit": 1,
+      "cleaned": true,
+      "diagnostic": "SHA-256 mismatch for batond"
+    },
+    "mounted_sealed_resource_change": {
+      "exit": 1,
+      "cleaned": true,
+      "diagnostic": "a sealed resource is missing or invalid"
+    },
+    "first_native_replay": "The mounted change was refused. Its initial diagnostic assertion also required the icon name, which codesign did not print.",
+    "initial_audit_tests": "Three existing 5-second canary timeouts. The exact base and unchanged candidate inputs passed on the paired rerun. Original failures are archived."
+  },
+  "native_runs": [
+    {
+      "report": "native-01.json.gz",
+      "exit": 1,
+      "status": "failed",
+      "uncompressed_sha256": "eaa25bfa99c0f550639e96ad69063785fb37ae623744a6c73e58a24cc357dd2d",
+      "gzip_sha256": "f16e742f9ff2b49b68dc8b415746e734264f7fd97e6e770792ab66a38cd97902",
+      "execution_head": "7ba8387594e2fc5a4d03b930e75c1c23bbb7d98c",
+      "diagnostic": "Real mounted verification missed an icon mutation"
+    },
+    {
+      "report": "native-02.json.gz",
+      "exit": 0,
+      "status": "passed",
+      "uncompressed_sha256": "640927ec5e52ecf1a064361fdf1872f7a126d0b42041f78ac809f7ebdce33728",
+      "gzip_sha256": "30b61ee6494876d46541c929de6d84c6fad8fc53469f7c9434831ccadd683edc",
+      "execution_head": "e9f7d51be270e40c8f15ae587f1ae4c0f05f76eb",
+      "diagnostic": null
+    }
+  ],
+  "local_regressions": [
+    {
+      "case": "unchanged audit on initial head run",
+      "tests": 22,
+      "exit": 1,
+      "sanitized_log_sha256": "d685ba191a9e1631a662dc4781a7a6562242760d17c925787d4024eb4b123bbe"
+    },
+    {
+      "case": "unchanged audit from exact base archive under native lease",
+      "tests": 22,
+      "exit": 0,
+      "sanitized_log_sha256": "ec0e1e6e65e876dfd714633e7e8320a569c6ca030fdf01685755f2dad9e7097b"
+    },
+    {
+      "case": "unchanged audit on head under native lease",
+      "tests": 22,
+      "exit": 0,
+      "sanitized_log_sha256": "f332bf209330be4d57a08c068fc9943288f20d13d305e4e890f054b30286f453"
+    },
+    {
+      "case": "provenance consumer contract",
+      "tests": 13,
+      "exit": 0,
+      "sanitized_log_sha256": "ca2d68b67907f09dd0218e4e56cf8aa8c8a223c685cf72c1362a56aff859d100"
+    },
+    {
+      "case": "macOS packaging admission contract",
+      "tests": 17,
+      "exit": 0,
+      "sanitized_log_sha256": "670be0e8aebdd15cd85d6fe2534239b0b5ad946a3ced6b57c68f87a8a3dc4126"
+    }
+  ],
+  "regression_archive": {
+    "name": "regressions.txt.gz",
+    "sha256": "fcdc25c10faa74c2e9b7cd12f4afd5b89414a110927dd3a162d41b88bd9a0b71",
+    "uncompressed_sha256": "328336a4e15ad30334b3ff9506dd0a16cb89a050a98338f083d9ef498899c9c3"
+  },
+  "not_run": [
+    "recompilation",
+    "Developer ID signing",
+    "notarization",
+    "Gatekeeper assessment",
+    "installation",
+    "application launch",
+    "hosted CI",
+    "publish"
+  ]
+}

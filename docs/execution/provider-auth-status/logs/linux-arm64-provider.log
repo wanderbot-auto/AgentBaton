@@ -1,0 +1,207 @@
+ce95d4247c6f74539a874a146529e0bd254841ed
+a3d60528d8e3ebae916b33c41577112c882f46d5
+67ae883fad0eb45391f738538127733e18071abfa4c3510b76646d7668b027d2  /private/tmp/ab-collab-a8968dh9/linux-arm64/source.tar
+sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33 linux/arm64
+image=sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33 network=none user=501:20 read_only=true
+Linux 6.12.69-linuxkit aarch64
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-unknown-linux-gnu
+release: 1.91.1
+LLVM version: 21.1.2
+Python 3.11.2
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling libc v0.2.191
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.27
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+   Compiling cfg-if v1.0.5
+   Compiling zmij v1.0.23
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.5
+   Compiling serde_json v1.0.154
+   Compiling generic-array v0.14.7
+   Compiling serde v1.0.229
+   Compiling itoa v1.0.18
+   Compiling linux-raw-sys v0.12.1
+   Compiling bitflags v2.13.2
+   Compiling memchr v2.8.3
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.5.0
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling syn v3.0.9
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling tempfile v3.27.0
+   Compiling serde_derive v1.0.229
+   Compiling agentbaton-providers v0.1.0 (/checkout/crates/providers)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.20s
+     Running unittests src/lib.rs (/task-target/debug/deps/agentbaton_providers-e5f19fc646471a63)
+
+running 8 tests
+test installation::probes::auth_fixture_tests::binary_drift_refuses_launch_or_discards_projection_after_reaping ... ok
+test installation::probes::auth_fixture_tests::context_must_bind_approval_and_digest_and_stay_canonical ... ok
+test installation::probes::auth_fixture_tests::generated_errors_and_ambiguous_output_keep_local_state_unknown ... ok
+test installation::probes::auth_fixture_tests::generated_statuses_use_fixed_command_and_project_closed_local_hints ... ok
+test installation::probes::auth_fixture_tests::generated_timeout_reaps_the_child_and_returns_unknown ... ok
+test session_configuration::tests::claude_projection_cannot_enable_dangerous_or_ambient_options ... ok
+test session_configuration::tests::mcp_connections_and_enabling_project_servers_remain_explicitly_unsupported ... ok
+test session_configuration::tests::restricted_disable_list_is_preserved_and_invalid_names_are_rejected ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.81s
+
+     Running tests/auth_status.rs (/task-target/debug/deps/auth_status-0c0ac152b83e5e56)
+
+running 1 test
+test public_api_does_not_launch_without_a_verified_runtime_and_version ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/connections.rs (/task-target/debug/deps/connections-134072158e24aaf4)
+
+running 8 tests
+test contradictory_success_or_missing_provenance_cannot_bind_execution ... ok
+test evidence_must_have_unique_features_bound_to_exact_version_and_timestamp ... ok
+test fallback_and_external_writeback_have_no_silent_deserialization_path ... ok
+test named_connections_cannot_substitute_accounts_or_hosts ... ok
+test native_appserver_and_vendor_acp_routes_remain_distinct ... ok
+test program_and_configuration_ownership_are_independent_and_binding_is_immutable ... ok
+test unknown_unsupported_untested_and_fixture_support_cannot_become_live_support ... ok
+test version_drift_or_failed_probe_cannot_create_executable_binding ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contracts.rs (/task-target/debug/deps/contracts-73a46323d97286d3)
+
+running 20 tests
+test bounded_newline_frames_survive_split_and_bad_inputs ... ok
+test cancellation_request_never_confirms_stopped ... ok
+test default_capabilities_are_conservative ... ok
+test delayed_old_prompt_result_cannot_reconcile_new_transport ... ok
+test disconnect_requires_reconciliation_not_prompt_replay ... ok
+test duplicate_keys_and_deeply_nested_data_fail_closed ... ok
+test idle_and_completed_native_sessions_are_not_attached_after_reconnect ... ok
+test initialization_never_advertises_unimplemented_host_capabilities ... ok
+test jsonrpc_invalid_envelopes_are_rejected ... ok
+test known_stop_reasons_do_not_mean_task_acceptance ... ok
+test malformed_capabilities_do_not_silently_enable_resume ... ok
+test mismatched_or_unsupported_handshake_does_not_become_ready ... ok
+test normalized_events_are_bound_locally_and_unknown_details_preserved ... ok
+test pending_permissions_become_cancelled_during_cancel_request ... ok
+test permission_selection_is_exact_once_only_and_never_escalates ... ok
+test permissions_for_idle_sessions_and_wrong_sessions_are_rejected ... ok
+test prompt_results_are_correlated_and_unknown_reasons_are_not_success ... ok
+test provider_error_preserves_side_effect_uncertainty ... ok
+test session_and_output_resource_limits_are_enforced ... ok
+test text_tool_and_unknown_content_are_separate ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/installation.rs (/task-target/debug/deps/installation-502c536a0b96f78a)
+
+running 10 tests
+test changed_selected_binary_is_rejected_before_probe_or_transport_spawn ... ok
+test digests_and_paths_are_strict_and_symlinks_do_not_bypass_pin ... ok
+test exact_digest_is_pinned_and_probe_records_actual_version_only ... ok
+test executable_modified_during_probe_invalidates_observed_version ... ok
+test missing_approval_cannot_execute_selected_binary ... ok
+test probe_environment_is_explicit_and_debug_redacts_values ... ok
+test small_pipe_version_probe_preserves_volume_and_original_deadline ... ok
+test stderr_flood_is_drained_without_retaining_raw_output ... ok
+test timeout_is_bounded_and_probe_is_reaped ... ok
+test version_probe_failures_preserve_distinct_non_success_evidence ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s
+
+     Running tests/managed_update.rs (/task-target/debug/deps/managed_update-5d8cda8e3cb4dc77)
+
+running 12 tests
+test absent_or_invalid_policy_never_infers_approval_from_managed_records ... ok
+test changed_bytes_and_symlinks_fail_live_digest_verification ... ok
+test either_release_must_match_the_policy_and_verifier_pin_is_independent ... ok
+test evidence_must_be_complete_current_and_runtime_capable ... ok
+test existing_binding_rejects_different_provider_host_and_bad_probe ... ok
+test existing_or_unknown_task_stops_before_inspection_even_with_approval ... ok
+test external_installations_and_outside_root_declarations_are_denied ... ok
+test managed_program_update_preserves_explicit_read_only_native_config_references ... ok
+test managed_staging_cannot_alias_an_external_file_with_the_approved_bytes ... ok
+test new_task_pins_the_distinct_program_and_preserves_old_binding_and_files ... ok
+test policy_is_scoped_to_exact_connection_revision_provider_host_and_config ... ok
+test reused_ids_and_aliased_executables_are_denied ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/native_codex.rs (/task-target/debug/deps/native_codex-cbd6df22d9a27223)
+
+running 22 tests
+test independent_native_process_environments_do_not_share_fixture_identity_markers ... ok
+test interrupt_ack_is_not_stop_and_cancel_is_idempotent_before_native_turn_id ... ok
+test late_native_metadata_and_interrupt_ack_do_not_break_next_turn_correlation ... ok
+test native_cancel_confirmed_stop_and_completion_race_remain_distinct ... ok
+test native_completion_can_precede_submission_response_but_ids_must_match ... ok
+test native_control_backpressure_fails_closed_instead_of_losing_denial_evidence ... ok
+test native_envelope_rejects_ambiguous_shapes_and_preserves_extensions ... ok
+test native_event_backpressure_is_visible_without_losing_completion ... ok
+test native_faults_reap_child_without_replay_or_secret_error_text ... ok
+test native_home_mismatch_is_not_silently_treated_as_selected_namespace ... ok
+test native_interrupt_and_failed_status_do_not_accept_task_or_invent_cancellation ... ok
+test native_malformed_or_expanded_session_response_reaps_owned_child ... ok
+test native_permissions_are_denied_and_unknown_auth_callback_never_reads_identity ... ok
+test native_quantum_does_not_extend_turn_deadline_and_blocked_outbound_stays_responsive ... ok
+test native_roundtrip_has_distinct_envelope_bound_thread_and_no_shell ... ok
+test native_small_pipe_stderr_preserves_original_four_mib_five_hundred_ms_contract ... ok
+test native_stale_terminal_cannot_complete_a_new_submission ... ok
+test native_startup_failure_diagnostics_are_bounded_and_raw_free ... ok
+test native_wrong_dialect_and_expanded_native_scope_fail_closed ... ok
+test selected_native_policy_is_immutable_and_used_on_every_generated_turn ... ok
+test selected_native_policy_rejects_expanded_effective_scope_and_reaps_before_any_turn ... ok
+test submission_ack_even_completed_status_is_not_terminal_notification ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.86s
+
+     Running tests/routes.rs (/task-target/debug/deps/routes-5853b7f76c19bb25)
+
+running 1 test
+test named_acp_routes_negotiate_actual_child_and_claude_disables_ambient_setting_sources ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/stdio.rs (/task-target/debug/deps/stdio-d6e3dd3738c42eb0)
+
+running 20 tests
+test absent_approval_nonabsolute_paths_and_nonexecutable_selection_never_run ... ok
+test blocked_child_stdin_cannot_block_prompt_or_cancel_worker ... ok
+test cancellation_during_poll_is_sent_once_and_never_replays_prompt ... ok
+test cancellation_remains_requested_until_correlated_child_response ... ok
+test child_timeout_kills_reaps_and_never_replays_unknown_work ... ok
+test control_decision_backpressure_fails_closed_instead_of_losing_permission_evidence ... ok
+test independent_process_sessions_keep_account_markers_and_bindings_separate ... ok
+test malformed_initialization_fails_startup_and_reaps_owned_child ... ok
+test malformed_partial_and_oversized_stdout_are_isolated_and_reaped ... ok
+test malformed_session_creation_invalidates_transport_and_reaps_child ... ok
+test no_policy_grant_means_child_permission_is_cancelled ... ok
+test partial_frames_survive_multiple_poll_quanta ... ok
+test protocol_evidence_is_bounded_and_truncation_visible ... ok
+test quantum_expiration_keeps_process_alive_and_exposes_streamed_typed_updates ... ok
+test real_stdio_handshake_session_and_prompt_roundtrip_without_shell_or_parent_credentials ... ok
+test repeated_poll_quanta_cannot_extend_original_turn_deadline ... ok
+test small_stderr_pipe_progress_does_not_spend_the_response_deadline_sleeping ... ok
+test stderr_flood_cannot_deadlock_or_leak_credential_text_in_diagnostics ... ok
+test typed_stream_backpressure_is_visible_and_permission_decision_has_no_raw_fields ... ok
+test unexpected_eof_keeps_real_prior_side_effect_unknown ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.25s
+
+   Doc-tests agentbaton_providers
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+state=exited exit=0

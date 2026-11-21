@@ -1,0 +1,365 @@
+{
+  "status": "mock_frontend_and_build_verified_ready_for_leader_evidence_review",
+  "base": "02f2886285f21cf62ba616c8c1797728191677fe",
+  "feature_target": "origin/collab/host-registration-integration",
+  "source_commit": "446e40ee82e36c126c80e62f42bd3228ed5caec1",
+  "source_tree": "b76f680f11e29f1b7963ab255107058ca7669c05",
+  "source_files": {
+    "apps/desktop/src/App.tsx": {
+      "bytes": 42887,
+      "sha256": "89f5ba3561139a1882e7d8c836c7adb56d65009e0fb24007265e665fcdff69fc",
+      "git_blob": "8011096109fc45b0aeea2a8013904e609280e14c"
+    },
+    "apps/desktop/src/Hosts.entry.test.tsx": {
+      "bytes": 7551,
+      "sha256": "f7e8baf6e0e167688524878577fb6767d4e96affdc3e4a85db6212d2d79739e8",
+      "git_blob": "a2bfbf852ba07fd82dea952fe36fdab03add5427"
+    },
+    "apps/desktop/src/Hosts.test.tsx": {
+      "bytes": 20987,
+      "sha256": "4f6e8a524a215da3093fbebe3aa78a88868fc9555b2c117f231b752c407324ae",
+      "git_blob": "7ad45e63866715d9a7e0957b2b9e60d7bbf1f29a"
+    },
+    "apps/desktop/src/Hosts.tsx": {
+      "bytes": 22913,
+      "sha256": "ba41e108c02f5a3157ca38740c6ea93c0deec98a0267eb61c67c2facf2b9ccc3",
+      "git_blob": "7782f5639155d042b704439accb1024e58859932"
+    },
+    "apps/desktop/src/hosts-api.test.ts": {
+      "bytes": 4874,
+      "sha256": "0487f69e3731ae770ddaedb186d3ebe11cd8ef7f81d4744a402e843119c97f62",
+      "git_blob": "b2150f1b32fa84209a57142a8c4187d428622c6e"
+    },
+    "apps/desktop/src/hosts-api.ts": {
+      "bytes": 2033,
+      "sha256": "ab2c94b46577dd571705c45821b4b0d47a47eb453899f7f960a74bbbe0b4d7da",
+      "git_blob": "c5078981a127cd2879a71cce2b76719b50da192b"
+    },
+    "apps/desktop/src/hosts-i18n.ts": {
+      "bytes": 6289,
+      "sha256": "f08bb226b726773abbf8fb4b4e68f56a84b27d4795e668f76508a32fda650a9d",
+      "git_blob": "d0cdea750efcc894b30dd20df9c0b4ec5ba7f9d3"
+    },
+    "apps/desktop/src/hosts-types.test.ts": {
+      "bytes": 7698,
+      "sha256": "8e34bc31eb8e55733d487615983df324de311748cf03407b3ecf467d2a3cbe58",
+      "git_blob": "1ee4e75a3e9518f214e59b3cf85ed9a8369b08b1"
+    },
+    "apps/desktop/src/hosts-types.ts": {
+      "bytes": 11174,
+      "sha256": "0d0976a1e399a21ec6ea80eaa9c072812a8c66e7ba44fbb97f1b666f0986eac5",
+      "git_blob": "fde155d3b6db9c49906f56aeef67181dbdbb7758"
+    }
+  },
+  "npm_lock": {
+    "path": "apps/desktop/package-lock.json",
+    "bytes": 86617,
+    "sha256": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d",
+    "unchanged_from_base": true
+  },
+  "environment": {
+    "host": "Darwin 25.6.0 arm64 / macOS 26.6.1 (25G76)",
+    "node": "v26.7.0",
+    "npm": "11.19.0",
+    "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-settings",
+    "python_venv": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "wrapper": "bash scripts/collab.sh run --",
+    "runtime": "/private/tmp/ab-collab-7_n1l9e_",
+    "all_own_children_joined": true
+  },
+  "npm_ci": {
+    "command": "npm --prefix apps/desktop ci --no-audit --no-fund",
+    "exit": 0,
+    "log": "logs/npm-ci.log"
+  },
+  "checks": {
+    "targeted.log": {
+      "source": "446e40ee82e36c126c80e62f42bd3228ed5caec1",
+      "exit": 0,
+      "command": "npm --prefix apps/desktop test -- src/hosts-types.test.ts src/hosts-api.test.ts src/Hosts.test.tsx src/Hosts.entry.test.tsx src/QuietCanvas.test.tsx",
+      "started_utc": "2026-11-18T15:41:56Z",
+      "finished_utc": "2026-11-18T15:41:58Z",
+      "log": "logs/reviewed/targeted.log",
+      "passed": 39,
+      "host_cases": 32,
+      "existing_quiet_canvas_cases": 7
+    },
+    "typecheck.log": {
+      "source": "446e40ee82e36c126c80e62f42bd3228ed5caec1",
+      "exit": 0,
+      "command": "npm --prefix apps/desktop run typecheck",
+      "started_utc": "2026-11-18T15:41:58Z",
+      "finished_utc": "2026-11-18T15:41:59Z",
+      "log": "logs/reviewed/typecheck.log"
+    },
+    "full-vitest.log": {
+      "source": "446e40ee82e36c126c80e62f42bd3228ed5caec1",
+      "exit": 0,
+      "command": "npm --prefix apps/desktop test",
+      "started_utc": "2026-11-18T15:41:59Z",
+      "finished_utc": "2026-11-18T15:42:36Z",
+      "log": "logs/reviewed/full-vitest.log",
+      "passed": 1580,
+      "files": 112
+    },
+    "build.log.gz": {
+      "source": "446e40ee82e36c126c80e62f42bd3228ed5caec1",
+      "exit": 0,
+      "command": "npm --prefix apps/desktop run build",
+      "started_utc": "2026-11-18T15:42:36Z",
+      "finished_utc": "2026-11-18T15:42:37Z",
+      "log": "logs/reviewed/build.log.gz",
+      "uncompressed": {
+        "bytes": 1005,
+        "sha256": "3cd52dd89754ef2934aa3d37d5d53e156f54445a743bd60cb93e4020af9731bf"
+      }
+    },
+    "c3-source.log": {
+      "source": "446e40ee82e36c126c80e62f42bd3228ed5caec1",
+      "exit": 0,
+      "command": "env PYTHONDONTWRITEBYTECODE=1 /Users/wander/Documents/code/agentBaton-next/.venv/bin/python apps/desktop/src-tauri/tests/test_hosts_native_source.py",
+      "started_utc": "2026-11-18T15:42:37Z",
+      "finished_utc": "2026-11-18T15:42:37Z",
+      "log": "logs/reviewed/c3-source.log",
+      "passed": 3
+    },
+    "full-infra.log": {
+      "source": "446e40ee82e36c126c80e62f42bd3228ed5caec1",
+      "exit": 0,
+      "command": "env PYTHONDONTWRITEBYTECODE=1 /Users/wander/Documents/code/agentBaton-next/.venv/bin/python -m unittest discover -s tests/infrastructure -p test_\\*.py",
+      "started_utc": "2026-11-18T15:42:37Z",
+      "finished_utc": "2026-11-18T15:43:01Z",
+      "log": "logs/reviewed/full-infra.log",
+      "discovered": 927,
+      "passed": 911,
+      "skipped": 16,
+      "failed": 0
+    }
+  },
+  "first_failed_checks_preserved": [
+    {
+      "log": "logs/full-vitest.log.gz",
+      "exit": 1,
+      "cause": "append-only placement changed the pre-existing Settings reverse Tab boundary"
+    },
+    {
+      "log": "logs/reordered/targeted.log.gz",
+      "exit": 1,
+      "cause": "jsdom Enter did not activate the native summary; test now verifies focus and uses supported click while a separate form test exercises keyboard submit"
+    },
+    {
+      "log": "logs/reordered/full-vitest.log.gz",
+      "exit": 1,
+      "cause": "same jsdom summary activation expectation"
+    }
+  ],
+  "generated_vite_artifacts": {
+    "apps/desktop/dist/assets/index-DZHSe46f.css": {
+      "bytes": 32470,
+      "sha256": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169"
+    },
+    "apps/desktop/dist/assets/index-Q47YZ8uE.js": {
+      "bytes": 987211,
+      "sha256": "b59f625846822412101c94cd389316f3180002167dd3ceefdfe4defd650cee16"
+    },
+    "apps/desktop/dist/index.html": {
+      "bytes": 441,
+      "sha256": "79f813e44000effb31bd7bca00146b246fb39be7c022b3faa1f01e3befb42f90"
+    }
+  },
+  "raw_logs": {
+    "logs/ack-review-targeted-first.log.gz": {
+      "bytes": 318,
+      "sha256": "6bbd3438f34d09318332fd9614828de0cee43fcefc3322dcff597422ed8f5ad5",
+      "uncompressed": {
+        "bytes": 458,
+        "sha256": "b368ea017e89c3cb81e5cca4cd3ef64eb508425f036ba2b9cd18f4c78ec8794d"
+      }
+    },
+    "logs/build.log.gz": {
+      "bytes": 625,
+      "sha256": "1eaff61850bb4134527890293b54f71fdb74ed8727ca35dcb508c1d52c261cd9",
+      "uncompressed": {
+        "bytes": 1005,
+        "sha256": "5edd908bde227ed6ea25a4a51e7f08cd3d71e0e3b246679ef998a948478080e9"
+      }
+    },
+    "logs/c3-source.log": {
+      "bytes": 442,
+      "sha256": "0274e7423018f1593b2c97fdfe91b64986cb816ccbea3a86b828f1d3d37ac8da"
+    },
+    "logs/environment.log": {
+      "bytes": 362,
+      "sha256": "2ba8c1ade398af07b74f600b66fa8ae1b8d449dd99ab66028ba9828b45f1382e"
+    },
+    "logs/final/build.log.gz": {
+      "bytes": 621,
+      "sha256": "70986b2cc96a789965667fbc1caaec7b191147c8cd05647b7c0bf24a5063421d",
+      "uncompressed": {
+        "bytes": 1005,
+        "sha256": "731c62f7bb78320ed7635e3d95214ecefa63dbf3ff3619160b53ab52d101bc43"
+      }
+    },
+    "logs/final/c3-source.log": {
+      "bytes": 442,
+      "sha256": "7fcbdd9deb47af09789b118c29bd1ad6eb20b5e880b6e428016a6013f2b3eb4e"
+    },
+    "logs/final/environment.log": {
+      "bytes": 362,
+      "sha256": "89abf76c2b0d0d34ec1f78a01107bc38861c134318a4bcfdabd244542fdce551"
+    },
+    "logs/final/full-infra.log": {
+      "bytes": 3023,
+      "sha256": "588b0205426e0fba81f2709189e391c5412f21a8999440fa1760f76c9cecf3d3"
+    },
+    "logs/final/full-vitest.log": {
+      "bytes": 869,
+      "sha256": "ad1fc4f06fb817f81697e3b7d9b6bb45a9bc055f02595f690890b5ac370e8374"
+    },
+    "logs/final/source-preflight.log": {
+      "bytes": 444,
+      "sha256": "4d93f10c4460cc4f494dea5b8b07c34812d49cd49049ee57900c389ea710d1cf"
+    },
+    "logs/final/targeted.log": {
+      "bytes": 991,
+      "sha256": "a8d4840b5f2a87a2ed6e7f94d3f87bac21ea0cdfcc91be09566ba2256077513e"
+    },
+    "logs/final/typecheck.log": {
+      "bytes": 287,
+      "sha256": "ddb93983808f4bbb347b7eb4abd26cebb04c3a33403e68a94c04200c78db58ab"
+    },
+    "logs/focus-red-green.log.gz": {
+      "bytes": 314,
+      "sha256": "24985e590fda5019833c2aa96d5fcdf1093f497568a04ce24dc2ba1401c4e12f",
+      "uncompressed": {
+        "bytes": 437,
+        "sha256": "297d0b6c54456e91c861dd6ea763948e84be6aa446468652a9f45f6672f2483e"
+      }
+    },
+    "logs/full-infra.log": {
+      "bytes": 3023,
+      "sha256": "8d93bbe0c0a0348d01a8339fa23cbc8ef4a0e795c247d0faa7ee4ca5a04f7290"
+    },
+    "logs/full-vitest.log.gz": {
+      "bytes": 973,
+      "sha256": "179103db315a6fdbc0c8da8bfa6cbe02f860eddf01fc5f7f2f792e5fe6cc646e",
+      "uncompressed": {
+        "bytes": 2065,
+        "sha256": "0cb32c00ca6cb3452cc690be08f38fc2cd12941729f1e9874c9c6f444cc06c19"
+      }
+    },
+    "logs/npm-ci.log": {
+      "bytes": 388,
+      "sha256": "6f59aa959a48fc741e72238dacc37e4726da4f93a330503dfc89dcec98fcd52c"
+    },
+    "logs/reordered/build.log.gz": {
+      "bytes": 622,
+      "sha256": "c7553e78bfb1b84d3e2496f8ea2a41a0fadd62eac3afee813f4a366f610283b3",
+      "uncompressed": {
+        "bytes": 1005,
+        "sha256": "b529847eccf5fe8e3fad2be230fb97fffe07c1d1f877e6b0a4b7189102327f23"
+      }
+    },
+    "logs/reordered/c3-source.log": {
+      "bytes": 442,
+      "sha256": "0b8d83a77a047322cfd886ced180505befdff23b9a164444aab8adfa4ce99e0f"
+    },
+    "logs/reordered/environment.log": {
+      "bytes": 362,
+      "sha256": "70fd4d9191810ca5b0629cbcddb2687f4062f8a15d028a4aad2467a95584df32"
+    },
+    "logs/reordered/full-infra.log": {
+      "bytes": 3023,
+      "sha256": "9932e4121e72e0de959521910bea95f93601307c46d0613c2f1c0fc506ddf4f9"
+    },
+    "logs/reordered/full-vitest.log.gz": {
+      "bytes": 2137,
+      "sha256": "22fbafe822e67a949e9f419c633baeba0494be50afc255ca2d071dac66615c57",
+      "uncompressed": {
+        "bytes": 16028,
+        "sha256": "43f79f4ae1b2e106bbdd06364765dee4da6a2e0398111cdcde84dbf58290b1a4"
+      }
+    },
+    "logs/reordered/source-preflight.log": {
+      "bytes": 444,
+      "sha256": "c566a624a973c04007c45090ee15e1876d9cf7c9f3b46d1f2b7968539d3dc958"
+    },
+    "logs/reordered/targeted.log.gz": {
+      "bytes": 2105,
+      "sha256": "804f4688ac9037f43acaeae4dbee16bbba9c5d3d4bc9dd9b9304417d3a855a5f",
+      "uncompressed": {
+        "bytes": 16150,
+        "sha256": "e56420b8822403d333e24fdf06d191953cb14308460ee7b6f43d09abca01d63b"
+      }
+    },
+    "logs/reordered/typecheck.log": {
+      "bytes": 287,
+      "sha256": "ee138219d401886b4af4ad2a2800619e90685de2fe67f807e6779b7a918a3581"
+    },
+    "logs/reviewed/build.log.gz": {
+      "bytes": 623,
+      "sha256": "5dfb11fa860575b56bc093664062eadf82aa87e6c2ab40f692af5cc372cc96c5",
+      "uncompressed": {
+        "bytes": 1005,
+        "sha256": "3cd52dd89754ef2934aa3d37d5d53e156f54445a743bd60cb93e4020af9731bf"
+      }
+    },
+    "logs/reviewed/c3-source.log": {
+      "bytes": 442,
+      "sha256": "513e6ea2179f22c1ff7bf88db492894840b4b9e7070ba711ecf2c12598c9b2fd"
+    },
+    "logs/reviewed/full-infra.log": {
+      "bytes": 3023,
+      "sha256": "a0ab18fc11f688ff83ff8dcc9ed4de8784b117229966411faac02e4dc65505f9"
+    },
+    "logs/reviewed/full-vitest.log": {
+      "bytes": 869,
+      "sha256": "ba90ee51117e980032e3f428de2692d05888c3725140aa7759df7815c99f2310"
+    },
+    "logs/reviewed/targeted.log": {
+      "bytes": 991,
+      "sha256": "75aa6ec49c817371f958f3f18eb717cdddfb9175e75ada9580ae8a1b9846e967"
+    },
+    "logs/reviewed/typecheck.log": {
+      "bytes": 287,
+      "sha256": "5d6b6130d6a25f4ad8d5f13e0be18987a3a650b706b6f0937055a4500e8200b2"
+    },
+    "logs/source-preflight.log": {
+      "bytes": 444,
+      "sha256": "70d22afb966532e1c0650e6cf1d81712381701e20a48b19381610c3a3272bb22"
+    },
+    "logs/targeted-first.log.gz": {
+      "bytes": 433,
+      "sha256": "392e6f538951124d226c024cc75c5a2f11b5f4154c146d9c9f17f3c0a415751e",
+      "uncompressed": {
+        "bytes": 679,
+        "sha256": "5792316e4aa63cad77885af9043e95dea0e414594cc2a81e0e912bdb8affe734"
+      }
+    },
+    "logs/targeted.log": {
+      "bytes": 942,
+      "sha256": "00fa01717af6428a28b43d59854ed4c8e30d1b5fd972a312d9ef970e8a7d30f7"
+    },
+    "logs/typecheck-first.log.gz": {
+      "bytes": 118,
+      "sha256": "f50d0c201033d3d042d198b9ca167268e2bc6520ea4d53adfc53f71cbb8ce65e",
+      "uncompressed": {
+        "bytes": 108,
+        "sha256": "1d4ac5b35e4e2d307a955585cdcf2af6b1f90b5775281755df6137c21b20781e"
+      }
+    },
+    "logs/typecheck.log": {
+      "bytes": 287,
+      "sha256": "a5454f206c04a40e8d49bf724781def1a90f69c5b4b1504123458afbb123680e"
+    }
+  },
+  "source_scope_exit": 0,
+  "source_diff_check_exit": 0,
+  "source_feature_target_preview_exit": 0,
+  "verification_notes": [
+    "Host transport was mocked in Vitest. No installed App, WebView, native build, hosted CI, provider, or remote Host was run for this task.",
+    "Targeted cases are included in the 1580-test desktop result. C3 Python source checks are outside the 927-test infrastructure discovery.",
+    "The fixed npm lock was unchanged. The Vite build succeeded with a chunk-size advisory.",
+    "Existing native handshake and startup onboarding are separate scope."
+  ]
+}

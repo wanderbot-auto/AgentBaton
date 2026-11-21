@@ -1,0 +1,35 @@
+    Checking serde_core v1.0.229
+    Checking itoa v1.0.18
+    Checking hashbrown v0.17.1
+    Checking equivalent v1.0.3
+    Checking indexmap v2.14.2
+    Checking sha2 v0.10.9
+    Checking serde v1.0.229
+    Checking serde_json v1.0.154
+    Checking toml_datetime v0.6.11
+    Checking serde_spanned v0.6.9
+    Checking toml_write v0.1.2
+    Checking winnow v0.7.15
+    Checking rustix v1.1.5
+    Checking libsqlite3-sys v0.36.0
+    Checking unsafe-libyaml v0.2.11
+    Checking toml_edit v0.22.27
+    Checking ryu v1.0.23
+    Checking rusqlite v0.38.0
+    Checking toml v0.8.23
+    Checking serde_yaml_ng v0.10.0
+    Checking uuid v1.29.0
+    Checking fs2 v0.4.3
+    Checking powerfmt v0.2.1
+    Checking num-conv v0.2.2
+    Checking deranged v0.5.9
+    Checking focaccia v2.5.0
+    Checking time-core v0.1.9
+    Checking agentbaton-workspaces v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/crates/workspaces)
+    Checking time v0.3.55
+    Checking agentbaton-config v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/crates/config)
+    Checking agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/crates/remote-host)
+    Checking agentbaton-providers v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/crates/providers)
+    Checking tempfile v3.27.0
+    Checking agentbaton-core v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/crates/core)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 16.72s

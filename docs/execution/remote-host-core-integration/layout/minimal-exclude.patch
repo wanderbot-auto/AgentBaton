@@ -1,0 +1,21 @@
+--- repo/Cargo.toml
++++ mirror/Cargo.toml
+@@ -1,7 +1,7 @@
+ [workspace]
+ resolver = "2"
+ members = ["crates/core", "crates/providers", "crates/workspaces", "crates/config", "apps/daemon", "apps/cli"]
+-exclude = ["tools/environment-smoke", "apps/desktop/src-tauri"]
++exclude = ["tools/environment-smoke", "apps/desktop/src-tauri", "crates/remote-host"]
+ 
+ [workspace.dependencies]
+ serde = { version = "1.0", features = ["derive"] }
+--- repo/crates/core/Cargo.toml
++++ mirror/crates/core/Cargo.toml
+@@ -5,6 +5,7 @@
+ publish = false
+ 
+ [dependencies]
++agentbaton-remote-host = { path = "../remote-host" }
+ agentbaton-config = { path = "../config" }
+ agentbaton-providers = { path = "../providers" }
+ sha2 = "0.10"

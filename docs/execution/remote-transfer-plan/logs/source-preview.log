@@ -1,0 +1,10 @@
+2026-11-18T17:40:19Z
+Scope OK against merge base 46e38016256dfe3ff2646eb546cad5b8179e27ef.
+Previewing target 46e38016256dfe3ff2646eb546cad5b8179e27ef + source a15b4990a1e9837039990619a8affeed17bfa21f (committed snapshots only).
+742b35553e3e7976fd2d1d64ce3d9896bb9592ff
+No Git merge conflict. Run tests; rebase can still conflict while replaying commits.
+Previewing target 51b9d762b2acc6ffa0e1c31411bb154ed4326b99 + source a15b4990a1e9837039990619a8affeed17bfa21f (committed snapshots only).
+a3b2a6b50869b3c185538f9a8979275b97ae64a8
+No Git merge conflict. Run tests; rebase can still conflict while replaying commits.
+validated_crate=2bd5102b43d3038d9990d2f827a29cd0483884c3
+combined_crate=2bd5102b43d3038d9990d2f827a29cd0483884c3

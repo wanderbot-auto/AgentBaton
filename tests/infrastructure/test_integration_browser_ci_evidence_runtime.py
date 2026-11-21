@@ -88,6 +88,11 @@ class RuntimeFailureProjection(unittest.TestCase):
             value = summary['runtime_failure']
             self.assertEqual(value['status'], 'observed')
             self.assertEqual(value['driver_exit'], 1)
+            self.assertEqual(value['actual_schema_probe'],
+                {'api_version': 1, 'database_schema_version': 19, 'daemon_exit': 0, 'joined': True})
+            self.assertEqual(value['manifest_sha256'], E.raw_sha((private / 'candidate.json').read_bytes()))
+            self.assertEqual(value['build_record_sha256'], E.raw_sha((private / 'frontend-build-record.json').read_bytes()))
+            self.assertEqual(value['tools_sha256'], {'batond': 'b' * 64, 'baton': 'c' * 64})
             self.assertIs(value['observation_only'], True)
             self.assertIs(value['runtime_acceptance'], False)
             normal, sibling = value['cases']
@@ -229,19 +234,24 @@ class RuntimeFailureProjection(unittest.TestCase):
     def test_manifest_build_probe_and_typed_original_exit_are_not_bypassed(self):
         cases = [('status.json', 'source', 'b' * 40), ('status.json', 'probe_passed', False),
             *[('status.json', 'driver_exit', bad) for bad in (0, 2, None, True, False, 1.0, -1)],
-            ('candidate.json', 'schema', 16), ('candidate.json', 'schema', True),
+            *[('candidate.json', 'schema', bad) for bad in (16, 18, 20, True, 19.0, '19')],
             ('candidate.json', 'git_head', 'b' * 40), ('candidate.json', 'dirty', True),
             ('candidate.json', 'tracked_clean', False), ('candidate.json', 'compiled_core_source_head', 'b' * 40),
             ('frontend-build-record.json', 'command', ['npm', 'build']),
             ('frontend-build-record.json', 'exit', True), ('frontend-build-record.json', 'source', 'b' * 40),
             ('frontend-build-record.json', 'source_head_and_tracked_unchanged', False),
             ('schema-probe.json', 'source', 'b' * 40), ('schema-probe.json', 'api_version', True),
-            ('schema-probe.json', 'database_schema_version', 16), ('schema-probe.json', 'joined', False),
-            ('schema-probe.json', 'daemon_exit', 1)]
+            *[('schema-probe.json', 'database_schema_version', bad) for bad in (16, 18, 20, True, 19.0, '19')],
+            ('schema-probe.json', 'joined', False), ('schema-probe.json', 'daemon_exit', 1),
+            ('schema-probe.json', 'manifest_sha256', 'f' * 64),
+            ('schema-probe.json', 'build_record_sha256', 'f' * 64),
+            ('schema-probe.json', 'tools_sha256', {'batond': 'c' * 64, 'baton': 'b' * 64})]
         for filename, key, bad in cases:
             with self.subTest(file=filename, key=key, bad=bad), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary).resolve(); private = failed_seed(root)
                 self.mutate(private, filename, lambda v: v.update({key: bad}))
+                if filename in ('candidate.json', 'frontend-build-record.json'):
+                    F.rebind_build_records(private)
                 self.unavailable(private)
 
     def test_successful_sibling_must_match_sources_and_all_original_report_guards(self):

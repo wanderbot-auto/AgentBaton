@@ -1,0 +1,75 @@
+{
+  "accepted_build": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+  "accepted_cli": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+  "accepted_daemon": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+  "cases": [
+    {
+      "case": "manifest",
+      "exit": 1,
+      "expected_rejection": "accepted18 build SHA mismatch",
+      "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+      "runtime_empty": true,
+      "stage": "proof"
+    },
+    {
+      "case": "manifest",
+      "exit": 1,
+      "expected_rejection": "accepted18 build SHA mismatch",
+      "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+      "runtime_empty": true,
+      "stage": "restore"
+    },
+    {
+      "case": "daemon",
+      "exit": 1,
+      "expected_rejection": "accepted18 batond SHA mismatch",
+      "log_sha256": "5c80aa0e2f448b8cfbae7a18306b9a0bd5591e4d7ca68c9ed69f68101092e207",
+      "runtime_empty": true,
+      "stage": "proof"
+    },
+    {
+      "case": "daemon",
+      "exit": 1,
+      "expected_rejection": "accepted18 batond SHA mismatch",
+      "log_sha256": "5c80aa0e2f448b8cfbae7a18306b9a0bd5591e4d7ca68c9ed69f68101092e207",
+      "runtime_empty": true,
+      "stage": "restore"
+    },
+    {
+      "case": "cli",
+      "exit": 1,
+      "expected_rejection": "accepted18 baton SHA mismatch",
+      "log_sha256": "0b0e35a3622065e850c885882b0cc6e0a88716353236c084b5302689e985ebdb",
+      "runtime_empty": true,
+      "stage": "proof"
+    },
+    {
+      "case": "cli",
+      "exit": 1,
+      "expected_rejection": "accepted18 baton SHA mismatch",
+      "log_sha256": "0b0e35a3622065e850c885882b0cc6e0a88716353236c084b5302689e985ebdb",
+      "runtime_empty": true,
+      "stage": "restore"
+    },
+    {
+      "case": "mutually_updated_manifests_and_pair",
+      "exit": 1,
+      "expected_rejection": "accepted18 build SHA mismatch",
+      "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+      "runtime_empty": true,
+      "stage": "proof"
+    },
+    {
+      "case": "mutually_updated_manifests_and_pair",
+      "exit": 1,
+      "expected_rejection": "accepted18 build SHA mismatch",
+      "log_sha256": "92fd0968bd1b2f2c290a90b928799730c3a4597df2e2907cbdf8a8af99230aa2",
+      "runtime_empty": true,
+      "stage": "restore"
+    }
+  ],
+  "dimension": "accepted_P0_tool_seal_replacement_refusal",
+  "private_root": "/private/tmp/ab19-seal-zwbcVW",
+  "status": "passed",
+  "trusted_interpreter": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+}

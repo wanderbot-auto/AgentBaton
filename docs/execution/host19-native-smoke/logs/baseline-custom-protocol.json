@@ -1,0 +1,24 @@
+{
+  "source": "6fe6e7a06826020f72081a8f80dc39f995393c8b",
+  "argv": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "--features",
+    "native-smoke,custom-protocol",
+    "--bin",
+    "agentbaton-native-smoke",
+    "--",
+    "--test-threads=1"
+  ],
+  "env": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  },
+  "exit": 101,
+  "seconds": 8.396,
+  "log_sha256": "a2d5bfdf043a1c8d2cfea53054fb29eea4645a2c53b5b8d8e529c0a8222e6c13"
+}

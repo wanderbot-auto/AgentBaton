@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-11-17T21:39:11.824296+00:00",
+  "source_base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+  "C1_fixed_candidate": "49348b2291da5c22fa994db9c452dfd2331d079a",
+  "python": "3.14.0a7 (v3.14.0a7:29af6cee02f, Apr  8 2025, 07:53:42) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "analysis_host": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+  "checks": {
+    "fixed567_selected_source": "31 SHA/bytes/blob and complete Git bytes verified",
+    "fixed_C1_candidate": "493 three Git-object source SHA/bytes verified; final admission pending",
+    "immutable_pins": 18,
+    "artifact_hashes": 7,
+    "proposal": "148 unique exact literals;4 executable provenance+1 reserved P1 consumer;not independently merge green",
+    "git diff --check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bash scripts/collab.sh scope": {
+      "exit_code": 0,
+      "stdout": "Scope OK against merge base 56746af61789e3e7121e7f43d39b4a5d2b567576.\n",
+      "stderr": ""
+    },
+    "current_delta_scope": "own docs only; no old tree/source/ref/network/build/runtime activity"
+  },
+  "product_tests": "not_run prohibited",
+  "limitations": "Docs static checks only; no Store19/UDS/native/GUI/CI acceptance"
+}

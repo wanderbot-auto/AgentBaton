@@ -1,0 +1,13 @@
+collab: task runtime /private/tmp/ab-collab-wjo9gde4
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 729, in <module>
+    main()
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 715, in main
+    app_case(paths, base, output, evidence)
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 636, in app_case
+    check_value(ax, app, executable, label_for(label), value)
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 548, in check_value
+    eventually(f"{title!r} to display the entered value", matches, timeout=4)
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 115, in eventually
+    raise RuntimeError(f"Timed out waiting for {description}")
+RuntimeError: Timed out waiting for 'SSH 端口' to display the entered value

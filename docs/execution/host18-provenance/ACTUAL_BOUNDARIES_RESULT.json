@@ -1,0 +1,263 @@
+{
+  "status": "passed",
+  "source_head": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+  "fixed_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "source_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "build_manifest_sha256": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+  "build_elapsed": 79.46663616690785,
+  "build": {
+    "argv": [
+      "/Users/wander/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "-j",
+      "2",
+      "--bin",
+      "batond",
+      "--bin",
+      "baton"
+    ],
+    "cwd": "/private/tmp/ab18-build-zhvxua54/source",
+    "target_dir": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/target/predecessor18-boundaries",
+    "features": [],
+    "default_features": true,
+    "lockfile_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+    "cargo_home": "/private/tmp/ab18-build-zhvxua54/cargo-cache",
+    "cache_scope": "registry only; no config/auth copied",
+    "cargo_config_paths_checked": [
+      "/private/tmp/ab18-build-zhvxua54/source/.cargo/config",
+      "/private/tmp/ab18-build-zhvxua54/source/.cargo/config.toml",
+      "/private/tmp/ab18-build-zhvxua54/.cargo/config",
+      "/private/tmp/ab18-build-zhvxua54/.cargo/config.toml",
+      "/private/tmp/.cargo/config",
+      "/private/tmp/.cargo/config.toml",
+      "/private/.cargo/config",
+      "/private/.cargo/config.toml",
+      "/.cargo/config",
+      "/.cargo/config.toml"
+    ],
+    "cargo_config_absent_before": true,
+    "cargo_config_absent_after": true,
+    "owned_identity": {
+      "pid": 49715,
+      "pgid": 49715
+    },
+    "group_quiescent_before_reap": true,
+    "exit_code": 0,
+    "elapsed_seconds": 79.46663616690785,
+    "log_sha256": "a2525e38580728f5fe9bc7a6878cab5287dc82dafcc73aedefdb2e55bc6dbd51"
+  },
+  "binaries": {
+    "batond": {
+      "sha256": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "bytes": 24545176,
+      "mode": "0o500",
+      "nlink": 1,
+      "uid": 501,
+      "device": "16777234",
+      "inode": "67360528",
+      "mtime_ns": "1794954118811797479",
+      "ctime_ns": "1794954118814583768",
+      "format": "mach-o-64",
+      "architecture": "arm64"
+    },
+    "baton": {
+      "sha256": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+      "bytes": 1264520,
+      "mode": "0o500",
+      "nlink": 1,
+      "uid": 501,
+      "device": "16777234",
+      "inode": "67360529",
+      "mtime_ns": "1794954118819897886",
+      "ctime_ns": "1794954118820288511",
+      "format": "mach-o-64",
+      "architecture": "arm64"
+    }
+  },
+  "toolchain": {
+    "cargo": {
+      "path": "/Users/wander/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+      "sha256": "696d29bd6f5a136ef6c7088558e178efcabbd571de90e8169d0f6596c568eea8",
+      "version": "cargo 1.91.1 (ea2d97820 2025-10-10)"
+    },
+    "rustc": {
+      "path": "/Users/wander/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc",
+      "sha256": "f556cd7caa76d85ff0e777ba8e96552b33b4e0ea0dda8fbe6cde1d23b6c4df27",
+      "version": "rustc 1.91.1 (ed61e7d7e 2025-11-07)"
+    }
+  },
+  "source_archive": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+  "files": 244,
+  "compiled_source_clean": true,
+  "generator_manifest_sha256": "99fa1de184bbe40a737d1db6f37c6f27b51e34acfdbcd45e47e645f74595cbfb",
+  "database_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+  "database_bytes": 737280,
+  "initial_api_probe": {
+    "api_version": 1,
+    "database_schema_version": 18,
+    "sequence": 0
+  },
+  "final_api_probe": {
+    "api_version": 1,
+    "database_schema_version": 18,
+    "sequence": 5
+  },
+  "journal_api_probe": {
+    "sequence": 5,
+    "event_sequences": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "counts": {
+    "approval_proposals": 0,
+    "attempts": 0,
+    "budgets": 0,
+    "command_validation_policies": 0,
+    "command_validation_runs": 0,
+    "command_workspace_fences": 0,
+    "connections": 0,
+    "conversation_budgets": 0,
+    "conversation_dispatches": 0,
+    "conversation_turns": 0,
+    "conversations": 0,
+    "data_validation_policies": 0,
+    "data_validation_runs": 0,
+    "data_workspace_creations": 0,
+    "data_workspace_previews": 0,
+    "data_workspace_receipts": 0,
+    "dispatch_intents": 0,
+    "events": 5,
+    "execution_grants": 0,
+    "factory_attempts": 0,
+    "factory_budget_reservations": 0,
+    "factory_child_goal_runs": 0,
+    "factory_child_plan_heads": 0,
+    "factory_child_plan_revisions": 0,
+    "factory_delegations": 0,
+    "factory_handoffs": 0,
+    "factory_runs": 0,
+    "factory_scoped_handles": 0,
+    "factory_scopes": 0,
+    "factory_task_bindings": 0,
+    "factory_task_lineage": 0,
+    "goal_external_action_journal": 0,
+    "goal_grant_revisions": 0,
+    "goal_graph_acceptances": 0,
+    "goal_graph_candidates": 0,
+    "goal_graph_capabilities": 0,
+    "goal_graph_jobs": 0,
+    "goal_graph_owner_decisions": 0,
+    "goal_graph_validations": 0,
+    "goal_ledgers": 0,
+    "goal_node_evidence": 0,
+    "goal_plan_heads": 0,
+    "goal_plan_proposals": 0,
+    "goal_plan_revisions": 0,
+    "goal_run_nodes": 0,
+    "goal_run_reservations": 0,
+    "goal_runs": 0,
+    "goal_scopes": 0,
+    "idempotency": 4,
+    "integration_attempts": 0,
+    "integration_policies": 0,
+    "integration_ref_fences": 0,
+    "integrations": 0,
+    "managed_workspaces": 0,
+    "projects": 1,
+    "session_runtime_snapshots": 0,
+    "session_turns": 0,
+    "sessions": 0,
+    "sqlite_sequence": 1,
+    "tasks": 3,
+    "validation_policies": 0,
+    "validation_runs": 0,
+    "workspace_leases": 0
+  },
+  "daemon": {
+    "owned_identity": {
+      "pid": 50602,
+      "pgid": 50602
+    },
+    "sigterm_sent": true,
+    "forced_kill": false,
+    "cleanup_errors": [],
+    "leader_unreaped_until_signalling": true,
+    "daemon_wait_exit": 0,
+    "group_quiescent_before_reaping": true,
+    "identity_gone_after_join": true
+  },
+  "original_logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+  "backup_logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+  "original_schema_cookie": 82,
+  "backup_schema_cookie": 1,
+  "joined_inventory_before": {
+    "baton.sqlite3": {
+      "exists": true,
+      "bytes": 737280,
+      "sha256": "ec014d555ae4ad4615ec300508847950bcc8c518e3a20376a6d5a1e604434112",
+      "mode": "0o600"
+    },
+    "baton.sqlite3-wal": {
+      "exists": false
+    },
+    "baton.sqlite3-shm": {
+      "exists": false
+    }
+  },
+  "joined_inventory_after": {
+    "baton.sqlite3": {
+      "exists": true,
+      "bytes": 737280,
+      "sha256": "ec014d555ae4ad4615ec300508847950bcc8c518e3a20376a6d5a1e604434112",
+      "mode": "0o600"
+    },
+    "baton.sqlite3-wal": {
+      "exists": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o600"
+    },
+    "baton.sqlite3-shm": {
+      "exists": true,
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "mode": "0o600"
+    }
+  },
+  "backup_inventory": {
+    "actual-schema18.sqlite3": {
+      "exists": true,
+      "bytes": 737280,
+      "sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+      "mode": "0o600"
+    },
+    "actual-schema18.sqlite3-wal": {
+      "exists": true,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o600"
+    },
+    "actual-schema18.sqlite3-shm": {
+      "exists": true,
+      "bytes": 32768,
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "mode": "0o600"
+    }
+  },
+  "source_content_unchanged": true,
+  "not_claimed": [
+    "nonempty Conversation/Factory/Goal/integration/Host history",
+    "Provider/SSH/approval",
+    "Store19 migration/backup/reopen/rollback",
+    "P1 Rust consumer",
+    "native GUI/CI"
+  ],
+  "private_fixture_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/generated-boundaries/actual-schema18.sqlite3",
+  "processes": "owned compiler/daemon/companion joined;observed own compiler+daemon PIDs absent"
+}

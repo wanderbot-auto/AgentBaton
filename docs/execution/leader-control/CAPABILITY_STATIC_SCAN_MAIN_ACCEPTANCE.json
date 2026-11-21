@@ -1,0 +1,58 @@
+{
+  "requirement": "AB-CAP-005",
+  "status": "accepted",
+  "recorded_at_utc": "2026-11-21T13:17:23.365298+00:00",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "github_checked_merge": "df35231eab29aa2d4a043fd9be60888504507716",
+  "scope": "Static enumeration and parsing of explicitly selected Skill and native MCP source configurations. Active diagnosis, real server operation and credentialed Provider integration have their own requirements.",
+  "trace": [
+    "crates/config/src/capabilities/native.rs",
+    "crates/config/src/capabilities.rs",
+    "crates/core/src/runtime_config.rs",
+    "crates/config/tests/native_sources.rs",
+    "crates/config/tests/capabilities.rs"
+  ],
+  "independent": {
+    "source_verification": "Cargo.toml, Cargo.lock, crates/config and Core runtime_config source match protected main byte for byte",
+    "native_architecture": "arm64",
+    "config_test_suites": {
+      "capabilities": 12,
+      "native_sources": 23
+    },
+    "enabled_local_mcp_fixture": {
+      "configured_as_enabled": true,
+      "discovered": true,
+      "command_not_launched": true
+    },
+    "skill_fixture": {
+      "discovered": true,
+      "dynamic_context_flagged": true,
+      "script_hashed_and_listed": true,
+      "script_not_run": true
+    },
+    "marker_controls": "Two disposable executable files each wrote a marker when explicitly called before scanning. Their markers were removed within the fixture. Validated static enumeration then preserved both originals and created neither marker.",
+    "unknown_data": "Unknown fields and dynamic content are surfaced as scoped metadata. No runtime evidence inferred. Existing negative tests exercise unsupported shapes, unsafe roots and untrusted source drift.",
+    "log_hashes": {
+      "config-tests.log": "ffab8c5b8a92998e9ebba1e9f912981908bdd1ffe547922dfae65b6813de13b7",
+      "probe.rs": "aa033312b5b53eaf6157e0389eb6e1971f25809591ff2104f0d924596e2b4cae",
+      "probe": "0b705769cdb2ceeba1c453a0be8c7026b5e1a6d4d367acdbff39dd7a7f86db92",
+      "probe.log": "e9d4aeba073c47042e334dc6e00e5d96653f5f4019dcc5a98055c56f5a03771e"
+    }
+  },
+  "hosted": {
+    "run": 44122458362,
+    "linux_job": 134177202383,
+    "macos_job": 134177203395,
+    "passed_cases": [
+      "codex_documented_toml_shape_is_read_without_secret_values_or_execution",
+      "documented_skill_frontmatter_and_script_hashes_are_discovery_not_execution",
+      "unknown_qoder_configuration_shape_is_explicitly_unsupported",
+      "source_drift_symlink_traversal_auth_file_and_world_writes_fail_safely"
+    ],
+    "same_checkout_log_sha256": {
+      "linux": "1062cf1ba74f7511ea7a581b8bfa5ba0b86c6a57cfb9c9c964c0afc831167011",
+      "macos_arm64": "a578b7229fc2cba4712768711dedeee18ba532e0d79a28841cce534738ab1bdb"
+    }
+  }
+}

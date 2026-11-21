@@ -1,0 +1,29 @@
+2026-11-18T16:38:30Z
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+Darwin 25.6.0 arm64
+cde501db847d1bbfc27a298e16cd772afc1a41e9
+10f221cd61296df382fdb03ef4c122f035e0aafe
+98413ca1f6e1006a74d5c6ff7f40494b0509da7c
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+v26.7.0
+11.19.0
+Apple Swift version 6.4.2 (swiftlang-6.4.2.1.9 clang-2100.4.1.1)
+Target: arm64-apple-macosx26.0
+Executable=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop
+Identifier=agentbaton_desktop-6fb06dc9628646d3
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20400 size=134280 flags=0x20002(adhoc,linker-signed) hashes=4192+0 location=embedded
+Signature=adhoc
+Info.plist=not bound
+TeamIdentifier=not set
+Sealed Resources=none
+Internal requirements=none
+{'CFBundleIdentifier': ['dev.agentbaton', 'dev.agentbaton.hoste2e-15adcdcc0da8']}

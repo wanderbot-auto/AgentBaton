@@ -1,0 +1,162 @@
+{
+  "status": "implemented_verified_for_local_review",
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "verification_execution_head": "b7ebd5ef7e501981413f40cd1448c8368ca66c8b",
+  "verification_dirty": [
+    " M crates/remote-host/src/lib.rs",
+    " M crates/remote-host/src/transport.rs",
+    " M docs/execution/remote-host-core-integration/PROPOSED_SCOPE.json",
+    "?? crates/remote-host/src/registration.rs",
+    "?? crates/remote-host/tests/registration.rs",
+    "?? docs/execution/remote-host-core-integration/.gitattributes",
+    "?? docs/execution/remote-host-core-integration/registration/"
+  ],
+  "source_hash": "8bcf564ab311bce58cd75a70caba53d2d3795bdab9c3fe5f3d4dee1d135b05fe",
+  "source_sha256": {
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/src/controller.rs": "395ceef6cd37380f2d1e9b9afd142a3f3e3eaa88a13259f5827d9f587bfc10d3",
+    "crates/remote-host/src/lib.rs": "1e830c4a5dcb254e6162d50aa93624f185fa941b48757e677e028b11534acf21",
+    "crates/remote-host/src/main.rs": "9243c4224963e7b73120e337828d01e0700e58b5cd9aa8f12dded7cc92515e7f",
+    "crates/remote-host/src/protocol.rs": "cf75bc67caa2435fd484cfb2e9b7ff6506917a098cafb3fe806805fc43b4111e",
+    "crates/remote-host/src/registration.rs": "3330e12d4dbfe92f622de5372d10eeee47786aa8902083ac0b1ffb4553b87c52",
+    "crates/remote-host/src/store.rs": "a778611326e3bd01052cc53725eb2eaa6a84dc7a3d4b7c066cc4c5e9acab1668",
+    "crates/remote-host/src/transport.rs": "233a4d337a15799bfeef20cf570b2fc855e07342cd9b0aac150873dbe4b80912",
+    "crates/remote-host/src/worker.rs": "4320abb29aa4e240d49a801a1a220fd9c2f086285444c5bd4b0f9d6f29d36d40",
+    "crates/remote-host/tests/foundation.rs": "9c3a94fdc60e1dc1db6ff438890728bd9a0d05d74097482944422bab6f4e5c55",
+    "crates/remote-host/tests/registration.rs": "03a3bccc3e8deb9546403e05e921cebaa4c957bb21482460759f2b6ddaa8090d",
+    "scripts/verify-remote-host.py": "4fc7c8b17de1f560043b6c3f1cbb7fdfecc4845a4812267930cb7079c8bcf367",
+    "tests/infrastructure/test_remote_host.py": "10ae86b1a95b8167658f46cdb0facb1696f0543584190f422f947f4048a665f7"
+  },
+  "input_path": "input-v1.json",
+  "input_sha256": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+  "input_before_after_identical": true,
+  "pure_test_log_sha256": "6af3b5529b3d1637167526a76bd09c18a7fb4129c8445f57613e557f1c91e095",
+  "legacy_transport_tail_byte_equal": true,
+  "protected_before_after_unchanged": {
+    "crates/remote-host/src/protocol.rs": true,
+    "crates/remote-host/src/store.rs": true,
+    "crates/remote-host/src/controller.rs": true,
+    "crates/remote-host/src/worker.rs": true,
+    "crates/remote-host/src/main.rs": true,
+    "crates/remote-host/Cargo.toml": true,
+    "crates/remote-host/Cargo.lock": true,
+    "crates/remote-host/tests/foundation.rs": true,
+    "scripts/verify-remote-host.py": true,
+    "tests/infrastructure/test_remote_host.py": true,
+    "Cargo.toml": true,
+    "Cargo.lock": true,
+    "crates/core/Cargo.toml": true,
+    "crates/core/src/lib.rs": true,
+    "crates/core/src/ipc.rs": true,
+    "crates/core/src/storage.rs": true,
+    "apps/desktop/src/App.tsx": true,
+    "apps/desktop/src-tauri/src/lib.rs": true
+  },
+  "legacy_verifier_relocation": "VERIFIER_RELOCATION.json",
+  "legacy_verifier": "docs/execution/remote-host-core-integration/registration/runs/20261117T180951Z-988877000/evidence.json",
+  "checks": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T18:09:52Z",
+      "elapsed_seconds": 0.151,
+      "log": "docs/execution/remote-host-core-integration/registration/runs/20261117T180951Z-988877000/fmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "rust-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T18:09:52Z",
+      "elapsed_seconds": 4.176,
+      "log": "docs/execution/remote-host-core-integration/registration/runs/20261117T180951Z-988877000/rust-tests.log",
+      "log_sha256": "195a8ec8aec7e7713155e169dba01277235ea99e0ad7829f1496295d1e9604b7"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T18:09:56Z",
+      "elapsed_seconds": 1.722,
+      "log": "docs/execution/remote-host-core-integration/registration/runs/20261117T180951Z-988877000/clippy.log",
+      "log_sha256": "6c7c22e9c80b8df77d9a4dd865f62882c8e516899e4feb92cbd9a7b4c40fb97a"
+    },
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--manifest-path",
+        "crates/remote-host/Cargo.toml",
+        "--locked"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T18:09:58Z",
+      "elapsed_seconds": 1.277,
+      "log": "docs/execution/remote-host-core-integration/registration/runs/20261117T180951Z-988877000/build.log",
+      "log_sha256": "80bd7220ca4a11f371863670e1c87510635a367abf8a45b492a505bfdbdcebb4"
+    },
+    {
+      "name": "real-subprocess-faults",
+      "command": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "tests/infrastructure/test_remote_host.py"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-17T18:09:59Z",
+      "elapsed_seconds": 7.816,
+      "log": "docs/execution/remote-host-core-integration/registration/runs/20261117T180951Z-988877000/real-subprocess-faults.log",
+      "log_sha256": "ea9ef3378cf5099a5846b26dc701bb83ff7006ad55c9eeeca00a3abbdb017ccd"
+    }
+  ],
+  "counts": {
+    "foundation_rust": 18,
+    "registration_pure": 8,
+    "real_subprocess_faults": 16
+  },
+  "binary": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target/debug/baton-host-companion",
+    "sha256": "c1855fb9a38f5c81b1a089d8c629badcb4060ac38272d076f972310815428dcb",
+    "size": 4348264,
+    "signing": "development, no production signing"
+  },
+  "trace": {
+    "path": "docs/execution/remote-host-core-integration/registration/runs/20261117T180951Z-988877000/stdio-trace.jsonl",
+    "sha256": "443e34a13215b160f4c40ce4efe62d400c1d7a98c242fbc975a3686a918b4b4d",
+    "bytes": 130625
+  },
+  "independent_review": "native read-only remote_review found no blocker; no writes/tests",
+  "processes_remaining": 0,
+  "not_implemented": [
+    "Core registry/persistence/IPC/UI",
+    "schema19 or lock dependency",
+    "registration endpoints",
+    "real SSH/identity or filesystem proof",
+    "Grant/execution routing"
+  ]
+}

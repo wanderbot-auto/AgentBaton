@@ -1,0 +1,1333 @@
+{
+  "platform": [
+    "Darwin arm64",
+    "ProductName:\t\tmacOS",
+    "ProductVersion:\t\t26.6.1",
+    "BuildVersion:\t\t25G76",
+    "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "binary: rustc",
+    "commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb",
+    "commit-date: 2025-11-07",
+    "host: aarch64-apple-darwin",
+    "release: 1.91.1",
+    "LLVM version: 21.1.2",
+    "cargo 1.91.1 (ea2d97820 2025-10-10)"
+  ],
+  "prior_workspace": {
+    "head": "539eb9a39eb7f48e570a06741a0234b33a979a1c",
+    "observed_red_cases": [
+      "failed_v3_migration_leaves_version_and_legacy_state_recoverable",
+      "v2_upgrade_keeps_tasks_intents_and_private_backup_reopens"
+    ],
+    "console_sha256": "a6fb7e07ec12b1b137d4afb59191e220e5206656a0e32307705e3b9f502ef70d"
+  },
+  "base": {
+    "head": "97803b16276903ffe4b6945966f21adeaad11eeb",
+    "tree": "c13081f2a5b8725539dc7477c33937a5920a70e2",
+    "before": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "migration_v3",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit": 101,
+      "interval": {
+        "started_utc": "2026-11-19T00:19:41Z",
+        "ended_utc": "2026-11-19T00:19:42Z"
+      },
+      "console": {
+        "path": "logs/base-test.log.gz",
+        "sha256": "488678b76efa8e7a312e934f4eac357491d37702157df5ec8ac9b0e8784541b6"
+      },
+      "result": {
+        "result": "FAILED",
+        "passed": 0,
+        "failed": 2,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "duration_seconds": 0.08
+      },
+      "failures": [
+        "failed_v3_migration_leaves_version_and_legacy_state_recoverable",
+        "v2_upgrade_keeps_tasks_intents_and_private_backup_reopens"
+      ]
+    },
+    "build": {
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "test",
+        "-j",
+        "1",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "migration_v3",
+        "--no-run"
+      ],
+      "exit": 0,
+      "interval": {
+        "started_utc": "2026-11-19T00:15:27Z",
+        "ended_utc": "2026-11-19T00:18:37Z"
+      },
+      "console": {
+        "path": "logs/base-no-run.log.gz",
+        "sha256": "a66f639078fb19805c4dd28c4de36165e581075a83c125d52be44ba243cd612d"
+      }
+    }
+  },
+  "candidate": {
+    "head": "4e7e70b04c2ec8150c0b17e9131842c28e02159b",
+    "tree": "fbb515030a15e0ccb581e04ed681ac99ee765a9f",
+    "target": {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "migration_v3",
+        "--",
+        "--test-threads=1",
+        "--show-output"
+      ],
+      "exit": 0,
+      "interval": {
+        "started_utc": "2026-11-19T00:20:22Z",
+        "ended_utc": "2026-11-19T00:20:25Z"
+      },
+      "console": {
+        "path": "logs/candidate-test.log.gz",
+        "sha256": "cf00f48bdee5fa10630f5e562abd783546ab4c99ff72a8115c342b36410fad2e"
+      },
+      "result": {
+        "result": "ok",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "duration_seconds": 0.34
+      },
+      "passed": [
+        "failed_v3_migration_leaves_version_and_legacy_state_recoverable",
+        "v2_upgrade_keeps_tasks_intents_and_private_backup_reopens"
+      ]
+    }
+  },
+  "checks": {
+    "fmt": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "interval": {
+        "started_utc": "2026-11-19T00:20:25Z",
+        "ended_utc": "2026-11-19T00:20:26Z"
+      },
+      "console": {
+        "path": "logs/fmt.log.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    },
+    "clippy": {
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "clippy",
+        "-j",
+        "1",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "migration_v3",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "interval": {
+        "started_utc": "2026-11-19T00:20:26Z",
+        "ended_utc": "2026-11-19T00:20:46Z"
+      },
+      "console": {
+        "path": "logs/clippy.log.gz",
+        "sha256": "a4d2e4350be57ef22e91b7dda6abc7f5b8e55b06a3ec827da64991ddae505d7b"
+      }
+    },
+    "ordinary_binaries": {
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "build",
+        "-j",
+        "1",
+        "--workspace",
+        "--offline",
+        "--locked",
+        "--bins"
+      ],
+      "exit": 0,
+      "interval": {
+        "started_utc": "2026-11-19T00:20:46Z",
+        "ended_utc": "2026-11-19T00:22:51Z"
+      },
+      "console": {
+        "path": "logs/ordinary-bins.log.gz",
+        "sha256": "ba501af8557d4ba6b5ee148438942f522310b2d1f4c343c3766beaaca966b708"
+      }
+    },
+    "workspace_prebuild": {
+      "command": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "test",
+        "-j",
+        "1",
+        "--workspace",
+        "--offline",
+        "--locked",
+        "--no-run"
+      ],
+      "exit": 0,
+      "interval": {
+        "started_utc": "2026-11-19T00:22:51Z",
+        "ended_utc": "2026-11-19T00:29:07Z"
+      },
+      "console": {
+        "path": "logs/workspace-no-run.log.gz",
+        "sha256": "f7274d3a346867d47cbb19f418f2ded4a846888557c0d448fcd4bbdb06e09c44"
+      }
+    }
+  },
+  "ordinary_tools": {
+    "binary_hashes": {
+      "baton": "4b134ca900c12b6ef05203f4dec587467b4496d717e376a195c710137c1ce63e",
+      "batond": "a292309e60c7aa549d857dcabb34fc9e0545da65fd6186b7cdf22db679843332"
+    },
+    "identical_receipts": [
+      {
+        "path": "logs/prepare.json",
+        "sha256": "aff2deb0f017a795dd627ee36dc86e4751ed7c3cea3abd6b707c840b81170aad"
+      },
+      {
+        "path": "logs/preflight-verify.json",
+        "sha256": "aff2deb0f017a795dd627ee36dc86e4751ed7c3cea3abd6b707c840b81170aad"
+      },
+      {
+        "path": "logs/workspace-before-verify.json",
+        "sha256": "aff2deb0f017a795dd627ee36dc86e4751ed7c3cea3abd6b707c840b81170aad"
+      },
+      {
+        "path": "logs/workspace-after-verify.json",
+        "sha256": "aff2deb0f017a795dd627ee36dc86e4751ed7c3cea3abd6b707c840b81170aad"
+      }
+    ],
+    "probe_cleanup": {
+      "path": "logs/probe-cleanup.json",
+      "sha256": "39cec7411ac0223156c582eeac9d5f1115bcb12af876279e7f6e67db04a6e1af"
+    }
+  },
+  "workspace": {
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--offline",
+      "--",
+      "--show-output"
+    ],
+    "exit": 0,
+    "interval": {
+      "started_utc": "2026-11-19T00:30:04Z",
+      "ended_utc": "2026-11-19T00:45:31Z"
+    },
+    "console": {
+      "path": "logs/workspace.log.gz",
+      "sha256": "fd7aaa5ed53ecc6aab3d972e8f46c2366afb620a72a94921fdcb6d0465301175"
+    },
+    "environment": {
+      "RUST_TEST_THREADS": "1",
+      "default_features": true
+    },
+    "targets": [
+      {
+        "invocation": "unittests src/lib.rs (target/debug/deps/agentbaton_config-e863715de253d62e)",
+        "summary": {
+          "result": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 4.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/capabilities.rs (target/debug/deps/capabilities-0d18a989d700f626)",
+        "summary": {
+          "result": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.73
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/instruction_skill.rs (target/debug/deps/instruction_skill-4ed2bd84444b1108)",
+        "summary": {
+          "result": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 6.52
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/managed_mcp.rs (target/debug/deps/managed_mcp-f5334c241924b6cd)",
+        "summary": {
+          "result": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.57
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/native_sources.rs (target/debug/deps/native_sources-e60a70d480096cd5)",
+        "summary": {
+          "result": "ok",
+          "passed": 23,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 2.04
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/plugin_trust.rs (target/debug/deps/plugin_trust-72e72690e6596816)",
+        "summary": {
+          "result": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.95
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/project_import.rs (target/debug/deps/project_import-89efa31b1d1b9761)",
+        "summary": {
+          "result": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 2.65
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/runtime.rs (target/debug/deps/runtime-60547c7df0a48930)",
+        "summary": {
+          "result": "ok",
+          "passed": 22,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.76
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/transactions.rs (target/debug/deps/transactions-b0f82ae1fbef8de0)",
+        "summary": {
+          "result": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.68
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "unittests src/lib.rs (target/debug/deps/agentbaton_core-3e259093765c5a30)",
+        "summary": {
+          "result": "ok",
+          "passed": 468,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 294.82
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/admission_performance.rs (target/debug/deps/admission_performance-0154757eb5c876f5)",
+        "summary": {
+          "result": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.13
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/approval_outcomes.rs (target/debug/deps/approval_outcomes-6e5d8b5ea3f0df79)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.8
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/ci_repair_decision.rs (target/debug/deps/ci_repair_decision-8a8793227b94624a)",
+        "summary": {
+          "result": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.05
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/command_validation.rs (target/debug/deps/command_validation-8e059c408de2759b)",
+        "summary": {
+          "result": "ok",
+          "passed": 14,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 18.55
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/command_validation_migration.rs (target/debug/deps/command_validation_migration-b76aa7cbb8501126)",
+        "summary": {
+          "result": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.51
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/conversation_schema18.rs (target/debug/deps/conversation_schema18-f4c0f0680a2e8d3a)",
+        "summary": {
+          "result": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.73
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/data_workspace_migration.rs (target/debug/deps/data_workspace_migration-f518676ead097546)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.28
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/data_workspaces.rs (target/debug/deps/data_workspaces-ad08dcd1fe01efb5)",
+        "summary": {
+          "result": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 5.58
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/execution.rs (target/debug/deps/execution-9c112f81aad939de)",
+        "summary": {
+          "result": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.35
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/factory_child_plan_migration.rs (target/debug/deps/factory_child_plan_migration-aa1478642de22a0b)",
+        "summary": {
+          "result": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.3
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/factory_migration.rs (target/debug/deps/factory_migration-58a45c9ffca412c6)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.25
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/factory_runtime_ipc.rs (target/debug/deps/factory_runtime_ipc-b67ac0957793e01f)",
+        "summary": {
+          "result": "ok",
+          "passed": 36,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 65.52
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/factory_scope.rs (target/debug/deps/factory_scope-2743be0ea649b224)",
+        "summary": {
+          "result": "ok",
+          "passed": 11,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 10.19
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/goal_graph_migration.rs (target/debug/deps/goal_graph_migration-daac516f8e1ec830)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.3
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/goal_plan.rs (target/debug/deps/goal_plan-4e22f09729c766ba)",
+        "summary": {
+          "result": "ok",
+          "passed": 49,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.02
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/goal_runtime_migration.rs (target/debug/deps/goal_runtime_migration-49ceae5fa00c9f40)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.27
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/goal_store.rs (target/debug/deps/goal_store-0773bfc8aa765319)",
+        "summary": {
+          "result": "ok",
+          "passed": 53,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 67.21
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/goal_store_migration.rs (target/debug/deps/goal_store_migration-3c0187c4226efbde)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.27
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/history_retention.rs (target/debug/deps/history_retention-303aafc97909a27b)",
+        "summary": {
+          "result": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/host_registration_real_ipc.rs (target/debug/deps/host_registration_real_ipc-0bfb6f2de0785bb1)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.28
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/host_registry_migration.rs (target/debug/deps/host_registry_migration-8fc1a49decaabce6)",
+        "summary": {
+          "result": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.22
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/host_schema19_fixture.rs (target/debug/deps/host_schema19_fixture-1f1c77e63170a900)",
+        "summary": {
+          "result": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.34
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/integration_ipc.rs (target/debug/deps/integration_ipc-98a690c32d8a24ea)",
+        "summary": {
+          "result": "ok",
+          "passed": 34,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 63.04
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/integration_schema17.rs (target/debug/deps/integration_schema17-9ba0741ea7d6b0f1)",
+        "summary": {
+          "result": "ok",
+          "passed": 16,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 4.61
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/ipc.rs (target/debug/deps/ipc-ef3cdd80b2070744)",
+        "summary": {
+          "result": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.28
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/migration_v3.rs (target/debug/deps/migration_v3-e49eb703e6973c70)",
+        "summary": {
+          "result": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.31
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/migration_v5.rs (target/debug/deps/migration_v5-35cdd05b2c97c7ca)",
+        "summary": {
+          "result": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.29
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/migration_v6.rs (target/debug/deps/migration_v6-87b7d267a3c10a35)",
+        "summary": {
+          "result": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.31
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/migration_v7.rs (target/debug/deps/migration_v7-43b0880c01379c74)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.25
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/policy.rs (target/debug/deps/policy-e7a29ba4291708a0)",
+        "summary": {
+          "result": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 8.75
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/project_config_ipc.rs (target/debug/deps/project_config_ipc-ad1bf4a1f3d4ae46)",
+        "summary": {
+          "result": "ok",
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 8.22
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/project_ipc.rs (target/debug/deps/project_ipc-7a59537aebb78d55)",
+        "summary": {
+          "result": "ok",
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.2
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/registry.rs (target/debug/deps/registry-db3981f39eda39bb)",
+        "summary": {
+          "result": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 3.7
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/session_recovery_admission.rs (target/debug/deps/session_recovery_admission-0b76cb80e7d69f00)",
+        "summary": {
+          "result": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 8.52
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/sessions_ipc.rs (target/debug/deps/sessions_ipc-f65ce6858221af96)",
+        "summary": {
+          "result": "ok",
+          "passed": 63,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 154.55
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/storage.rs (target/debug/deps/storage-e5b8f822a16f1cee)",
+        "summary": {
+          "result": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.35
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/task_workspace_binding.rs (target/debug/deps/task_workspace_binding-dc7f0f6a90749631)",
+        "summary": {
+          "result": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.89
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/task_workspace_binding_ipc.rs (target/debug/deps/task_workspace_binding_ipc-82ab0b2aa704acad)",
+        "summary": {
+          "result": "ok",
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 3.76
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/update_readiness.rs (target/debug/deps/update_readiness-be781a448c6471a0)",
+        "summary": {
+          "result": "ok",
+          "passed": 9,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.72
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/workspace_open_ipc.rs (target/debug/deps/workspace_open_ipc-fa99df58e2b69bb5)",
+        "summary": {
+          "result": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.26
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/workspace_preparation_ipc.rs (target/debug/deps/workspace_preparation_ipc-1ae1c78e660497d7)",
+        "summary": {
+          "result": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.22
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "unittests src/lib.rs (target/debug/deps/agentbaton_providers-64d33fb19005bd83)",
+        "summary": {
+          "result": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 7.2
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/auth_status.rs (target/debug/deps/auth_status-64090851b0ecf1ea)",
+        "summary": {
+          "result": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/connections.rs (target/debug/deps/connections-de40b67437fa7be2)",
+        "summary": {
+          "result": "ok",
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/contracts.rs (target/debug/deps/contracts-19b5c7f813d743d6)",
+        "summary": {
+          "result": "ok",
+          "passed": 20,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.01
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/installation.rs (target/debug/deps/installation-ce4d7cd593e06a5e)",
+        "summary": {
+          "result": "ok",
+          "passed": 10,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 4.21
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/managed_update.rs (target/debug/deps/managed_update-3b9cfb31dff48b9b)",
+        "summary": {
+          "result": "ok",
+          "passed": 12,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 3.78
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/native_codex.rs (target/debug/deps/native_codex-c219c72f59021838)",
+        "summary": {
+          "result": "ok",
+          "passed": 22,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 3.56
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/routes.rs (target/debug/deps/routes-3988a94b8fd88fe4)",
+        "summary": {
+          "result": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.13
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/stdio.rs (target/debug/deps/stdio-0288c98e9adc1089)",
+        "summary": {
+          "result": "ok",
+          "passed": 20,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 2.1
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "unittests src/lib.rs (target/debug/deps/agentbaton_workspaces-a2e91855eb3767e4)",
+        "summary": {
+          "result": "ok",
+          "passed": 57,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 38.39
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/command_target_drift.rs (target/debug/deps/command_target_drift-e5481f654327b652)",
+        "summary": {
+          "result": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/command_validation.rs (target/debug/deps/command_validation-ffc7c47290c7d3ae)",
+        "summary": {
+          "result": "ok",
+          "passed": 13,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 2.08
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/controlled_preparation.rs (target/debug/deps/controlled_preparation-2f875425b99c01a6)",
+        "summary": {
+          "result": "ok",
+          "passed": 16,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 35.52
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/data_workspace.rs (target/debug/deps/data_workspace-d4302edfb68e9a5f)",
+        "summary": {
+          "result": "ok",
+          "passed": 24,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.42
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/deterministic.rs (target/debug/deps/deterministic-593086e157140de8)",
+        "summary": {
+          "result": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.09
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/lazy_fetch.rs (target/debug/deps/lazy_fetch-2aeb40d19d1cd451)",
+        "summary": {
+          "result": "ok",
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.95
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/safety.rs (target/debug/deps/safety-ded3b7dfd1e37051)",
+        "summary": {
+          "result": "ok",
+          "passed": 23,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 4.38
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/source_capture.rs (target/debug/deps/source_capture-ed0d8c0a478cd58d)",
+        "summary": {
+          "result": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 11.24
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/validation_adoption.rs (target/debug/deps/validation_adoption-e84b3fc3a42e241f)",
+        "summary": {
+          "result": "ok",
+          "passed": 24,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 12.41
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "unittests src/main.rs (target/debug/deps/baton-83780d33571cff7f)",
+        "summary": {
+          "result": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "unittests src/main.rs (target/debug/deps/batond-b31ee81629d58a25)",
+        "summary": {
+          "result": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "tests/signals.rs (target/debug/deps/signals-21c7cd00db0b6b77)",
+        "summary": {
+          "result": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 5.54
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "agentbaton_config",
+        "summary": {
+          "result": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "agentbaton_core",
+        "summary": {
+          "result": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "agentbaton_providers",
+        "summary": {
+          "result": "ok",
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.0
+        },
+        "failed_cases": []
+      },
+      {
+        "invocation": "agentbaton_workspaces",
+        "summary": {
+          "result": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.32
+        },
+        "failed_cases": []
+      }
+    ],
+    "aggregate": {
+      "passed": 1349,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered": 0
+    },
+    "printed_harness_summaries": {
+      "count": 79,
+      "aggregate": {
+        "passed": 1351,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 490
+      },
+      "nested": [
+        {
+          "parent_invocation": "unittests src/lib.rs (target/debug/deps/agentbaton_core-3e259093765c5a30)",
+          "summary": {
+            "result": "ok",
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filtered": 467,
+            "duration_seconds": 0.0
+          }
+        },
+        {
+          "parent_invocation": "tests/data_workspace.rs (target/debug/deps/data_workspace-d4302edfb68e9a5f)",
+          "summary": {
+            "result": "ok",
+            "passed": 1,
+            "failed": 0,
+            "ignored": 0,
+            "measured": 0,
+            "filtered": 23,
+            "duration_seconds": 0.0
+          }
+        }
+      ]
+    },
+    "first_failure": null,
+    "factory_runtime_artifacts": {
+      "path": "logs/factory-runtime-artifacts",
+      "sha256": "6020260214568dcc39b033c3159f1f8e76bff88227ce2b993ae6da1cb7a8a9ae"
+    }
+  }
+}

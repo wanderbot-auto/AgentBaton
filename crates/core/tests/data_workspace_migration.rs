@@ -1,7 +1,13 @@
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::Store;
 use rusqlite::Connection;
+use schema19_legacy_migration::{
+    assert_empty_host19, assert_future20_refused, database_bytes, fixture_logical_snapshot,
+    host19_backup, legacy_predecessor, remove_empty_host19,
+};
 use std::{
     fs,
     os::unix::fs::{OpenOptionsExt, PermissionsExt},
@@ -26,6 +32,7 @@ fn version9() -> (tempfile::TempDir, PathBuf, Vec<u8>) {
         .unwrap();
     drop(s);
     let db = Connection::open(&path).unwrap();
+    remove_empty_host19(&db).unwrap();
     pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
     db.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;CREATE TABLE original_blob(raw BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');PRAGMA user_version=9;").unwrap();
     drop(db);
@@ -47,12 +54,15 @@ fn backups(path: &Path) -> Vec<PathBuf> {
 #[test]
 fn actual_schema9_upgrade_has_private_exact_old_bytes_backup_and_does_not_seed_model_budget() {
     let (d, path, before) = version9();
+    let predecessor = legacy_predecessor(&path, 9);
     drop(Store::open(&path).unwrap());
     let db = Connection::open(&path).unwrap();
+    assert_empty_host19(&db);
+    let host_backup = host19_backup(&path, &predecessor);
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
     assert_eq!(
         db.query_row("SELECT raw FROM original_blob", [], |r| r
@@ -101,6 +111,7 @@ fn actual_schema9_upgrade_has_private_exact_old_bytes_backup_and_does_not_seed_m
     drop(old);
     drop(prior);
     drop(Store::open(&path).unwrap());
+    assert!(host19_backup(&path, &predecessor) == host_backup);
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
@@ -108,9 +119,20 @@ fn schema10_migration_collision_rolls_back_every_new_table_and_preserves_unknown
     let (d, path, _) = version9();
     let db = Connection::open(&path).unwrap();
     db.execute_batch("CREATE TABLE data_workspace_creations(sentinel BLOB);INSERT INTO data_workspace_creations VALUES(x'00ffaa');").unwrap();
+    let predecessor = fixture_logical_snapshot(&db);
     drop(db);
+    let before = database_bytes(&path);
     assert_eq!(Store::open(&path).err().unwrap().code, "INTERNAL_ERROR");
     let db = Connection::open(&path).unwrap();
+    assert!(
+        database_bytes(&path) == before,
+        "failed migration rewrote SQLite bytes"
+    );
+    assert!(
+        fixture_logical_snapshot(&db) == predecessor,
+        "failed migration changed the logical database"
+    );
+    host19_backup(&path, &predecessor);
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
@@ -130,16 +152,11 @@ fn schema10_migration_collision_rolls_back_every_new_table_and_preserves_unknown
     assert_eq!(backups(d.path()).len(), 1);
 }
 #[test]
-fn future_schema19_is_refused_without_touching_bytes_or_creating_migration_backup() {
+fn future_schema20_is_refused_without_touching_bytes_or_creating_migration_backup() {
     let (d, path, _) = version9();
     let db = Connection::open(&path).unwrap();
-    db.execute_batch("PRAGMA user_version=19;").unwrap();
+    db.execute_batch("PRAGMA user_version=20;").unwrap();
     drop(db);
-    let before = fs::read(&path).unwrap();
-    assert_eq!(
-        Store::open(&path).err().unwrap().code,
-        "VERSION_UNSUPPORTED"
-    );
-    assert_eq!(fs::read(&path).unwrap(), before);
+    assert_future20_refused(&path);
     assert!(backups(d.path()).is_empty());
 }

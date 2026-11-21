@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private built-App/Chromium -> fixed HTTP -> real schema18 Owner Unix IPC.
+"""Private built-App/Chromium -> fixed HTTP -> real schema19 Owner Unix IPC.
 
 No Provider, approval, generic RPC, fake success, or public evidence projection.
 Only --run starts processes. Default preflight exits 2 (runtime NOT_RUN).
@@ -7,6 +7,7 @@ All output is private generated-fixture evidence, never an upload allowlist.
 """
 from __future__ import annotations
 import argparse
+from contextlib import closing
 import ctypes
 import hashlib
 import http.server
@@ -38,6 +39,20 @@ ENDPOINT = '/__test_task_workspace'
 SELECTION_KEYS = {'task_id', 'expected_task_revision', 'expected_spec_revision',
                   'expected_project_revision', 'host_id', 'expected_source_pin', 'preparation_key'}
 PIN_KEYS = {'canonical_root', 'device', 'inode', 'common_dir', 'head'}
+TABLES = tuple('''approval_proposals attempts budgets command_validation_policies
+command_validation_runs command_workspace_fences connections conversation_budgets
+conversation_dispatches conversation_turns conversations data_validation_policies
+data_validation_runs data_workspace_creations data_workspace_previews data_workspace_receipts
+dispatch_intents events execution_grants factory_attempts factory_budget_reservations
+factory_child_goal_runs factory_child_plan_heads factory_child_plan_revisions factory_delegations
+factory_handoffs factory_runs factory_scoped_handles factory_scopes factory_task_bindings
+factory_task_lineage goal_external_action_journal goal_grant_revisions goal_graph_acceptances
+goal_graph_candidates goal_graph_capabilities goal_graph_jobs goal_graph_owner_decisions
+goal_graph_validations goal_ledgers goal_node_evidence goal_plan_heads goal_plan_proposals
+goal_plan_revisions goal_run_nodes goal_run_reservations goal_runs goal_scopes host_registrations idempotency
+integration_policies integrations integration_attempts integration_ref_fences
+managed_workspaces projects session_runtime_snapshots session_turns sessions sqlite_sequence
+tasks validation_policies validation_runs workspace_leases'''.split())
 READS = {'system_snapshot': 'system.snapshot', 'projects_list': 'projects.list',
          'connections_list': 'connections.list', 'sessions_list': 'sessions.list'}
 
@@ -400,15 +415,24 @@ def parse_http(raw, headers, origin):
 
 def db_image(runtime):
     """All relational rows, including empty tables, sequence and FK state; never export DB bytes."""
-    with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True, timeout=3) as db:
+    uri = (runtime / 'baton.sqlite3').absolute().as_uri() + '?mode=ro'
+    with closing(sqlite3.connect(uri, uri=True, timeout=3)) as db:
         db.execute('PRAGMA query_only=ON')
         db.execute('BEGIN')
-        require(db.execute('PRAGMA user_version').fetchone()[0] == 18)
-        names = [r[0] for r in db.execute("SELECT name FROM sqlite_schema WHERE type='table' ORDER BY name")]
-        rows = {}
-        for name in names:
-            require(bool(re.fullmatch(r'[A-Za-z0-9_]+', name)))
-            data = db.execute('SELECT * FROM "' + name + '"').fetchall()
+        version = db.execute('PRAGMA user_version').fetchone()
+        require(version == (19,) and type(version[0]) is int)
+        objects = db.execute("SELECT name, type, sql FROM main.sqlite_schema "
+                             "WHERE type IN ('table','view') ORDER BY name").fetchall()
+        require({name for name, _, _ in objects} == set(TABLES)
+                and all(kind == 'table' and type(sql) is str and sql.startswith('CREATE TABLE ')
+                        for _, kind, sql in objects), 'Unexpected schema 19 table set')
+        require(db.execute('SELECT 1 FROM main.host_registrations LIMIT 1').fetchone() is None,
+                'Unexpected Host registration row')
+        rows = {'host_registrations': []}
+        for name in TABLES:
+            if name == 'host_registrations':
+                continue
+            data = db.execute('SELECT * FROM main."' + name + '"').fetchall()
             require(len(data) <= 10_000)
             rows[name] = sorted(repr(row) for row in data)
         require(not db.execute('PRAGMA foreign_key_check').fetchall())
@@ -421,7 +445,7 @@ def no_execution(runtime):
                  'workspace_leases', 'budgets', 'factory_scopes', 'factory_runs', 'approval_proposals',
                  'integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences'):
         require(name in rows and rows[name] == [], 'Unexpected execution/authority row')
-    return {'schema': 18, 'no_execution_or_grants': True,
+    return {'schema': 19, 'no_execution_or_grants': True,
             'table_counts': {k: len(v) for k, v in rows.items()}}
 
 
@@ -546,8 +570,10 @@ def preflight(args):
     companion = binary.with_name('baton')
     manifest_path = args.candidate_manifest.resolve(strict=True)
     require(manifest_path.stat().st_size <= 2_097_152)
-    manifest = decode(manifest_path.read_bytes())
-    require(type(manifest.get('schema')) is int and manifest['schema'] == 18)
+    manifest_raw = manifest_path.read_bytes()
+    require(len(manifest_raw) <= 2_097_152)
+    manifest = decode(manifest_raw)
+    require(type(manifest) is dict and type(manifest.get('schema')) is int and manifest['schema'] == 19)
     heads = [manifest[k] for k in ('source_head', 'git_head', 'compiled_core_source_head') if k in manifest]
     require(bool(heads) and all(head == expected for head in heads), 'Missing or conflicting source aliases refused')
     compiled_head = heads[0]
@@ -566,7 +592,7 @@ def preflight(args):
             and build.get('command') == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
     require(build.get('dirty', False) is False and build.get('tracked_clean', True) is True,
             'Dirty or untyped frontend declaration refused')
-    return binary, frontend, {'expected_source_head': expected, 'manifest_sha256': sha(manifest_path.read_bytes()), 'tools': tools,
+    return binary, frontend, {'expected_source_head': expected, 'manifest_sha256': sha(manifest_raw), 'tools': tools,
                               'frontend_assets': assets(frontend), 'compiled_core_source_head': compiled_head,
                               'frontend_build_head': build['source'], 'frontend_build_record_sha256': sha(build_raw)}
 
@@ -655,6 +681,11 @@ def run(args, binary, frontend, attribution, output):
         require(stat.S_ISSOCK(socket_info.st_mode) and stat.S_IMODE(socket_info.st_mode) == 0o600)
         require(len(str(runtime / 'batond.sock').encode()) < 104)
         stage = 'private_owner_fixture'
+        snapshot = result('system.snapshot', {})
+        require(type(snapshot) is dict and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1
+                and type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 19,
+                'Actual private Core schema 19 required')
+        no_execution(runtime)
         env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
         env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null', GIT_TERMINAL_PROMPT='0', GIT_NO_LAZY_FETCH='1')
 

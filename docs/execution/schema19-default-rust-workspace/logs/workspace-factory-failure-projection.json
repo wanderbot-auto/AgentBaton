@@ -1,0 +1,72 @@
+{
+  "test": "actual_data_factory_wrong_start_revision_is_stale_before_read_worker_or_intent",
+  "wrong_revision": {
+    "code": "STALE_REVISION",
+    "side_effect_state": "not_started",
+    "revision": 17
+  },
+  "later_legal_start": [
+    {
+      "kind": "attempt.dispatch_started",
+      "occurred_at": "2026-11-18T23:18:34.068708Z",
+      "payload": {
+        "intent_id": "da608bcf-1567-4605-981e-d31d4595d2b2"
+      }
+    },
+    {
+      "kind": "session.outcome_unknown",
+      "occurred_at": "2026-11-18T23:18:37.228775Z",
+      "payload": {
+        "reason": "provider_session_creation_failed",
+        "automatic_replay": false
+      }
+    },
+    {
+      "kind": "attempt.stopped",
+      "occurred_at": "2026-11-18T23:18:37.229041Z",
+      "payload": {}
+    },
+    {
+      "kind": "session.stopped",
+      "occurred_at": "2026-11-18T23:18:37.229243Z",
+      "payload": {
+        "reason": "session_creation_failed",
+        "no_process_started": false,
+        "process_reaped": true,
+        "task_accepted": false
+      }
+    },
+    {
+      "kind": "shared_budget.session_settled",
+      "occurred_at": "2026-11-18T23:18:37.229948Z",
+      "payload": {
+        "runtime_ms": 3220,
+        "selected_artifact_bytes": 0,
+        "stopped": true,
+        "task_accepted": false
+      }
+    },
+    {
+      "kind": "factory.attempt_stopped",
+      "occurred_at": "2026-11-18T23:18:37.230264Z",
+      "payload": {
+        "owned_reaped": true,
+        "normal_completed_turn": false,
+        "selected_outputs_missing": true,
+        "never_started": false
+      }
+    }
+  ],
+  "provider_fixture_stderr_bytes": 0,
+  "underlying_session_creation_error": "not observed",
+  "raw_files": [
+    {
+      "path": "artifacts/factory-runtime-core/runtime-diagnostics-f91c9947b3dce6eea8f7b0c79fff6f77dda55c67dc35fa891f0a9a2087736d4d.json",
+      "sha256": "f91c9947b3dce6eea8f7b0c79fff6f77dda55c67dc35fa891f0a9a2087736d4d"
+    },
+    {
+      "path": "artifacts/factory-runtime-core/wrong-start-cas-response-5fdec8d5df594b1efd80317a465b896d163f9cb02006e2aa7fddcd28b53a34c4.json",
+      "sha256": "5fdec8d5df594b1efd80317a465b896d163f9cb02006e2aa7fddcd28b53a34c4"
+    }
+  ]
+}

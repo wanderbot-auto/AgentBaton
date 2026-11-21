@@ -1,8 +1,11 @@
-//! Required-feature genuine source16 -> Store18 migration; no synthetic old-schema success.
+//! Required-feature genuine source16 -> Store19 migration; no synthetic old-schema success.
 //! Root registers required-features=["actual-schema16-migration-tests"].
 #[path = "fixtures/pre_conversation_schema.rs"]
 pub mod pre_conversation_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::{
+    host_registry_migration::HOST_TABLE,
     storage::{Store, Task},
     TaskGitWorkspacePreparation,
 };
@@ -167,7 +170,8 @@ fn backup_equal(before: &Image, after: &Image, path: &Path) {
     // prepared statements. Compare complete DDL, not that internal counter.
     assert!(after.schema_version > 0);
 }
-fn backups(root: &Path) -> Vec<PathBuf> {
+fn backups(root: &Path, target: u32) -> Vec<PathBuf> {
+    let prefix = format!("actual.pre-v{target}-");
     let mut paths: Vec<_> = fs::read_dir(root)
         .unwrap()
         .map(Result::unwrap)
@@ -176,11 +180,11 @@ fn backups(root: &Path) -> Vec<PathBuf> {
             // A query-only SQLite connection can still create -wal/-shm
             // sidecars. Preserve those files, but count actual backup DBs.
             let name = p.file_name().unwrap().to_str().unwrap();
-            if !name.starts_with("actual.pre-v18-") || !name.ends_with(".sqlite3") {
+            if !name.starts_with(&prefix) || !name.ends_with(".sqlite3") {
                 return false;
             }
             let id = name
-                .strip_prefix("actual.pre-v18-")
+                .strip_prefix(&prefix)
                 .unwrap()
                 .strip_suffix(".sqlite3")
                 .unwrap();
@@ -800,6 +804,7 @@ fn zero_integration(store: &Store, path: &Path) {
         json!({"policies":0,"runs":0,"attempts":0,"ref_fences":0})
     );
     let db = ro(path);
+    schema19_legacy_migration::assert_empty_host19(&db);
     for name in NEW_TABLES.into_iter().chain(FACTORY).chain([
         "approval_proposals",
         "execution_grants",
@@ -819,16 +824,29 @@ fn zero_integration(store: &Store, path: &Path) {
 }
 fn assert_additive(before: &Image, after: &Image, path: &Path) {
     assert_eq!(before.version, 16);
-    assert_eq!(after.version, 18);
+    assert_eq!(after.version, 19);
     assert_eq!(after.journal, "wal");
     assert_eq!(before.rows.len(), 55);
-    assert_eq!(after.rows.len(), 63);
-    pre_conversation_schema::verify_empty_conversation18(&ro(path)).unwrap();
+    assert_eq!(after.rows.len(), 64);
+    // Run the original historical validator on a checked projection. The
+    // live file and Store remain schema19 throughout.
+    let mut projected = Connection::open_in_memory().unwrap();
+    {
+        let current = ro(path);
+        let backup = rusqlite::backup::Backup::new(&current, &mut projected).unwrap();
+        assert!(matches!(
+            backup.step(-1).unwrap(),
+            rusqlite::backup::StepResult::Done
+        ));
+    }
+    schema19_legacy_migration::remove_empty_host19(&projected).unwrap();
+    pre_conversation_schema::verify_empty_conversation18(&projected).unwrap();
     let old_schema: Schema = after
         .schema
         .iter()
         .filter(|r| {
-            !NEW_TABLES.contains(&r.2.as_str())
+            r.2 != HOST_TABLE
+                && !NEW_TABLES.contains(&r.2.as_str())
                 && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&r.2.as_str())
         })
         .cloned()
@@ -843,7 +861,8 @@ fn assert_additive(before: &Image, after: &Image, path: &Path) {
         .rows
         .iter()
         .filter(|(name, _)| {
-            !NEW_TABLES.contains(&name.as_str())
+            name.as_str() != HOST_TABLE
+                && !NEW_TABLES.contains(&name.as_str())
                 && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&name.as_str())
         })
         .map(|(name, rows)| (name.clone(), rows.clone()))
@@ -857,11 +876,22 @@ fn assert_additive(before: &Image, after: &Image, path: &Path) {
     for table in NEW_TABLES
         .into_iter()
         .chain(pre_conversation_schema::CONVERSATION18_TABLES)
+        .chain([HOST_TABLE])
     {
         assert!(after.rows[table].is_empty());
     }
     assert_eq!(before.application_id, after.application_id);
 }
+fn verify_predecessor_backups(root: &Path, before: &Image) -> [PathBuf; 2] {
+    [18, 19].map(|target| {
+        let mut copies = backups(root, target);
+        assert_eq!(copies.len(), 1, "Expected one pre-v{target} backup");
+        let copy = copies.pop().unwrap();
+        backup_equal(before, &image(&ro(&copy)), &copy);
+        copy
+    })
+}
+
 fn reject_unchanged(f: &Fixture, expected_code: Option<&str>) {
     let before = image(&ro(&f.db));
     let raw = fs::read(&f.db).unwrap();
@@ -883,17 +913,31 @@ fn reject_unchanged(f: &Fixture, expected_code: Option<&str>) {
         &f.db,
         "Rejected migration changed original main bytes",
     );
-    let copies = backups(f.root());
-    assert_eq!(copies.len(), 1);
-    backup_equal(&before, &image(&ro(&copies[0])), &copies[0]);
+    verify_predecessor_backups(f.root(), &before);
     f.original_unchanged();
 }
 
 #[test]
-fn genuine16_all55_tables_raw_history_and_ready_git_receipt_survive_additive17_and_restart() {
+fn genuine16_all55_tables_raw_history_and_ready_git_receipt_survive_store19_and_restart() {
     let f = fixture();
-    let before = image(&ro(&f.db));
+    // Keep the original version in a committed WAL frame on the copy. A
+    // pinned reader ensures migration retains the complete original prefix.
+    let keeper = Connection::open(&f.db).unwrap();
+    keeper.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
+    keeper.pragma_update(None, "user_version", 16u32).unwrap();
+    let wal = f.db.with_file_name("actual.sqlite3-wal");
+    let original_wal = fs::read(&wal).unwrap();
+    assert!(original_wal.len() > 32);
+    let pinned = keeper.unchecked_transaction().unwrap();
+    let before = image(&pinned);
+    let sequence: i64 = pinned
+        .query_row("SELECT max(sequence) FROM events", [], |row| row.get(0))
+        .unwrap();
     let store = Store::open(&f.db).unwrap();
+    assert_eq!(store.sequence().unwrap(), u64::try_from(sequence).unwrap());
+    assert!(fs::read(wal).unwrap().starts_with(&original_wal));
+    drop(pinned);
+    drop(keeper);
     let after = image(&ro(&f.db));
     assert_additive(&before, &after, &f.db);
     zero_integration(&store, &f.db);
@@ -910,9 +954,8 @@ fn genuine16_all55_tables_raw_history_and_ready_git_receipt_survive_additive17_a
             "Typed Task must not normalize/lose raw fields",
         );
     }
-    let copies = backups(f.root());
-    assert_eq!(copies.len(), 1);
-    backup_equal(&before, &image(&ro(&copies[0])), &copies[0]);
+    let copies = verify_predecessor_backups(f.root(), &before);
+    let backup_bytes = copies.each_ref().map(|copy| private_read(copy, 16_777_216));
     drop(store);
     let reopened = Store::open(&f.db).unwrap();
     equal(
@@ -922,7 +965,16 @@ fn genuine16_all55_tables_raw_history_and_ready_git_receipt_survive_additive17_a
         "Restart must not rewrite history or mint integration state",
     );
     zero_integration(&reopened, &f.db);
-    assert_eq!(backups(f.root()).len(), 1);
+    let retained = verify_predecessor_backups(f.root(), &before);
+    assert_eq!(retained, copies);
+    equal(
+        &backup_bytes,
+        &retained
+            .each_ref()
+            .map(|copy| private_read(copy, 16_777_216)),
+        &f.db,
+        "Restart rewrote an original16 migration backup",
+    );
     f.original_unchanged();
 }
 
@@ -995,32 +1047,66 @@ fn genuine16_three_create_receipts_and_ready_preparation_replay_without_new_writ
     f.original_unchanged();
 }
 
-#[test]
-fn genuine16_copy_labelled_future19_is_refused_without_backup_or_any_byte_change() {
+fn reject_mislabeled_copy(label: u32, code: &str, message: &str) {
     let f = fixture();
-    let db = Connection::open(&f.db).unwrap();
-    db.pragma_update(None, "user_version", 19u32).unwrap();
-    drop(db);
-    let before = image(&ro(&f.db));
+    let keeper = Connection::open(&f.db).unwrap();
+    keeper.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
+    keeper.pragma_update(None, "user_version", label).unwrap();
+    let before = image(&keeper);
+    assert_eq!(before.version, label);
     let raw = fs::read(&f.db).unwrap();
-    assert_eq!(
-        Store::open(&f.db).err().unwrap().code,
-        "VERSION_UNSUPPORTED"
-    );
+    let wal = f.db.with_file_name("actual.sqlite3-wal");
+    let committed_wal = fs::read(&wal).unwrap();
+    assert!(committed_wal.len() > 32);
+    let error = Store::open(&f.db)
+        .err()
+        .expect("Incorrectly labeled original16 copy accepted");
+    assert_eq!(error.code, code);
+    assert_eq!(error.message, message);
     equal(
         &before,
         &image(&ro(&f.db)),
         &f.db,
-        "Future19 logical image changed",
+        "Rejected original16 logical image changed",
     );
     equal(
         &raw,
         &fs::read(&f.db).unwrap(),
         &f.db,
-        "Future19 raw bytes changed",
+        "Rejected original16 main file changed",
     );
-    assert!(backups(f.root()).is_empty());
+    equal(
+        &committed_wal,
+        &fs::read(wal).unwrap(),
+        &f.db,
+        "Rejected original16 committed WAL changed",
+    );
+    assert!(backups(f.root(), 18).is_empty());
+    assert!(backups(f.root(), 19).is_empty());
+    assert!(fs::read_dir(f.root()).unwrap().all(|entry| !entry
+        .unwrap()
+        .file_name()
+        .to_string_lossy()
+        .contains(".pre-v")));
     f.original_unchanged();
+}
+
+#[test]
+fn genuine16_copy_mislabeled_current19_is_refused_without_backup_or_any_byte_change() {
+    reject_mislabeled_copy(
+        19,
+        "INPUT_CHANGED",
+        "Integration current schema is incomplete or changed",
+    );
+}
+
+#[test]
+fn genuine16_copy_labeled_future20_is_refused_without_backup_or_any_byte_change() {
+    reject_mislabeled_copy(
+        20,
+        "VERSION_UNSUPPORTED",
+        "Database was created by a newer application",
+    );
 }
 
 #[test]
@@ -1115,9 +1201,7 @@ fn genuine16_committed_wal_and_late_ddl_conflict_roll_back_all17_changes() {
     ] {
         assert!(!image(&keeper).rows.contains_key(table));
     }
-    let copies = backups(f.root());
-    assert_eq!(copies.len(), 1);
-    backup_equal(&before, &image(&ro(&copies[0])), &copies[0]);
+    verify_predecessor_backups(f.root(), &before);
     f.original_unchanged();
 }
 
@@ -1203,7 +1287,8 @@ fn genuine16_rehashed_database_tamper_cannot_replace_actual_rpc_task_receipts() 
         verify_database(&rehashed, &ro(&f.db)).is_err(),
         "New checksum must not bless changed binding/immutable receipt"
     );
-    assert!(backups(f.root()).is_empty());
+    assert!(backups(f.root(), 18).is_empty());
+    assert!(backups(f.root(), 19).is_empty());
     f.original_unchanged();
 }
 

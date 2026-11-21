@@ -1,0 +1,66 @@
+{
+  "requirement": "AB-TSK-004",
+  "status": "accepted",
+  "recorded_at_utc": "2026-11-21T12:58:37.759648+00:00",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "github_checked_merge": "df35231eab29aa2d4a043fd9be60888504507716",
+  "requirement_scope": "Authenticated local tasks.create retries in one registered project. Capture of and recovery from ambiguous external effects are separate requirements.",
+  "trace": [
+    "crates/core/src/storage.rs",
+    "crates/core/src/ipc.rs",
+    "crates/core/tests/storage.rs",
+    "crates/core/tests/ipc.rs"
+  ],
+  "hosted": {
+    "run": 44122458362,
+    "linux": {
+      "job": 134177202383,
+      "job_status": "success",
+      "storage_test_line": 1412,
+      "same_checkout_log_sha256": "1062cf1ba74f7511ea7a581b8bfa5ba0b86c6a57cfb9c9c964c0afc831167011"
+    },
+    "macos": {
+      "job": 134177203395,
+      "job_status": "success",
+      "storage_test_line": 3273,
+      "same_checkout_log_sha256": "a578b7229fc2cba4712768711dedeee18ba532e0d79a28841cce534738ab1bdb"
+    },
+    "matched_test": "persistence_idempotency_scope_and_optimistic_cancellation"
+  },
+  "independent": {
+    "source_artifact": 14350183579,
+    "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f",
+    "artifact_provenance": "PR30 historical default development package from the protected-main-equivalent tree. Individually strictly verified CLI and daemon; GUI application was not executed.",
+    "result": {
+      "requirement": "AB-TSK-004",
+      "status": "passed",
+      "architecture": "arm64",
+      "exact_cli_and_daemon": {
+        "baton": "1d38b91fb401cfd3ef1486a845df246682f16b44b1b6e6d533e7959b256e8647",
+        "batond": "a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109"
+      },
+      "actual_checks": {
+        "dropped_response_followed_by_observed_commit": true,
+        "four_parallel_replays_return_original_result": true,
+        "changed_payload_conflicts_without_write": true,
+        "four_parallel_first_submissions_create_one_task_and_event": true,
+        "persisted_both_task_identities_after_restart": true,
+        "both_owned_daemons_joined": true
+      },
+      "project_scope": "single imported local project, one caller identity"
+    },
+    "method": "Send a full request to the actual private Unix socket, observe the committed task from a separate client, then discard the first connection without reading its response. Four concurrent replays, a payload-mismatch control and four concurrent first submissions were checked against durable state. Restart and replay both keys.",
+    "logs": {
+      "replay-only.py": "e0c5551380d497339b97667e34c0131a4509e7179a02e38bf6904d2f86fc0977",
+      "probe.log": "0b7a62ae6224d62a18f2a35941a4b626be03eb969ce753b204ac548715d99672",
+      "detach.log": "7a042615bf3722a3771413c5ae0834a1153311a88abad4deef4d8ad80a5c7273",
+      "daemon.log": "c0df42be2ced382213c9be335346568a1a104a83634dce412839fe3f366a0669",
+      "initial-probe.py": "41c3f112dd7010b37d4442dc68dfad30922ea80573334ff03b55f35cff536919",
+      "initial-drop.log": "ce416455b879441678958d2bccacabb507565c572d0e680d4649082e80a711e8",
+      "initial-daemon.log": "6e0a24134b42c00042f8fca2cbbb96597fe6b6a3c4ef9c2fa7b313dfc6709a52"
+    },
+    "initial_attempt": "Closing the first socket before independent confirmation yielded no observed commit. Retained as an inconclusive disconnect-before-commit observation; the corrected test confirms commit before discarding an unread reply."
+  },
+  "previous_release_evidence": "docs/execution/leader-control/DEFAULT_RELEASE_TEST_CONTROLS_MAIN_ACCEPTANCE.json"
+}

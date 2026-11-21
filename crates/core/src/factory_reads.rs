@@ -1275,7 +1275,7 @@ impl FactoryReadPlan {
         let version: u32 = connection
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 18 {
+        if version != 19 {
             return Err(changed());
         }
         crate::conversations::validate_schema(&connection)?;
@@ -2030,9 +2030,9 @@ mod tests {
         }
     }
     #[test]
-    fn readonly_worker_refuses_old15_old16_old17_and_future19_without_rewriting_database_or_journal(
+    fn readonly_worker_refuses_old15_old16_old17_old18_and_future20_without_rewriting_database_or_journal(
     ) {
-        for version in [15u32, 16u32, 17u32, 19u32] {
+        for version in [15u32, 16u32, 17u32, 18u32, 20u32] {
             let f = Fixture::new();
             let plan = f.plan();
             let _retained = KeepReadonlyFailure(Some(f._temp));
@@ -2077,7 +2077,7 @@ mod tests {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .unwrap();
-        assert_eq!(original_version, 18);
+        assert_eq!(original_version, 19);
         let before = readonly_image(&f.store.conn);
         let readonly = plan
             .database

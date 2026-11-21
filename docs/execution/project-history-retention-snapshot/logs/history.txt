@@ -1,0 +1,18 @@
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-3e149a5721946c12)
+
+running 13 tests
+test conversations_history::tests::complete_local_chain_does_not_claim_complete_provider_capture ... ok
+test conversations_history::tests::closed_request_and_limit_validation_do_not_mutate_domain_state ... ok
+test conversations_history::tests::cursor_registry_is_bounded_and_expiration_only_invalidates_read_positions ... ok
+test conversations_history::tests::independent_latest_pages_preserve_global_order_and_fixed_snapshot ... ok
+test conversations_history::tests::foreign_source_and_wrong_creation_attempt_cannot_claim_complete_history ... ok
+test conversations_history::tests::byte_limited_empty_page_advances_over_unrelated_rows_without_claiming_gap ... ok
+test conversations_history::tests::cursor_anchor_changes_and_journal_rewind_are_not_silent_restarts ... ok
+test conversations_history::tests::anchor_budget_cannot_create_an_infinite_nonadvancing_empty_page ... ok
+test conversations_history::tests::actual_document_bytes_and_response_serialization_are_bounded ... ok
+test conversations_history::tests::malformed_and_oversized_records_are_never_skipped_or_return_nonadvancing_cursor ... ok
+test conversations_history::tests::cursor_tampering_cross_owner_and_expired_tokens_are_refused ... ok
+test conversations_history::tests::missing_middle_and_creation_rows_are_explicit_local_gaps ... ok
+test conversations_history::tests::unrelated_flood_returns_explicit_empty_scan_page_then_real_history ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 455 filtered out; finished in 2.68s

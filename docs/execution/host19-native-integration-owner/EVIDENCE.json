@@ -1,0 +1,1008 @@
+{
+  "recorded_utc": "2026-11-18T18:23:39.055535+00:00",
+  "status": "leader accepted schema 19 fixture and read-only witness; native AppKit acceptance blocked",
+  "task": "host19-native-integration-owner",
+  "base": "6d45b417210f892ec7d5f17dd992c05fc903773c",
+  "tested_source": "285a6278ce18cbeb02808bb5c0993cabaf37fb42",
+  "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-native-integration-owner",
+  "branch": "collab/host19-native-integration-owner",
+  "source_paths": [
+    "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+    "apps/desktop/src-tauri/src/native_owner_dialog_test/integration_database.rs",
+    "scripts/integration-owner-fixture.py",
+    "scripts/native-owner-dialog-smoke.py",
+    "scripts/record-integration-owner-ci-evidence.py",
+    "tests/infrastructure/host19_native_integration_owner_source_fixture.py",
+    "tests/infrastructure/test_background_service_native_smoke_source.py",
+    "tests/infrastructure/test_host19_native_integration_owner_source_fixture.py",
+    "tests/infrastructure/test_native_integration_owner_evidence.py"
+  ],
+  "environment": {
+    "machine": "arm64",
+    "macOS": "26.6.1",
+    "python": "3.12.12",
+    "rust": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "node": "v26.7.0",
+    "npm": "11.19.0"
+  },
+  "old_baseline": {
+    "feature_source": "4be7d4493a3e82624e2eb45329ec5c358503486a",
+    "fixture_blobs": {
+      "scripts/integration-owner-fixture.py": "0b13b14a61c73fd4266a0952b734e7ca21c15161",
+      "scripts/native-owner-dialog-smoke.py": "759e2ef4e6459c77d39b3fd66c1da3d748dcef94"
+    },
+    "fixture_sha256": {
+      "scripts/integration-owner-fixture.py": "372bd720bc03427b73174f1237fd984ad7b9de0a6e282a0b6ca54a71d0ea9441",
+      "scripts/native-owner-dialog-smoke.py": "6a5406689896c52aef7d3d478bacf156cd27a8c1a5f0c8d3de552ba07d345d55"
+    },
+    "arm64_tools_built_from": "cde501db847d1bbfc27a298e16cd772afc1a41e9",
+    "fixed_tool_sha256": {
+      "baton": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+      "batond": "48d0db5f9b4c85ef8c79724a3fc84520ff48cbde09c9a5d77fe1f3d63c7d9a1b"
+    },
+    "actual_method": "system.snapshot",
+    "api_version": 1,
+    "observed_schema": 19,
+    "legacy_fixture_expected": 18,
+    "actual_result": "refused: Actual schema18 Core required",
+    "daemon_returncode": 0,
+    "clean_owned_shutdown": true,
+    "subsequent_mutations_or_gui_run": false,
+    "scope": "Existing untouched native-Integration fixture and owner runner imported; normal fixture bootstrap up to its early version guard, no OS window or other operation.",
+    "local_raw_evidence_root": "/var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/ab-native-owner-schema-baseline.Ay2envSpWq",
+    "retained_files_sha256": {
+      "run/bootstrap/core-private-transcript.json": "7dfd8f24a9c183d3b53bb82b31999bcecd55a2422c297e64bdbd7469b6962f4a",
+      "run/bootstrap/daemon-cleanup.json": "679096820786b6208cd3dfd7fc8349f37775982b0868233e149db3fe729457d9",
+      "run/bootstrap/state.json": "17d37ab5a13fbbbca58d96c4d0ed3f61045575522acc1af8ca9daed7eca4499f",
+      "run/bootstrap/daemon.log": "df105ea86be7aa80bc61f8a0a14251eda6ac49d7608c998f47c80cf7d090289e"
+    }
+  },
+  "original_fixture_source_bound_to_base": true,
+  "old_raw_hashes_verified": true,
+  "raw_source_restoration": [
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "raw_current_sha256": "6f3da88a6043c2b215193a7066a9d53922d4abe410c35a426297a43c6d65dacf",
+      "raw_base_sha256": "c82d39abb4074971a8bf43b25454b5b6698f6b3b6a7b35beb85dbfb41b8d959d",
+      "restoration_splices": 3
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/integration_database.rs",
+      "raw_current_sha256": "dbdf877c223be4090b9d60a6e3550daf351d2f7fd532949abeae22d4f1ef60fa",
+      "raw_base_sha256": "8730e078ebb48136802c3a614c44636d656c9336f3974b37d5bf018a83762755",
+      "restoration_splices": 1
+    },
+    {
+      "path": "scripts/integration-owner-fixture.py",
+      "raw_current_sha256": "1cd7e797fdcdf43ad7fa7a1c92beb22a2c6365e9d6b52fe68768c518eb692c0c",
+      "raw_base_sha256": "372bd720bc03427b73174f1237fd984ad7b9de0a6e282a0b6ca54a71d0ea9441",
+      "restoration_splices": 9
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "raw_current_sha256": "293149dafc983d6c1fbc0b797486ce24ae7da380d81560ef8b1c2c078c074a53",
+      "raw_base_sha256": "6a5406689896c52aef7d3d478bacf156cd27a8c1a5f0c8d3de552ba07d345d55",
+      "restoration_splices": 2
+    },
+    {
+      "path": "scripts/record-integration-owner-ci-evidence.py",
+      "raw_current_sha256": "1dcdd2a8d43fbc8f1a389eef645393b389cdb2dc99d0d1212595689adfa323ad",
+      "raw_base_sha256": "458f7237529ba34468ce1b620940c19e904029b5ce8fd1688fa67e72b6a34700",
+      "restoration_splices": 2
+    }
+  ],
+  "previous_link": {
+    "path": "tests/infrastructure/fixtures/native_acceptance_followup.json",
+    "raw_sha256": "4c676e3f72912687d30844afcee5653c9420106ffe43d7cf33babb09b19d1f0a",
+    "historical_result_sha256": "e2ca962c8e5d8af29bc04bb477c6d9d4fc876b7143b33ffafca8a730944fad94"
+  },
+  "compiled_outputs": {
+    "tauri_owner": {
+      "head": "285a6278ce18cbeb02808bb5c0993cabaf37fb42",
+      "binary": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-native-integration-owner/target/debug/agentbaton-native-owner-dialog-smoke",
+      "mach_o": "Mach-O 64-bit executable arm64",
+      "sha256": "3626fb463becd183249a5d70b987386e284218bf05aa17a5931c111a1867d07a",
+      "bytes": 35700440
+    },
+    "core_sidecar_pair": {
+      "baton": {
+        "original": "target/release/baton",
+        "staged": "apps/desktop/src-tauri/binaries/baton-aarch64-apple-darwin",
+        "file": "Mach-O 64-bit executable arm64",
+        "sha256": "97562073048dd1d4d89f37b44e84fc619a611f34313975966a94f23f39aa0c3b"
+      },
+      "batond": {
+        "original": "target/release/batond",
+        "staged": "apps/desktop/src-tauri/binaries/batond-aarch64-apple-darwin",
+        "file": "Mach-O 64-bit executable arm64",
+        "sha256": "0550e4a344988c2c99132920da5333490887ba826ba08a482a3d363f5e56b06f"
+      }
+    },
+    "core_frontend_build_input_source": "6d45b417210f892ec7d5f17dd992c05fc903773c",
+    "sources_byte_equivalent_for_core_and_frontend_at_tested_head": true
+  },
+  "tests": {
+    "targeted_python": {
+      "pass": 62,
+      "skip": 0,
+      "logs": "candidate-python-precommit.log",
+      "exact_test_sources_commit": "285a6278ce18cbeb02808bb5c0993cabaf37fb42"
+    },
+    "full_python": {
+      "discovered": 969,
+      "pass": 953,
+      "skip": 16,
+      "fail": 0,
+      "skip_reason": "independent workspace: run scripts/verify-remote-host.py explicitly",
+      "logs": "full-python.log"
+    },
+    "tauri_rust_owner": {
+      "pass": 24,
+      "fail": 0,
+      "logs": "tauri-owner-tests.log"
+    },
+    "locked_core_release": {
+      "exit": 0,
+      "logs": "core-release.json"
+    },
+    "locked_frontend": {
+      "npm_ci_exit": 0,
+      "npm_build_exit": 0,
+      "logs": "frontend-install.json / frontend-build.json"
+    },
+    "format": {
+      "root": "pass",
+      "owned_rust": "pass",
+      "whole_tauri": "exit 1",
+      "unchanged_sources_only": {
+        "base": "6d45b417210f892ec7d5f17dd992c05fc903773c",
+        "head": "285a6278ce18cbeb02808bb5c0993cabaf37fb42",
+        "unchanged_failing_sources": {
+          "apps/desktop/src-tauri/src/approval.rs": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+          "apps/desktop/src-tauri/src/bin/native_smoke.rs": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+          "apps/desktop/src-tauri/src/native_parent.rs": "92e3b3a947a5d2131a136b84de07face812f1bafc3b74ec128238c216fdd1caf"
+        },
+        "formatter_inputs_changed": false,
+        "baseline_fmt_command_rerun": false
+      }
+    },
+    "actual_projection_from_successful_native_result": "not run; no successful report existed"
+  },
+  "private_core": {
+    "status": "verified_private_core",
+    "schema": 19,
+    "sequence": 41,
+    "tables": 64,
+    "tools": {
+      "batond": {
+        "bytes": 17360848,
+        "sha256": "0550e4a344988c2c99132920da5333490887ba826ba08a482a3d363f5e56b06f"
+      },
+      "baton": {
+        "bytes": 808416,
+        "sha256": "97562073048dd1d4d89f37b44e84fc619a611f34313975966a94f23f39aa0c3b"
+      }
+    },
+    "proposal_kind": "integration",
+    "modes": {
+      "cancel": {
+        "pages": 64,
+        "contexts": 64,
+        "descriptor_sha256": "4d2e5e130d8cb52631addbbe06bb03b7ec9c7a858c6d1b98e34fc03540755f7e"
+      },
+      "approve": {
+        "pages": 64,
+        "contexts": 64,
+        "descriptor_sha256": "5c6a599aab0f0a2266771d2663990a0106758022ad277f4d26a3f689b3949139"
+      }
+    },
+    "daemon_cleanup": {
+      "role": "daemon",
+      "started": true,
+      "ok": true,
+      "signals": [
+        {
+          "signal": "SIGTERM",
+          "result": "signalled"
+        }
+      ],
+      "errors": [],
+      "returncode": 0,
+      "pid": 81544,
+      "running_before_cleanup": true,
+      "initial_group_quiescent": false,
+      "group_quiescent_before_reaping": true,
+      "adopted_owned_group_children_reaped": 0
+    }
+  },
+  "independent_native_sql": {
+    "source": "285a6278ce18cbeb02808bb5c0993cabaf37fb42",
+    "native_sql_sha256": "2a69027280ee525e2e7980e4bc38f12d7f7d38e2ed71d77616201a4f6d9b9193",
+    "mode": "extracted production test-witness SQL, executed against the real private SQLite database; no UI or finalization",
+    "comparisons": {
+      "actual_schema19_before": {
+        "counts": {
+          "schema_version": 19,
+          "sequence": 41,
+          "policies": 0,
+          "runs": 0,
+          "attempts": 0,
+          "ref_fences": 0
+        },
+        "proposal_matches": true,
+        "proposal_result_matches": true,
+        "policy_matches": true,
+        "owner_event_matches": true,
+        "policy_event_matches": true,
+        "owner_event_sequence": null,
+        "policy_event_sequence": null
+      },
+      "reject_wrong_proposal_digest": 1,
+      "reject_schema_18": 1,
+      "reject_schema_20": 1
+    },
+    "database_unchanged": true,
+    "daemon_cleanup": {
+      "role": "daemon",
+      "started": true,
+      "ok": true,
+      "signals": [
+        {
+          "signal": "SIGTERM",
+          "result": "signalled"
+        }
+      ],
+      "errors": [],
+      "returncode": 0,
+      "pid": 29226,
+      "running_before_cleanup": true,
+      "initial_group_quiescent": false,
+      "group_quiescent_before_reaping": true,
+      "adopted_owned_group_children_reaped": 0
+    },
+    "macOS": "26.6.1",
+    "architecture": "arm64"
+  },
+  "native": {
+    "architecture": "arm64",
+    "cases": [
+      {
+        "case": "native-last-page",
+        "cancel_index": 63,
+        "baseline_schema": 19,
+        "baseline_sequence": 41,
+        "planned_pages": 64,
+        "initial_rust_readonly_checkpoint": "passed before Tauri State and worker creation; native worker wrote deadline report",
+        "first_unmet": "first real AppKit sheet observation, before any database page permit",
+        "observed_sheet_count": 0,
+        "observed_database_permit_count": 0,
+        "cancel_button": "not reached",
+        "approve_phase": "not started",
+        "visual_review": "not possible",
+        "final_database_assertions": "not run",
+        "driver_exit": 1,
+        "wall_seconds": 79.744,
+        "original_driver_failure": "Original 85s OS/page-permit bound expired",
+        "app_report_reason": "Real Owner dialog deadline; no fallback driver or permission change",
+        "app_exit": {
+          "role": "app",
+          "started": true,
+          "ok": false,
+          "signals": [],
+          "errors": [],
+          "returncode": 1,
+          "pid": 16891,
+          "running_before_cleanup": false,
+          "initial_group_quiescent": true,
+          "group_quiescent_before_reaping": true,
+          "adopted_owned_group_children_reaped": 0
+        },
+        "daemon_exit": {
+          "role": "daemon",
+          "started": true,
+          "ok": true,
+          "signals": [
+            {
+              "signal": "SIGTERM",
+              "result": "signalled"
+            }
+          ],
+          "errors": [],
+          "returncode": 0,
+          "pid": 16734,
+          "running_before_cleanup": true,
+          "initial_group_quiescent": false,
+          "group_quiescent_before_reaping": true,
+          "adopted_owned_group_children_reaped": 0
+        },
+        "projection": "refused exit 1; no projection file",
+        "receipt_path": "artifacts/host19-native-integration-owner/native-last-page"
+      },
+      {
+        "case": "native-first-page",
+        "cancel_index": 0,
+        "baseline_schema": 19,
+        "baseline_sequence": 41,
+        "planned_pages": 64,
+        "initial_rust_readonly_checkpoint": "passed before Tauri State and worker creation; native worker wrote deadline report",
+        "first_unmet": "first real AppKit sheet observation, before any database page permit",
+        "observed_sheet_count": 0,
+        "observed_database_permit_count": 0,
+        "cancel_button": "not reached",
+        "approve_phase": "not started",
+        "visual_review": "not possible",
+        "final_database_assertions": "not run",
+        "driver_exit": 1,
+        "wall_seconds": 81.487,
+        "original_driver_failure": "Original 85s OS/page-permit bound expired",
+        "app_report_reason": "Real Owner dialog deadline; no fallback driver or permission change",
+        "app_exit": {
+          "role": "app",
+          "started": true,
+          "ok": false,
+          "signals": [],
+          "errors": [],
+          "returncode": 1,
+          "pid": 20240,
+          "running_before_cleanup": false,
+          "initial_group_quiescent": true,
+          "group_quiescent_before_reaping": true,
+          "adopted_owned_group_children_reaped": 0
+        },
+        "daemon_exit": {
+          "role": "daemon",
+          "started": true,
+          "ok": true,
+          "signals": [
+            {
+              "signal": "SIGTERM",
+              "result": "signalled"
+            }
+          ],
+          "errors": [],
+          "returncode": 0,
+          "pid": 20076,
+          "running_before_cleanup": true,
+          "initial_group_quiescent": false,
+          "group_quiescent_before_reaping": true,
+          "adopted_owned_group_children_reaped": 0
+        },
+        "projection": "refused exit 1; no projection file",
+        "receipt_path": "artifacts/host19-native-integration-owner/native-first-page"
+      }
+    ],
+    "success": false,
+    "root_cause": "not determined within reserved sources",
+    "permission_changes": false,
+    "driver_or_deadline_changes": false,
+    "provider_model_calls": "not run",
+    "external_host": "not run",
+    "pids_absent_after_join": [
+      16891,
+      16734,
+      20240,
+      20076,
+      81544,
+      29226
+    ]
+  },
+  "scope": {
+    "source": "pass",
+    "target_snapshot": {
+      "source": "285a6278ce18cbeb02808bb5c0993cabaf37fb42",
+      "target": "3d19a89f10756966da9f494f928d6962ad63b20b",
+      "target_ref": "refs/remotes/origin/collab/host-registration-integration",
+      "fetch_exit": 0,
+      "preview_exit": 0
+    },
+    "delivery_validation": "recorded against delivery commit in handoff"
+  },
+  "raw_evidence": {
+    "archive": "validation-logs.tar.gz",
+    "archive_count": 84,
+    "archive_sha256": "9d1c760db22f46aa9c8d0892854e0ade832f946bd4a08b7cb3fc4538527f7d3f",
+    "private_raw_keep_local": [
+      "artifacts/host19-native-integration-owner/baseline-raw/core-private-transcript.json",
+      "artifacts/host19-native-integration-owner/core-probe-first/bootstrap/core-private-transcript.json",
+      "artifacts/host19-native-integration-owner/native-first-page/bootstrap/core-private-transcript.json",
+      "artifacts/host19-native-integration-owner/native-first-page/cancel/before.json",
+      "artifacts/host19-native-integration-owner/native-first-page/cancel/expected-display.json",
+      "artifacts/host19-native-integration-owner/native-first-page/cancel/fixture.json",
+      "artifacts/host19-native-integration-owner/native-last-page/bootstrap/core-private-transcript.json",
+      "artifacts/host19-native-integration-owner/native-last-page/cancel/before.json",
+      "artifacts/host19-native-integration-owner/native-last-page/cancel/expected-display.json",
+      "artifacts/host19-native-integration-owner/native-last-page/cancel/fixture.json",
+      "artifacts/host19-native-integration-owner/sqlite-witness/bootstrap/core-private-transcript.json"
+    ],
+    "files": [
+      {
+        "local": "artifacts/host19-native-integration-owner/baseline-raw/core-private-transcript.json",
+        "bytes": 363,
+        "sha256": "7dfd8f24a9c183d3b53bb82b31999bcecd55a2422c297e64bdbd7469b6962f4a",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/baseline-raw/daemon-cleanup.json",
+        "bytes": 350,
+        "sha256": "679096820786b6208cd3dfd7fc8349f37775982b0868233e149db3fe729457d9",
+        "archive_member": "baseline-raw/daemon-cleanup.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/baseline-raw/daemon.log",
+        "bytes": 58,
+        "sha256": "df105ea86be7aa80bc61f8a0a14251eda6ac49d7608c998f47c80cf7d090289e",
+        "archive_member": "baseline-raw/daemon.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/baseline-raw/state.json",
+        "bytes": 779,
+        "sha256": "17d37ab5a13fbbbca58d96c4d0ed3f61045575522acc1af8ca9daed7eca4499f",
+        "archive_member": "baseline-raw/state.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/candidate-python-precommit.log",
+        "bytes": 15689,
+        "sha256": "00b303cdcfa03f44be934cd9097f804ca1701d65c8e32231858097c450891e34",
+        "archive_member": "candidate-python-precommit.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-build-source-identity.json",
+        "bytes": 457,
+        "sha256": "d262ef432c56b7f9771285fb735c6a305ce5d902e70cb10db5b40bcb797b459c",
+        "archive_member": "core-build-source-identity.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-build-source-identity.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "core-build-source-identity.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-probe-first/bootstrap/core-private-transcript.json",
+        "bytes": 159770,
+        "sha256": "812c65365efe39b5c41b2434bc611009686f55ad9a367c1cfb0cb86382a12cf4",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-probe-first/bootstrap/daemon-cleanup.json",
+        "bytes": 350,
+        "sha256": "5c201ba1a4adebdb1446b19f3e59e7feeced7eb3feb2bce43e2066c82a643035",
+        "archive_member": "core-probe-first/bootstrap/daemon-cleanup.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-probe-first/bootstrap/daemon.log",
+        "bytes": 58,
+        "sha256": "25527d56077765212d2314eaa3d4b1ae4282f6f5d1a09f53b88d495e59b18ddf",
+        "archive_member": "core-probe-first/bootstrap/daemon.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-probe-first/bootstrap/state.json",
+        "bytes": 705,
+        "sha256": "3649b1081c2a84b1f7a2a7fbbf2e002d8932ced7f109f117cc69ccee440188c6",
+        "archive_member": "core-probe-first/bootstrap/state.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-probe-first/receipt.json",
+        "bytes": 1139,
+        "sha256": "d77ab7dc6dc583a36a4f27708ac74e940a269dec9d2c9b4417191f3bc2ceb803",
+        "archive_member": "core-probe-first/receipt.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-release.json",
+        "bytes": 322,
+        "sha256": "8321779f4cd69285282ab4222f87d28df857ba5f18aad2df54c7b70c842f2309",
+        "archive_member": "core-release.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/core-release.log",
+        "bytes": 2996,
+        "sha256": "f462b918e3eb2a66e49d434bf4674b1d333df8c01787f1935cbd91901bd16dda",
+        "archive_member": "core-release.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/current-python-first.log",
+        "bytes": 11819,
+        "sha256": "6dabf04ed965997665efc332a9ea27ce5b82fed01d60ada2267b36d90838ec0b",
+        "archive_member": "current-python-first.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/frontend-build.json",
+        "bytes": 263,
+        "sha256": "f113fed206b031fe686583107fb068409c4d4a153cb33149b34318d65fee18ee",
+        "archive_member": "frontend-build.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/frontend-build.log",
+        "bytes": 777,
+        "sha256": "61506e0798930d3fe7b071f76c00825366de6b1600118b965384fbb91be8590f",
+        "archive_member": "frontend-build.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/frontend-install.json",
+        "bytes": 301,
+        "sha256": "8fbdbbee050d0bf62ba7ad0eb89f72401bae8dad6799437ac6d7b7828f8f1562",
+        "archive_member": "frontend-install.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/frontend-install.log",
+        "bytes": 335,
+        "sha256": "f479b6490e1c77694787637ef12acd55fbe0896fa0ce109de9e6ffc6346a84a4",
+        "archive_member": "frontend-install.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/full-python.json",
+        "bytes": 274,
+        "sha256": "737412fe88e6582791b85ebc1cd712965f9e47cea5c24d879413592ed132456b",
+        "archive_member": "full-python.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/full-python.log",
+        "bytes": 192492,
+        "sha256": "c73278c5db833e9dee48ddde14ffdafa5d8ec364e3ca67e4fa65f06eed0403c4",
+        "archive_member": "full-python.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/historical-pin-red.log",
+        "bytes": 1438,
+        "sha256": "1717174ca322721a63dc4320bc3e35262538b3a1ef38f604bc22934abff37072",
+        "archive_member": "historical-pin-red.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/infrastructure-summary.json",
+        "bytes": 142,
+        "sha256": "bafc6f370fd4e695afe8fd1728dbbeec795c5263e579ed1910676faaa29718bf",
+        "archive_member": "infrastructure-summary.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/integration-fetch.json",
+        "bytes": 340,
+        "sha256": "ef11738caf575d4e24dfe1f62c12373022ee35335af28cd050e2bd6248dc991e",
+        "archive_member": "integration-fetch.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/integration-fetch.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "integration-fetch.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/integration-target.json",
+        "bytes": 231,
+        "sha256": "fb93df6d1304157420d1277a1c7833df2d493068d86f9377c77912f533f3d63a",
+        "archive_member": "integration-target.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/leader-baseline.json",
+        "bytes": 1821,
+        "sha256": "39e62448c8ffde04ebdfea15c3a524c630699397920fe3c88495d9d4e0cb0709",
+        "archive_member": "leader-baseline.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/bootstrap/core-private-transcript.json",
+        "bytes": 147275,
+        "sha256": "4b764c00b4dfa5c06e8e89a8cdeb7b6ccd79bf09a7f9d2831241e15a2c61e88b",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/bootstrap/daemon-cleanup.json",
+        "bytes": 350,
+        "sha256": "b565a765ccd50d4cdc9d20a610d0551b9cad79ca8f66511f7319bc6a7b235435",
+        "archive_member": "native-first-page/bootstrap/daemon-cleanup.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/bootstrap/daemon.log",
+        "bytes": 58,
+        "sha256": "0d0e743e313b118e4ff4abddec292751ef1b0c3eb92d5ee6e0df41229b6456ad",
+        "archive_member": "native-first-page/bootstrap/daemon.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/bootstrap/state.json",
+        "bytes": 791,
+        "sha256": "cde30b4a0ffbc70fed258ace66ba80a6a58ac20a88cecd64563c95809193f3f1",
+        "archive_member": "native-first-page/bootstrap/state.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/app-cleanup.json",
+        "bytes": 278,
+        "sha256": "793d085b221006617b0a6988abb0e041032c268cf297e0d128c4494360597e42",
+        "archive_member": "native-first-page/cancel/app-cleanup.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/before.json",
+        "bytes": 264162,
+        "sha256": "2e4b1efa78a02b45ccde228075f29dc5427f11c2b49badffb8d37498fb697f14",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/expected-display.json",
+        "bytes": 56771,
+        "sha256": "ed8ce628f83b745bdf90fce68946ba05eabde3338b22952345c8e56945207807",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/fixture.json",
+        "bytes": 18442,
+        "sha256": "028cb6fa0b660afe9d12436de10ff3480d394818f7eddb3948eeb62bf7356804",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/native-binary-after.json",
+        "bytes": 469,
+        "sha256": "535cf4bc6d8b3c98e1e573629cb77eb26547f0ee22b401da75d7c29c8ee708a9",
+        "archive_member": "native-first-page/cancel/native-binary-after.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/original-failure.json",
+        "bytes": 85,
+        "sha256": "22c1091a589e5428ebe3e2759ba511266949333eee302415c8ba0c8bf5327665",
+        "archive_member": "native-first-page/cancel/original-failure.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/owner-dialog.json",
+        "bytes": 222,
+        "sha256": "7a881ad0d9ae8e4bb87897186154ff9c4985ababca16d197a8b8dab1d183d989",
+        "archive_member": "native-first-page/cancel/owner-dialog.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/cancel/secondary-cleanup-errors.json",
+        "bytes": 553,
+        "sha256": "d8ed6e396de1f4cd8dea01320ccb84c41140af5b3d0b3d7a52bf149aff8905da",
+        "archive_member": "native-first-page/cancel/secondary-cleanup-errors.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/native-binary-after.json",
+        "bytes": 583,
+        "sha256": "b0a4ba8a4d235b224566196189dc5a510d1dd0f982b8c38f26380b9d56b130b1",
+        "archive_member": "native-first-page/native-binary-after.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/native-binary-before.json",
+        "bytes": 1112,
+        "sha256": "d96b9d70a2d9754aa267314f3ce60dcca8d43de4dfacdadc34e622d900fcbdcc",
+        "archive_member": "native-first-page/native-binary-before.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page/runner-failure.json",
+        "bytes": 110,
+        "sha256": "c4aee54c99469f2a0c2a14d162f2d95772050ed8cdf037ba29463d089609cd52",
+        "archive_member": "native-first-page/runner-failure.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page.driver.log",
+        "bytes": 1319,
+        "sha256": "5c1c4c214004124c73ddb8c12dfee042e640f1dd4ba4ae4b082c4ba4bed9b8ae",
+        "archive_member": "native-first-page.driver.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page.invocation.json",
+        "bytes": 1392,
+        "sha256": "c5687183df053343170814e1c57b3c068ace46c370a3880ffe80c746635235b2",
+        "archive_member": "native-first-page.invocation.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page.projection-refused.json",
+        "bytes": 649,
+        "sha256": "41e2698ecabf949a9ab9a8382d10f369d1257addb01f99dcb44034d563004810",
+        "archive_member": "native-first-page.projection-refused.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-first-page.projection-refused.log",
+        "bytes": 47,
+        "sha256": "9f66d7e7d0d6a49190c59e8cdc15851ff4005586fdb1f9fcd91da19b3df7003d",
+        "archive_member": "native-first-page.projection-refused.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/bootstrap/core-private-transcript.json",
+        "bytes": 154416,
+        "sha256": "e0eeb9e4ddc8a5f578545cb2ccdbfb9356484ca5b8a5cccf594af190f79796be",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/bootstrap/daemon-cleanup.json",
+        "bytes": 350,
+        "sha256": "582f623b6b1aabca4a74e1accae6cdc863072f2454b3b01227f8ebc40a3aa9c4",
+        "archive_member": "native-last-page/bootstrap/daemon-cleanup.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/bootstrap/daemon.log",
+        "bytes": 58,
+        "sha256": "edcd9540f5bea5f57ac017ba4796061e793282a474237713bb44e147f8690cfa",
+        "archive_member": "native-last-page/bootstrap/daemon.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/bootstrap/state.json",
+        "bytes": 791,
+        "sha256": "409c14175b87f8e84d40f6f0a3965a366794bf79a8896f20446281ae3cf8d890",
+        "archive_member": "native-last-page/bootstrap/state.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/app-cleanup.json",
+        "bytes": 278,
+        "sha256": "23dbe3fc2e500bf1ff6551f72b2cb01fcfc156be351c5da02c094befcb44dd68",
+        "archive_member": "native-last-page/cancel/app-cleanup.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/before.json",
+        "bytes": 264165,
+        "sha256": "162ed32aab5b988e8724f64a5bc3814f83b7478630700ab014f43d3e433493c1",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/expected-display.json",
+        "bytes": 56770,
+        "sha256": "3ddcebaffa1cd21791974de5cf49823ec6499ddf790b05a0d3ac68e4185127c9",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/fixture.json",
+        "bytes": 18440,
+        "sha256": "8b583b69f3f7d0464a940f874c9848e758bbd8a6fe758a29a0adb86c56cb8f06",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/native-binary-after.json",
+        "bytes": 469,
+        "sha256": "535cf4bc6d8b3c98e1e573629cb77eb26547f0ee22b401da75d7c29c8ee708a9",
+        "archive_member": "native-last-page/cancel/native-binary-after.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/original-failure.json",
+        "bytes": 85,
+        "sha256": "22c1091a589e5428ebe3e2759ba511266949333eee302415c8ba0c8bf5327665",
+        "archive_member": "native-last-page/cancel/original-failure.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/owner-dialog.json",
+        "bytes": 222,
+        "sha256": "7a881ad0d9ae8e4bb87897186154ff9c4985ababca16d197a8b8dab1d183d989",
+        "archive_member": "native-last-page/cancel/owner-dialog.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/cancel/secondary-cleanup-errors.json",
+        "bytes": 553,
+        "sha256": "6ba952e4a6ec02040b00263f02865bb140fffe3a9ded0ea3772a455e8b890b27",
+        "archive_member": "native-last-page/cancel/secondary-cleanup-errors.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/native-binary-after.json",
+        "bytes": 583,
+        "sha256": "b0a4ba8a4d235b224566196189dc5a510d1dd0f982b8c38f26380b9d56b130b1",
+        "archive_member": "native-last-page/native-binary-after.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/native-binary-before.json",
+        "bytes": 1112,
+        "sha256": "d96b9d70a2d9754aa267314f3ce60dcca8d43de4dfacdadc34e622d900fcbdcc",
+        "archive_member": "native-last-page/native-binary-before.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page/runner-failure.json",
+        "bytes": 110,
+        "sha256": "c4aee54c99469f2a0c2a14d162f2d95772050ed8cdf037ba29463d089609cd52",
+        "archive_member": "native-last-page/runner-failure.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page.driver.log",
+        "bytes": 1319,
+        "sha256": "5c1c4c214004124c73ddb8c12dfee042e640f1dd4ba4ae4b082c4ba4bed9b8ae",
+        "archive_member": "native-last-page.driver.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page.invocation.json",
+        "bytes": 1350,
+        "sha256": "ea386fdc0ec040721fdfecdafdc15f1aadbf8e574babf222214fabd298bd0120",
+        "archive_member": "native-last-page.invocation.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page.projection-refused.json",
+        "bytes": 647,
+        "sha256": "d7c0f22ea8e519b68a83e911d0b2ce999e109babe3762b17338ae145ac24c8dc",
+        "archive_member": "native-last-page.projection-refused.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/native-last-page.projection-refused.log",
+        "bytes": 47,
+        "sha256": "9f66d7e7d0d6a49190c59e8cdc15851ff4005586fdb1f9fcd91da19b3df7003d",
+        "archive_member": "native-last-page.projection-refused.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/owned-rustfmt.json",
+        "bytes": 371,
+        "sha256": "664e9376be34d735b139938bfe009e726e9d76266207089df49e37d6699ffebe",
+        "archive_member": "owned-rustfmt.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/owned-rustfmt.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "owned-rustfmt.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/root-format.json",
+        "bytes": 176,
+        "sha256": "8f326596a85a0e1bdb356fb8b324576f01c7af0680f4e91215b0b31afc76c15b",
+        "archive_member": "root-format.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/root-format.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "root-format.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sidecar-inputs.json",
+        "bytes": 528,
+        "sha256": "8fc6632b9267327a67470db93de9e77e2b3d641970649aa060333f5d7a0e17c1",
+        "archive_member": "sidecar-inputs.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/source-integration-preview.json",
+        "bytes": 242,
+        "sha256": "167532a1e568c51a24ec15850561b595b574d2f289bcb808b0194892a76aa8c3",
+        "archive_member": "source-integration-preview.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/source-integration-preview.log",
+        "bytes": 263,
+        "sha256": "1898368d60657378f09d94fd73927c1ed5d9656c26737cdc0479933659642e9b",
+        "archive_member": "source-integration-preview.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/source-scope.json",
+        "bytes": 164,
+        "sha256": "72776dc50d2972c93789c1c277bf7767a072139ac71815352444218b32f35e0f",
+        "archive_member": "source-scope.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/source-scope.log",
+        "bytes": 70,
+        "sha256": "48e9bdb0c368ce827d5e766c62fc1dd2a34fbeacd849a60e3f4ff82b33b5e923",
+        "archive_member": "source-scope.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/before.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "sqlite-witness/before.stderr"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/before.stdout",
+        "bytes": 286,
+        "sha256": "6d26a0c2ab893155747ddd1f85db978aedd912c90a687b510a2e3c0aaecd994f",
+        "archive_member": "sqlite-witness/before.stdout"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/bootstrap/core-private-transcript.json",
+        "bytes": 150850,
+        "sha256": "013f2f6f60ebb7129a902e2876a99c405bbc2d7d539c0b249f552220bbc6a013",
+        "archive_member": null
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/bootstrap/daemon-cleanup.json",
+        "bytes": 350,
+        "sha256": "648150f12add5e966d35585d4cd33640f297a42b08f6ac604f28befbfc479495",
+        "archive_member": "sqlite-witness/bootstrap/daemon-cleanup.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/bootstrap/daemon.log",
+        "bytes": 58,
+        "sha256": "2ebe9f1bf7484ba10367c194f70b876de68fbd0a13b4f2bf57ba4f2b6ad7d69b",
+        "archive_member": "sqlite-witness/bootstrap/daemon.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/bootstrap/state.json",
+        "bytes": 705,
+        "sha256": "7ef030e49fc7dcb9d040358fcac4978736f34eafb6b8b6a11e72ad276677937a",
+        "archive_member": "sqlite-witness/bootstrap/state.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/receipt.json",
+        "bytes": 1327,
+        "sha256": "cc6287c5da76fd79af9f71afe1a9b18af321046e86387722b743a1df9bafac14",
+        "archive_member": "sqlite-witness/receipt.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/schema-18.stderr",
+        "bytes": 292,
+        "sha256": "2fb27d00346205e07564bf58b088cf0eeaf160802c7675d48929c28eadc88a86",
+        "archive_member": "sqlite-witness/schema-18.stderr"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/schema-18.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "sqlite-witness/schema-18.stdout"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/schema-20.stderr",
+        "bytes": 292,
+        "sha256": "2fb27d00346205e07564bf58b088cf0eeaf160802c7675d48929c28eadc88a86",
+        "archive_member": "sqlite-witness/schema-20.stderr"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/schema-20.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "sqlite-witness/schema-20.stdout"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/wrong-proposal-binding.stderr",
+        "bytes": 256,
+        "sha256": "1097766c1232f27f41341f2f2fc8856d0e1588abc1bd5c0e27630a7cb6e7733f",
+        "archive_member": "sqlite-witness/wrong-proposal-binding.stderr"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/sqlite-witness/wrong-proposal-binding.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "archive_member": "sqlite-witness/wrong-proposal-binding.stdout"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-format-baseline-source.json",
+        "bytes": 579,
+        "sha256": "fc7b5cd861f86cbd6cd453f94af1490a9066ae988de41640eb52bf6c643f9fa8",
+        "archive_member": "tauri-format-baseline-source.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-format.json",
+        "bytes": 240,
+        "sha256": "ba9bcccf81cb30a267fc023ae4dfdc213b4457723024f8cf5ff0ca4b38576957",
+        "archive_member": "tauri-format.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-format.log",
+        "bytes": 2684,
+        "sha256": "757752ddfefbca56a2d641ba2a8832363fee46a9e0f9bf887e20ee829469abe3",
+        "archive_member": "tauri-format.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-owner-binary.json",
+        "bytes": 373,
+        "sha256": "07ca4d7c4ce7602d74576f344e9a0ac61bdc0de8a64c54e51a0c7e2b0dfadf91",
+        "archive_member": "tauri-owner-binary.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-owner-build.json",
+        "bytes": 348,
+        "sha256": "b5ba8a69264d36b79a1dd9cba01fb2cd5016bce2ada0ed57f34aa86222778973",
+        "archive_member": "tauri-owner-build.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-owner-build.log",
+        "bytes": 228,
+        "sha256": "944969e46a0180e0d3f2bb60350518b8d3449e7f4b492d07235668f8bd31df03",
+        "archive_member": "tauri-owner-build.log"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-owner-tests.json",
+        "bytes": 383,
+        "sha256": "c7ce2768a953c7a06fb3aa59fe9c81f96aed443b043216398018e26928222465",
+        "archive_member": "tauri-owner-tests.json"
+      },
+      {
+        "local": "artifacts/host19-native-integration-owner/tauri-owner-tests.log",
+        "bytes": 11766,
+        "sha256": "9a99a2c4953584006072df4c68a6d1d236a4a49f9617a95b7365846f159603b8",
+        "archive_member": "tauri-owner-tests.log"
+      }
+    ]
+  },
+  "independent_review": {
+    "leader_thread": "01a1e993-7604-7792-bcb6-d8c143cfeb90",
+    "accepted_head": "9574c19db9bb2f80e70482ca54a15c487d561136",
+    "accepted_scope": "schema 19 Integration Owner fixture and read-only database changes; actual pre-UI witness only",
+    "original_files_reviewed": 95,
+    "archive_members_reviewed": 84,
+    "raw_source_layers_verified": 5,
+    "arm64_tools_verified": true,
+    "independent_tests_reported": 44,
+    "exact_preview_target": "9e897d6f6bf0b823e187930fbb84f897be51b89e",
+    "baseline_whole_tauri_fmt_reproduced_from_old_inputs": true,
+    "baseline_whole_tauri_fmt_differing_files": 3,
+    "native_cancel": "both failed before the first observed AppKit sheet",
+    "native_approve": "not run",
+    "native_post_action_database_and_visual_review": "not run",
+    "handoff_authorized": true,
+    "leader_takes_over_integration": true
+  }
+}

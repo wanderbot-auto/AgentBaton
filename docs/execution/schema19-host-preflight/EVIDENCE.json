@@ -1,0 +1,151 @@
+{
+  "task": "SCH19-PREFLIGHT",
+  "status": "review_static_contract_complete_not_implemented",
+  "recorded_at": "2026-11-17T18:27:57.771638+00:00",
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "source_head": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "head_before_docs_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "branch": "collab/schema19-host-preflight",
+  "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema19-host-preflight",
+  "write_scope": [
+    "docs/execution/schema19-host-preflight"
+  ],
+  "matrix_files": 174,
+  "source_manifest_files": 207,
+  "counts_are_not_completeness_proof": true,
+  "proposal_commit": "b7ebd5ef7e501981413f40cd1448c8368ca66c8b",
+  "proposal_only_sha256": {
+    "docs/execution/remote-host-core-integration/PLAN.md": {
+      "sha256": "4bf63e549055b3e7710c5feeac6f0c9200857dfb99e3d3897ba4c770a58f1786",
+      "bytes": 1278
+    },
+    "docs/execution/remote-host-core-integration/PROGRESS.md": {
+      "sha256": "ffcbc2509613841d564abd8c3254ebc477c8f0bfc31beb5a4f1462afcb456396",
+      "bytes": 1334
+    },
+    "docs/execution/remote-host-core-integration/CHECKPOINT.md": {
+      "sha256": "a9f08dfc3ce1a3351036f7e7ebeca6ddd05a8dc31dcfa3bb4f1ed1fa86f9c435",
+      "bytes": 1443
+    },
+    "docs/execution/remote-host-core-integration/DEPENDENCY_CONTRACT.md": {
+      "sha256": "2814b93346577f11c6169daf1507750da5f8a5c7dda841ca736e56a3014f06eb",
+      "bytes": 12992
+    },
+    "docs/execution/remote-host-core-integration/PROPOSED_SCOPE.json": {
+      "sha256": "25c4e6a08f1de085f914d9982fb28a95e253a76df8b4ba7cf0a46dd100c0f483",
+      "bytes": 2753
+    },
+    "docs/execution/remote-host-core-integration/SOURCE_AUDIT.json": {
+      "sha256": "5349194fc31f0481f382523c4392f449e89a908305920ddfc6f187d31ce86cd9",
+      "bytes": 40656
+    },
+    "docs/execution/remote-host-core-integration/EVIDENCE.json": {
+      "sha256": "152306fea923995ece4753bd8a0ded8bf86f24125b90cbb7d44af289daa3a1b9",
+      "bytes": 1955
+    }
+  },
+  "artifacts": {
+    "CLOSURE.md": {
+      "sha256": "35bd5cceff82314144675424b8b2860804825d2079288fc58f9919129731ed96",
+      "bytes": 16092
+    },
+    "CLOSURE_MATRIX.json": {
+      "sha256": "855cbb004a58fa149c2d82224b00b861e09cd3a752ba4555892e45cea23d4320",
+      "bytes": 311426
+    },
+    "SOURCE_MANIFEST.json": {
+      "sha256": "09a3db3f47418d09232204923eeae661145b57af7146b0c1eba0a74dc47ea544",
+      "bytes": 52539
+    },
+    "SOURCE_INVERSE_GRAPH.json": {
+      "sha256": "73be1effd571c4ef44853de9905cb1a80c6fb375ec0a315451642c6d017f3e29",
+      "bytes": 33537
+    },
+    "ADR-001.md": {
+      "sha256": "e141e1ccf9cf97b0144d5347bafbcb22cde732e1346966c00fb3fbf17d229513",
+      "bytes": 8160
+    },
+    "MIGRATION_TEST_CONTRACT.md": {
+      "sha256": "18f2dc1470e9828162ae05e637366d1c8ec2a61845e8f8dc1fe581bebbafb8fb",
+      "bytes": 11198
+    },
+    "PROPOSED_SCOPE.json": {
+      "sha256": "f9113b2b3812ef09247c16902a0b17f8d754a5fa450c06cee8f067413d18495f",
+      "bytes": 12772
+    },
+    "CHECKS.json": {
+      "sha256": "57637b22a7da3941e27ae0be8966775671df513a5a9bfa45fc0ca06965cd0dd6",
+      "bytes": 2016
+    },
+    "DISCOVERY.json": {
+      "sha256": "0adddf8a5a6c75496034d99cfc7abf1a7660555f551ca60d8a0d07896e2d208b",
+      "bytes": 88907
+    }
+  },
+  "checks": "CHECKS.json:source bytes/Git blobs and literal regions match accepted source;JSON/diffcheck/scope passed",
+  "independent_reviews": [
+    {
+      "agent": "/root/schema_current_guards",
+      "dimension": "readonly current runtime/native/type/fixture/call-edge audit plus contract review",
+      "findings_closed": [
+        "preserve product opaque-table/index compatibility;64 is trusted reference count",
+        "SQLite integer version vs JSON type-boundary negative tests"
+      ],
+      "final": "closed;no new blocker"
+    },
+    {
+      "agent": "/root/schema_inverse_audit",
+      "dimension": "readonly migration/reference/backup/inverse/provenance audit plus contract review",
+      "findings_closed": [
+        "SQL events.sequence vs serialized zero",
+        "unknown/future Host event/receipt namespace refusal",
+        "backup-content proof vs actual disposable-copy recovery check"
+      ],
+      "final": "all closed;no remaining blocker"
+    }
+  ],
+  "no_product_source_changes": true,
+  "not_run": [
+    "implementation",
+    "product build/tests",
+    "SQLite migration or fixture execution",
+    "schema19 source inverse execution",
+    "GUI/native/Computer Use",
+    "CI",
+    "SSH/Provider/network probe",
+    "permission changes",
+    "paid/signing/production"
+  ],
+  "open_dependencies": [
+    "leader/B agreement on final DDL/wire/bounds/namespace",
+    "one reserved Core/schema writer and exact literal source handoff",
+    "genuine accepted-a4 schema18 fixture producer not yet implemented/run",
+    "coherent activation of all current19 readers/collectors/native entry,with original historical18 evidence intact",
+    "fixed integration base if later PR29/HEXP source is accepted",
+    "B docs agreement on Host creation-event retention pin and exact metadata/event/idempotency contract",
+    "new19 native entry must prove schema-neutral225-259 helper /262-354 copied lifecycle boundaries;never relabel19 report18"
+  ],
+  "HEXP": {
+    "local_frozen": "626dfef46f6070c47b6fc480bbc340eb2d1a8e03",
+    "remote_PR31": "0febc59cf919cb3fe2e2152d8092ccd8c21167a3",
+    "not_current_baseline": true
+  },
+  "owned_processes": "none;readonly subagents completed",
+  "delivery": "local documentation commit only;exact resulting head reported to leader;no push or PR",
+  "dirty_before_commit": [
+    "docs/execution/schema19-host-preflight/ADR-001.md",
+    "docs/execution/schema19-host-preflight/CHECKPOINT.md",
+    "docs/execution/schema19-host-preflight/CHECKS.json",
+    "docs/execution/schema19-host-preflight/CLOSURE.md",
+    "docs/execution/schema19-host-preflight/CLOSURE_MATRIX.json",
+    "docs/execution/schema19-host-preflight/DELIVERY.md",
+    "docs/execution/schema19-host-preflight/DISCOVERY.json",
+    "docs/execution/schema19-host-preflight/EVIDENCE.json",
+    "docs/execution/schema19-host-preflight/MIGRATION_TEST_CONTRACT.md",
+    "docs/execution/schema19-host-preflight/PLAN.md",
+    "docs/execution/schema19-host-preflight/PROGRESS.md",
+    "docs/execution/schema19-host-preflight/PROPOSED_SCOPE.json",
+    "docs/execution/schema19-host-preflight/SOURCE_INVERSE_GRAPH.json",
+    "docs/execution/schema19-host-preflight/SOURCE_MANIFEST.json"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "source_head": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+  "cases": [
+    {
+      "case": "independent-byte-copy-positive",
+      "dimension": "actual artifact read validation",
+      "result": "passed"
+    },
+    {
+      "case": "corrupt-bytes-before-SQLite",
+      "dimension": "actual disposable DB copy; original seal unchanged",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Changed predecessor bytes; reject before SQLite"
+    },
+    {
+      "case": "schema19-stamp-unsealed",
+      "dimension": "actual disposable copy; original data untouched",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Changed predecessor bytes; reject before SQLite"
+    },
+    {
+      "case": "schema19-stamp-resealed-still-refused",
+      "dimension": "explicitly forged copy metadata; actual SQLite18 requirement",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Expected actual predecessor18, never19 stamp"
+    },
+    {
+      "case": "wrong-source",
+      "dimension": "mutated actual build record only; no compile/process",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Wrong compiled source/archive"
+    },
+    {
+      "case": "test-feature-tool-record",
+      "dimension": "mutated actual build record only; no compile/process",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Not a normal joined locked default build"
+    },
+    {
+      "case": "wrong-builder-record",
+      "dimension": "mutated actual build record only; no compile/process",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Wrong builder/helper bytes"
+    },
+    {
+      "case": "unbound-copied-pair",
+      "dimension": "actual frozen copies; original identity binding retained",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Wrong frozen tool/path/source binding"
+    },
+    {
+      "case": "wrong-native-tool-bytes",
+      "dimension": "actual disposable CLI byte copy; never executed",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Wrong native Mach-O architecture"
+    },
+    {
+      "case": "changed-physical-lock-after-path-forgery",
+      "dimension": "explicit forged metadata on disposable source copy; original244 index retained",
+      "result": "rejected",
+      "error_type": "ValueError",
+      "reason": "Source changed after normal build"
+    }
+  ],
+  "private_disposable_root": "/private/tmp/ab18-negative-lvuu5oy2/final",
+  "product_children_started": 0,
+  "network_calls": 0,
+  "count": 10,
+  "negative_rejected": 9,
+  "positive_copies_verified": 1,
+  "original_database_sha256_before": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+  "original_database_sha256_after": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+  "original_tools_source_unchanged": true,
+  "not_claimed": [
+    "P1 migration/restore",
+    "native GUI/Provider",
+    "source build for forged negative records"
+  ]
+}

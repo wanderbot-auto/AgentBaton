@@ -1,0 +1,11 @@
+{
+  "actual_runtime_ms": 1001,
+  "never_started": false,
+  "original_reservation_ms": 1000,
+  "phase": "post-owned-Actor-cleanup",
+  "process_reaped": true,
+  "provider_hold_marker_observed": true,
+  "stop_reason": "provider_protocol_or_timeout_failure",
+  "stopped_receipts": 1,
+  "turns_ended": 0
+}

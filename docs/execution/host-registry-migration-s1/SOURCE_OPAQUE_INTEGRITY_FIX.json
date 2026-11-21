@@ -1,0 +1,24 @@
+{
+  "predecessor_source": "6bd25f0d35a1ad0338648d8e0df4cb307f41908e",
+  "source": {
+    "crates/core/src/lib.rs": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb",
+    "crates/core/src/host_registry_migration.rs": "045428f06b1916eee8fbbf77a301d63e8088983319f23abd170293efce2a5e56",
+    "crates/core/src/host_registry_migration_tests.rs": "a67a9090f93362acc478e41ac503bbaeb9d8fa8174d9f549068dd3c1b2e0fcc7",
+    "crates/core/tests/fixtures/pre_host_schema.rs": "55a054f083d698ba28199b210e6a2e79def42f7ab83f952b43cf621e4c377cb2",
+    "crates/core/tests/fixtures/current19_schema.rs": "7bb919b921531733be630611a60fa14534aac927580e7d5084db09bd5de6bde1"
+  },
+  "root_review_finding": "P2 whole-main quick_check could resolve/evaluate legacy opaque CHECK/UDF",
+  "fix": "partial main.quick_check for trusted reference tables only;retain known schema/FK errors;never evaluate opaque CHECK expressions",
+  "primary_pinned_engine": {
+    "path": "/Users/wander/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libsqlite3-sys-0.36.0/sqlite3/sqlite3.c",
+    "sha256": "ff57e8d0a1572b35c17cab9a7dea34616bc12b6fb8b29acf5cb00b6ecf025149",
+    "region": "144245-144340: pObjTab table argument applies to quick/integrity_check;tableSkipIntegrityCheck filters roots"
+  },
+  "new_tests_pending": [
+    "real disk legacy opaque CHECK/UDF with unregistered Store18 reopen",
+    "actual UDF callback counter positive control for whole-main quick_check and zero calls by dormant helpers",
+    "known authority CHECK corruption still rejected"
+  ],
+  "ffi": "test-only existing rusqlite::ffi sqlite3_create_function_v2;no new feature/dependency;owned boxed Arc destructor",
+  "builds": "none since first failed334a compile;B owns heavy slot"
+}

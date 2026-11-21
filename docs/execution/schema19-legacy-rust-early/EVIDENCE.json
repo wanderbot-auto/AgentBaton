@@ -1,0 +1,343 @@
+{
+  "baseline": {
+    "base": "a183f4dd2df0e95d9a73575015275ef9a0daddb9",
+    "time": "2026-11-18T20:52:49.073579+00:00",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "agentbaton-core",
+      "--no-fail-fast",
+      "--test",
+      "storage",
+      "--test",
+      "migration_v7",
+      "--test",
+      "command_validation_migration",
+      "--test",
+      "goal_store_migration",
+      "--test",
+      "data_workspace_migration",
+      "--",
+      "--test-threads=1"
+    ],
+    "environment": {
+      "CARGO_BUILD_JOBS": 3,
+      "CARGO_PROFILE_DEV_DEBUG": 0,
+      "architecture": "arm64"
+    },
+    "exit_code": 101,
+    "seconds": 97.017,
+    "results": {
+      "command_validation_migration": {
+        "passed": 0,
+        "failed": 7,
+        "ignored": 0
+      },
+      "data_workspace_migration": {
+        "passed": 0,
+        "failed": 3,
+        "ignored": 0
+      },
+      "goal_store_migration": {
+        "passed": 0,
+        "failed": 3,
+        "ignored": 0
+      },
+      "migration_v7": {
+        "passed": 0,
+        "failed": 3,
+        "ignored": 0
+      },
+      "storage": {
+        "passed": 7,
+        "failed": 1,
+        "ignored": 0
+      }
+    },
+    "log_sha256": "d04640efcf0121858a1921b3f1682c4644d1325c9c94200bb6a1a67a756ff794",
+    "archive": "baseline.log.gz",
+    "archive_sha256": "4fc2ec4afcbde63725ee4649d8545e082da53b7235474003c1ce64981cebc14c"
+  },
+  "checks": {
+    "candidate": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--no-fail-fast",
+        "--test",
+        "storage",
+        "--test",
+        "migration_v7",
+        "--test",
+        "command_validation_migration",
+        "--test",
+        "goal_store_migration",
+        "--test",
+        "data_workspace_migration",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 12.201,
+      "results": {
+        "command_validation_migration": {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        },
+        "data_workspace_migration": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "goal_store_migration": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "migration_v7": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "storage": {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        }
+      },
+      "log_sha256": "304475655dcf00b0481e3382d5342b4b10dc5b0333b592bd1a1346632967d0ea",
+      "archive": "candidate.log.gz",
+      "archive_sha256": "e5054e220575850d7a53383745ddd0f8666983af90df4c068c16602956deafba"
+    },
+    "related": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--no-fail-fast",
+        "--test",
+        "integration_schema17",
+        "--test",
+        "conversation_schema18",
+        "--test",
+        "host_schema19_fixture",
+        "--test",
+        "host_registry_migration",
+        "--test",
+        "host_registration_real_ipc",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 19.631,
+      "results": {
+        "conversation_schema18": {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0
+        },
+        "host_registration_real_ipc": {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        "host_registry_migration": {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        },
+        "host_schema19_fixture": {
+          "passed": 8,
+          "failed": 0,
+          "ignored": 0
+        },
+        "integration_schema17": {
+          "passed": 16,
+          "failed": 0,
+          "ignored": 0
+        }
+      },
+      "log_sha256": "de55f48148f64a2c28cb845d845632e9c86b21091012259e45f32b96677ac04f",
+      "archive": "related.log.gz",
+      "archive_sha256": "fb3c8297afc9890d1f0c619280bef8dea0d401de948ebe41856be240d0b202b1"
+    },
+    "strict-clippy": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "seconds": 25.167,
+      "results": {},
+      "log_sha256": "4e2cf05dbb35fae7f25c66d5cddd2a6516160cb45f75ea2f2eff41f40623b315",
+      "archive": "strict-clippy.log.gz",
+      "archive_sha256": "937751fe7d35d611dc8d868e357d7ec8531664cdf4c2bc34d4aac39eeefb270e"
+    },
+    "deferred-next-four": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--no-fail-fast",
+        "--test",
+        "goal_runtime_migration",
+        "--test",
+        "goal_graph_migration",
+        "--test",
+        "factory_migration",
+        "--test",
+        "factory_child_plan_migration",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "seconds": 11.142,
+      "results": {
+        "factory_child_plan_migration": {
+          "passed": 0,
+          "failed": 4,
+          "ignored": 0
+        },
+        "factory_migration": {
+          "passed": 0,
+          "failed": 3,
+          "ignored": 0
+        },
+        "goal_graph_migration": {
+          "passed": 0,
+          "failed": 3,
+          "ignored": 0
+        },
+        "goal_runtime_migration": {
+          "passed": 0,
+          "failed": 3,
+          "ignored": 0
+        }
+      },
+      "log_sha256": "7618db41a6697b23df42236c1271f4bbaf81a8e0e25291c8411d472ac707dc7e",
+      "archive": "deferred-next-four.log.gz",
+      "archive_sha256": "84a880a3376baf42724b73c9cd1c891f3acdc019f24e3d65f9640256e52758d8"
+    },
+    "fmt": {
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.857,
+      "results": {},
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "archive": "fmt.log.gz",
+      "archive_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "candidate1": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--no-fail-fast",
+        "--test",
+        "storage",
+        "--test",
+        "migration_v7",
+        "--test",
+        "command_validation_migration",
+        "--test",
+        "goal_store_migration",
+        "--test",
+        "data_workspace_migration",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "seconds": 15.176,
+      "log_sha256": "5e9e0ed65f24c31a7aac07461582125fc1e5a189f709b015e4191191021d4f14",
+      "archive": "candidate1.log.gz",
+      "archive_sha256": "76dbaf08c04b3eb55c701ddef759bbfeb4beda11bf97f0a76e526bbbfd9158de"
+    }
+  },
+  "preserved_historical_contract": {
+    "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "tools": {
+      "batond": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "baton": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf"
+    },
+    "receipt": "docs/execution/schema17-rust-gate/historical-daemon-receipt.json",
+    "receipt_sha256": "4f8fb5ade8f9d2aefe2a3f761d6fb38e4754a8145c58ce7037e7ac98c950c3b4",
+    "checked_default_target": "integration_schema17",
+    "actual_binary_evidence": "leader verified at prerequisite delivery"
+  },
+  "case_proofs": {
+    "storage": "Current Store future20 and unrecognized schema0 refusals preserve original bytes. Seven ordinary Store tests are retained.",
+    "migration_v7": "Generated schema6 opened by real current Store19. Original pre-v7 and whole-image pre-v19 checked. Legacy collision preserved bytes and logical image.",
+    "command_validation_migration": "Generated schema7 opened by real current Store19 with original pre-v8 and added whole-image pre-v19. The exact schema16 Factory fixture retains all inverse, typed-row, pragma, error and WAL rollback assertions.",
+    "goal_store_migration": "Generated schema8 opened by real current Store19 with original pre-v9 and added whole-image pre-v19. Original opaque row and full failed-migration image preserved.",
+    "data_workspace_migration": "Generated schema9 opened by real current Store19 with original pre-v10 and added whole-image pre-v19. Legacy collision keeps its INTERNAL_ERROR and original raw data."
+  },
+  "workspace": {
+    "status": "not_run_prerequisite_failed",
+    "previously_run_exact_source": "dff96b7006a44f54c6cb254cf882eb735b2c8f81",
+    "receipt": "docs/execution/schema17-rust-gate/EVIDENCE.json",
+    "prior_probe_version": 19,
+    "freezer_sha256": "f6905380efeb868fa288d0067fe7440e7fd5a45779c4adcc5586d7d34c496fcf",
+    "exact_freezer_workflow_and_core_sources_unchanged_from_prior_probe": true,
+    "other_targets": {
+      "passed": 0,
+      "failed": 13
+    }
+  },
+  "source_paths_verified_unchanged": [
+    "crates/core/src",
+    "crates/core/tests/fixtures/pre_host_schema.rs",
+    "crates/core/tests/fixtures/pre_factory_schema.rs",
+    "crates/core/tests/fixtures/pre_conversation_schema.rs",
+    "crates/core/tests/fixtures/pre_integration_schema.rs",
+    "Cargo.lock",
+    "Cargo.toml",
+    "scripts/prepare-factory-test-tools.py",
+    ".github/workflows/product.yml"
+  ],
+  "tested_source_head": "287dcb4ec073fb55e4290eaeeadaea705fa01afd",
+  "leader_independent_review": {
+    "head": "287dcb4ec073fb55e4290eaeeadaea705fa01afd",
+    "exit_code": 0,
+    "results": {
+      "command_validation_migration": 7,
+      "data_workspace_migration": 3,
+      "goal_store_migration": 3,
+      "migration_v7": 3,
+      "storage": 8
+    },
+    "source": "/private/tmp/ab-a-early-migration-review.w7ID0KvG/cargo.log",
+    "archive": "leader-independent-review.log.gz",
+    "log_sha256": "2857e80ea04878d91bc96abeb6328372b8e09a20c7dd61952bd4846d9d7cc912",
+    "archive_sha256": "9d7fdc0bb29698583e70a72522872c1043d673f6ee86e9ec6023a565578b25b8"
+  }
+}

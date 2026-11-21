@@ -1,0 +1,448 @@
+{
+  "task": "ci-repair-decision",
+  "requirement": "AB-REL-006",
+  "recorded_at_utc": "2026-11-18T20:13:12.647661+00:00",
+  "fixed_base": "502c053479ba03827d47b795a79d82ded5ee5100",
+  "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+  "branch": "collab/ci-repair-decision",
+  "source_sha256": {
+    "crates/core/src/integration.rs": "c057fab431f3f20807cdedb67e1a86bfa63c6f958f44673b5a52ba68557b2d64",
+    "crates/core/src/integration/ci_repair.rs": "551e20ea8d06cfcb268d34eb71bb6df044bb296b3a5c66f9ef6f6aecfcd4e16b",
+    "crates/core/tests/ci_repair_decision.rs": "33a0525729d183a50d4d4d8f74f9f698634ef5755ff15169baa727450e62155f"
+  },
+  "environment": {
+    "system": "macOS-26.6.1-arm64-arm-64bit",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "cargo_build_jobs": 3,
+    "cargo_profile_dev_debug": "0",
+    "offline": true
+  },
+  "current_tests": {
+    "focused": 9,
+    "real_integration_ipc": 34,
+    "integration_lib_filter": 49,
+    "commands": {
+      "format": {
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+        "exit": 0,
+        "seconds": 1.343
+      },
+      "focused": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "ci_repair_decision"
+        ],
+        "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+        "exit": 0,
+        "seconds": 27.186
+      },
+      "workspace-check": {
+        "command": [
+          "cargo",
+          "check",
+          "--offline",
+          "--locked",
+          "--workspace"
+        ],
+        "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+        "exit": 0,
+        "seconds": 2.069
+      },
+      "core-clippy": {
+        "command": [
+          "cargo",
+          "clippy",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+        "exit": 0,
+        "seconds": 16.513
+      },
+      "integration-regression": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--test-threads=1"
+        ],
+        "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+        "exit": 0,
+        "seconds": 93.694
+      },
+      "integration-unit": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+        "exit": 0,
+        "seconds": 7.589
+      },
+      "integration-build-artifacts": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--no-run",
+          "--message-format=json"
+        ],
+        "tested_source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+        "exit": 0,
+        "seconds": 0.07
+      }
+    }
+  },
+  "actual_store_candidate_replay": {
+    "receipt": {
+      "source": "e05b639315085670297d1b8b51ff9791f9aeebf1",
+      "base": "502c053479ba03827d47b795a79d82ded5ee5100",
+      "original_source_sha256": {
+        "integration_ipc.rs": "b46d41dfe615706c6cbb113eee65370a4b08b68ddcc255a875eed34f33973a21",
+        "fixtures/integration_runtime.rs": "54f86df36fd003889f342e2a3ce08418666370d4f89a817f779e362e07752cd4",
+        "fixtures/integration_diagnostics.rs": "c3a9d7d0342a37813c7184b046b99cd2aac55a1a3ad1d3396e3506144e89fa89",
+        "fixtures/integration_stage_evidence.rs": "a46dafdb9313d8a48448b5564afd55b6cd5699099bda1688e05983a245692027",
+        "fixtures/integration_stage_evidence_tests.rs": "8b2734bbde5acaecf791f81b92ae9ff584c8bbc15afe5b02228ea48e195dfed3"
+      },
+      "appended_one_include": "include!(../store_probe.rs) in copied integration_runtime.rs only",
+      "probe_sha256": "fc72674aee9bf34feb099414e8386964ec109603cafc93f105696505ad28acc7",
+      "rustc_argv": [
+        "rustc",
+        "--test",
+        "--edition=2021",
+        "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/artifacts/ci-repair-decision/store-witness-final/integration_ipc.rs",
+        "-C",
+        "debuginfo=0",
+        "-L",
+        "dependency=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps",
+        "-o",
+        "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/artifacts/ci-repair-decision/store-witness-final/ci-repair-store-witness",
+        "-L",
+        "native=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/build/libsqlite3-sys-9319ee51e1b7e88a/out",
+        "--extern",
+        "agentbaton_core=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libagentbaton_core-11fb51951adecd3f.rlib",
+        "--extern",
+        "agentbaton_workspaces=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libagentbaton_workspaces-94e2960981e85805.rlib",
+        "--extern",
+        "rusqlite=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/librusqlite-f68b84f5c8b260cd.rlib",
+        "--extern",
+        "serde=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libserde-95ee0cfc543e2e11.rlib",
+        "--extern",
+        "serde_json=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libserde_json-7b0ddca393516cd0.rlib",
+        "--extern",
+        "tempfile=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libtempfile-ca8446d8518c3f24.rlib",
+        "--extern",
+        "rustix=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/librustix-25b143a30c36aff0.rlib",
+        "--extern",
+        "uuid=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libuuid-6ce8bf086709c540.rlib",
+        "--extern",
+        "libc=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/liblibc-674352360a8fcb03.rlib"
+      ],
+      "run_argv": [
+        "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/artifacts/ci-repair-decision/store-witness-final/ci-repair-store-witness",
+        "--exact",
+        "integration_runtime::ci_repair_review_overlay_observes_real_store_candidate_and_refuses_incomplete_cas",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "executable_sha256": "9702d301becdd39a8fa072129081273ecc4847c1c9b283797e8461a686c61115",
+      "exit": 0,
+      "dimension": "actual original managed Git/Unix IPC integration candidate and Store; CI source and observation are internal fixtures"
+    },
+    "checks": {
+      "real_local_ref": "ConfirmedLocalRef",
+      "no_rule": "ContinueRequired",
+      "repeat_same_snapshot": "same decision",
+      "foreign_commit": "observation_mismatch",
+      "missing_real_cas_event": "candidate_not_current",
+      "successful_decisions_changed_history": false
+    },
+    "external_ci_observation": "explicit trusted-host fixture only",
+    "missing_receipt_control": "only removed real CAS envelope from disposable database",
+    "provenance": "original fixture and its helpers copied byte-for-byte before including one probe in an ignored task artifact; no existing tracked fixture changed"
+  },
+  "retained_first_failures": {
+    "strict_clippy": "result_large_err on initial source, fixed by boxing the Eligible run-identity payload; exact final strict Core all-targets run passed",
+    "overlay_compilation": "first auxiliary compiler invocation lacked transitive extern flags and the negative fault SQL needed i64; corrected overlay passed",
+    "schema17_extra_regression": {
+      "base": "502c053479ba03827d47b795a79d82ded5ee5100",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/artifacts/ci-repair-decision/fixed-baseline-source/Cargo.toml",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_schema17",
+        "--",
+        "--test-threads=1"
+      ],
+      "archive_sha256": "96b6f3029a90c98cac7355913f28f4f90d88240f6e21bdefaf05011fcf8c1fcc",
+      "exit": 101,
+      "same_failing_cases": [
+        "controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen",
+        "controlled_current18_then_original_factory_inverse_keeps_one_rollback_boundary",
+        "controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_then_upgrades",
+        "controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes",
+        "controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_dependencies",
+        "controlled_empty17_outer_refuses_nested_and_inner_refuses_committed_transactions",
+        "fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_rows",
+        "future19_refuses_before_backup_or_recovery_with_committed_wal_preserved",
+        "opaque16_at_object_budget_refuses_additive17_overflow_atomically",
+        "opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependencies",
+        "opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata",
+        "opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated"
+      ],
+      "seconds": 81.581,
+      "scope": "git archive fixed base, in same worktree ignored task artifacts; no source edited"
+    }
+  },
+  "integrating": {
+    "target_branch": "collab/host-registration-integration",
+    "target_oid": "b8573a221e152c6f47d8590739f031a7bbbd9058",
+    "target_rechecked_via_github_connector": true,
+    "source_merge_preview": [
+      "Previewing target b8573a221e152c6f47d8590739f031a7bbbd9058 + source e05b639315085670297d1b8b51ff9791f9aeebf1 (committed snapshots only).",
+      "760ba422fd62dbd9223490bd05b07ef53237e8b2",
+      "No Git merge conflict. Run tests; rebase can still conflict while replaying commits."
+    ],
+    "scope": "Scope OK against merge base 502c053479ba03827d47b795a79d82ded5ee5100."
+  },
+  "core_only_limitations": {
+    "source_observation": "production verified CI source/remote candidate and latest run adapter not connected",
+    "rule": "production approved effective-settings rule adapter not connected",
+    "history": "durable history/as-of state and atomic dispatch admission not connected",
+    "ui": "normal read projection/continue rendering not connected",
+    "cost": "existing unmeasured shared tokens or cost fail closed, even with a structurally valid rule",
+    "side_effects": "read-only decision with no dispatch, reservation, external PR, workflow or Provider operation"
+  },
+  "review": {
+    "status": "ready to return to independent reviewer",
+    "not_claimed": [
+      "crates/core/src/integration_runtime.rs",
+      "crates/core/tests/fixtures/integration_runtime.rs"
+    ],
+    "requested_minimal_followup": "Expose the existing historical CAS witness and move the real Store assertion into the original fixture, if the integration window grants those exact claims. Current overlay and settled/joined guard remain under the existing scope.",
+    "leader_direct_connection": "failed; scope request relayed in commentary"
+  },
+  "archive": {
+    "path": "docs/execution/ci-repair-decision/validation-logs.tar.gz",
+    "sha256": "aba43eb0583cc4578c90337e190ad562c23705152baae36a9f750a7b9a2891c4",
+    "entries": {
+      "core-clippy.json": {
+        "bytes": 271,
+        "sha256": "6d2538b085e866d093ba36010c00a8028d4bb3471d4db9801132d0f08bac4184"
+      },
+      "core-clippy.log": {
+        "bytes": 2021,
+        "sha256": "8bdd1d4542c682f8deb9ad1a8503be643a5808083b78875f2c98c67a8c5ec360"
+      },
+      "final-core-checks/core-clippy.json": {
+        "bytes": 269,
+        "sha256": "8a173a9abde84a095a2849901ef63ffb9c0092164cb6dbedb0c532f1d7bfe4ce"
+      },
+      "final-core-checks/core-clippy.log": {
+        "bytes": 202,
+        "sha256": "527ba4739b5d28fa38b5a228d55e5ee2b9bc8bc2ea18080f142259ba2fda2ba4"
+      },
+      "final-core-checks/focused.json": {
+        "bytes": 250,
+        "sha256": "4bef2b5d17eef743e78f6cf8991bc6bef18ca65bf2030fcf35af78f4228af079"
+      },
+      "final-core-checks/focused.log": {
+        "bytes": 1154,
+        "sha256": "6d5d767964a34f689756b82aa29868b29025287814f6ef5453a1807d11a513f7"
+      },
+      "final-core-checks/format.json": {
+        "bytes": 180,
+        "sha256": "644de51238534457f69398679d8ee53ce9a46976a83941f282cf541a24451bce"
+      },
+      "final-core-checks/format.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "final-core-checks/integration-build-artifacts.json": {
+        "bytes": 290,
+        "sha256": "f1b41198a38687637e7febc127aac2323e60ac9f80e9633edafe69edec368958"
+      },
+      "final-core-checks/integration-build-artifacts.log": {
+        "bytes": 75650,
+        "sha256": "4d11cc489bd77d3cd3ac0039a9f790ac0049600ce527d25f034e13e34015b88b"
+      },
+      "final-core-checks/integration-regression.json": {
+        "bytes": 281,
+        "sha256": "2b364f3c704c780313dc21b7d367024f96fe498d49f8bd48c414f709d3859ffb"
+      },
+      "final-core-checks/integration-regression.log": {
+        "bytes": 4314,
+        "sha256": "f96c03cdf0f62740258828371601b498f4974617b4b7ecc3b5ef4a768cf3debb"
+      },
+      "final-core-checks/integration-unit.json": {
+        "bytes": 275,
+        "sha256": "d6028fd87f09cd1226c9480b97959dfcc7ab5e15d09caf6bee2c18b8ba36fd90"
+      },
+      "final-core-checks/integration-unit.log": {
+        "bytes": 6329,
+        "sha256": "4211bdf97c2050e21c35a05e6bad3fe30e10e38fb43f6720afadb066512eb683"
+      },
+      "final-core-checks/suite.json": {
+        "bytes": 2097,
+        "sha256": "686c1d47c833d6969a57a9a227070ce9ba3fa5f681b9c70016a6d95f699d976a"
+      },
+      "final-core-checks/workspace-check.json": {
+        "bytes": 196,
+        "sha256": "76398fedd85c77bc51aa73c13b5ae6a31edea3a0d2e437306393a9c0ee40c54d"
+      },
+      "final-core-checks/workspace-check.log": {
+        "bytes": 461,
+        "sha256": "12706b677b37ead0d6ec5648335fe2d1a073439d0168c755aa32ddc22e989b61"
+      },
+      "fixed-baseline-schema17.json": {
+        "bytes": 1699,
+        "sha256": "a364e316fd8901b9fed3d47426f0eaaae2b5df7fd18a43f33e69ef4efdb81b28"
+      },
+      "fixed-baseline-schema17.log": {
+        "bytes": 11019,
+        "sha256": "06428ab3cd32d63d160489679fdc89254ddd848e5b7c9a54ba23b202b97f19c8"
+      },
+      "focused.json": {
+        "bytes": 250,
+        "sha256": "28125df9dbf25e54f0233646694625da198f2371f553d09bab7696b234b6e94a"
+      },
+      "focused.log": {
+        "bytes": 1154,
+        "sha256": "e65fb8526a631ff1028491666e1df4a0603bb256e826e257217ff112bba68745"
+      },
+      "format.json": {
+        "bytes": 179,
+        "sha256": "25e98998185c88b4c489488741728f6ed196e2a3632f9fff198ff736f912c750"
+      },
+      "format.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "integration-build-artifacts.json": {
+        "bytes": 291,
+        "sha256": "38879ffac0ea235da0e31cd7f3c389ff4ffd9615d672319682c769c6c4c7dd73"
+      },
+      "integration-build-artifacts.log": {
+        "bytes": 75650,
+        "sha256": "faad814a4ce2aee1c67f1c9d43ea53107dade1b42a0e101282c794584cf323bc"
+      },
+      "integration-regression.json": {
+        "bytes": 325,
+        "sha256": "263e5b26fe59598f397767a5a1fd3d0d18dbbbe5736779540dbef196b9accfb2"
+      },
+      "integration-regression.log": {
+        "bytes": 12374,
+        "sha256": "43113d74726923b1ba3cd47c71f1892a0ecfc41c0743bf2c0a9aca4f0a9e7cfb"
+      },
+      "integration-unit.json": {
+        "bytes": 276,
+        "sha256": "5e1c6d140a5e26e55da72059de51ecd43e53533f025eb61c23825ddc5b5887fc"
+      },
+      "integration-unit.log": {
+        "bytes": 6330,
+        "sha256": "0e963ea578a5ad3cc38ec9d2fa2a2ddbf7b7bf4efa33e737b6405ef3a4109784"
+      },
+      "leader-trigger-baseline.json": {
+        "bytes": 2913,
+        "sha256": "4c8775e3d63b685938a5feef76dae9c6aa011dfa879ea56a8dcd753366fb8fbf"
+      },
+      "source-merge-preview.log": {
+        "bytes": 263,
+        "sha256": "3d0f6e19de53128c9d6a98af3edabf3fb70981adb5ad4c8bd7172e53cceaecfe"
+      },
+      "store-witness-final/store_probe.rs": {
+        "bytes": 4283,
+        "sha256": "fc72674aee9bf34feb099414e8386964ec109603cafc93f105696505ad28acc7"
+      },
+      "store-witness-final-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "store-witness-final-run.log": {
+        "bytes": 3836,
+        "sha256": "69aaf1b319ef3b6367dc60a8e0d0da7a7d1e2e49674e407cf165ac5ce8d1f950"
+      },
+      "store-witness-final.json": {
+        "bytes": 3820,
+        "sha256": "ecbb27027b9586a4d8ab342665ad792ff9f175d3b1d41d847f3e270d4b42aed5"
+      },
+      "store-witness-overlay-build.log": {
+        "bytes": 15002,
+        "sha256": "5866aacdb92c2674711dd1291a273b033ab14940dfe26e449ca3fe37ca44befc"
+      },
+      "store-witness-overlay-corrected-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "store-witness-overlay-corrected-run.log": {
+        "bytes": 3836,
+        "sha256": "c320e25eb573d6857e9fb6506b5ba4d30cc7013d85d237cfefaf149ee76b0040"
+      },
+      "store-witness-overlay-corrected.json": {
+        "bytes": 3856,
+        "sha256": "d818c7b73b6ca4eaea0da40954d6bd5d6b491641a3b97c063fe2c297cacc229d"
+      },
+      "suite.json": {
+        "bytes": 2148,
+        "sha256": "050e6a0cfe7a979b94bc581c3d08ee6d5c5cce6b849575b269b0eaed08b88b26"
+      },
+      "targeted-first.log": {
+        "bytes": 3611,
+        "sha256": "c1a090b3d577a547441f4567c11fb7183ea68476591e03dccf26d2f28b776b94"
+      },
+      "workspace-check.json": {
+        "bytes": 196,
+        "sha256": "bd140bfd24c4c0f4ba4cea00272c37806d9b814f2c5ae5202eeb2c1ee6118553"
+      },
+      "workspace-check.log": {
+        "bytes": 2568,
+        "sha256": "cf14443f56e2b9556161fef54d2367705321b7e5c7e11a860fcb40cfc8a498f5"
+      }
+    }
+  }
+}

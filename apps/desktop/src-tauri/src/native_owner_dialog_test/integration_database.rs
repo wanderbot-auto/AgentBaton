@@ -26,11 +26,13 @@ baseline=int(baseline); original_revision=int(original_revision)
 db=sqlite3.connect(Path(path).resolve().as_uri()+'?mode=ro',uri=True,timeout=1,isolation_level=None)
 db.execute('PRAGMA query_only=ON');db.execute('PRAGMA trusted_schema=OFF');db.execute('BEGIN')
 assert db.execute('PRAGMA query_only').fetchone()[0]==1
-schema=db.execute('PRAGMA user_version').fetchone()[0];assert schema==18
+schema=db.execute('PRAGMA user_version').fetchone()[0];assert type(schema) is int and schema==19
 tables=('integration_policies','integrations','integration_attempts','integration_ref_fences')
-for table in tables:
+for table in (*tables,'host_registrations'):
     row=db.execute('SELECT type,sql FROM sqlite_master WHERE name=?',(table,)).fetchone()
     assert row is not None and row[0]=='table' and row[1].upper().startswith('CREATE TABLE ')
+assert tuple(row[1] for row in db.execute('PRAGMA table_info(host_registrations)'))==('id','name','name_key','revision','created_sequence','document')
+assert db.execute('SELECT count(*) FROM host_registrations').fetchone()==(0,)
 counts=[db.execute('SELECT count(*) FROM '+t).fetchone()[0] for t in tables]
 sequence=db.execute('SELECT COALESCE(max(sequence),0) FROM events').fetchone()[0]
 row=db.execute("SELECT document,result FROM approval_proposals WHERE id=? AND typeof(document)='text' AND length(CAST(document AS BLOB))<=1048576 AND (result IS NULL OR (typeof(result)='text' AND length(CAST(result AS BLOB))<=1048576))",(proposal_id,)).fetchone();assert row is not None

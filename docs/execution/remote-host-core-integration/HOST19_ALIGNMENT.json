@@ -1,0 +1,27 @@
+{
+  "status": "docs_only_leader_engineering_agreement_fixed_contract_pending_review",
+  "A_commit": "406be16f56c89495595bf263a307a9d861d8e2a3",
+  "A_source_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "A_artifact_sha256": {
+    "DELIVERY.md": "033933f8a74c66be59d8797e66a61f4a8d8ad7dcacb670953cfadac1626515c8",
+    "ADR-001.md": "e141e1ccf9cf97b0144d5347bafbcb22cde732e1346966c00fb3fbf17d229513",
+    "MIGRATION_TEST_CONTRACT.md": "18f2dc1470e9828162ae05e637366d1c8ec2a61845e8f8dc1fe581bebbafb8fb",
+    "PROPOSED_SCOPE.json": "f9113b2b3812ef09247c16902a0b17f8d754a5fa450c06cee8f067413d18495f"
+  },
+  "B_product_commit": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
+  "agreed_sql": "A ADR-001 six columns plus one nonunique name_id index; default NO ACTION event FK",
+  "withdrawn_B_proposals": [
+    "unique display-name constraint",
+    "creation_key SQL column/index",
+    "explicit ON DELETE RESTRICT instead of default NO ACTION"
+  ],
+  "document_detail_to_confirm": "Pinned strict fields/encoding/limits and synthetic fixtures for leader final review; no product scope",
+  "no_product_edits": true,
+  "not_run": [
+    "Core compile",
+    "schema19 migration or inverse",
+    "native/UI/real SSH/Provider",
+    "CI/push"
+  ],
+  "fixed_document_contract": "registry-contract/CONTRACT.json"
+}

@@ -1,0 +1,36 @@
+{
+  "requirement": "AB-REL-007",
+  "worker_base": "ae236688c1727e1a4610c424dd42bdd832f76dab",
+  "worker_source": "882a3dcc950a1ebd3436cc978fa8cbd57c36b091",
+  "worker_delivery": "ba929b6c3b0f65b6ee6601f999d692fbd092b188",
+  "integration_base": "b8573a221e152c6f47d8590739f031a7bbbd9058",
+  "feature": "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+  "integration_tree": "3b569c875bd007520184238ef0a7266d5603a088",
+  "feature_push": "observed remote branch at exact feature SHA",
+  "main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "worker_evidence": "docs/execution/update-readiness/EVIDENCE.json",
+  "worker_evidence_sha256": "7f3ca98ee0c7b3ff380d76f3a49cf1eea6458807dd90a786666d2270c1e1dc40",
+  "independent": {
+    "platform": "macOS Apple Silicon",
+    "focused": {
+      "command": "bash scripts/collab.sh run -- cargo test --locked --offline -j 1 -p agentbaton-core --test update_readiness -- --test-threads=1",
+      "passed": 9,
+      "log": "/tmp/ab-b-update-readiness-review.KjJhG20R"
+    },
+    "joined_infrastructure": {
+      "passed": 987,
+      "skipped": 16,
+      "failed": 0,
+      "log": "/tmp/ab-b-update-joined-infra.nHT2d5uZ"
+    },
+    "bootstrap_manifest": 93,
+    "scope_and_exact_merge_tree": "passed"
+  },
+  "scope": "Read-only local Core readiness. Open SQLite database pathname replacement cannot silently re-anchor the assessment. A joined stop, settled durable operations and verified backup/restoration are distinct conditions.",
+  "outstanding": [
+    "Actual updater or package installation",
+    "Owner/desktop wiring and exclusive update admission",
+    "Cross-version migration on a development package",
+    "Hosted CI and native App verification"
+  ]
+}

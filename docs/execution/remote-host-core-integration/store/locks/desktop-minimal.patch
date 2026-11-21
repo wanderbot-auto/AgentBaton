@@ -1,0 +1,29 @@
+--- apps/desktop/src-tauri/Cargo.lock@4c
++++ apps/desktop/src-tauri/Cargo.lock@minimal
+@@ -28,6 +28,7 @@
+ dependencies = [
+  "agentbaton-config",
+  "agentbaton-providers",
++ "agentbaton-remote-host",
+  "agentbaton-workspaces",
+  "fs2",
+  "rusqlite",
+@@ -66,6 +67,18 @@
+  "serde_json",
+  "sha2",
+ ]
++
++[[package]]
++name = "agentbaton-remote-host"
++version = "0.1.0"
++dependencies = [
++ "libc",
++ "rusqlite",
++ "serde",
++ "serde_json",
++ "sha2",
++]
++
+ 
+ [[package]]
+ name = "agentbaton-workspaces"

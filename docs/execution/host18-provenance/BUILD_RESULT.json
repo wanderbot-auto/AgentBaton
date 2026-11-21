@@ -1,0 +1,99 @@
+{
+  "status": "compiled",
+  "dimension": "real_macOS_ARM64_normal18_pair_build",
+  "implementation_head": "2c8d32c348918a0bc3a597b6a515e60a7010a43b",
+  "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "archive_sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+  "files": 244,
+  "compiled_source_clean": true,
+  "binaries": {
+    "batond": {
+      "sha256": "fce855516b0c9b777d630e93b4e84bd834c287b9ea7512f72be6c1f0acdb9610",
+      "bytes": 24544888,
+      "mode": "0o500",
+      "nlink": 1,
+      "uid": 501,
+      "device": "16777234",
+      "inode": "67357627",
+      "mtime_ns": "1794953428297066784",
+      "ctime_ns": "1794953428299109949",
+      "format": "mach-o-64",
+      "architecture": "arm64"
+    },
+    "baton": {
+      "sha256": "cc169c7291d0df3fa586e545eab65a80a8f853fddf3a300b590500a88c95a89a",
+      "bytes": 1264392,
+      "mode": "0o500",
+      "nlink": 1,
+      "uid": 501,
+      "device": "16777234",
+      "inode": "67357628",
+      "mtime_ns": "1794953428303555527",
+      "ctime_ns": "1794953428303856943",
+      "format": "mach-o-64",
+      "architecture": "arm64"
+    }
+  },
+  "toolchain": {
+    "cargo": {
+      "path": "/Users/wander/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+      "sha256": "696d29bd6f5a136ef6c7088558e178efcabbd571de90e8169d0f6596c568eea8",
+      "version": "cargo 1.91.1 (ea2d97820 2025-10-10)"
+    },
+    "rustc": {
+      "path": "/Users/wander/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rustc",
+      "sha256": "f556cd7caa76d85ff0e777ba8e96552b33b4e0ea0dda8fbe6cde1d23b6c4df27",
+      "version": "rustc 1.91.1 (ed61e7d7e 2025-11-07)"
+    }
+  },
+  "build": {
+    "argv": [
+      "/Users/wander/.rustup/toolchains/stable-aarch64-apple-darwin/bin/cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "-j",
+      "2",
+      "--bin",
+      "batond",
+      "--bin",
+      "baton"
+    ],
+    "cwd": "/private/tmp/ab18-build-r_q9c1n8/source",
+    "target_dir": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/target/predecessor18-first",
+    "features": [],
+    "default_features": true,
+    "lockfile_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+    "cargo_home": "/private/tmp/ab18-build-r_q9c1n8/cargo-cache",
+    "cache_scope": "registry only; no config/auth copied",
+    "cargo_config_paths_checked": [
+      "/private/tmp/ab18-build-r_q9c1n8/source/.cargo/config",
+      "/private/tmp/ab18-build-r_q9c1n8/source/.cargo/config.toml",
+      "/private/tmp/ab18-build-r_q9c1n8/.cargo/config",
+      "/private/tmp/ab18-build-r_q9c1n8/.cargo/config.toml",
+      "/private/tmp/.cargo/config",
+      "/private/tmp/.cargo/config.toml",
+      "/private/.cargo/config",
+      "/private/.cargo/config.toml",
+      "/.cargo/config",
+      "/.cargo/config.toml"
+    ],
+    "cargo_config_absent_before": true,
+    "cargo_config_absent_after": true,
+    "owned_identity": {
+      "pid": 46864,
+      "pgid": 46864
+    },
+    "group_quiescent_before_reap": true,
+    "exit_code": 0,
+    "elapsed_seconds": 80.01612558355555,
+    "log_sha256": "4fe06dc426d57a296894ecbf6a277fdd7500333ca25f27db6804b4cab97b446a"
+  },
+  "manifest_sha256": "6fc5305cdb63d16bad4b59b2c61975950bfce23f8843bbd544e1c5b39ff3aab0",
+  "manifest_private_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-first/frozen/source-build-manifest.json",
+  "not_claimed": [
+    "runtime probe until separate generator",
+    "Store19/P1/native GUI/CI"
+  ]
+}

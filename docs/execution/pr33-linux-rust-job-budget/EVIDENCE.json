@@ -1,0 +1,76 @@
+{
+  "status": "local_verified",
+  "base": "70bcc2aeada84e454a128a4ef38db7251cc9b1fd",
+  "source_head": "244399a43da7792e36fb68e9738b39bc43bb9c68",
+  "source_tree": "1b099d9a4642709865bc40c93a96c940cbeff37f",
+  "workflow_sha256": "ee93dd9d6d8ef6777399dbf33292ab966b396a4ecebd6fce92d58f9abbf81220",
+  "exact_previous_workflow_sha256": "75c5d5e01f7146bdbb8138abc45429d9c52e251fb04b885d5d602ccb8ebaba79",
+  "whole_yaml_semantic_diff": {
+    "path": "jobs.core.timeout-minutes",
+    "was": 25,
+    "is": 30
+  },
+  "validator_source_changed": false,
+  "runner": "ubuntu-24.04",
+  "required_check": "Product / Rust",
+  "observation": {
+    "green_job": 136824666680,
+    "cancelled_job": 136848115637,
+    "run": 44904851079,
+    "job_seconds": [
+      1310,
+      1517
+    ],
+    "workspace_test_seconds": [
+      681,
+      930
+    ],
+    "schema18_seconds": [
+      244,
+      121
+    ],
+    "projected_same_remaining_steps_seconds": 1668,
+    "projected_margin_with_1800_seconds": 132,
+    "original_termination": "25-minute job cap; original failure preserved"
+  },
+  "validation": {
+    "focused_passed": 34,
+    "infrastructure_total": 1148,
+    "infrastructure_passed": 1132,
+    "existing_skips": 16,
+    "elapsed_seconds": 134.394,
+    "pinned_action_invocations": 20,
+    "exact_legacy_inverse": true,
+    "shape_mutations_denied": true
+  },
+  "command": "bash scripts/collab.sh run -- /Users/wander/Documents/code/agentBaton-next/.venv/bin/python -B -m unittest discover -s tests/infrastructure -p test_*.py -v",
+  "initial_negative_test_failure": "Correct rejection returned by the original validator, but the new test mistakenly expected a workflow path in the error string. The test now asserts the existing message and failed exit. Initial raw output retained.",
+  "raw": {
+    "comparison": {
+      "path": "/private/tmp/ab-pr33-attach-hosted.0_fuij20/rust-timing-comparison.json",
+      "sha256": "40f980543906555586d795cc20aa11ddc250182340611e4e6ddff4b7d1d65ec3"
+    },
+    "rust_cancelled": {
+      "path": "/private/tmp/ab-pr33-attach-hosted.0_fuij20/rust.log",
+      "sha256": "9d1d0981d62693e8575d69ff381b3cc0358eed423c3d9e0441528cc1ad7e0b59"
+    },
+    "annotation": {
+      "path": "/private/tmp/ab-pr33-attach-hosted.0_fuij20/rust-annotations.json",
+      "sha256": "a30ded87b2cd67f38353a44518b4caa8a5b0f4152c7289452960455a27630241"
+    },
+    "focus_first": {
+      "path": "/private/tmp/ab-collab-74mcl5z_/rust-budget-focused.log",
+      "sha256": "5682e7eaec77d5372bdbfb24b7c7237681acffb90315e912b1183eaa38333715"
+    },
+    "focus_passed": {
+      "path": "/private/tmp/ab-collab-74mcl5z_/rust-budget-focused-final.log",
+      "sha256": "a570e1ce4a130d82803bd33ccd3cae6e0fbb8abcb113de8422c218e73db4d485"
+    },
+    "infrastructure": {
+      "path": "/private/tmp/ab-collab-74mcl5z_/rust-budget-infra.log",
+      "sha256": "4a31d43689cffc32b0c4baea494f80286190bf80f582e2996fcc46efd2308070"
+    }
+  },
+  "remote_ci_for_changed_budget": "not_run",
+  "remote_mutations": []
+}

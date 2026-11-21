@@ -1,0 +1,5 @@
+new-extension: baseline=0, candidate=1, reason=CI credentials must stay read-only
+job-permission: baseline=0, candidate=1, reason=job credentials must stay read-only
+job-environment: baseline=0, candidate=1, reason=CI environment binding forbidden
+step-secret-index: baseline=0, candidate=1, reason=secret context forbidden
+duplicate-permission: baseline=0, candidate=1, reason=invalid or ambiguous workflow YAML

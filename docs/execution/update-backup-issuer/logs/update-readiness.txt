@@ -1,0 +1,16 @@
+     Running tests/update_readiness.rs (target/debug/deps/update_readiness-503eb8fc33ae9e74)
+
+running 11 tests
+test a_replaced_database_path_cannot_be_reanchored_by_the_open_sqlite_connection ... ok
+test backup_issuer_refuses_collisions_and_unsafe_destinations_without_touching_entries ... ok
+test missing_and_unknown_authority_never_looks_like_idle ... ok
+test goal_graph_factory_and_command_durable_states_are_checked_independently ... ok
+test approved_artifact_migration_and_exact_restoration_are_separate_checks ... ok
+test idle_available_and_confirmed_stopped_are_distinct_readiness_states ... ok
+test backup_proof_requires_same_store_private_copy_and_standalone_sqlite ... ok
+test store_issued_backup_binds_wal_rows_and_is_consumed_by_preflight ... ok
+test real_store_restart_preserves_unknown_dispatch_as_blocker ... ok
+test update_recheck_rejects_new_actor_and_durable_drift_without_a_new_event ... ok
+test real_managed_work_blocks_until_the_completed_turn_and_stop_are_settled ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.42s

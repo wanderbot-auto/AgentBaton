@@ -1,0 +1,105 @@
+{
+  "requirement": "AB-REL-003",
+  "status": "accepted",
+  "recorded_at_utc": "2026-11-21T12:10:14.110454+00:00",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "github_checked_merge": "df35231eab29aa2d4a043fd9be60888504507716",
+  "hosted": {
+    "pr": 30,
+    "job": 134177203395,
+    "source_matching_historical_receipt": "docs/execution/leader-control/PR30_ACCEPTANCE.json",
+    "bundle_build": "npm run tauri -- build --bundles app",
+    "audit_step": "Audit the actual default release application for test controls",
+    "audit_pass_line": "PASS no native harness identifiers in default application executable",
+    "artifact_upload": 14350183579
+  },
+  "scope": "Separate native-smoke feature/binaries and existing default package marker audit. Read-only verification covered the actual development DMG, no executed binary or publisher attestation.",
+  "source_trace": [
+    ".github/workflows/product.yml",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "scripts/native-macos-smoke.sh",
+    "scripts/native-audit-release.sh",
+    "scripts/package-development-macos.sh"
+  ],
+  "independent": {
+    "artifact_audit": {
+      "status": "passed",
+      "artifact_id": 14350183579,
+      "checkout": "df35231eab29aa2d4a043fd9be60888504507716",
+      "architecture": "arm64",
+      "zip_sha256": "cbed165a62710d1d302f3ab28cc3e6e12165d270f9c14ff858d6e93ac00b99e0",
+      "archive_crc_ok": true,
+      "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f",
+      "checked_executables": {
+        "agentbaton-desktop": "180962ac11c4422f784ca017979bb74e73ee555886b7edf9e3ab755664ba28fd",
+        "baton": "1d38b91fb401cfd3ef1486a845df246682f16b44b1b6e6d533e7959b256e8647",
+        "batond": "a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109"
+      },
+      "signature_inspection": {
+        "app": {
+          "strict_exit": 1,
+          "description_exit": 0
+        },
+        "agentbaton-desktop": {
+          "strict_exit": 1,
+          "description_exit": 0
+        },
+        "baton": {
+          "strict_exit": 0,
+          "description_exit": 0
+        },
+        "batond": {
+          "strict_exit": 0,
+          "description_exit": 0
+        }
+      },
+      "exact_main_legacy_marker_audit_all_three": "passed",
+      "supplemental_candidate_three_executable_audit": "passed",
+      "mounted_read_only": "detached",
+      "application_executed": false
+    },
+    "targeted_canaries_passed": 13,
+    "targeted_canary_sources": [
+      "apps/desktop/src-tauri/tests/test_native_runner.py",
+      "tests/infrastructure/test_native_release_audit.py"
+    ],
+    "supplemental_exact_candidate_source": "1763b15ca3d778481ec5aae600c61d45006e29e8",
+    "broader_local_runner_check": "One observation-failure cleanup assertion failed on the local macOS test run. The original full log is retained. The failure does not prove a packaged test control.",
+    "historical_bundle_signature": "Linker ad-hoc desktop executable with no sealed bundle resources. Strict app validation failed. The two CLI sidecars passed strict validation. This is separate from test-control isolation and prevents claiming that this historical package passes full bundle signature verification.",
+    "logs": {
+      "ab-leader-main-release-controls.v4HVPjjs/package-audit.stderr": {
+        "sha256": "7f61fc0e5bd64305ce8973314fbd27392a2171bb6650df74135180378544c1f6",
+        "local_path": "/private/tmp/ab-leader-main-release-controls.v4HVPjjs/package-audit.stderr"
+      },
+      "ab-leader-main-release-controls-retry.94CPPO8p/package-audit.json": {
+        "sha256": "017d1c8c54dac1d9394156e5182666cf5f56506e33dc10df6b4a1bfabb1fe348",
+        "local_path": "/private/tmp/ab-leader-main-release-controls-retry.94CPPO8p/package-audit.json"
+      },
+      "ab-leader-main-release-controls-retry.94CPPO8p/run.py": {
+        "sha256": "8b330648f52006cece62ea551b001b9b37ae1b44e42d4a24f1c2abb43d3b7344",
+        "local_path": "/private/tmp/ab-leader-main-release-controls-retry.94CPPO8p/run.py"
+      },
+      "ab-leader-main-release-controls-retry.94CPPO8p/detach.log": {
+        "sha256": "7a042615bf3722a3771413c5ae0834a1153311a88abad4deef4d8ad80a5c7273",
+        "local_path": "/private/tmp/ab-leader-main-release-controls-retry.94CPPO8p/detach.log"
+      },
+      "ab-leader-main-release-controls-retry.94CPPO8p/canaries.log": {
+        "sha256": "2b22cc833737b42ad7a9517e2228037418a06877a82686569010014b764305f7",
+        "local_path": "/private/tmp/ab-leader-main-release-controls-retry.94CPPO8p/canaries.log"
+      },
+      "ab-leader-main-release-controls-retry.94CPPO8p/artifact-audit-targeted.log": {
+        "sha256": "32db0c3a6a0cd895fb9245ca4b94d3c04327973138642478afac668f191188c0",
+        "local_path": "/private/tmp/ab-leader-main-release-controls-retry.94CPPO8p/artifact-audit-targeted.log"
+      },
+      "ab-leader-main-release-controls-retry.94CPPO8p/codesign-app-verify.log": {
+        "sha256": "666ac35d433b7fc6fc5dda6e82619b917e79e37f24c24cba741149b948675d3a",
+        "local_path": "/private/tmp/ab-leader-main-release-controls-retry.94CPPO8p/codesign-app-verify.log"
+      },
+      "ab-leader-main-release-controls-retry.94CPPO8p/codesign-app-describe.log": {
+        "sha256": "58029cf7f23601153589f2f0aa1117bb651c1f972a94063603d304ca0c9f3cdf",
+        "local_path": "/private/tmp/ab-leader-main-release-controls-retry.94CPPO8p/codesign-app-describe.log"
+      }
+    }
+  }
+}

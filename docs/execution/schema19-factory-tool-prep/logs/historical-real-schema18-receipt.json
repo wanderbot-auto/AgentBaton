@@ -1,0 +1,23 @@
+{
+  "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tool_sha256": {
+    "batond": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+    "baton": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf"
+  },
+  "manifest_sha256": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+  "positive": {
+    "api": 1,
+    "schema": 18,
+    "daemon_exit": 0
+  },
+  "future19": {
+    "daemon_exit": 1,
+    "socket_created": false,
+    "raw_main_and_committed_wal_unchanged": {
+      "baton.sqlite3": "020c4d7c6126602ca738c93dbe1337176a3bc4cff85c27fa0e480ee120d8585e",
+      "baton.sqlite3-wal": "2fca44549118d4ae74a53b51895374dfd4b06f10a718c4c765ab7966be35f879"
+    },
+    "no_backup": true,
+    "stderr_sha256": "21b40d638573d128a5b73e1b68ca86f655715cac467f0fb20601dd7fe2d2f792"
+  }
+}

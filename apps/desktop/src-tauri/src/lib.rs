@@ -13,6 +13,7 @@ mod background_service;
 mod background_window;
 mod client_recovery_bridge;
 mod detached_daemon;
+mod hosts;
 mod integration_approval;
 #[cfg(all(feature = "native-smoke", debug_assertions, target_os = "macos"))]
 pub mod native_background_service_test;
@@ -2378,9 +2379,9 @@ fn authenticated_snapshot(runtime: &Path, deadline: Instant) -> Result<Value, St
 fn require_current_database_schema(response: &Value) -> Result<(), String> {
     if response.get("error").is_some()
         || response["result"]["api_version"].as_u64() != Some(1)
-        || response["result"]["database_schema_version"].as_u64() != Some(18)
+        || response["result"]["database_schema_version"].as_u64() != Some(19)
     {
-        return Err("Authenticated daemon requires exact database schema18; old/future/unknown schema is unsupported".into());
+        return Err("Authenticated daemon requires exact database schema19; old/future/unknown schema is unsupported".into());
     }
     Ok(())
 }
@@ -2528,6 +2529,13 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         data_workspaces_list,
         data_workspaces_get,
         data_workspaces_cancel,
+        hosts::hosts_register,
+        hosts::hosts_list,
+        hosts::hosts_get,
+        hosts::hosts_registration_pending,
+        hosts::hosts_registration_reconcile,
+        hosts::hosts_registration_retry,
+        hosts::hosts_registration_acknowledge,
         connections_list,
         connections_register,
         client_recovery_list,
@@ -2995,28 +3003,114 @@ mod integration_bridge_tests {
         );
     }
     #[test]
-    fn current_schema_requires_authenticated_exact_typed_eighteen() {
-        let good = json!({"result":{"api_version":1,"database_schema_version":18}});
+    fn current_schema_requires_authenticated_exact_typed_nineteen() {
+        let good = json!({"result":{"api_version":1,"database_schema_version":19}});
         assert!(require_current_database_schema(&good).is_ok());
         for bad in [
             Value::Null,
             json!(17),
-            json!(19),
+            json!(18),
+            json!(20),
             json!(18.0),
+            json!(19.0),
             json!(true),
             json!("18"),
+            json!("19"),
         ] {
             let mut response = good.clone();
             response["result"]["database_schema_version"] = bad;
+            assert!(require_current_database_schema(&response).is_err());
+        }
+        for bad in [Value::Null, json!(2), json!(1.0), json!(true), json!("1")] {
+            let mut response = good.clone();
+            response["result"]["api_version"] = bad;
             assert!(require_current_database_schema(&response).is_err());
         }
         let mut error = good.clone();
         error["error"] = Value::Null;
         assert!(require_current_database_schema(&error).is_err());
         assert!(
-            require_current_database_schema(&json!({"result":{"database_schema_version":18}}))
+            require_current_database_schema(&json!({"result":{"database_schema_version":19}}))
                 .is_err()
         );
+    }
+    #[test]
+    fn private_daemon_accepts_current_snapshot_and_background_identity() {
+        use std::fs::{self, DirBuilder};
+        use std::os::unix::fs::DirBuilderExt;
+        use std::sync::{
+            atomic::{AtomicBool, Ordering},
+            Arc,
+        };
+        use std::thread;
+
+        struct PrivateRuntime(PathBuf);
+        impl Drop for PrivateRuntime {
+            fn drop(&mut self) {
+                let removed = fs::remove_dir_all(&self.0);
+                if !thread::panicking() {
+                    removed.unwrap();
+                }
+            }
+        }
+
+        struct RunningDaemon {
+            stop: Arc<AtomicBool>,
+            worker: Option<thread::JoinHandle<agentbaton_core::Result<()>>>,
+        }
+        impl Drop for RunningDaemon {
+            fn drop(&mut self) {
+                self.stop.store(true, Ordering::Release);
+                let result = self.worker.take().unwrap().join();
+                if !thread::panicking() {
+                    result.unwrap().unwrap();
+                }
+            }
+        }
+
+        let path = Path::new("/tmp")
+            .canonicalize()
+            .unwrap()
+            .join(format!("ab-schema19-{}", std::process::id()));
+        DirBuilder::new().mode(0o700).create(&path).unwrap();
+        let runtime = PrivateRuntime(path);
+        let daemon = ipc::Daemon::bind(&runtime.0).unwrap();
+        let stop = Arc::new(AtomicBool::new(false));
+        let signal = stop.clone();
+        let owner = RunningDaemon {
+            stop,
+            worker: Some(thread::spawn(move || daemon.run(signal))),
+        };
+
+        assert!(!requires_start(&runtime.0).unwrap());
+        let snapshot =
+            authenticated_snapshot(&runtime.0, Instant::now() + Duration::from_secs(5)).unwrap();
+        assert_eq!(snapshot["result"]["api_version"], 1);
+        assert_eq!(snapshot["result"]["database_schema_version"], 19);
+        let background = ipc::call(
+            &runtime.0,
+            json!({"method":"system.background","params":{}}),
+        )
+        .unwrap();
+        let instance = background_policy::status_instance(&background, None).unwrap();
+        assert_eq!(
+            background_policy::status_instance(&background, Some(instance)).unwrap(),
+            instance
+        );
+        assert!(background_policy::status_instance(
+            &background,
+            Some("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+        )
+        .is_err());
+        assert_eq!(
+            background["result"]["sequence"],
+            snapshot["result"]["sequence"]
+        );
+        assert_eq!(background["result"]["owned_provider_workers"], false);
+
+        drop(owner);
+        assert!(!runtime.0.join("batond.sock").exists());
+        println!("private schema19 daemon stopped, joined and removed its socket");
     }
     #[test]
     fn generic_owner_path_cannot_finalize_integration() {

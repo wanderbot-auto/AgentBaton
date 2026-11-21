@@ -1,0 +1,8 @@
+collab: task runtime /private/tmp/ab-collab-gd4zvmnx
+Candidate: 8aa4483d7028f9e9cb65a709bf2659f5e6715efd; blob d368e480040af7837290ba964f9e5c231304113f; 103723 bytes; SHA-256 338fbef7689416a71ec101aaad3ac5afb91e433c55d5c1c4bf413242108944d5
+Restored: 1f756ce201b8cf10f4b1798053674f4e960ac77d; blob cdb711f433b061d7bd7bdf84b09e316df4098553; 103452 bytes; SHA-256 6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb
+Restored bytes equal the historical Git blob
+Original whole-bridge token SHA-256: b5dcc8f034fc0f8f73b8b5d74cffd772f94b2ce4b81eda2c671240696641cb2d
+Current ensure_daemon SHA-256: e9708f857866f23dd41f988124b85216b50a1ed432690b2adacfd4f175e30a2b
+Removing only the new import and whole-file input adaptation restores every byte of the old test module
+Exit: 0

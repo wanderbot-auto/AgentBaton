@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DaemonError } from './api';
 import type { Language } from './i18n';
 import { FactoryChildPlanEditor } from './FactoryChildPlanEditor';
-import { FactoryChildGoals } from './FactoryChildGoals';
+import { FactoryChildGoals, type ReadChildPlanContext } from './FactoryChildGoals';
 import { factoryChildPlanApi } from './factory-api';
 import { factorySame, factorySafeFingerprint, factoryRunSupported } from './factory-guards';
 import { childContextShape, childEditorScope, childEditorLatest, childHistoryShape, childViewShape, parseFactoryChildPlan, verifyChildRaw } from './factory-child-plan';
@@ -27,6 +27,22 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,parentR
  const mounted=useRef(true),epoch=useRef(0),inflight=useRef(false),reading=useRef(false),trustedRead=useRef('');
  const current=useRef({scope,target,run,connected,parentReady,sourceToken,context,head,verifiedToken:verifiedRead.token,ready:false,loading,changed:false});
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;++epoch.current;};},[]);
+ const pendingContext=useRef<Promise<void>|null>(null);
+ const readChildPlanContext=useCallback<ReadChildPlanContext>((scopeId,taskId,stillCurrent)=>{
+  const previous=pendingContext.current;
+  async function read(){
+   if(previous)await previous;
+   if(!stillCurrent())return null;
+   return factoryChildPlanApi.context(scopeId,taskId);
+  }
+  // Both panels need a new proof and share a bounded Core data worker.
+  // Wait for the preceding Context call and keep each result with its caller.
+  const request=read();
+  const finished=request.then(()=>{},()=>{});
+  pendingContext.current=finished;
+  void finished.then(()=>{if(pendingContext.current===finished)pendingContext.current=null;});
+  return request;
+ },[]);
  function remember(p:Pending|null,expectedKey?:string){if(expectedKey!==undefined&&saved.pending?.key!==expectedKey)return;saved.pending=p;if(mounted.current)setPending(p);}
  const refresh=useCallback(async()=>{
   const source=current.current,token=source.sourceToken,stamp=++epoch.current;current.current.ready=false;reading.current=true;setFresh(false);setError('');
@@ -35,8 +51,8 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,parentR
   try{
    const {scope,target,run}=source;
    if(scope.revision<saved.scopeRevision||target.revision<saved.targetRevision)throw new Error(t.invalid);
-   const c=await factoryChildPlanApi.context(scope.id,target.task_id);if(!stillCurrent())return;
-   if(!childContextShape(c,scope,target)||c.run_id!==run.id)throw new Error(t.invalid);
+   const c=await readChildPlanContext(scope.id,target.task_id,stillCurrent);if(!stillCurrent())return;
+   if(!c||!childContextShape(c,scope,target)||c.run_id!==run.id)throw new Error(t.invalid);
    const refs=await factoryChildPlanApi.list(scope.id,target.task_id);if(!stillCurrent())return;
    if(!childHistoryShape(refs,c)||refs.length<saved.head)throw new Error(t.invalid);
    for(const ref of refs){const before=saved.refs.get(ref.revision);if(before&&before!==factorySafeFingerprint(ref))throw new Error(t.invalid);}
@@ -50,7 +66,7 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,parentR
    setContext(c);setHistory(refs);setHead(latest);setSelected(latest);setVerifiedRead({token});setFresh(true);
   }catch(e){if(stillCurrent()){trustedRead.current='';setError(`${t.invalid} ${e instanceof Error?e.message:''}`);}}
   finally{if(mounted.current&&stamp===epoch.current){reading.current=false;setLoading(false);}}
- },[saved,t]);
+ },[readChildPlanContext,saved,t]);
  // Each original parent cycle reads history, including MCP-only plan changes.
  // Equal clones in the same cycle do not initiate another withdrawal/read.
  useEffect(()=>{if(open)void refresh();},[open,sourceToken,refresh]);
@@ -89,6 +105,6 @@ function ChildPlanPanel({scope,target,run,language,connected,parentReady,parentR
  <label>{t.raw}<textarea rows={12} value={raw} maxLength={context.policy.max_plan_bytes} disabled={disabled} onChange={e=>{setRaw(e.target.value);if(!saved.pending)setNotice(null);if(base===null)setBase(context.current_plan_revision);}}/></label><p>{t.local}</p>{changed&&<p role="alert">{t.staleDraft}</p>}<button disabled={disabled||!raw.trim()||context.current_plan_revision>=context.policy.max_revisions} onClick={()=>void submit({raw,key:crypto.randomUUID(),scopeRevision:scope.revision,planRevision:context.current_plan_revision,unknown:false})}>{t.store}</button><button disabled={busy||!!pending} onClick={()=>{setRaw('');setBase(null);setNotice(null);}}>{t.clear}</button>
  <details><summary>{t.history}</summary>{history.length?<ol>{history.map(ref=><li key={ref.id}><button disabled={busy||loading} onClick={()=>void select(ref)}>r{ref.revision} · {ref.plan_digest}</button><p>{ref.id} · seq {ref.receipt_sequence} · {ref.raw_sha256}</p></li>)}</ol>:<p>{t.none}</p>}</details>
  {selected&&<details><summary>{t.selected}: r{selected.reference.revision}</summary><p>{selected.created_at} · {selected.authority_kind}</p><details><summary>{t.receipt}</summary><pre>{JSON.stringify({reference:selected.reference,scope_digest:selected.scope_digest,planning_policy_digest:selected.planning_policy_digest,root_task_id:selected.root_task_id,root_grant_id:selected.root_grant_id,caller_task_id:selected.caller_task_id,caller_session_id:selected.caller_session_id,caller_attempt_id:selected.caller_attempt_id,caller_fencing_token:selected.caller_fencing_token},null,2)}</pre></details><pre aria-label={t.rawHistory}>{selected.plan_json}</pre></details>}</>}
- {scope.selection.capabilities.child_goal_execution&&<FactoryChildGoals scope={scope} target={target} run={run} selected={selected} language={language} connected={connected} parentReady={parentReady&&ready&&!busy&&!pending&&!loading} parentRefreshOnly={childRefreshOnly} parentReadIdentity={factorySafeFingerprint([parentReadIdentity,readIdentity])}/>}
+ {scope.selection.capabilities.child_goal_execution&&<FactoryChildGoals scope={scope} target={target} run={run} selected={selected} language={language} connected={connected} parentReady={parentReady&&ready&&!busy&&!pending&&!loading} parentRefreshOnly={childRefreshOnly} parentReadIdentity={factorySafeFingerprint([parentReadIdentity,readIdentity])} readChildPlanContext={readChildPlanContext}/>}
  <p>{t.boundary}</p></section>;
 }

@@ -1,0 +1,186 @@
+{
+  "requirement": "AB-SEC-009",
+  "scope": "Read-only project-owned turn retention preview over one real Core Store snapshot",
+  "owner_acknowledged": "OWNER-001",
+  "branch": "collab/project-history-retention-snapshot",
+  "target_ref": "origin/collab/host-registration-integration",
+  "base_sha": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "base_tree": "9ce195d936d5798b077f50d1b7e25102318ce9c6",
+  "tested_source_sha": "393a8a14f37ae93f7b4d0240a15fc8c489d7e36b",
+  "tested_source_tree": "627eebfa15364f1c131f2d651cfc18e8311264d3",
+  "started_utc": "2026-11-19T03:52:37Z",
+  "finished_utc": "2026-11-19T03:55:07Z",
+  "runner": {
+    "arch": "arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "sqlite_dependency": "libsqlite3-sys 0.36.0 bundled Unix VFS",
+    "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "wrapper": [
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ]
+  },
+  "integration_cases": [
+    "Generated current Store, two registered projects, actual managed worktrees, a real Store conversation and a Store session through generated local ACP child processes",
+    "Both active turns kept and scoped to their owner project without body, foreign ID or mixed event exposure",
+    "Confirmed shutdown, missing retention metadata, unknown dispatch, unknown owner turn state and unclassified document shape produce distinct keep decisions",
+    "Controlled task/project mismatch rejected for its owning project while the other project keeps the same plan",
+    "Primary DB and WAL bytes, database identity, schema, durable sequence, local change counter and external data version identical before and after each preview"
+  ],
+  "missing_metadata": [
+    "Authoritative per-record pin status",
+    "Independent body capture timestamp",
+    "Complete source-specific index, vector, cache, export and backup lineage",
+    "Retention scope for mixed journal, external artifacts and protected record categories outside turn inventory",
+    "Persisted project TTL and body capture policy"
+  ],
+  "preliminary_failure": {
+    "command": [
+      "cargo",
+      "clippy",
+      "--offline",
+      "--locked",
+      "-j",
+      "4",
+      "-p",
+      "agentbaton-core",
+      "--lib",
+      "--test",
+      "history_retention",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 101,
+    "finding": "Large size difference between owner enum variants. Boxes the Task payload in verified source.",
+    "log": "logs/preliminary-clippy.txt",
+    "log_sha256": "a08d6863229adc75c4875484a5916129e371a074cab2af19413b453785c00c20"
+  },
+  "checks": [
+    {
+      "label": "targeted",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "history_retention"
+      ],
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered": 0,
+      "log": "logs/targeted.txt",
+      "log_sha256": "9f297f3ece3b52fbb676063b963a8d17eb035228306b7e2b06e7a8ae01c6dc7a"
+    },
+    {
+      "label": "history",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "conversations_history::tests"
+      ],
+      "exit_code": 0,
+      "passed": 13,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered": 455,
+      "log": "logs/history.txt",
+      "log_sha256": "8282fcb58f8c179fec7d8ad31bd78b63332fe56a28e91121af50fbdfb39c3d22"
+    },
+    {
+      "label": "migration",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "conversation_schema18"
+      ],
+      "exit_code": 0,
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered": 0,
+      "log": "logs/migration.txt",
+      "log_sha256": "dbd6ba22c98d3cac167151920792189a6ceed35615cc2d7c5f3e7d26750b23d4"
+    },
+    {
+      "label": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--test",
+        "history_retention",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "logs/clippy.txt",
+      "log_sha256": "7c34bd1a91fe1bdde6f23c69303ab9c5a965b4d09a3f545698eae6d1a54722ba"
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "manifest",
+      "command": [
+        "python3",
+        "scripts/verify_bootstrap_manifest.py"
+      ],
+      "exit_code": 0,
+      "log": "logs/manifest.txt",
+      "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    }
+  ],
+  "source_preview": {
+    "log": "logs/source-preview.txt",
+    "log_sha256": "63e7eeeecfef610201dd2c1ea2c8729db3aeda9de34f9e159bafb962817b00c2"
+  },
+  "not_run": [
+    "Linux",
+    "CI",
+    "real Provider account",
+    "full live Goal or Factory linked-work lifecycle"
+  ]
+}

@@ -1,0 +1,714 @@
+{
+  "task": "host19-goal-execution-ci",
+  "base": "7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603",
+  "first_tested_source": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+  "first_evidence": "86934259dd19327e90f09e999e593043f32f6c45",
+  "review_fix_tested_source": "258c52e653bf069b3a85c02c59ac4477a9d77d9b",
+  "recorded_utc": "2026-11-18T19:41:44.877159+00:00",
+  "driver_sha256": "c3256574204d5b927a029907cf3600113a9e8c1d4b754b0f5bb612d25f209215",
+  "same_source_evidence_regions": {
+    "generated ACP and procfs proof": "19ffdeb4e8a10847c28a0266d220ea757c04f224cab8374f2d9089e3c8eb951c",
+    "fixture authority, owned stop identity and receipt chain": "df68da1b648efd04c8d8f641c4fbf9f3e9033205d9b2b56e7574d3dc4262dc68",
+    "HTTP allowlist and transport handlers": "3fc471ec7691dbee811907e3958999d3bda15edbe3ed6a85e03c9d50277a07e9",
+    "real browser, permissions, denial, budgets and stop assertions": "8fed0aa0aee954d0c92cf23974deef1a1f956e7138f9526e96f7680d90d2913d",
+    "cleanup marker PID/start ticks/group/cmdline checks": "ac78bc849d7242c7e7f735667262f6cde77e7e7e8a9f7a8d9c25acc94d9d5fca"
+  },
+  "read_only_schema_and_tool_checks_remain_byte_identical": true,
+  "tests": {
+    "targeted_passed": 16,
+    "cleanup_regressions_passed": 5,
+    "full_passed": 975,
+    "full_skipped": 16
+  },
+  "actual_local_linux": {
+    "receipt": {
+      "source": "258c52e653bf069b3a85c02c59ac4477a9d77d9b",
+      "prior_failed_setup": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-cleanup-run",
+      "base_image": "docker.io/library/python@sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177",
+      "platform": "local Linux x86_64 under ARM64 Docker Desktop",
+      "hosted_ci": false,
+      "only_host_mount": {
+        "source": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-cleanup-source.bundle",
+        "destination": "/input/source.bundle",
+        "mode": "read_only"
+      },
+      "uses_default_private_guest_home": true,
+      "build_umask": "0077",
+      "commands": {
+        "start": {
+          "argv": [
+            "docker",
+            "start",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73"
+          ],
+          "exit": 0,
+          "seconds": 0.133
+        },
+        "staging-dir": {
+          "argv": [
+            "docker",
+            "exec",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73",
+            "mkdir",
+            "-m",
+            "0700",
+            "/tmp/goal-tool-inputs"
+          ],
+          "exit": 0,
+          "seconds": 0.08
+        },
+        "cached-baton": {
+          "argv": [
+            "docker",
+            "cp",
+            "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-cleanup-cache/retained-tools/baton",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73:/tmp/goal-tool-inputs/baton"
+          ],
+          "exit": 0,
+          "seconds": 0.433
+        },
+        "cached-batond": {
+          "argv": [
+            "docker",
+            "cp",
+            "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-cleanup-cache/retained-tools/batond",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73:/tmp/goal-tool-inputs/batond"
+          ],
+          "exit": 0,
+          "seconds": 0.608
+        },
+        "cached-node-v22.19.0-linux-x64.tar.xz": {
+          "argv": [
+            "docker",
+            "cp",
+            "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-rust-input-cache/node-v22.19.0-linux-x64.tar.xz",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73:/tmp/goal-tool-inputs/node-v22.19.0-linux-x64.tar.xz"
+          ],
+          "exit": 0,
+          "seconds": 0.278
+        },
+        "guest-setup": {
+          "argv": [
+            "docker",
+            "exec",
+            "-i",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73",
+            "bash",
+            "-s"
+          ],
+          "exit": 0,
+          "seconds": 14.501,
+          "script_sha256": "571967906e4f9866b27955db35d4e4b52a040429d5a4a2d174b00642ed95dc18"
+        },
+        "linux-build": {
+          "argv": [
+            "docker",
+            "exec",
+            "-i",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73",
+            "su",
+            "-l",
+            "evidence",
+            "-s",
+            "/bin/bash",
+            "-c",
+            "exec bash -s -- 258c52e653bf069b3a85c02c59ac4477a9d77d9b"
+          ],
+          "exit": 0,
+          "seconds": 21.33,
+          "script_sha256": "1d10ceec2bc3c592e386d10d739396455a7d1faafdc5b8316c8b93044db2baff"
+        },
+        "retain-baton": {
+          "argv": [
+            "docker",
+            "cp",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73:/task/repository/target/debug/baton",
+            "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/retained-tools/baton"
+          ],
+          "exit": 0,
+          "seconds": 0.289
+        },
+        "retain-batond": {
+          "argv": [
+            "docker",
+            "cp",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73:/task/repository/target/debug/batond",
+            "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/retained-tools/batond"
+          ],
+          "exit": 0,
+          "seconds": 0.378
+        },
+        "linux-browser": {
+          "argv": [
+            "docker",
+            "exec",
+            "-i",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73",
+            "bash",
+            "-s"
+          ],
+          "exit": 0,
+          "seconds": 54.792,
+          "script_sha256": "361677a7dacaf5df5401d33b75367a09dfca5a633970e38d8c4680d46c33ba16"
+        },
+        "disconnect-network": {
+          "argv": [
+            "docker",
+            "network",
+            "disconnect",
+            "bridge",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73"
+          ],
+          "exit": 0,
+          "seconds": 0.523
+        },
+        "linux-driver": {
+          "argv": [
+            "docker",
+            "exec",
+            "-i",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73",
+            "su",
+            "-l",
+            "evidence",
+            "-s",
+            "/bin/bash",
+            "-c",
+            "exec bash -s -- 258c52e653bf069b3a85c02c59ac4477a9d77d9b"
+          ],
+          "exit": 0,
+          "seconds": 23.05,
+          "script_sha256": "3d7f49b16fe9dc2b2ccc0eb31e0db148260292c568d396dda781c76db07e5224"
+        },
+        "copy-private-evidence": {
+          "argv": [
+            "docker",
+            "cp",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73:/evidence/.",
+            "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private"
+          ],
+          "exit": 0,
+          "seconds": 0.073
+        },
+        "stop-owned-container": {
+          "argv": [
+            "docker",
+            "stop",
+            "-t",
+            "5",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73"
+          ],
+          "exit": 0,
+          "seconds": 5.191
+        },
+        "remove-owned-container": {
+          "argv": [
+            "docker",
+            "rm",
+            "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73"
+          ],
+          "exit": 0,
+          "seconds": 0.363
+        }
+      },
+      "retained_build_inputs": {
+        "tools_source": "258c52e653bf069b3a85c02c59ac4477a9d77d9b",
+        "proof_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-goal-execution-ci/artifacts/host19-goal-execution-ci/linux-x64-cleanup-cache/receipt.json",
+        "files": {
+          "baton": {
+            "bytes": 53369872,
+            "sha256": "fb0d8ec9bd1f5b843f7cf7e0c395fdee8d3d9ff4734ed68cdfc194d64df0e044"
+          },
+          "batond": {
+            "bytes": 78280016,
+            "sha256": "47ca4e83773212ae58acfca0696633c3f1738f4d430c4288113111110c24b696"
+          },
+          "node-v22.19.0-linux-x64.tar.xz": {
+            "bytes": 30479988,
+            "sha256": "c0649af18e6a24f6fe5535a3e86b341dd49a8e71117c8b68bde973ef834f16f2"
+          }
+        }
+      },
+      "container_id": "304ccf85fd86db08719dd8a15f645dbd2ea6860b7b41ed0c5f0011692568ac73",
+      "networks_before_test": {},
+      "driver_exit": 0,
+      "container_absent_after_removal": true
+    },
+    "platform": {
+      "platform": "Linux-6.12.69-linuxkit-x86_64-with-glibc2.41",
+      "machine": "x86_64",
+      "binary_kind": {
+        "baton": "ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=f672f9ab7ca4afab029f0c17ff1343844381f90d, with debug_info, not stripped",
+        "batond": "ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=343dafb8c4f99d78bfa11e21f5936930c28234b8, with debug_info, not stripped"
+      },
+      "browser_path": "/opt/goal/browser/chromium-1234/chrome-linux64/chrome",
+      "browser_sha256": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+      "path_probe_started_playwright": false
+    },
+    "git_bundle_sha256": "c32b00ee8c9e2050299412cd3a724e2843ab4d36667c1422f3a719c6d93ef48d",
+    "candidate": {
+      "schema": 19,
+      "git_head": "258c52e653bf069b3a85c02c59ac4477a9d77d9b",
+      "git_tree": "e31426308244df0b1ea2287c7bf34a161df9392c",
+      "dirty": false,
+      "cargo_features": [
+        "agentbaton-core/preview-evidence"
+      ],
+      "binaries": {
+        "baton": "fb0d8ec9bd1f5b843f7cf7e0c395fdee8d3d9ff4734ed68cdfc194d64df0e044",
+        "batond": "47ca4e83773212ae58acfca0696633c3f1738f4d430c4288113111110c24b696"
+      },
+      "scope": "Task-owned local Linux x86_64 Docker candidate, no shared workflow, account or model"
+    },
+    "tool_metadata": {
+      "baton": {
+        "uid": 10001,
+        "effective_uid": 10001,
+        "mode": "0o700",
+        "regular": true,
+        "bytes": 53369872,
+        "sha256": "fb0d8ec9bd1f5b843f7cf7e0c395fdee8d3d9ff4734ed68cdfc194d64df0e044"
+      },
+      "batond": {
+        "uid": 10001,
+        "effective_uid": 10001,
+        "mode": "0o700",
+        "regular": true,
+        "bytes": 78280016,
+        "sha256": "47ca4e83773212ae58acfca0696633c3f1738f4d430c4288113111110c24b696"
+      }
+    },
+    "recovery_from_failed_environment": {
+      "first_driver_exit": 1,
+      "actual_failed_run_metadata_measured": false,
+      "first_failure": "Candidate tool metadata refused before launching daemon or browser",
+      "default_login_umask_reproduced": "0002 -> 0775, UID/GID 10001",
+      "private_umask_reproduced": "0077 -> 0700, UID/GID 10001",
+      "slow_rust_download_timeout": {
+        "exit": 1,
+        "stage": "linux-build",
+        "command_timeout_s": 1200,
+        "where": "official Rust compiler dependency download",
+        "browser_or_daemon_launched": false,
+        "owned_container_absent_after_cleanup": true
+      },
+      "same_cache_compiler_checksum": {
+        "toolchain": "1.91.1-x86_64-unknown-linux-gnu",
+        "initialPrefixBytes": 21223619,
+        "range": "bytes 21223619-78129935/78129936",
+        "receivedBytes": 56906317,
+        "sha256": "4b4c596fc5268435c310a79c2e231a5a3567572c930ac0740ef9e147e83baf4e",
+        "verified": true,
+        "elapsedMs": 2521
+      },
+      "first_browser_dependency_failure": "Debian HTTP 502 before driver launch; same-source ELF files retained",
+      "retained_ELF_matches_builder_witness": true
+    },
+    "driver_report": {
+      "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/report.json",
+      "sha256": "6c3f49aaa9171e920c6f75f20d2eb6cc16ade472ef401ff251a60bd5e333d850"
+    },
+    "schema_preflight": {
+      "api_version": 1,
+      "sqlite_schema_version": 19,
+      "sequence": 0,
+      "matched_cli_snapshot": true,
+      "read_only": true
+    },
+    "checks": 10,
+    "owned_stop_chains": 7,
+    "screenshots": [
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/01-stored-plan-no-execution.png",
+        "bytes": 114449,
+        "sha256": "14ef5ddaff717e4ad430b017326eddb43892299016bff037acda48f311be6f69"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/02-real-generated-candidate.png",
+        "bytes": 134501,
+        "sha256": "a5266ab10e9e670b0114b117b42370a838760d02e90492decb8c1b82c8f14cfd"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/03-real-plan-advance-response-lost.png",
+        "bytes": 136134,
+        "sha256": "12a9bc0f74856dbbc322bdf329aec440e04ceb0e1418e4b955b0eb0444126c51"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/04-same-scope-replan-history-kept.png",
+        "bytes": 127853,
+        "sha256": "c95a5f207d5e0f6b7af68c5fb98e41abad6d6b15963c6351d6262c236db317e1"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/05-real-data-workspace-goal-candidate.png",
+        "bytes": 130466,
+        "sha256": "3ca2424fd80e353cf3d46b231760c11f2da51c84ebb38320b73909b5a45dcdc3"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/06-real-owned-cancel-retains-partial-report.png",
+        "bytes": 134962,
+        "sha256": "dbf1e5b568711a0ae3e78e3bf465e3d1732b955040f2388e975b3cb6d0e7deed"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/07-timeout-owned-stop-effects-still-unknown.png",
+        "bytes": 136693,
+        "sha256": "4dfa6307af3b271492bf238e8e29d7b595c85b3464d29ce61d9f56310ff0f943"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/08-timeout-mobile-unknown.png",
+        "bytes": 50090,
+        "sha256": "79bde6482d6829366205b16c95ce3df986bcf301c7ed9b9d58847396a88eb634"
+      },
+      {
+        "path": "artifacts/host19-goal-execution-ci/linux-x64-cleanup-retained-elf/private/goal-execution/09-same-plan-work-and-summary-frontier.png",
+        "bytes": 128155,
+        "sha256": "36392d9d1c1aabcdae8a839e578a595ad3a94f2e6b916fa3d9217cc891a7991b"
+      }
+    ],
+    "browser_page_error_count": 0,
+    "fallback_process_cleanup_count": 0,
+    "transport_cleanup": {
+      "browser_closed": true,
+      "playwright_stopped": true,
+      "http_server_closed": true,
+      "http_thread_joined": true,
+      "daemon_joined": true,
+      "daemon_exit": 0,
+      "daemon_forced_kill": false,
+      "errors": []
+    },
+    "path_probe_started_playwright": false,
+    "first_log_had_playwright_teardown_warning": true,
+    "actual_driver_log_has_playwright_teardown_warning": false,
+    "hosted_ci_evidence": "not run"
+  },
+  "scope": "Scope OK against merge base 7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603.",
+  "source_preview": {
+    "target": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+    "ref": "refs/remotes/origin/collab/host-registration-integration",
+    "local_tracking_ref": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+    "remote_head_observed_via_github_connector": "1240b1ce7109590f1c61584a6132e14a45ae901b",
+    "remote_head_locally_available": true,
+    "command": [
+      "bash",
+      "scripts/collab.sh",
+      "preview",
+      "1240b1ce7109590f1c61584a6132e14a45ae901b",
+      "258c52e653bf069b3a85c02c59ac4477a9d77d9b"
+    ],
+    "result": [
+      "Previewing target 1240b1ce7109590f1c61584a6132e14a45ae901b + source 258c52e653bf069b3a85c02c59ac4477a9d77d9b (committed snapshots only).",
+      "e32235b8b2eb885e1fd3d3083b9268ab802257fc",
+      "No Git merge conflict. Run tests; rebase can still conflict while replaying commits."
+    ]
+  },
+  "logs": {
+    "archive": "cleanup-validation-logs.tar.gz",
+    "archive_sha256": "e2e003013ac38d102f4721e02f0a6fb6e401ff22f9bf2de903b7965a5744d2d3",
+    "members": {
+      "cleanup-source-preview.log": {
+        "size": 263,
+        "sha256": "e5252c7d29b95ea098f0e289ba683f8d490f3be285cb16f713c0a1acd70fd980"
+      },
+      "full-cleanup.json": {
+        "size": 269,
+        "sha256": "38f7656adf4f502b2c10156831ceabf1ab027dbccd946364e417eb1559bc927e"
+      },
+      "full-cleanup.log": {
+        "size": 196378,
+        "sha256": "3d61283168abaf55096b810586fbb7cd2af6335153415ab90924c0e290b49a35"
+      },
+      "linux-login-umask-confirmed.json": {
+        "size": 507,
+        "sha256": "6719d050f2be8a4e2289db458e6e961633f7800a338d0f90da0650c7230a8439"
+      },
+      "linux-login-umask-confirmed.log": {
+        "size": 37,
+        "sha256": "f302f63cb9b0576dcc8a1195d02db91f26242c4b43a1156d578f9e71ab9f76a3"
+      },
+      "linux-rust-input-cache/completed.json": {
+        "size": 284,
+        "sha256": "e6dce6d8db6270353310aeff5c0a1e55c919fd88e19f10aaa0d6a023282a25e0"
+      },
+      "linux-rust-input-cache/node-receipt.json": {
+        "size": 148,
+        "sha256": "0b5bfa0530de824b278fdc3c761f16bc8b25230dd4b11ef98b53b4cd41156531"
+      },
+      "linux-rust-input-cache/reuse-prefix.json": {
+        "size": 1721,
+        "sha256": "e744c74cec8bb451a33f056c7540d17599e7cc380130fc8e365586be34f67da3"
+      },
+      "linux-x64-cleanup-cache/cached-2023ed689529516d7bd5533738ca6d205b2561f8d51947dabeeb39dd51a024c9.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-cache/cached-4b4c596fc5268435c310a79c2e231a5a3567572c930ac0740ef9e147e83baf4e.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-cache/cached-8d17d5a4734e684228adee4ea4a75da94eb7f71993804adf29f344709e65fe09.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-cache/cached-node-v22.19.0-linux-x64.tar.xz.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-cache/guest-setup.log": {
+        "size": 33905,
+        "sha256": "2c248c6608812f63feb7aa643eed040b78c63593bccc0fcfd1aa9b7a0d26e225"
+      },
+      "linux-x64-cleanup-cache/guest-setup.sh": {
+        "size": 1924,
+        "sha256": "917288f800dfc13f1fb0cc2c0bfc203faf10dba6a68e9c3b91c63c135431d4df"
+      },
+      "linux-x64-cleanup-cache/linux-browser.log": {
+        "size": 14797,
+        "sha256": "3b577baac511ab73fc128de06397cc1673927f0d5231bc9c27be48d56b40eed6"
+      },
+      "linux-x64-cleanup-cache/linux-browser.sh": {
+        "size": 365,
+        "sha256": "6ca187eb816e4c6db5d4a9f25aac3884f4fa18730c577c23079ddee41978f23f"
+      },
+      "linux-x64-cleanup-cache/linux-build.log": {
+        "size": 8453,
+        "sha256": "2467a3438108699a94a56bca90e6f88280e783bc5c9ee025dcd7505bd62fa849"
+      },
+      "linux-x64-cleanup-cache/linux-build.sh": {
+        "size": 942,
+        "sha256": "836f799e99170c24dbe95c0edbfa04ce0396fac938de1d8296cd29ba2ada3285"
+      },
+      "linux-x64-cleanup-cache/receipt.json": {
+        "size": 6977,
+        "sha256": "ead9712e22c7a72df0e920c00f7c055b61bc92a926672095ce389f46639d234e"
+      },
+      "linux-x64-cleanup-cache/remove-owned-container.log": {
+        "size": 65,
+        "sha256": "2811c5943158a0a4a424e76d35799d42224eb9a1ea9037a368dd002fdb7dd1e3"
+      },
+      "linux-x64-cleanup-cache/retain-baton.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-cache/retain-batond.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-cache/staging-dir.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-cache/start.log": {
+        "size": 65,
+        "sha256": "2811c5943158a0a4a424e76d35799d42224eb9a1ea9037a368dd002fdb7dd1e3"
+      },
+      "linux-x64-cleanup-cache/stop-owned-container.log": {
+        "size": 65,
+        "sha256": "2811c5943158a0a4a424e76d35799d42224eb9a1ea9037a368dd002fdb7dd1e3"
+      },
+      "linux-x64-cleanup-fixed/guest-setup.log": {
+        "size": 33266,
+        "sha256": "530037fbcb9e8136491014ea2cfebd0a4527d1e277d59687a1fbc769cc56cd3f"
+      },
+      "linux-x64-cleanup-fixed/guest-setup.sh": {
+        "size": 1288,
+        "sha256": "c01fbf8a22e4935ea1e270f141885d613c8080f1783888d37695ee0a3c121a71"
+      },
+      "linux-x64-cleanup-fixed/linux-build.log": {
+        "size": 956,
+        "sha256": "78dada16647eaef08169b35f03a1609d38cb21b9851bc8ec0ec1bf42e5d24e8f"
+      },
+      "linux-x64-cleanup-fixed/linux-build.sh": {
+        "size": 918,
+        "sha256": "4c49d83417bea18a2fddeb711f48ffc14dc15b7a5eec62b9cfe38428a67d9b2f"
+      },
+      "linux-x64-cleanup-fixed/receipt.json": {
+        "size": 1913,
+        "sha256": "3ce0370812acfc88149669c5366794f1acc27df09ebe7931b2816fbf64263c07"
+      },
+      "linux-x64-cleanup-fixed/remove-owned-container.log": {
+        "size": 65,
+        "sha256": "bc05dfdf3d04280aeba7157c9c0035ff381b6189ac0f08b2d7d732c851c09e7d"
+      },
+      "linux-x64-cleanup-fixed/start.log": {
+        "size": 65,
+        "sha256": "bc05dfdf3d04280aeba7157c9c0035ff381b6189ac0f08b2d7d732c851c09e7d"
+      },
+      "linux-x64-cleanup-fixed/stop-owned-container.log": {
+        "size": 65,
+        "sha256": "bc05dfdf3d04280aeba7157c9c0035ff381b6189ac0f08b2d7d732c851c09e7d"
+      },
+      "linux-x64-cleanup-fixed/timeout-witness.json": {
+        "size": 215,
+        "sha256": "fd45f6c8ec2c68d28b10bd12382298ff8fe4239cf3a60c48166ae98565183f86"
+      },
+      "linux-x64-cleanup-retained-elf/cached-baton.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/cached-batond.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/cached-node-v22.19.0-linux-x64.tar.xz.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/copy-private-evidence.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/disconnect-network.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/guest-setup.log": {
+        "size": 17477,
+        "sha256": "ac6f869e14ab7416721611181ec85bdb202c51da702c60e477d412baba19071e"
+      },
+      "linux-x64-cleanup-retained-elf/guest-setup.sh": {
+        "size": 1282,
+        "sha256": "571967906e4f9866b27955db35d4e4b52a040429d5a4a2d174b00642ed95dc18"
+      },
+      "linux-x64-cleanup-retained-elf/linux-browser.log": {
+        "size": 43884,
+        "sha256": "7fa6805ceeb01e45c3436e25e742e65799e7c8ffeab5fb92732220477558be45"
+      },
+      "linux-x64-cleanup-retained-elf/linux-browser.sh": {
+        "size": 235,
+        "sha256": "361677a7dacaf5df5401d33b75367a09dfca5a633970e38d8c4680d46c33ba16"
+      },
+      "linux-x64-cleanup-retained-elf/linux-build.log": {
+        "size": 3879,
+        "sha256": "29c076a66eae0d95eba0b0fe4e7da22ae1ddb9a5f34520655e4e94a4ecb54c4c"
+      },
+      "linux-x64-cleanup-retained-elf/linux-build.sh": {
+        "size": 836,
+        "sha256": "1d10ceec2bc3c592e386d10d739396455a7d1faafdc5b8316c8b93044db2baff"
+      },
+      "linux-x64-cleanup-retained-elf/linux-driver.log": {
+        "size": 103,
+        "sha256": "d877cb4966fb2cae50396148ea46c3a4392f9586337ba4aa6746f9bbe3924d9e"
+      },
+      "linux-x64-cleanup-retained-elf/linux-driver.sh": {
+        "size": 2661,
+        "sha256": "3d7f49b16fe9dc2b2ccc0eb31e0db148260292c568d396dda781c76db07e5224"
+      },
+      "linux-x64-cleanup-retained-elf/private/candidate.json": {
+        "size": 501,
+        "sha256": "bebed96875c941328f070311a3493b58c2403b983563457504c577ec3f49434a"
+      },
+      "linux-x64-cleanup-retained-elf/private/driver-command.json": {
+        "size": 337,
+        "sha256": "4fb17322984c4df18e70f01f8e86c207994423aab86b24d04583265edb884942"
+      },
+      "linux-x64-cleanup-retained-elf/private/platform.json": {
+        "size": 799,
+        "sha256": "5d68a64ca65e3b8cb783092424f79d79f68ad45eb153721acfa4c479c6f0318d"
+      },
+      "linux-x64-cleanup-retained-elf/private/tool-metadata.json": {
+        "size": 424,
+        "sha256": "4428441ae2e59fbdd902c386f8a4adc03dfccfb3865882952b788478042d526f"
+      },
+      "linux-x64-cleanup-retained-elf/receipt.json": {
+        "size": 7113,
+        "sha256": "60370e63db9048381b6e7d751d597f23ea7ab0ab372b8fdfb82e735dd0a6b5ca"
+      },
+      "linux-x64-cleanup-retained-elf/remove-owned-container.log": {
+        "size": 65,
+        "sha256": "0b3f0ef7be517fe015a2c36be0c3b1ac69f89f750332c56701e0bcca784a34de"
+      },
+      "linux-x64-cleanup-retained-elf/retain-baton.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/retain-batond.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/staging-dir.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-retained-elf/start.log": {
+        "size": 65,
+        "sha256": "0b3f0ef7be517fe015a2c36be0c3b1ac69f89f750332c56701e0bcca784a34de"
+      },
+      "linux-x64-cleanup-retained-elf/stop-owned-container.log": {
+        "size": 65,
+        "sha256": "0b3f0ef7be517fe015a2c36be0c3b1ac69f89f750332c56701e0bcca784a34de"
+      },
+      "linux-x64-cleanup-run/copy-private-evidence.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-run/disconnect-network.log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "linux-x64-cleanup-run/guest-setup.log": {
+        "size": 33266,
+        "sha256": "bff03253761a45fbe61d97d3b77f2dae880101c66948ddeae350cb23738f4d81"
+      },
+      "linux-x64-cleanup-run/guest-setup.sh": {
+        "size": 1288,
+        "sha256": "c01fbf8a22e4935ea1e270f141885d613c8080f1783888d37695ee0a3c121a71"
+      },
+      "linux-x64-cleanup-run/linux-browser.log": {
+        "size": 43464,
+        "sha256": "c59419334f4c6cb90711f4fc60784321382080b35aadb77142db793edc546c4b"
+      },
+      "linux-x64-cleanup-run/linux-browser.sh": {
+        "size": 137,
+        "sha256": "7e496da9d8b546d80c4c9585936460521b67a3cfa6390f9a156dac87eecfa28b"
+      },
+      "linux-x64-cleanup-run/linux-build.log": {
+        "size": 9558,
+        "sha256": "8af970a20e8fa57c3dff2eecc93facd06e52e97c46ab4e9afef461a3f6783b1d"
+      },
+      "linux-x64-cleanup-run/linux-build.sh": {
+        "size": 902,
+        "sha256": "76aff25c698822047ec92eea7757aacf10332feda8dd7bb82e10d379b692c20e"
+      },
+      "linux-x64-cleanup-run/linux-driver.log": {
+        "size": 761,
+        "sha256": "05bc1dc00ed2fc702bfa90d2624a03b0f38ecd4ca754cbcdea6c278194003594"
+      },
+      "linux-x64-cleanup-run/linux-driver.sh": {
+        "size": 1956,
+        "sha256": "8b1fbdec635621dbbaca1ca3388cf103635bf28e76cbb5bf02b6c2ed43c767ff"
+      },
+      "linux-x64-cleanup-run/private/candidate.json": {
+        "size": 501,
+        "sha256": "bebed96875c941328f070311a3493b58c2403b983563457504c577ec3f49434a"
+      },
+      "linux-x64-cleanup-run/private/driver-command.json": {
+        "size": 337,
+        "sha256": "4fb17322984c4df18e70f01f8e86c207994423aab86b24d04583265edb884942"
+      },
+      "linux-x64-cleanup-run/private/platform.json": {
+        "size": 799,
+        "sha256": "5d68a64ca65e3b8cb783092424f79d79f68ad45eb153721acfa4c479c6f0318d"
+      },
+      "linux-x64-cleanup-run/receipt.json": {
+        "size": 3757,
+        "sha256": "50b29a99f2da9ac43646019bc5d73b8546011da9eca325b7410337f426cf8a0b"
+      },
+      "linux-x64-cleanup-run/remove-owned-container.log": {
+        "size": 65,
+        "sha256": "cc8014c21c0e899ac1e5dbcf02b48bd49170fddb1ec91fd60c7458b9f4a27ef5"
+      },
+      "linux-x64-cleanup-run/start.log": {
+        "size": 65,
+        "sha256": "cc8014c21c0e899ac1e5dbcf02b48bd49170fddb1ec91fd60c7458b9f4a27ef5"
+      },
+      "linux-x64-cleanup-run/stop-owned-container.log": {
+        "size": 65,
+        "sha256": "cc8014c21c0e899ac1e5dbcf02b48bd49170fddb1ec91fd60c7458b9f4a27ef5"
+      },
+      "targeted-cleanup.log": {
+        "size": 2550,
+        "sha256": "190e02729e7f92528531354953e28a10a02c957df7ecda5ae987e33e666440fb"
+      }
+    }
+  }
+}

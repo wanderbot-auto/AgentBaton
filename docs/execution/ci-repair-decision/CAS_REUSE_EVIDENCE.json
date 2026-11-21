@@ -1,0 +1,403 @@
+{
+  "requirement": "AB-REL-006",
+  "base": "502c053479ba03827d47b795a79d82ded5ee5100",
+  "previous_delivery": "56b57d5c166a94b4d36a8fcc2bd560ef58829a8b",
+  "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+  "recorded_at_utc": "2026-11-18T20:21:51.062353+00:00",
+  "files_changed_since_previous_delivery": {
+    "crates/core/src/integration/ci_repair.rs": "97a56ce3943c00af22c28922d46f894c9e470d6e42fdd070d4bf657783312648",
+    "crates/core/src/integration_runtime.rs": "990d6d05243419ec0fa6ab8126b8ccf5664da3a79f80ce17d7acb89d1250ed03"
+  },
+  "environment": "macOS-26.6.1-arm64-arm-64bit",
+  "shared_contract": {
+    "original_cas_sql_and_record_checks_byte_equivalent": true,
+    "original_wrapper_no_event_for_confirmed_is_input_changed": true,
+    "ci_checks_settled_and_worker_joined_on_that_same_attempt": true,
+    "original_runtime_fixture_unchanged": true,
+    "fixture_sha256": "54f86df36fd003889f342e2a3ce08418666370d4f89a817f779e362e07752cd4",
+    "strict_source_pins_production_runtime_at_base_and_target": "searched canonical path and base raw SHA; no match",
+    "production_runtime_base_sha256": "f16f36f52791bfe448ba1d86ffb99aeb563036f87f92816b5bc420af14eb25cb"
+  },
+  "validation": {
+    "focused": 9,
+    "integration_ipc": 34,
+    "core_integration_filter": 49,
+    "historical_guard_tests": 35,
+    "schema17_extra_regression": {
+      "count": 12,
+      "matches_independently_reproduced_fixed_base": true,
+      "failed_tests": [
+        "controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen",
+        "controlled_current18_then_original_factory_inverse_keeps_one_rollback_boundary",
+        "controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_then_upgrades",
+        "controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes",
+        "controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_dependencies",
+        "controlled_empty17_outer_refuses_nested_and_inner_refuses_committed_transactions",
+        "fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_rows",
+        "future19_refuses_before_backup_or_recovery_with_committed_wal_preserved",
+        "opaque16_at_object_budget_refuses_additive17_overflow_atomically",
+        "opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependencies",
+        "opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata",
+        "opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated"
+      ]
+    },
+    "commands": {
+      "format": {
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 0,
+        "seconds": 1.228
+      },
+      "focused": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "ci_repair_decision"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 0,
+        "seconds": 31.94
+      },
+      "workspace-check": {
+        "command": [
+          "cargo",
+          "check",
+          "--offline",
+          "--locked",
+          "--workspace"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 0,
+        "seconds": 1.909
+      },
+      "core-clippy": {
+        "command": [
+          "cargo",
+          "clippy",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 0,
+        "seconds": 6.246
+      },
+      "integration-regression": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--",
+          "--test-threads=1"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 0,
+        "seconds": 72.187
+      },
+      "integration-unit": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--lib",
+          "integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 0,
+        "seconds": 42.721
+      },
+      "legacy-schema17": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_schema17",
+          "--",
+          "--test-threads=1"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 101,
+        "seconds": 1.686
+      },
+      "historical-source-guards": {
+        "command": [
+          "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+          "-m",
+          "unittest",
+          "-v",
+          "tests.infrastructure.test_integration_ipc_diagnostics",
+          "tests.infrastructure.test_integration_stage_evidence_source",
+          "tests.infrastructure.test_integration_browser_ci_evidence_runtime"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 1,
+        "seconds": 0.56
+      },
+      "integration-build-artifacts": {
+        "command": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "integration_ipc",
+          "--no-run",
+          "--message-format=json"
+        ],
+        "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+        "exit": 0,
+        "seconds": 0.063
+      }
+    },
+    "historical_guard_rerun": {
+      "source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+      "command": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_integration_ipc_diagnostics",
+        "test_integration_stage_evidence_source",
+        "test_integration_browser_ci_evidence_runtime"
+      ],
+      "pythonpath": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/tests/infrastructure",
+      "exit": 0
+    },
+    "first_guard_invocation": "import resolution failure in test invocation; unchanged tests rerun with tests/infrastructure on PYTHONPATH"
+  },
+  "real_store_witness": {
+    "receipt": {
+      "source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+      "base": "502c053479ba03827d47b795a79d82ded5ee5100",
+      "original_source_sha256": {
+        "integration_ipc.rs": "b46d41dfe615706c6cbb113eee65370a4b08b68ddcc255a875eed34f33973a21",
+        "fixtures/integration_runtime.rs": "54f86df36fd003889f342e2a3ce08418666370d4f89a817f779e362e07752cd4",
+        "fixtures/integration_diagnostics.rs": "c3a9d7d0342a37813c7184b046b99cd2aac55a1a3ad1d3396e3506144e89fa89",
+        "fixtures/integration_stage_evidence.rs": "a46dafdb9313d8a48448b5564afd55b6cd5699099bda1688e05983a245692027",
+        "fixtures/integration_stage_evidence_tests.rs": "8b2734bbde5acaecf791f81b92ae9ff584c8bbc15afe5b02228ea48e195dfed3"
+      },
+      "appended_one_include": "include!(../store_probe.rs) in copied integration_runtime.rs only",
+      "probe_sha256": "7ce1c6b056b20f16882147c821be5a07df00556e8a8140f5bc3297fd6b896872",
+      "rustc_argv": [
+        "rustc",
+        "--test",
+        "--edition=2021",
+        "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/artifacts/ci-repair-decision/store-witness-shared-cas/integration_ipc.rs",
+        "-C",
+        "debuginfo=0",
+        "-L",
+        "dependency=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps",
+        "-o",
+        "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/artifacts/ci-repair-decision/store-witness-shared-cas/ci-repair-store-witness",
+        "-L",
+        "native=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/build/libsqlite3-sys-9319ee51e1b7e88a/out",
+        "--extern",
+        "agentbaton_core=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libagentbaton_core-11fb51951adecd3f.rlib",
+        "--extern",
+        "agentbaton_workspaces=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libagentbaton_workspaces-94e2960981e85805.rlib",
+        "--extern",
+        "rusqlite=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/librusqlite-f68b84f5c8b260cd.rlib",
+        "--extern",
+        "serde=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libserde-95ee0cfc543e2e11.rlib",
+        "--extern",
+        "serde_json=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libserde_json-7b0ddca393516cd0.rlib",
+        "--extern",
+        "tempfile=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libtempfile-ca8446d8518c3f24.rlib",
+        "--extern",
+        "rustix=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/librustix-25b143a30c36aff0.rlib",
+        "--extern",
+        "uuid=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/libuuid-6ce8bf086709c540.rlib",
+        "--extern",
+        "libc=/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/target/debug/deps/liblibc-674352360a8fcb03.rlib"
+      ],
+      "run_argv": [
+        "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/ci-repair-decision/artifacts/ci-repair-decision/store-witness-shared-cas/ci-repair-store-witness",
+        "--exact",
+        "integration_runtime::ci_repair_review_overlay_observes_real_store_candidate_and_refuses_incomplete_cas",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "executable_sha256": "90184224c8e2a73fb7b48d6c3453080235c9d87c7ad7da55764de4031a52bb0e",
+      "exit": 0,
+      "dimension": "actual original managed Git/Unix IPC integration candidate and Store; CI source and observation are internal fixtures"
+    },
+    "confirmed_commit": "5cfdc69405e9bd589aa4f95f950cd9c6941610e0",
+    "snapshot_sequence": 80,
+    "ci_no_rule": "ContinueRequired",
+    "wrong_commit": "observation_mismatch",
+    "missing_CAS_ci": "candidate_not_current",
+    "legacy_reconcile_confirmed": true,
+    "legacy_reconcile_missing_CAS": "INPUT_CHANGED",
+    "decision_events_unchanged": true,
+    "external_ci_facts": "internal typed fixture only, no real CI, PR or Provider operation"
+  },
+  "preview": {
+    "scope": "Scope OK against merge base 502c053479ba03827d47b795a79d82ded5ee5100.",
+    "target": "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+    "command": [
+      "bash",
+      "scripts/collab.sh",
+      "preview",
+      "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+      "3a903021e9cf91ef00033ba9b1913b37cc09ccb8"
+    ],
+    "result": [
+      "Previewing target 1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc + source 3a903021e9cf91ef00033ba9b1913b37cc09ccb8 (committed snapshots only).",
+      "dc0a4d87b7b25f2036f1617660691e8d5a14e43c",
+      "No Git merge conflict. Run tests; rebase can still conflict while replaying commits."
+    ]
+  },
+  "previous_failure_evidence": {
+    "frozen_commit": "56b57d5c166a94b4d36a8fcc2bd560ef58829a8b",
+    "archive_sha256": "aba43eb0583cc4578c90337e190ad562c23705152baae36a9f750a7b9a2891c4",
+    "previous_EVIDENCE_json_unchanged": true
+  },
+  "archive": {
+    "path": "docs/execution/ci-repair-decision/cas-reuse-validation-logs.tar.gz",
+    "sha256": "db98ce37023b13f3723a656a0f95546cc1f1ecb426a678b8cb8e73688587afa4",
+    "members": {
+      "shared-cas-checks/core-clippy.json": {
+        "bytes": 268,
+        "sha256": "65c3fcf25dd6e5224fec0d44937ef263dcf8a119030dd98720ea975161a48432"
+      },
+      "shared-cas-checks/core-clippy.log": {
+        "bytes": 201,
+        "sha256": "d513f8b444514830e242471dc31942b3056fd258a4944e1ebad32790013dbb6e"
+      },
+      "shared-cas-checks/focused.json": {
+        "bytes": 249,
+        "sha256": "3293f620ae712b764088e4f23208ba35cd510d69b153eadcf1d7fa05e2fb8857"
+      },
+      "shared-cas-checks/focused.log": {
+        "bytes": 1154,
+        "sha256": "27ad0d2dd51420535a2f2d5a7e67125f7f45ea06552a8b9f1eb003f9b40f65c8"
+      },
+      "shared-cas-checks/format.json": {
+        "bytes": 180,
+        "sha256": "a7e31d3e8755868991f662b5bf6dc59093fa1eed0b370c7df4ce973b81ca05cd"
+      },
+      "shared-cas-checks/format.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "shared-cas-checks/historical-source-guards-rerun.json": {
+        "bytes": 465,
+        "sha256": "8080dfa66737fe51e47197609f48a3035590928cc155534a5d2789375c1b62b8"
+      },
+      "shared-cas-checks/historical-source-guards-rerun.log": {
+        "bytes": 7173,
+        "sha256": "922ab0bdcc7d2d66c06977fb9d2e55fd7d6b5294349ebe0e744436f8c3b5e7b7"
+      },
+      "shared-cas-checks/historical-source-guards.json": {
+        "bytes": 423,
+        "sha256": "ba5dd71e755f10235cf4a9d5412d80a3dc82f02e10284f5c3b58c9b319130dd9"
+      },
+      "shared-cas-checks/historical-source-guards.log": {
+        "bytes": 5973,
+        "sha256": "874093abc05755e27b662536ac0db5f77dce9bef387ab74579d74dc927591773"
+      },
+      "shared-cas-checks/integration-build-artifacts.json": {
+        "bytes": 291,
+        "sha256": "73bacc3e779a2fd60cb02cedb49cc154af42fbb143b131e39d996208e12f6e29"
+      },
+      "shared-cas-checks/integration-build-artifacts.log": {
+        "bytes": 75650,
+        "sha256": "572bac759e0719d808f2e26a43ee88cfa39ed2e27f5af96584896da375f1b0a4"
+      },
+      "shared-cas-checks/integration-regression.json": {
+        "bytes": 281,
+        "sha256": "8efecdcd4dc24e52c41c2efdbe5670588549a5bee57e06ecde06f49e461f6535"
+      },
+      "shared-cas-checks/integration-regression.log": {
+        "bytes": 4314,
+        "sha256": "8ca8f7ff41a8278d928f818ed784cae3c439c327ab815ffaaf61718f3616924a"
+      },
+      "shared-cas-checks/integration-unit.json": {
+        "bytes": 276,
+        "sha256": "69f123a74b1be814ece2ee6e18368d639fc4c2e55ecaf78b80ad7029f68b7ec2"
+      },
+      "shared-cas-checks/integration-unit.log": {
+        "bytes": 6330,
+        "sha256": "cedc7a63852acdf6a55de8990cabf5813a7bcae8d1b25f016f43d961a7ddce0e"
+      },
+      "shared-cas-checks/legacy-schema17.json": {
+        "bytes": 287,
+        "sha256": "50be4d4cbe2c68d6800ff604171b04a9908a1b2a0d4e97360dbb38fd4f196d7c"
+      },
+      "shared-cas-checks/legacy-schema17.log": {
+        "bytes": 8262,
+        "sha256": "81cacfb7f611d4cb46dc6863244916a0e3d857863ef85404250a1d74cbf5378c"
+      },
+      "shared-cas-checks/suite.json": {
+        "bytes": 2918,
+        "sha256": "5bc8a509bf675caf9692d151192e622bd8753341308cf3002012b71511cec1e2"
+      },
+      "shared-cas-checks/workspace-check.json": {
+        "bytes": 196,
+        "sha256": "1cdf5e9b552f4d473097e10127f32b623ca005442065d49acd357f245767031d"
+      },
+      "shared-cas-checks/workspace-check.log": {
+        "bytes": 461,
+        "sha256": "83d6b4472f0384027b407ff39ff6691bdcee0dd0ead0a1d1fcee2b3b4c7eb7a3"
+      },
+      "shared-cas-source-preview.log": {
+        "bytes": 263,
+        "sha256": "7b294e75dbfaf5b27b3867665bea2f01299684b6b2d81361647aad6407043cae"
+      },
+      "store-witness-shared-cas/store_probe.rs": {
+        "bytes": 4813,
+        "sha256": "7ce1c6b056b20f16882147c821be5a07df00556e8a8140f5bc3297fd6b896872"
+      },
+      "store-witness-shared-cas-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "store-witness-shared-cas-run.log": {
+        "bytes": 3886,
+        "sha256": "b96abf93da3caa4599a50eaa089e0d033548d2217b73acb9e094479775bdbdeb"
+      },
+      "store-witness-shared-cas.json": {
+        "bytes": 3835,
+        "sha256": "2a86990f63cb1e355951fab64c48bf10ac08be008d008c6967de5d5b99c9deed"
+      }
+    }
+  },
+  "remaining_production_dependencies": [
+    "trusted CI observation producer and approved source mapping",
+    "effective rule approval",
+    "durable repair history and atomic dispatch reservation",
+    "normal IPC/UI projection"
+  ]
+}

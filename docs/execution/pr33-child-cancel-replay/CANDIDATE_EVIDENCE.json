@@ -1,0 +1,310 @@
+{
+  "tested_source": "150b5b59b805ea0ff3ad556d1c5a437b67e6aad0",
+  "tree": "4a372a7147f63bd8ce4d3c3ece9d49cc253fa2f1",
+  "base": "b3e274802672d5173c2a06e5badfe3bdafc19b9e",
+  "platform": "Linux ARM64 and Chromium 151.0.7922.34 with actual Store 19 Core",
+  "frozen_candidate": {
+    "manifest_sha256": "894ac2925d3be9329a8df1c3445bf94cd8ede866ce24f504b176d8228d549e2d",
+    "tools_sha256": {
+      "batond": "418e3516d3549b8dac6e9db128ea60efec984ec55121c5c2f72a424dd6a451c1",
+      "baton": "2706cd95ecdd71793599c1b21d47ef3685040c08c107d4821d2bbf1220502b06"
+    },
+    "frontend_assets_sha256": "4c73ccc0cead9f79f813a3217abf40576f39df339e033b29f67855557f9f9086",
+    "harness_sha256": "73470592d65790678a57a17bb14b13351f261902fc87411039e6ec5ff31c2e11",
+    "projector_sha256": "8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741"
+  },
+  "goal_single_changed_line": 35,
+  "unchanged_projector_and_workflow": [
+    "scripts/record-child-goal-ci-evidence.py",
+    ".github/workflows/product.yml"
+  ],
+  "actual_replays": {
+    "actual-candidate-fixed-one": {
+      "case": "cancel",
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG04",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "summary_sha256": "e5a2bf0f9da87db51b910b3d64d485457965c7628712cfa44b118379817f1571",
+      "bridge_starts": 1,
+      "bridge_cancels": 2,
+      "real_stale_cas_count": 2,
+      "late_stat": {
+        "mode": "actual-candidate",
+        "held": true,
+        "proc_read_errno": 3,
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:526",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError",
+        "fresh_lookup_count": 1,
+        "fresh_lookup_errno": 2
+      },
+      "explicit_same_cancel_key_payload_cas": true,
+      "core_cancelled_without_task_acceptance": true
+    },
+    "actual-candidate-fixed-two": {
+      "case": "cancel",
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG04",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "summary_sha256": "b25fcc48bdc52583517e479db845cfbea1eef816b4df41b2a5949b26e2e45f32",
+      "bridge_starts": 1,
+      "bridge_cancels": 2,
+      "real_stale_cas_count": 2,
+      "late_stat": {
+        "mode": "actual-candidate",
+        "held": true,
+        "proc_read_errno": 3,
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:526",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError",
+        "fresh_lookup_count": 1,
+        "fresh_lookup_errno": 2
+      },
+      "explicit_same_cancel_key_payload_cas": true,
+      "core_cancelled_without_task_acceptance": true
+    },
+    "deny-candidate-fixed-one": {
+      "case": "cancel",
+      "status": "failed",
+      "exit_code": 1,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": false,
+      "summary_sha256": "4565c9c9a8937cf139f06c36c3856a6df23afd4ef8a3c4e744c293832ba30d5b",
+      "bridge_starts": 1,
+      "bridge_cancels": 0,
+      "real_stale_cas_count": 2,
+      "late_stat": {
+        "mode": "permission-candidate",
+        "held": true,
+        "proc_read_errno": 3,
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:526",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError",
+        "negative_fault_at_delivery": "PermissionError/EACCES"
+      },
+      "finite_capture_failure": {
+        "substage": "started_records",
+        "errno": 13,
+        "helper_source": "factory_base",
+        "helper_line": 526
+      }
+    },
+    "verified-normal": {
+      "case": "normal",
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "summary_sha256": "f70024df1517e87e0bee71eea81193df61b0dea9e7aeb26fe51688f728918a52",
+      "bridge_starts": 1,
+      "bridge_cancels": 0,
+      "real_stale_cas_count": 2
+    },
+    "verified-lost": {
+      "case": "lost-start",
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG03",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "summary_sha256": "d10b4b03a1d4e52167298de41208aed4c8fe36294d512bdf8f533e15831d7a83",
+      "bridge_starts": 2,
+      "bridge_cancels": 0,
+      "real_stale_cas_count": 2,
+      "explicit_same_start_key_payload_cas": true
+    },
+    "verified-cancel": {
+      "case": "cancel",
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG04",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "summary_sha256": "70fc915cf4b3c2537c187e6784896c5400861ea5147add3433361a76d5d52872",
+      "bridge_starts": 1,
+      "bridge_cancels": 2,
+      "real_stale_cas_count": 2,
+      "explicit_same_cancel_key_payload_cas": true,
+      "core_cancelled_without_task_acceptance": true
+    }
+  },
+  "actual_shared_fixture_consumers": {
+    "verified-planning": {
+      "report_sha256": "5171f32e80de860eb1a0ad9f53521599be08aff04d6867c5b16c926432e44594",
+      "checks": [
+        "CP01",
+        "CP02",
+        "CP03",
+        "CP04",
+        "CP05",
+        "CP06",
+        "CP07",
+        "CP08",
+        "CP09"
+      ],
+      "cleanup_complete": true,
+      "factory_support_sha256": "6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93"
+    },
+    "verified-factory-cancel": {
+      "report_sha256": "5580915ade6dba03540ebcd081ce65cc21c2487a9b44f0cdf115baef9719d6ab",
+      "checks": [
+        "current candidate, actual private IPC snapshot and read-only SQLite agree on schema 19 before Owner setup",
+        "actual generated resources and complete private Factory approval; approval starts no Provider",
+        "built UI reads genuine scope; folded load and explicit start; HTTP denies Owner and Agent tools",
+        "actual scoped MCP/owned attempts persist exact lineage and cumulative budgets; no TaskAccepted or new Grant",
+        "actual built Factory UI shows terminal history without acceptance or source/asset drift"
+      ],
+      "cleanup_complete": true
+    }
+  },
+  "actual_linux_subreaper_controls": {
+    "non_adopted_zombie_not_waited": true,
+    "adopted_same_pid_birth_and_group": true,
+    "wrong_birth_refused": true,
+    "wrong_group_refused": true,
+    "changed_record_refused": true,
+    "exact_wait_once": true,
+    "repeat_wait_noop": true,
+    "signal_sent": false,
+    "core_join_claim": false,
+    "subreaper_restored": true
+  },
+  "first_candidate_refusal": {
+    "tested_source": "60b1e4c2a8ab622c4e9b4cfdd158aea29f4c69f2",
+    "private_refusal_sha256": "b7b85e839292cfc6b1cfc8c4096e391afb4da78b70210c36c5b2f8536d8a220b",
+    "actual_runtime": "not_run",
+    "error": "Child Goal requires the reviewed schema19 Child Planning source"
+  },
+  "infrastructure": {
+    "total": 1112,
+    "skipped": 16,
+    "log_sha256": "d416d4159df8e4e62fa7fcb905963d23b1084dd7147b1fb6f47b739675db06d0"
+  },
+  "first_full_run_on_final_source": {
+    "failure": "work-in-progress evidence link absent",
+    "failure_count": 1,
+    "log_sha256": "7241152771302aa4876784d796490508a1f3e39ab7a9b031636ea447a06aefb3"
+  }
+}

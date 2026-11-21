@@ -1,0 +1,2982 @@
+{
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "method": "tracked product/test/script/workflow lexical anchors plus typed/indirect/manual call-graph audit; not completeness proof",
+  "files": [
+    {
+      "path": ".github/workflows/product.yml",
+      "sites": [
+        [
+          510,
+          "if not (type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 18"
+        ],
+        [
+          525,
+          "'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': 0, 'joined': True})"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/background_policy.rs",
+      "sites": [
+        [
+          19,
+          "\"database_schema_version\","
+        ],
+        [
+          42,
+          "|| status[\"database_schema_version\"] != 18"
+        ],
+        [
+          158,
+          "json!({\"result\":{\"instance_id\":\"d949034a-2109-419c-b3c1-63ebef46e6ac\",\"started_at\":\"2026-11-09T00:00:00Z\",\"api_version\":1,\"database_schema_version\":18"
+        ],
+        [
+          170,
+          "2 => r[\"result\"][\"database_schema_version\"] = json!(17),"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "sites": [
+        [
+          99,
+          "schema=db.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          115,
+          "\"Goal execution fixture must have schema18 and no run/node/reservation authority\""
+        ],
+        [
+          123,
+          "&& value[\"schema_version\"].as_u64() == Some(18)"
+        ],
+        [
+          218,
+          "schema=db.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          226,
+          "&& value[\"schema_version\"].as_u64() == Some(18)"
+        ],
+        [
+          241,
+          "return Err(\"Goal graph fixture must have schema18 and six empty graph tables\".into());"
+        ],
+        [
+          350,
+          "schema=db.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          360,
+          "&& value[\"schema_version\"].as_u64() == Some(18)"
+        ],
+        [
+          376,
+          "\"Factory fixture requires exact schema18 and twelve independently empty tables\".into(),"
+        ],
+        [
+          484,
+          "schema=db.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          497,
+          "&& value[\"schema_version\"].as_u64() == Some(18)"
+        ],
+        [
+          512,
+          "\"Integration readonly fixture requires exact schema18 and four empty tables\".into(),"
+        ],
+        [
+          2050,
+          "json!({\"schema_version\":18,\"run_count\":0,\"node_count\":0,\"reservation_count\":0,\"sequence\":sequence})"
+        ],
+        [
+          2096,
+          "(\"schema_version\",\"PRAGMA user_version=10\",10),"
+        ],
+        [
+          2097,
+          "(\"schema_version\",\"PRAGMA user_version=11\",11),"
+        ],
+        [
+          2098,
+          "(\"schema_version\",\"PRAGMA user_version=12\",12),"
+        ],
+        [
+          2099,
+          "(\"schema_version\",\"PRAGMA user_version=13\",13),"
+        ],
+        [
+          2100,
+          "(\"schema_version\",\"PRAGMA user_version=14\",14),"
+        ],
+        [
+          2101,
+          "(\"schema_version\",\"PRAGMA user_version=15\",15),"
+        ],
+        [
+          2102,
+          "(\"schema_version\",\"PRAGMA user_version=16\",16),"
+        ],
+        [
+          2103,
+          "(\"schema_version\",\"PRAGMA user_version=17\",17),"
+        ],
+        [
+          2104,
+          "(\"schema_version\",\"PRAGMA user_version=19\",19),"
+        ],
+        [
+          2298,
+          "json!({\"schema_version\":18,\"capability_count\":0,\"job_count\":0,\"candidate_count\":0,\"validation_count\":0,\"owner_decision_count\":0,\"acceptance_count\":0,\""
+        ],
+        [
+          2367,
+          "(\"schema_version\", \"PRAGMA user_version=10\", 10),"
+        ],
+        [
+          2368,
+          "(\"schema_version\", \"PRAGMA user_version=11\", 11),"
+        ],
+        [
+          2369,
+          "(\"schema_version\", \"PRAGMA user_version=12\", 12),"
+        ],
+        [
+          2370,
+          "(\"schema_version\", \"PRAGMA user_version=13\", 13),"
+        ],
+        [
+          2371,
+          "(\"schema_version\", \"PRAGMA user_version=14\", 14),"
+        ],
+        [
+          2372,
+          "(\"schema_version\", \"PRAGMA user_version=15\", 15),"
+        ],
+        [
+          2373,
+          "(\"schema_version\", \"PRAGMA user_version=16\", 16),"
+        ],
+        [
+          2374,
+          "(\"schema_version\", \"PRAGMA user_version=17\", 17),"
+        ],
+        [
+          2375,
+          "(\"schema_version\", \"PRAGMA user_version=19\", 19),"
+        ],
+        [
+          2493,
+          "fn graph_final_evidence_requires_independent_schema18_and_exact_core_denial() {"
+        ],
+        [
+          2580,
+          "assert_eq!(before[\"schema_version\"], 18);"
+        ],
+        [
+          2689,
+          "let mut counts = json!({\"schema_version\":18,\"sequence\":sequence});"
+        ],
+        [
+          2719,
+          "fn factory_readonly_requires_exact_schema18_all_twelve_typed_counts_and_ordered_context() {"
+        ],
+        [
+          2834,
+          "fn factory_actual_schema18_query_and_core_count_projection_leave_history_unchanged() {"
+        ],
+        [
+          2900,
+          "\"PRAGMA user_version=12\","
+        ],
+        [
+          2901,
+          "\"PRAGMA user_version=13\","
+        ],
+        [
+          2902,
+          "\"PRAGMA user_version=14\","
+        ],
+        [
+          2903,
+          "\"PRAGMA user_version=15\","
+        ],
+        [
+          2904,
+          "\"PRAGMA user_version=16\","
+        ],
+        [
+          2905,
+          "\"PRAGMA user_version=17\","
+        ],
+        [
+          2906,
+          "\"PRAGMA user_version=19\","
+        ],
+        [
+          2921,
+          "json!({\"schema_version\":18,\"sequence\":sequence,\"policies\":0,\"runs\":0,\"attempts\":0,\"ref_fences\":0})"
+        ],
+        [
+          2931,
+          "fn integration_readonly_has_independent_exact_schema18_and_four_typed_zero_counts() {"
+        ],
+        [
+          3088,
+          "assert_eq!(observed[\"schema_version\"], 18);"
+        ],
+        [
+          3095,
+          "\"PRAGMA user_version=16\","
+        ],
+        [
+          3096,
+          "\"PRAGMA user_version=17\","
+        ],
+        [
+          3097,
+          "\"PRAGMA user_version=19\","
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "sites": [
+        [
+          2381,
+          "|| response[\"result\"][\"database_schema_version\"].as_u64() != Some(18)"
+        ],
+        [
+          2383,
+          "return Err(\"Authenticated daemon requires exact database schema18; old/future/unknown schema is unsupported\".into());"
+        ],
+        [
+          2999,
+          "let good = json!({\"result\":{\"api_version\":1,\"database_schema_version\":18}});"
+        ],
+        [
+          3010,
+          "response[\"result\"][\"database_schema_version\"] = bad;"
+        ],
+        [
+          3017,
+          "require_current_database_schema(&json!({\"result\":{\"database_schema_version\":18}}))"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "sites": [
+        [
+          440,
+          "&& value[\"schema_version\"].as_u64() == Some(18)"
+        ],
+        [
+          1031,
+          "json!({\"counts\":{\"schema_version\":18,\"sequence\":sequence,\"policies\":policies,\"runs\":0,\"attempts\":0,\"ref_fences\":0},\"proposal_matches\":true,\"proposal_r"
+        ],
+        [
+          1059,
+          "(\"schema_version\", json!(19)),"
+        ],
+        [
+          1060,
+          "(\"schema_version\", json!(18.0)),"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/integration_database.rs",
+      "sites": [
+        [
+          29,
+          "schema=db.execute('PRAGMA user_version').fetchone()[0];assert schema==18"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_owner_dialog.py",
+      "sites": [
+        [
+          27,
+          "value = {'read_only': True, 'schema_version': 18, 'sequence': 9, 'proposal': proposal,"
+        ],
+        [
+          69,
+          "self.assertTrue(daemon.is_file(), 'Provide the actual frozen/schema18 batond; never substitute test DDL')"
+        ],
+        [
+          106,
+          "copy_db.execute('PRAGMA user_version=19')"
+        ],
+        [
+          109,
+          "copy_db.execute('PRAGMA user_version=18')"
+        ],
+        [
+          171,
+          "def test_schema18_requires_original19_plus_factory12_integration4_conversation4_zero_tables(self):"
+        ],
+        [
+          432,
+          "self.assertTrue(daemon.is_file(), 'Use the real frozen schema18 daemon')"
+        ],
+        [
+          646,
+          "before = {'read_only': True, 'schema_version': 18, 'sequence': 20, 'proposal': copy.deepcopy(proposal),"
+        ],
+        [
+          840,
+          "def test_real_core_factory_preparation_is_schema18_complete_and_never_finalizes_target(self):"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src-tauri/tests/test_native_runner.py",
+      "sites": [
+        [
+          29,
+          "GOOD['goal_execution_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=18,run_count=0,node_count=0,reservation_cou"
+        ],
+        [
+          33,
+          "GOOD['goal_graph_readonly_database'] = dict(read_only=True, unchanged=True, before=dict(schema_version=18,capability_count=0,job_count=0,candidate_cou"
+        ],
+        [
+          47,
+          "_factory_counts = dict(schema_version=18, sequence=2, **{name: 0 for name in native_run.FACTORY_COUNT_FIELDS})"
+        ],
+        [
+          50,
+          "_integration_counts = dict(schema_version=18, sequence=2, **{name: 0 for name in native_run.INTEGRATION_COUNT_FIELDS})"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sites": [
+        [
+          23,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [], sequence: 0, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          62,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          68,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'cancel_requested', revision: 2 }], sequence: 2, api_version:1,database_schema_v"
+        ],
+        [
+          91,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'provider_extension' }], sequence: 1, api_version:1,database_schema_version:17 }"
+        ],
+        [
+          112,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          130,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          148,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          167,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 500, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          198,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 1, api_version:1,database_schema_version:17 });"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/BackgroundService.entry.test.tsx",
+      "sites": [
+        [
+          16,
+          "it('opens background settings without hiding or changing existing settings',async()=>{vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,a"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/BackgroundService.test.tsx",
+      "sites": [
+        [
+          7,
+          "const status:BackgroundStatus={instance_id:'12345678-1234-1234-1234-123456789abc',started_at:'2026-11-09T12:00:00Z',api_version:1,database_schema_vers"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.owner-ui-diagnostics.test.tsx",
+      "sites": [
+        [
+          22,
+          "vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(state.task)],sequence:1000,api_version:1,database_schema_version:17}));"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.plan-read-reuse.test.tsx",
+      "sites": [
+        [
+          24,
+          "vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(f.task)],sequence:1000,api_version:1,database_schema_version:17}));"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/FactoryChildGoals.test.tsx",
+      "sites": [
+        [
+          25,
+          "vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(state.task)],sequence:1000,api_version:1,database_schema_version:17}));"
+        ],
+        [
+          176,
+          "vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[structuredClone(root),structuredClone(state.task)],sequence:1000,api_version:1,database_s"
+        ],
+        [
+          256,
+          "if(mode==='missing-task')vi.mocked(api.snapshot).mockResolvedValueOnce({tasks:[],sequence:1000,api_version:1,database_schema_version:17});"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/GoalGraphExecution.task-home.test.tsx",
+      "sites": [
+        [
+          10,
+          "beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(api.snapshot).mockResolvedValue({ta"
+        ],
+        [
+          15,
+          "const user=userEvent.setup();vi.mocked(api.snapshot).mockResolvedValue({tasks:[{...task,state:'future_state',acceptance_ref:null,acceptance_sequence:n"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/GoalGraphExecution.task-projection.test.ts",
+      "sites": [
+        [
+          8,
+          "vi.mocked(invoke).mockResolvedValue({result:{tasks:[task],sequence:21,api_version:1,database_schema_version:18},warnings:[]});expect((await api.snapsh"
+        ],
+        [
+          11,
+          "vi.mocked(invoke).mockResolvedValue({result:{tasks:[{...task,acceptance_ref:ref}],sequence:21,api_version:1,database_schema_version:18},warnings:[]});"
+        ],
+        [
+          14,
+          "vi.mocked(invoke).mockResolvedValue({result:{tasks:[{...task,acceptance_sequence:sequence}],sequence:21,api_version:1,database_schema_version:18},warn"
+        ],
+        [
+          20,
+          "it('rejects an accepted Task receipt from a future snapshot sequence',async()=>{vi.mocked(invoke).mockResolvedValue({result:{tasks:[task],sequence:20,"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/ManagedMcps.entry.test.tsx",
+      "sites": [
+        [
+          14,
+          "it('exposes MCP management on the actual capabilities page while retaining Connections and Skills',async()=>{const f=managedMcpFixture();vi.mocked(api"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/ManagedSessionsTaskBinding.test.tsx",
+      "sites": [
+        [
+          39,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [f.task], sequence: 0, api_version:1,database_schema_version:17 });"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/ManagedSessionsWorkspaceEntry.test.tsx",
+      "sites": [
+        [
+          50,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [f.task], sequence: 0, api_version:1,database_schema_version:17 }); vi.mocked(api.events).mockResol"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/ManagedSkills.entry.test.tsx",
+      "sites": [
+        [
+          12,
+          "it('opens actual managed Skill controls from Capabilities while retaining the connection registration form',async()=>{const f=managedSkillFixture();vi"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/QuickConversation.test.tsx",
+      "sites": [
+        [
+          23,
+          "vi.mocked(api.snapshot).mockResolvedValue({tasks:[task],sequence:1,api_version:1,database_schema_version:17});vi.mocked(api.events).mockResolvedValue("
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/QuietCanvas.test.tsx",
+      "sites": [
+        [
+          18,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [draft, running], sequence: 1, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          49,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...draft, state: 'constructor' }], sequence: 0, api_version:1,database_schema_version:17 });"
+        ],
+        [
+          121,
+          "const snapshot = { tasks: [draft], sequence: 1, api_version: 1, database_schema_version: 18 };"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/RecoveryCenter.entry.test.tsx",
+      "sites": [
+        [
+          19,
+          "beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(api.snapshot).mockResolvedValue({ta"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/SessionWorkbench.test.tsx",
+      "sites": [
+        [
+          30,
+          "vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], api_version:1,database_schema_version:17, sequence: 0 });"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/StandaloneConversations.test.tsx",
+      "sites": [
+        [
+          21,
+          "beforeEach(()=>{vi.resetAllMocks();vi.mocked(conversationHistoryApi.page).mockResolvedValue({...historyPage([historyEvent(1),{...event,revision:2,sequ"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/TaskActions.test.tsx",
+      "sites": [
+        [
+          18,
+          "beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(api.snapshot).mockResolvedValue({ta"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/TaskIntegration.test.tsx",
+      "sites": [
+        [
+          17,
+          "vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[f.task],sequence:12,api_version:1,database_schema_version:18}));"
+        ],
+        [
+          113,
+          "it.each([17,19])('refuses database schema %s before offering integration writes',async database_schema_version=>{"
+        ],
+        [
+          114,
+          "const f=integrationFixture();ready(f);vi.mocked(api.snapshot).mockResolvedValue({tasks:[f.task],sequence:12,api_version:1,database_schema_version});"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/TaskIntegration.tsx",
+      "sites": [
+        [
+          47,
+          "if(snapshot.database_schema_version!==18||snapshot.api_version!==1||!safeInteger(snapshot.sequence)||snapshot.sequence<saved.sequenceFloor||readTask.i"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/TaskNotifications.test.tsx",
+      "sites": [
+        [
+          20,
+          "const snapshot = (tasks = [task]) => ({ tasks, sequence: 100, api_version: 1, database_schema_version: 17 });"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/api.ts",
+      "sites": [
+        [
+          73,
+          "database_schema_version: number;"
+        ],
+        [
+          116,
+          "snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.api_version!==1||value.database_schema_version!==18||!Array.isA"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/background-service-api.test.ts",
+      "sites": [
+        [
+          5,
+          "export const statusFixture={instance_id:'12345678-1234-1234-1234-123456789abc',started_at:'2026-11-09T12:00:00Z',api_version:1,database_schema_version"
+        ],
+        [
+          6,
+          "it('accepts the exact status and rejects unsupported, unsafe and extra evidence',()=>{expect(parseBackgroundStatus(statusFixture)).toEqual(statusFixtu"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/background-service-api.ts",
+      "sites": [
+        [
+          2,
+          "export interface BackgroundStatus {instance_id:string;started_at:string;api_version:1;database_schema_version:18;sequence:number;owned_provider_worker"
+        ],
+        [
+          6,
+          "export function parseBackgroundStatus(value:unknown):BackgroundStatus {const row=closed(value,['instance_id','started_at','api_version','database_sche"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/integration-api.test.ts",
+      "sites": [
+        [
+          20,
+          "it.each([undefined,16,17,19,18.5,true])('strictly refuses snapshot schema %s',async version=>{reply({tasks:[],sequence:0,api_version:1,database_schema"
+        ],
+        [
+          21,
+          "it('accepts actual current schema18 and keeps protocol API1 separate',async()=>{reply({tasks:[],sequence:0,api_version:1,database_schema_version:18});"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/src/integration-i18n.ts",
+      "sites": [
+        [
+          2,
+          "en:{title:'Local branch integration',intro:'Authorize the exact local branch before task acceptance. After acceptance, Core prepares a clean merged ca"
+        ],
+        [
+          3,
+          "zh:{title:'\u672c\u5730\u5206\u652f\u96c6\u6210',intro:'\u53ef\u5728\u4efb\u52a1\u9a8c\u6536\u524d\u6388\u6743\u7cbe\u786e\u7684\u672c\u5730\u5206\u652f\u3002\u9a8c\u6536\u540e\uff0cCore \u51c6\u5907\u5e72\u51c0\u7684\u5408\u5e76\u5019\u9009\uff0c\u91cd\u65b0\u6267\u884c\u5168\u90e8\u83b7\u6279\u68c0\u67e5\uff0c\u5e76\u4ec5\u5728\u8bc1\u636e\u548c\u5171\u4eab\u9884\u7b97\u5141\u8bb8\u65f6\u66f4\u65b0\u76ee\u6807\u5206\u652f\u3002',separate:'\u4efb\u52a1\u9a8c\u6536\u4e0d\u7b49\u4e8e\u5206\u652f\u66f4\u65b0\u3002\u672c\u6388\u6743\u4e0d\u5141\u8bb8\u63a8\u9001\u6216\u751f\u4ea7\u53d1\u5e03\u3002',refresh:'\u5237\u65b0\u96c6\u6210\u8bb0\u5f55',"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/data-workspace-real-ipc.py",
+      "sites": [
+        [
+          2,
+          "\"\"\"Actual built React + fixed loopback adapter + real schema18 dataset-copy IPC."
+        ],
+        [
+          341,
+          "report = {'status': 'failed_or_interrupted', 'dimension': 'actual built React / Chromium / fixed test-only HTTP / real Unix schema18 daemon / actual g"
+        ],
+        [
+          456,
+          "assert store.execute('PRAGMA user_version').fetchone()[0] == 18"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/factory-child-goal-real-ipc.py",
+      "sites": [
+        [
+          2,
+          "\"\"\"Schema18 real child-Goal browser/Unix IPC harness, not native/Provider proof."
+        ],
+        [
+          249,
+          "def __init__(self,schema=18,values=None): self.schema,self.values=schema,values or {}"
+        ],
+        [
+          251,
+          "if query=='PRAGMA user_version': value=self.schema"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/factory-child-planning-real-ipc.py",
+      "sites": [
+        [
+          45,
+          "# Only this newly imported, private module instance uses schema18 prompt fields."
+        ],
+        [
+          188,
+          "assert db.execute('PRAGMA user_version').fetchone()[0] == 18"
+        ],
+        [
+          966,
+          "assert assets == manifest['frontend_assets'], 'Root-provided exact built schema18 frontend required'"
+        ],
+        [
+          1019,
+          "connection = resource('connections.propose', {'name': 'Generated schema18 MCP5', 'provider': 'custom_acp',"
+        ],
+        [
+          1559,
+          "'pending': ['Root reviewed harness', 'fixed schema18 tools/source manifest', 'Root freshly composed built frontend/assets', 'exclusive actual browser "
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/factory-real-ipc.py",
+      "sites": [
+        [
+          49,
+          "PENDING = ('Root immutable matching schema18 batond and sibling baton with manifest hashes',"
+        ],
+        [
+          231,
+          "result['schema'] = db.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          1031,
+          "assert type(manifest.get('schema')) is int and manifest['schema'] == 18, 'Only integer schema18 candidate is Factory runtime evidence'"
+        ],
+        [
+          1484,
+          "report['observations']['actual_sqlite_schema'] = db.execute('PRAGMA user_version').fetchone()[0]"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/goal-execution-real-ipc.py",
+      "sites": [
+        [
+          128,
+          "assert type(manifest.get('schema')) is int and manifest['schema'] == 18 and sha(binary.read_bytes()) == expected_binary, 'Explicit coherent schema18 c"
+        ],
+        [
+          206,
+          "assert db.execute('PRAGMA user_version').fetchone()[0] == 18"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/goal-graph-real-ipc.py",
+      "sites": [
+        [
+          48,
+          "'Root-frozen updated schema18 binary/manifest and new composed Graph UI assets',"
+        ],
+        [
+          698,
+          "schema = db.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          716,
+          "schema = db.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          729,
+          "assert type(manifest.get('schema')) is int and manifest.get('schema') == 18, 'Only an explicit frozen schema18 binary may execute Graph'"
+        ],
+        [
+          801,
+          "assert db.execute('PRAGMA user_version').fetchone()[0] == 18"
+        ],
+        [
+          1242,
+          "\"\"\"Runnable real driver. Every receipt comes from the supplied exact schema18 Core."
+        ],
+        [
+          1726,
+          "assert db.execute('PRAGMA user_version').fetchone()[0] == 18"
+        ],
+        [
+          1990,
+          "# invokes the separate real four-node driver, with a schema18 preflight."
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/integration-real-ipc.py",
+      "sites": [
+        [
+          476,
+          "require(db.execute('PRAGMA user_version').fetchone() == (18,))"
+        ],
+        [
+          777,
+          "require(host.result('system.snapshot', {})['database_schema_version'] == 18)"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/task-workspace-binding-real-ipc.py",
+      "sites": [
+        [
+          2,
+          "\"\"\"Private built-App/Chromium -> fixed HTTP -> real schema18 Owner Unix IPC."
+        ],
+        [
+          406,
+          "require(db.execute('PRAGMA user_version').fetchone()[0] == 18)"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/task_notifications_real_ipc_probe.py",
+      "sites": [
+        [
+          104,
+          "and type(snapshot.get('api_version')) is int and snapshot.get('database_schema_version') == 18"
+        ],
+        [
+          105,
+          "and type(snapshot.get('database_schema_version')) is int and integer(snapshot.get('sequence'))"
+        ]
+      ]
+    },
+    {
+      "path": "apps/desktop/tests/test_task_notifications_real_ipc_probe.py",
+      "sites": [
+        [
+          40,
+          "values = {'system.snapshot': {'api_version': 1, 'database_schema_version': 17, 'sequence': 10, 'tasks': [task]},"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/background_status.rs",
+      "sites": [
+        [
+          20,
+          "pub database_schema_version: u32,"
+        ],
+        [
+          40,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          45,
+          "\"Background status requires current database schema18\","
+        ],
+        [
+          52,
+          "database_schema_version: schema,"
+        ],
+        [
+          113,
+          "store.conn.pragma_update(None, \"user_version\", 19).unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/conversation_tests.rs",
+      "sites": [
+        [
+          597,
+          "db.execute_batch(\"PRAGMA user_version=17\").unwrap();"
+        ],
+        [
+          603,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/conversations.rs",
+      "sites": [
+        [
+          122,
+          "PRAGMA user_version=18;\";"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/conversations_history_tests.rs",
+      "sites": [
+        [
+          104,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/data_workspaces.rs",
+      "sites": [
+        [
+          226,
+          "tx.execute_batch(\"CREATE TABLE data_workspace_previews(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id),state TEXT NOT NULL,docume"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/execution.rs",
+      "sites": [
+        [
+          91,
+          "PRAGMA user_version=2;\").map_err(db_error)?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/factory_child_goal.rs",
+      "sites": [
+        [
+          118,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          153,
+          "PRAGMA user_version=15;\").map_err(db_error)?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/factory_child_plan.rs",
+      "sites": [
+        [
+          20,
+          "PRAGMA user_version=14;\").map_err(db_error)?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/factory_history_reads.rs",
+      "sites": [
+        [
+          141,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/factory_history_reads_tests.rs",
+      "sites": [
+        [
+          397,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          408,
+          ".pragma_update(None, \"user_version\", rejected_version)"
+        ],
+        [
+          419,
+          ".pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ],
+        [
+          432,
+          ".pragma_update(None, \"user_version\", original_version)"
+        ],
+        [
+          485,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          513,
+          ".pragma_update(None, \"user_version\", wrong_version)"
+        ],
+        [
+          529,
+          ".pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ],
+        [
+          541,
+          ".pragma_update(None, \"user_version\", version)"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/factory_reads.rs",
+      "sites": [
+        [
+          1276,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          2022,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          2042,
+          ".pragma_update(None, \"user_version\", version)"
+        ],
+        [
+          2063,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          2078,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          2096,
+          "assert!(readonly.execute_batch(\"PRAGMA user_version=18;\").is_err());"
+        ],
+        [
+          2105,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/factory_store.rs",
+      "sites": [
+        [
+          118,
+          "PRAGMA user_version=13;\").map_err(db_error)?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/goal_factory.rs",
+      "sites": [
+        [
+          55,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          792,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/goal_graph.rs",
+      "sites": [
+        [
+          328,
+          "PRAGMA user_version=12;\").map_err(db_error)?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/goal_runtime.rs",
+      "sites": [
+        [
+          295,
+          "PRAGMA user_version=11;\").map_err(db_error)?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/goal_store.rs",
+      "sites": [
+        [
+          1493,
+          "PRAGMA user_version=9;\").map_err(db_error)?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/integration_budget.rs",
+      "sites": [
+        [
+          172,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/integration_fences.rs",
+      "sites": [
+        [
+          91,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/integration_reads.rs",
+      "sites": [
+        [
+          533,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          949,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/integration_store.rs",
+      "sites": [
+        [
+          7,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          14,
+          ".pragma_update(None, \"user_version\", 17)"
+        ],
+        [
+          80,
+          "tx.execute_batch(\"PRAGMA user_version=17;\")"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/integration_targets.rs",
+      "sites": [
+        [
+          30,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/ipc.rs",
+      "sites": [
+        [
+          1691,
+          "json!({\"tasks\":self.store.list()?,\"sequence\":self.store.sequence()?,\"api_version\":API_VERSION,\"database_schema_version\":self.store.conn.pragma_query_v"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/storage.rs",
+      "sites": [
+        [
+          103,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          277,
+          "tx.execute_batch(\"CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL); CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, doc"
+        ],
+        [
+          675,
+          "PRAGMA user_version=3;\").map_err(db_error)?;"
+        ],
+        [
+          689,
+          "PRAGMA user_version=4;\").map_err(db_error)?;"
+        ],
+        [
+          698,
+          "tx.execute_batch(\"CREATE TABLE session_runtime_snapshots(session_id TEXT PRIMARY KEY REFERENCES sessions(id),attempt_id TEXT NOT NULL UNIQUE REFERENCE"
+        ],
+        [
+          711,
+          "PRAGMA user_version=6;\").map_err(db_error)?;"
+        ],
+        [
+          723,
+          "PRAGMA user_version=7;\").map_err(db_error)?;"
+        ],
+        [
+          738,
+          "PRAGMA user_version=8;\").map_err(db_error)?;"
+        ],
+        [
+          749,
+          "conn.execute_batch(\"CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL); CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, d"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/task_workspace_binding.rs",
+      "sites": [
+        [
+          903,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          946,
+          "tx.pragma_update(None, \"user_version\", 16u32)"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/src/task_workspace_binding_tests.rs",
+      "sites": [
+        [
+          786,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          799,
+          "tx.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          823,
+          "tx.execute_batch(\"DROP TABLE integration_ref_fences; DROP TABLE integration_attempts; DROP TABLE integrations; DROP TABLE integration_policies; PRAGMA"
+        ],
+        [
+          832,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          851,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          860,
+          ".pragma_update(None, \"user_version\", 19u32)"
+        ],
+        [
+          878,
+          ".pragma_update(None, \"user_version\", 15u32)"
+        ],
+        [
+          890,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/admission_performance.rs",
+      "sites": [
+        [
+          108,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/command_validation.rs",
+      "sites": [
+        [
+          99,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          102,
+          "\"CI fixture must link exact schema18 source\""
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/command_validation_migration.rs",
+      "sites": [
+        [
+          31,
+          "c.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_o"
+        ],
+        [
+          67,
+          "c.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          93,
+          "b.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          132,
+          "c.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          147,
+          "fn future_schema19_refused_without_touching_bytes() {"
+        ],
+        [
+          150,
+          "c.execute_batch(\"PRAGMA user_version=19;\").unwrap();"
+        ],
+        [
+          226,
+          "\"user_version\","
+        ],
+        [
+          344,
+          ".pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ],
+        [
+          432,
+          "\"wrong_version\" => connection.execute_batch(\"PRAGMA user_version=12;\").unwrap(),"
+        ],
+        [
+          433,
+          "\"old_current14\" => connection.execute_batch(\"PRAGMA user_version=14;\").unwrap(),"
+        ],
+        [
+          434,
+          "\"old_current15\" => connection.execute_batch(\"PRAGMA user_version=15;\").unwrap(),"
+        ],
+        [
+          435,
+          "\"future17\" => connection.execute_batch(\"PRAGMA user_version=17;\").unwrap(),"
+        ],
+        [
+          564,
+          "let version: u32 = transaction.pragma_query_value(None, \"user_version\", |r| r.get(0))?;"
+        ],
+        [
+          570,
+          "transaction.execute_batch(\"DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;PRAGMA user_version=13;CREATE TABLE fixture_cal"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/conversation_schema18.rs",
+      "sites": [
+        [
+          39,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          113,
+          "\"PRAGMA user_version=17;\","
+        ],
+        [
+          149,
+          "tx.pragma_query_value::<u32, _>(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/data_workspace_migration.rs",
+      "sites": [
+        [
+          30,
+          "db.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_"
+        ],
+        [
+          53,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          76,
+          "old.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          115,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          133,
+          "fn future_schema19_is_refused_without_touching_bytes_or_creating_migration_backup() {"
+        ],
+        [
+          136,
+          "db.execute_batch(\"PRAGMA user_version=19;\").unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/data_workspaces.rs",
+      "sites": [
+        [
+          354,
+          ".pragma_query_value::<u32, _>(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/execution.rs",
+      "sites": [
+        [
+          244,
+          "conn.execute_batch(\"CREATE TABLE tasks(id TEXT PRIMARY KEY, document TEXT NOT NULL); CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT, d"
+        ],
+        [
+          272,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          323,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          334,
+          "conn.execute_batch(\"CREATE TABLE tasks(id TEXT PRIMARY KEY,document TEXT NOT NULL);CREATE TABLE events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,docu"
+        ],
+        [
+          390,
+          "// DDL and user_version unchanged and must create no integration authority."
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/factory_child_goal_legacy_migration.rs",
+      "sites": [
+        [
+          428,
+          "db.query_row(\"PRAGMA user_version\", [], |r| r.get(0))"
+        ],
+        [
+          977,
+          "db.execute_batch(\"PRAGMA user_version=19\").unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/factory_child_plan_migration.rs",
+      "sites": [
+        [
+          36,
+          "transaction.execute_batch(\"DROP TABLE factory_child_plan_heads;DROP TABLE factory_child_plan_revisions;PRAGMA user_version=13;CREATE TABLE original_by"
+        ],
+        [
+          130,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          168,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          193,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          224,
+          "fn future_schema19_refuses_without_mutation_or_backup() {"
+        ],
+        [
+          227,
+          "db.execute_batch(\"PRAGMA user_version=19;\").unwrap();"
+        ],
+        [
+          244,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/factory_migration.rs",
+      "sites": [
+        [
+          32,
+          "c.execute_batch(\"PRAGMA user_version=12;CREATE TABLE original_bytes(raw BLOB);INSERT INTO original_bytes VALUES(x'00ffdeadbeef');\").unwrap();"
+        ],
+        [
+          66,
+          "c.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          108,
+          "old.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          135,
+          "c.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          149,
+          "fn future_schema19_is_refused_without_mutation_or_factory_backup() {"
+        ],
+        [
+          152,
+          "c.execute_batch(\"PRAGMA user_version=19;\").unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/factory_runtime_ipc.rs",
+      "sites": [
+        [
+          2019,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          2022,
+          "\"Current Core18 tests require an exact schema18 daemon\""
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/child_goal_legacy_migration/generate.py",
+      "sites": [
+        [
+          246,
+          "assert probe.execute('PRAGMA user_version').fetchone()[0] == 14"
+        ],
+        [
+          368,
+          "assert db.execute('PRAGMA user_version').fetchone()[0] == 14"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/factory_child_goal_runtime.rs",
+      "sites": [
+        [
+          425,
+          "db.pragma_query_value::<u32, _>(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          428,
+          "\"The run must leave the current database at schema 18\""
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/integration_runtime.rs",
+      "sites": [
+        [
+          291,
+          "rpc(&server, \"system.snapshot\", json!({}), None, None)[\"database_schema_version\"],"
+        ],
+        [
+          766,
+          ".query_row(\"PRAGMA user_version\", [], |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/integration_stage_evidence.rs",
+      "sites": [
+        [
+          700,
+          ".query_row(\"PRAGMA user_version\", [], |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/integration_stage_evidence_tests.rs",
+      "sites": [
+        [
+          421,
+          "fn readonly_collector_projects_only_exact_schema18() {"
+        ],
+        [
+          469,
+          "db.pragma_update(None, \"user_version\", schema).unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/pre_conversation_schema.rs",
+      "sites": [
+        [
+          1,
+          "//! Test-only, exact empty schema18 -> schema17 inverse. Never a historical producer."
+        ],
+        [
+          34,
+          "tail.split_once(\"PRAGMA user_version=18;\")"
+        ],
+        [
+          47,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          135,
+          "PRAGMA user_version=17;\","
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/pre_factory_schema.rs",
+      "sites": [
+        [
+          83,
+          "let version: u32 = transaction.pragma_query_value(None, \"user_version\", |row| row.get(0))?;"
+        ],
+        [
+          210,
+          "PRAGMA user_version=14;\")?;"
+        ],
+        [
+          269,
+          "PRAGMA user_version=12;\","
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/pre_integration_schema.rs",
+      "sites": [
+        [
+          44,
+          ".pragma_query_value(None, \"user_version\", |row| row.get(0))"
+        ],
+        [
+          55,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          146,
+          "PRAGMA user_version=16;\","
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py",
+      "sites": [
+        [
+          32,
+          "H.require(db.execute('PRAGMA user_version').fetchone()[0] == 15,'Actual tool did not create schema15')"
+        ],
+        [
+          45,
+          "return schema,rows,db.execute('PRAGMA user_version').fetchone()[0]"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/fixtures/task_workspace_actual15_migration/test_source_controls.py",
+      "sites": [
+        [
+          100,
+          "def test_sqlite_backup_cookie_differs_while_raw_rows_ddl_and_user_version_survive(self):"
+        ],
+        [
+          102,
+          "source.executescript(\"CREATE TABLE first(raw BLOB);CREATE TABLE second(document TEXT);INSERT INTO first(rowid,raw) VALUES(31,x'00ff');INSERT INTO seco"
+        ],
+        [
+          105,
+          "for query in ['SELECT * FROM sqlite_schema ORDER BY type,name','SELECT rowid,* FROM first','SELECT rowid,* FROM second','PRAGMA user_version']:"
+        ],
+        [
+          112,
+          "self.assertNotIn('PRAGMA user_version=',source);self.assertNotIn('INSERT INTO',source);self.assertNotIn('UPDATE tasks',source)"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/goal_graph_migration.rs",
+      "sites": [
+        [
+          10,
+          "const DROP_GRAPH:&str=\"DROP TRIGGER graph_fence_lease_insert; DROP TRIGGER graph_fence_lease_update; DROP TABLE goal_graph_acceptances;DROP TABLE goal"
+        ],
+        [
+          57,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          89,
+          "old.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          125,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          144,
+          "fn schema19_is_refused_without_modifying_any_bytes_or_creating_backup() {"
+        ],
+        [
+          148,
+          ".execute_batch(\"PRAGMA user_version=19\")"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/goal_runtime_migration.rs",
+      "sites": [
+        [
+          22,
+          "db.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_"
+        ],
+        [
+          44,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          74,
+          "old.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          113,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          140,
+          "fn future_schema19_is_refused_without_modification_or_migration_backup() {"
+        ],
+        [
+          144,
+          ".execute_batch(\"PRAGMA user_version=19\")"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/goal_store_migration.rs",
+      "sites": [
+        [
+          33,
+          "c.execute_batch(\"PRAGMA user_version=8;CREATE TABLE original_blob(bytes BLOB);INSERT INTO original_blob VALUES(x'00ffdeadbeef');\").unwrap();"
+        ],
+        [
+          64,
+          "c.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          98,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          132,
+          "c.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          151,
+          "fn actual_future_schema19_is_rejected_without_modifying_bytes() {"
+        ],
+        [
+          154,
+          "c.execute_batch(\"PRAGMA user_version=19;\").unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/integration_actual16_migration.rs",
+      "sites": [
+        [
+          136,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          1002,
+          "db.pragma_update(None, \"user_version\", 19u32).unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/integration_ipc.rs",
+      "sites": [
+        [
+          62,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/integration_schema17.rs",
+      "sites": [
+        [
+          68,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          200,
+          "keeper.execute_batch(\"PRAGMA wal_autocheckpoint=0; CREATE TABLE future_private(bytes BLOB); INSERT INTO future_private VALUES(x'00ff0123'); PRAGMA use"
+        ],
+        [
+          230,
+          "db.execute_batch(\"CREATE TABLE private_sentinel(bytes BLOB); INSERT INTO private_sentinel VALUES(x'00ffdeadbeef'); PRAGMA user_version=16;\").unwrap();"
+        ],
+        [
+          250,
+          "keeper.execute_batch(\"PRAGMA wal_autocheckpoint=0; DROP TABLE integration_ref_fences; DROP TABLE integration_attempts; DROP TABLE integrations; DROP T"
+        ],
+        [
+          389,
+          "format!(\"PRAGMA user_version={version};\"),"
+        ],
+        [
+          473,
+          "transaction.pragma_query_value::<u32, _>(None, \"user_version\", |row| row.get(0))?,"
+        ],
+        [
+          715,
+          ".pragma_query_value::<u32, _>(None, \"user_version\", |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/migration_v3.rs",
+      "sites": [
+        [
+          17,
+          "c.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_o"
+        ],
+        [
+          45,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          79,
+          "c.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_o"
+        ],
+        [
+          84,
+          "c.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/migration_v5.rs",
+      "sites": [
+        [
+          18,
+          "db.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_"
+        ],
+        [
+          33,
+          "db.pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ],
+        [
+          63,
+          ".pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ],
+        [
+          96,
+          "db.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_"
+        ],
+        [
+          101,
+          "db.pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/migration_v6.rs",
+      "sites": [
+        [
+          20,
+          "\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;D"
+        ],
+        [
+          49,
+          ".pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ],
+        [
+          91,
+          ".pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ],
+        [
+          139,
+          "connection.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goa"
+        ],
+        [
+          145,
+          ".pragma_query_value(None, \"user_version\", |row| row.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/migration_v7.rs",
+      "sites": [
+        [
+          37,
+          "connection.execute_batch(\"DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goa"
+        ],
+        [
+          89,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          123,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          163,
+          ".pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          197,
+          "connection.execute_batch(\"CREATE TABLE sentinel(raw BLOB);INSERT INTO sentinel VALUES(x'00ff');PRAGMA user_version=19;\").unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/sessions_ipc.rs",
+      "sites": [
+        [
+          3684,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ],
+        [
+          3861,
+          "db.execute_batch(\"DROP TRIGGER graph_fence_lease_insert; DROP TRIGGER graph_fence_lease_update; DROP TABLE goal_graph_acceptances;DROP TABLE goal_grap"
+        ],
+        [
+          4052,
+          ".query_row(\"PRAGMA user_version\", [], |r| r.get(0))"
+        ],
+        [
+          4056,
+          "\"The graph owner fixture must observe the current schema 18\""
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/storage.rs",
+      "sites": [
+        [
+          76,
+          "conn.execute_batch(\"PRAGMA user_version=19; CREATE TABLE sentinel(value TEXT);\")"
+        ],
+        [
+          83,
+          "conn.execute_batch(\"PRAGMA user_version=0\").unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/task_workspace_actual15_migration.rs",
+      "sites": [
+        [
+          133,
+          ".pragma_query_value(None, \"user_version\", |r| r.get(0))"
+        ],
+        [
+          627,
+          "// indexes; schema18 adds four tables. SQLite increments its cookie per DDL."
+        ],
+        [
+          810,
+          "db.pragma_update(None, \"user_version\", 19u32).unwrap();"
+        ]
+      ]
+    },
+    {
+      "path": "crates/core/tests/workspace_open_ipc.rs",
+      "sites": [
+        [
+          99,
+          "db.pragma_query_value(None, \"user_version\", |r| r.get::<_, u32>(0))"
+        ]
+      ]
+    },
+    {
+      "path": "crates/remote-host/src/controller.rs",
+      "sites": [
+        [
+          37,
+          "let version: u32 = db.query_row(\"PRAGMA user_version\", [], |r| r.get(0))?;"
+        ],
+        [
+          40,
+          "db.execute_batch(\"BEGIN IMMEDIATE; CREATE TABLE IF NOT EXISTS control (id INTEGER PRIMARY KEY CHECK(id=1), binding TEXT NOT NULL,cursor INTEGER NOT NU"
+        ]
+      ]
+    },
+    {
+      "path": "crates/remote-host/src/store.rs",
+      "sites": [
+        [
+          120,
+          "let version: u32 = db.query_row(\"PRAGMA user_version\", [], |r| r.get(0))?;"
+        ],
+        [
+          130,
+          "PRAGMA user_version=1; COMMIT;\")?;"
+        ]
+      ]
+    },
+    {
+      "path": "crates/remote-host/tests/foundation.rs",
+      "sites": [
+        [
+          634,
+          "db.execute_batch(\"PRAGMA journal_mode=WAL; PRAGMA user_version=99;\")"
+        ],
+        [
+          646,
+          "db.query_row::<i64, _, _>(\"PRAGMA user_version\", [], |r| r.get(0))"
+        ],
+        [
+          653,
+          "db.execute_batch(\"PRAGMA journal_mode=WAL; PRAGMA user_version=99;\")"
+        ],
+        [
+          665,
+          "db.query_row::<i64, _, _>(\"PRAGMA user_version\", [], |r| r.get(0))"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/generate-schema16-migration-fixture.py",
+      "sites": [
+        [
+          32,
+          "H.require(db.execute('PRAGMA user_version').fetchone()[0] == 16,'Actual tool did not create schema16')"
+        ],
+        [
+          47,
+          "return schema,rows,db.execute('PRAGMA user_version').fetchone()[0]"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/integration-owner-fixture.py",
+      "sites": [
+        [
+          225,
+          "require(type(snapshot['database_schema_version']) is int and snapshot['database_schema_version'] == 18, 'Actual schema18 Core required')"
+        ],
+        [
+          299,
+          "require(db.execute('PRAGMA user_version').fetchone()[0] == 18)"
+        ],
+        [
+          313,
+          "return {'read_only': True, 'schema_version': 18, 'columns': columns, 'counts': sizes, 'rows': rows,"
+        ],
+        [
+          326,
+          "if (value['schema_version'] != 18 or response.get('error') is not None or type(response.get('result')) is not dict"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/native-macos-smoke.sh",
+      "sites": [
+        [
+          40,
+          "assert type(factory_counts['schema_version']) is int and factory_counts['schema_version'] == 18"
+        ],
+        [
+          60,
+          "assert type(record['goal_execution_readonly_database']['before']['schema_version']) is int and record['goal_execution_readonly_database']['before']['s"
+        ],
+        [
+          71,
+          "assert type(record['goal_graph_readonly_database']['before']['schema_version']) is int and record['goal_graph_readonly_database']['before']['schema_ve"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "sites": [
+        [
+          31,
+          "# Exact schema18 tables: never substitute old test DDL or silently skip absent"
+        ],
+        [
+          96,
+          "schema = conn.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          141,
+          "or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)"
+        ],
+        [
+          179,
+          "or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)"
+        ],
+        [
+          892,
+          "or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)"
+        ],
+        [
+          919,
+          "or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)"
+        ],
+        [
+          1164,
+          "or checkpoint['schema_version'] != 18):"
+        ],
+        [
+          1165,
+          "return 'Integration exact schema18/checkpoint typed count mismatch'"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/native-run.py",
+      "sites": [
+        [
+          71,
+          "or counts['schema_version'] != 18"
+        ],
+        [
+          73,
+          "return 'native Factory schema18 or one of twelve independent zero counts is invalid'"
+        ],
+        [
+          111,
+          "or counts['schema_version'] != 18"
+        ],
+        [
+          113,
+          "return 'native integration schema18 or one of four independent zero counts is invalid'"
+        ],
+        [
+          174,
+          "or start['schema_version'] != 18 or finish['schema_version'] != 18"
+        ],
+        [
+          199,
+          "or graph_before['schema_version'] != 18 or graph_after['schema_version'] != 18"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/prepare-factory-test-tools.py",
+      "sites": [
+        [
+          52,
+          "schema = conn.execute('PRAGMA user_version').fetchone()[0]"
+        ],
+        [
+          54,
+          "raise ValueError('Prepared daemon did not create exact schema18')"
+        ],
+        [
+          171,
+          "raise ValueError('Frozen tool manifest must be exact schema18')"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/prepare-legacy-migration-fixture.py",
+      "sites": [
+        [
+          275,
+          "result.update(schema=db.execute('PRAGMA user_version').fetchone()[0],query_only=True,foreign_key_errors=db.execute('PRAGMA foreign_key_check').fetchal"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/record-factory-rework-ci-evidence.py",
+      "sites": [
+        [
+          1226,
+          "need(conn.execute('PRAGMA user_version').fetchone() == (SCHEMA,))"
+        ]
+      ]
+    },
+    {
+      "path": "scripts/record-integration-browser-ci-evidence.py",
+      "sites": [
+        [
+          223,
+          "require(type(probe) is dict and set(probe) == {'source', 'api_version', 'database_schema_version', 'daemon_exit', 'joined'}"
+        ],
+        [
+          225,
+          "and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18"
+        ],
+        [
+          257,
+          "'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 18, 'joined': True},"
+        ],
+        [
+          501,
+          "require(type(probe) is dict and set(probe) == {'source', 'api_version', 'database_schema_version', 'daemon_exit', 'joined'}"
+        ],
+        [
+          503,
+          "and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/child_goal_capture_source_fixture.py",
+      "sites": [
+        [
+          166,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          167,
+          "text=strip_schema18_source(path,text,legacy=LAYERS[path]['legacy'])"
+        ],
+        [
+          263,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          264,
+          "text=strip_schema18_source('tests/infrastructure/test_child_goal_diagnostics_v4.py',text,legacy=(TEST_GUARD_LAYER['before'],))"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/fixtures/native_acceptance_followup.json",
+      "sites": [
+        [
+          8,
+          "\"expected\": \"            (\\\"schema_version\\\",\\\"PRAGMA user_version=17\\\",17),\\n            (\\\"schema_version\\\",\\\"PRAGMA user_version=19\\\",19),\\n\","
+        ],
+        [
+          9,
+          "\"replacement\": \"            (\\\"schema_version\\\",\\\"PRAGMA user_version=18\\\",18),\\n\""
+        ],
+        [
+          14,
+          "\"expected\": \"            (\\\"schema_version\\\", \\\"PRAGMA user_version=17\\\", 17),\\n            (\\\"schema_version\\\", \\\"PRAGMA user_version=19\\\", 19),\\n\","
+        ],
+        [
+          15,
+          "\"replacement\": \"            (\\\"schema_version\\\", \\\"PRAGMA user_version=18\\\", 18),\\n\""
+        ],
+        [
+          20,
+          "\"expected\": \"            \\\"PRAGMA user_version=17\\\",\\n            \\\"PRAGMA user_version=19\\\",\\n\","
+        ],
+        [
+          21,
+          "\"replacement\": \"            \\\"PRAGMA user_version=18\\\",\\n\""
+        ],
+        [
+          32,
+          "\"expected\": \"            \\\"PRAGMA user_version=17\\\",\\n            \\\"PRAGMA user_version=19\\\",\\n\","
+        ],
+        [
+          33,
+          "\"replacement\": \"            \\\"PRAGMA user_version=18\\\",\\n\""
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/fixtures/schema18_source_inverse.json",
+      "sites": [
+        [
+          9,
+          "\"expected\": \"\\\"\\\"\\\"Schema18 real child-Goal browser/Unix IPC harness, not native/Provider proof.\\n\","
+        ],
+        [
+          33,
+          "\"expected\": \"        def __init__(self,schema=18,values=None): self.schema,self.values=schema,values or {}\\n\","
+        ],
+        [
+          116,
+          "\"expected\": \"# Only this newly imported, private module instance uses schema18 prompt fields.\\n\","
+        ],
+        [
+          122,
+          "\"expected\": \"        assert db.execute('PRAGMA user_version').fetchone()[0] == 18\\n\","
+        ],
+        [
+          123,
+          "\"replacement\": \"        assert db.execute('PRAGMA user_version').fetchone()[0] == 17\\n\""
+        ],
+        [
+          128,
+          "\"expected\": \"    assert assets == manifest['frontend_assets'], 'Root-provided exact built schema18 frontend required'\\n\","
+        ],
+        [
+          146,
+          "\"expected\": \"        connection = resource('connections.propose', {'name': 'Generated schema18 MCP5', 'provider': 'custom_acp',\\n\","
+        ],
+        [
+          158,
+          "\"expected\": \"            'pending': ['Root reviewed harness', 'fixed schema18 tools/source manifest', 'Root freshly composed built frontend/assets', '"
+        ],
+        [
+          193,
+          "\"expected\": \"        require(db.execute('PRAGMA user_version').fetchone() == (18,))\\n\","
+        ],
+        [
+          194,
+          "\"replacement\": \"        require(db.execute('PRAGMA user_version').fetchone() == (17,))\\n\""
+        ],
+        [
+          199,
+          "\"expected\": \"    require(host.result('system.snapshot', {})['database_schema_version'] == 18)\\n\","
+        ],
+        [
+          200,
+          "\"replacement\": \"    require(host.result('system.snapshot', {})['database_schema_version'] == 17)\\n\""
+        ],
+        [
+          366,
+          "\"expected\": \"            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\\n\","
+        ],
+        [
+          367,
+          "\"replacement\": \"            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17\\n\""
+        ],
+        [
+          372,
+          "\"expected\": \"            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 18, 'joined': True},\\n\","
+        ],
+        [
+          373,
+          "\"replacement\": \"            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 17, 'joined': True},\\n\""
+        ],
+        [
+          384,
+          "\"expected\": \"            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\\n\","
+        ],
+        [
+          385,
+          "\"replacement\": \"            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 17\\n\""
+        ],
+        [
+          407,
+          "\"expected\": \"            if sql=='PRAGMA user_version':return Cursor([(18,)])\\n\","
+        ],
+        [
+          408,
+          "\"replacement\": \"            if sql=='PRAGMA user_version':return Cursor([(17,)])\\n\""
+        ],
+        [
+          437,
+          "\"expected\": \"        from tests.infrastructure.schema18_source_fixture import strip_schema18_source\\n        source=strip_schema18_source('tests/infra"
+        ],
+        [
+          443,
+          "\"expected\": \"        from tests.infrastructure.schema18_source_fixture import strip_schema18_source\\n        source=strip_schema18_source('tests/infra"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/integration_drift_ref_preparation_fixture.py",
+      "sites": [
+        [
+          11,
+          "CURRENT_SCHEMA18_SHA256 = 'bf9a348a6923432c0ecb66d5fefbe1b40aee9d46729eddddcd62e04079d3d504'"
+        ],
+        [
+          49,
+          "('[\"database_schema_version\"],\\n            18', '[\"database_schema_version\"],\\n            17'),"
+        ],
+        [
+          78,
+          "if sha(text.encode()) == CURRENT_SCHEMA18_SHA256:"
+        ],
+        [
+          81,
+          "raise AssertionError('Exact schema18 fixture assertion required')"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/integration_screenshot_failure_fixture.py",
+      "sites": [
+        [
+          69,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          70,
+          "text=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',text,legacy=(DRIVER_BEFORE_SHA256,))"
+        ],
+        [
+          75,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          76,
+          "text=strip_schema18_source('scripts/record-integration-browser-ci-evidence.py',text,legacy=(PROJECTOR_BEFORE_SHA256,),error=ValueError)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/notification_screenshot_composition_fixture.py",
+      "sites": [
+        [
+          108,
+          "\"\"\"Restore the exact schema18 driver from the reviewed combined source.\"\"\""
+        ],
+        [
+          114,
+          "\"\"\"Keep the notification layer while reversing the exact schema18 spans.\"\"\""
+        ],
+        [
+          115,
+          "from tests.infrastructure.schema18_source_fixture import LAYERS"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/rework_fee_kind_composition_fixture.py",
+      "sites": [
+        [
+          15,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          16,
+          "text=strip_schema18_source('scripts/record-factory-rework-ci-evidence.py',text,legacy=(BEFORE_SHA256,PRIOR_STOP_RESTORED_SHA256))"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/schema18_host_fixture.py",
+      "sites": [
+        [
+          5,
+          "'            .pragma_query_value(None, \"user_version\", |r| r.get(0))\\n'"
+        ],
+        [
+          9,
+          "raise AssertionError('exact current schema18 host reader required')"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/schema18_source_fixture.py",
+      "sites": [
+        [
+          1,
+          "\"\"\"Test-only outer inverse for nine explicitly pinned schema18 source changes."
+        ],
+        [
+          10,
+          "LAYERS = json.loads((Path(__file__).parent / 'fixtures/schema18_source_inverse.json').read_text())"
+        ],
+        [
+          13,
+          "def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):"
+        ],
+        [
+          15,
+          "raise error('Unknown driver source: schema18 inverse arguments')"
+        ],
+        [
+          33,
+          "raise error('Unknown driver source: complete schema18 input changed')"
+        ],
+        [
+          42,
+          "raise error('Schema18 inverse bounds changed')"
+        ],
+        [
+          44,
+          "raise error('Schema18 inverse exact source span changed')"
+        ],
+        [
+          48,
+          "raise error('Schema18 inverse did not restore every original byte')"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_background_service_native_smoke_source.py",
+      "sites": [
+        [
+          256,
+          "from tests.infrastructure.schema18_source_fixture import restore"
+        ],
+        [
+          310,
+          "for normalize in (workflow.strip_conversation_schema18, workflow.strip_private_browser_python):"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_child_goal_capture_failure.py",
+      "sites": [
+        [
+          163,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          164,
+          "text=strip_schema18_source(path,(ROOT/path).read_text());self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),record['after'])"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_child_goal_diagnostics_v4.py",
+      "sites": [
+        [
+          318,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          319,
+          "source=strip_schema18_source('tests/infrastructure/test_child_goal_ci_evidence.py',path.read_text())"
+        ],
+        [
+          322,
+          "original_projector=strip_schema18_source('scripts/record-child-goal-ci-evidence.py',Path(P.__file__).read_text())"
+        ],
+        [
+          396,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          397,
+          "source=strip_schema18_source('tests/infrastructure/test_child_goal_ci_evidence.py',path.read_text())"
+        ],
+        [
+          400,
+          "original_projector=strip_schema18_source('scripts/record-child-goal-ci-evidence.py',Path(P.__file__).read_text())"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_child_planning_local_activation_inverse.py",
+      "sites": [
+        [
+          21,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          23,
+          "candidate=strip_schema18_source('apps/desktop/tests/factory-child-planning-real-ipc.py',candidate.decode()).encode()"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_factory_rework_attempt_budget.py",
+      "sites": [
+        [
+          618,
+          "if sql=='PRAGMA user_version':return Cursor([(18,)])"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_factory_rework_ci_evidence.py",
+      "sites": [
+        [
+          45,
+          "conn.executescript('''PRAGMA user_version=18;"
+        ],
+        [
+          233,
+          "('PRAGMA user_version=15', ()),"
+        ],
+        [
+          234,
+          "('PRAGMA user_version=16', ()),"
+        ],
+        [
+          235,
+          "('PRAGMA user_version=17', ()),"
+        ],
+        [
+          236,
+          "('PRAGMA user_version=19', ()),"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_factory_test_tools.py",
+      "sites": [
+        [
+          42,
+          "def database(self, schema=18, missing=None, populated=None):"
+        ],
+        [
+          44,
+          "conn.execute(f'PRAGMA user_version={schema}')"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_browser_ci.py",
+      "sites": [
+        [
+          112,
+          "self.assertIn(\"snapshot['database_schema_version'] == 18\",source)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_browser_ci_evidence.py",
+      "sites": [
+        [
+          89,
+          "write(private / 'schema-probe.json', {'source': HEAD, 'api_version': 1, 'database_schema_version': 18,"
+        ],
+        [
+          172,
+          "for key,bad in [('database_schema_version',16),('database_schema_version',17),('database_schema_version',19),('database_schema_version',True),"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_browser_ci_evidence_runtime.py",
+      "sites": [
+        [
+          239,
+          "('schema-probe.json', 'database_schema_version', 16), ('schema-probe.json', 'joined', False),"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_drift_ref_preparation.py",
+      "sites": [
+        [
+          27,
+          "self.assertEqual(hashlib.sha256(current.encode()).hexdigest(), F.CURRENT_SCHEMA18_SHA256)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_driver_preflight_diagnostics.py",
+      "sites": [
+        [
+          133,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          134,
+          "restored=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',DRIVER.read_text())"
+        ],
+        [
+          446,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          447,
+          "source=strip_schema18_source('apps/desktop/tests/integration-real-ipc.py',DRIVER.read_text())"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_ipc_diagnostics.py",
+      "sites": [
+        [
+          67,
+          "from schema18_host_fixture import restore_schema17_host"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_setup_diagnostics.py",
+      "sites": [
+        [
+          209,
+          "historical = W.strip_conversation_schema18(text)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_stage_evidence_phase_inverse.py",
+      "sites": [
+        [
+          17,
+          "historical_tests = original.rust_controls_before_schema18(tests)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_integration_stage_evidence_source.py",
+      "sites": [
+        [
+          33,
+          "from schema18_host_fixture import restore_schema17_host"
+        ],
+        [
+          59,
+          "SCHEMA18_EVIDENCE_SHA256 = 'a46dafdb9313d8a48448b5564afd55b6cd5699099bda1688e05983a245692027'"
+        ],
+        [
+          60,
+          "SCHEMA18_RUST_TEST_SHA256 = '8b2734bbde5acaecf791f81b92ae9ff584c8bbc15afe5b02228ea48e195dfed3'"
+        ],
+        [
+          61,
+          "SCHEMA18_RUST_TEST_MARKER = '\\n#[test]\\nfn readonly_collector_projects_only_exact_schema18() {\\n'"
+        ],
+        [
+          82,
+          "def evidence_before_schema18(text):"
+        ],
+        [
+          83,
+          "exact_source_pin(text, SCHEMA18_EVIDENCE_SHA256)"
+        ],
+        [
+          87,
+          "raise AssertionError('unique exact schema18 evidence boundary required')"
+        ],
+        [
+          93,
+          "def rust_controls_before_schema18(text):"
+        ],
+        [
+          94,
+          "exact_source_pin(text, SCHEMA18_RUST_TEST_SHA256)"
+        ],
+        [
+          95,
+          "if text.count(SCHEMA18_RUST_TEST_MARKER) != 1 or text.count(PHASE_TEST_MARKER) != 1:"
+        ],
+        [
+          96,
+          "raise AssertionError('unique reviewed schema18 control required')"
+        ],
+        [
+          97,
+          "start = text.index(SCHEMA18_RUST_TEST_MARKER)"
+        ],
+        [
+          115,
+          "if hashlib.sha256(text.encode()).hexdigest() == SCHEMA18_RUST_TEST_SHA256:"
+        ],
+        [
+          116,
+          "text = rust_controls_before_schema18(text)"
+        ],
+        [
+          131,
+          "def test_exact_schema18_evidence_changes_preserve_original_source_and_refuse_tampering(self):"
+        ],
+        [
+          135,
+          "self.assertEqual(hashlib.sha256(evidence_before_schema18(text).encode()).hexdigest(),"
+        ],
+        [
+          138,
+          "text.replace('json!(18)', 'json!(17)'), evidence_before_schema18(text)):"
+        ],
+        [
+          140,
+          "evidence_before_schema18(changed)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_native_integration_owner_evidence.py",
+      "sites": [
+        [
+          28,
+          "before = {'schema_version': 18, 'sequence': 23, 'policies': 0, 'runs': 0, 'attempts': 0, 'ref_fences': 0}"
+        ],
+        [
+          313,
+          "db.execute('PRAGMA user_version=18')"
+        ],
+        [
+          324,
+          "self.assertEqual(value['schema_version'], 18)"
+        ],
+        [
+          331,
+          "with sqlite3.connect(path) as db: db.execute('PRAGMA user_version='+str(old))"
+        ],
+        [
+          334,
+          "db.execute('PRAGMA user_version=18'); db.execute('CREATE TABLE unexpected(id INTEGER)')"
+        ],
+        [
+          346,
+          "db.execute('PRAGMA user_version=18')"
+        ],
+        [
+          428,
+          "before={'read_only':True,'schema_version':18,'columns':columns,'counts':{t:len(rows[t]) for t in tables},'rows':rows,'sequence':23}"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_private_browser_python.py",
+      "sites": [
+        [
+          220,
+          "schema17 = W.strip_conversation_schema18(text)"
+        ],
+        [
+          240,
+          "composed = W.strip_private_browser_python(W.strip_conversation_schema18((ROOT/'.github/workflows/product.yml').read_text()))"
+        ],
+        [
+          252,
+          "text = W.strip_private_browser_python(W.strip_conversation_schema18((ROOT/'.github/workflows/product.yml').read_text()))"
+        ],
+        [
+          274,
+          "composed = W.strip_private_browser_python(W.strip_conversation_schema18((ROOT/'.github/workflows/product.yml').read_text()))"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_remote_host.py",
+      "sites": [
+        [
+          339,
+          "db.execute(\"PRAGMA user_version=99\")"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_root_parent_fee_kind_composition.py",
+      "sites": [
+        [
+          17,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          18,
+          "text = strip_schema18_source('scripts/record-factory-rework-ci-evidence.py', PROJECTOR.read_text())"
+        ],
+        [
+          79,
+          "from tests.infrastructure.schema18_source_fixture import strip_schema18_source"
+        ],
+        [
+          80,
+          "text = strip_schema18_source('tests/infrastructure/test_factory_rework_attempt_budget.py',path.read_text())"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_schema16_migration_preparation.py",
+      "sites": [
+        [
+          135,
+          "db.execute('PRAGMA user_version=16')"
+        ],
+        [
+          145,
+          "with sqlite3.connect(path) as db: db.execute(f'PRAGMA user_version={schema}')"
+        ],
+        [
+          148,
+          "db.execute('PRAGMA user_version=16'); db.execute('CREATE TABLE integration_policies(id TEXT)')"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_schema17_integration_metadata.py",
+      "sites": [
+        [
+          17,
+          "def database(self, schema=18):"
+        ],
+        [
+          20,
+          "db.execute(f'PRAGMA user_version={schema}')"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_schema17_migration_workflow.py",
+      "sites": [
+        [
+          218,
+          "# The current schema18 layer changes exactly these three candidate/probe sites."
+        ],
+        [
+          220,
+          "CONVERSATION_SCHEMA18_SITES = ("
+        ],
+        [
+          222,
+          "(\"type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 18\", \"type(snapshot.get('database_schema_version')) "
+        ],
+        [
+          226,
+          "def strip_conversation_schema18(text):"
+        ],
+        [
+          229,
+          "for current, historical in CONVERSATION_SCHEMA18_SITES:"
+        ],
+        [
+          231,
+          "raise ValueError('Exactly the three current schema18 candidate/probe sites are required')"
+        ],
+        [
+          232,
+          "for current, historical in CONVERSATION_SCHEMA18_SITES:"
+        ],
+        [
+          241,
+          "if any(current in text for current, _ in CONVERSATION_SCHEMA18_SITES):"
+        ],
+        [
+          242,
+          "text = strip_conversation_schema18(text)"
+        ],
+        [
+          243,
+          "elif any(text.count(historical) != 1 for _, historical in CONVERSATION_SCHEMA18_SITES):"
+        ],
+        [
+          475,
+          "def test_schema18_inverse_refuses_missing_duplicate_or_other_version_at_each_exact_site(self):"
+        ],
+        [
+          477,
+          "for current, historical in CONVERSATION_SCHEMA18_SITES:"
+        ],
+        [
+          480,
+          "strip_conversation_schema18(changed)"
+        ],
+        [
+          481,
+          "self.assertEqual(strip_conversation_schema18(text).count(\"              'schema': 17,\\n\"), 1)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_schema18_source_inverse.py",
+      "sites": [
+        [
+          7,
+          "from tests.infrastructure import schema18_source_fixture as F"
+        ],
+        [
+          13,
+          "class Schema18SourceInverse(unittest.TestCase):"
+        ],
+        [
+          24,
+          "restored = F.strip_schema18_source(path, current)"
+        ],
+        [
+          26,
+          "self.assertEqual(F.strip_schema18_source(path, restored), restored)"
+        ],
+        [
+          46,
+          "F.strip_schema18_source(path, changed)"
+        ],
+        [
+          60,
+          "F.strip_schema18_source(path,text)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_task_notification_ci.py",
+      "sites": [
+        [
+          213,
+          "elif variant == 'schema': value['database_schema_version'] = 16"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_task_workspace_failure_stage.py",
+      "sites": [
+        [
+          16,
+          "SCHEMA18_BEFORE_FAILURE_STAGE_SHA256 = 'a7ae6f55da81c3287dd9a768104db6d61db6536146178a3db10fe659628bd24b'"
+        ],
+        [
+          22,
+          "def strip_schema18_projection(text):"
+        ],
+        [
+          24,
+          "raise ValueError('Unknown complete schema18 failure observation source')"
+        ],
+        [
+          36,
+          "raise ValueError('Unknown schema18 projector anchor')"
+        ],
+        [
+          39,
+          "raise ValueError('Schema18 projection inverse did not restore all original bytes')"
+        ],
+        [
+          45,
+          "if digest in (SOURCE_BEFORE_SHA256, SCHEMA18_BEFORE_FAILURE_STAGE_SHA256):"
+        ],
+        [
+          49,
+          "COMPOSED_SHA256: SCHEMA18_BEFORE_FAILURE_STAGE_SHA256,"
+        ],
+        [
+          194,
+          "historical_composition = strip_schema18_projection(source)"
+        ],
+        [
+          220,
+          "with self.assertRaises(ValueError): strip_schema18_projection(changed)"
+        ]
+      ]
+    },
+    {
+      "path": "tests/infrastructure/test_ui_preview_dev_profile_workflow.py",
+      "sites": [
+        [
+          66,
+          "historical = H.strip_conversation_schema18(self.text)"
+        ]
+      ]
+    }
+  ]
+}

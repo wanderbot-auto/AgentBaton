@@ -15,7 +15,9 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class UiPreviewDevProfileWorkflow(unittest.TestCase):
     def setUp(self):
-        self.text = (ROOT / '.github/workflows/product.yml').read_text()
+        from tests.infrastructure.test_schema19_browser_ci_workflow import historical_workflow
+
+        self.text = historical_workflow()
         self.headers = list(re.finditer(r'^      - .*\n', self.text, re.MULTILINE))
         self.build_start, self.build_end = self.headers[25].start(), self.headers[26].start()
         self.build = self.text[self.build_start:self.build_end]

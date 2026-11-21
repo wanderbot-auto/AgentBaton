@@ -1,0 +1,7 @@
+{
+  "all_descendants_gone": "not_claimed",
+  "elapsed_ms": 11,
+  "pid": 3456,
+  "signal": "SIGTERM sent only to original unreaped Child",
+  "status_code": 0
+}

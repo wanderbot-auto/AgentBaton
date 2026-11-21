@@ -1,0 +1,237 @@
+{
+  "requirement": "AB-EXT-006",
+  "scope": "dependency_inventory_distribution_evidence_owner_review",
+  "base": "97803b16276903ffe4b6945966f21adeaad11eeb",
+  "base_tree": "c13081f2a5b8725539dc7477c33937a5920a70e2",
+  "input_blobs_match_handoff": true,
+  "toolchain": {
+    "machine": "arm64",
+    "macos": "26.6.1",
+    "python": "3.14.0a7",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)"
+  },
+  "input_count": 7,
+  "supplementary_browser_lock": {
+    "path": "requirements-browser.txt",
+    "git_blob": "857257d18064b6043817bf3aa3f14373090b7be3",
+    "sha256": "89c9026218ec5d3805fd616896f87d21a7304ca5f62de32881fc8b4cb6b5d62b",
+    "bytes": 474
+  },
+  "counts": {
+    "inventory_rows": 622,
+    "registry_archives_verified": {
+      "cargo": 445,
+      "npm": 160,
+      "pypi": 6
+    },
+    "runtime_dependency_candidates_from_target_graphs_or_npm_production_flag": 175,
+    "unique_notice_originals_in_archives": 331,
+    "additional_pinned_upstream_files_preserved": 17,
+    "historical_identical_lock_blobs": 5,
+    "registry_archives_without_separate_scanned_notice": 63
+  },
+  "archive_notice_fallbacks": [
+    {
+      "name": "alloc-stdlib",
+      "version": "0.3.0",
+      "upstream_group": "alloc-stdlib"
+    },
+    {
+      "name": "block2",
+      "version": "0.6.2",
+      "upstream_group": "objc2-block2"
+    },
+    {
+      "name": "dispatch2",
+      "version": "0.3.1",
+      "upstream_group": "objc2-dispatch2"
+    },
+    {
+      "name": "objc2",
+      "version": "0.6.5",
+      "upstream_group": "objc2-core"
+    },
+    {
+      "name": "objc2-app-kit",
+      "version": "0.3.2",
+      "upstream_group": "objc2-frameworks"
+    },
+    {
+      "name": "objc2-core-foundation",
+      "version": "0.3.2",
+      "upstream_group": "objc2-frameworks"
+    },
+    {
+      "name": "objc2-core-graphics",
+      "version": "0.3.2",
+      "upstream_group": "objc2-frameworks"
+    },
+    {
+      "name": "objc2-encode",
+      "version": "4.1.0",
+      "upstream_group": "objc2-encode"
+    },
+    {
+      "name": "objc2-exception-helper",
+      "version": "0.1.1",
+      "upstream_group": "objc2-encode"
+    },
+    {
+      "name": "objc2-quartz-core",
+      "version": "0.3.2",
+      "upstream_group": "objc2-frameworks"
+    },
+    {
+      "name": "objc2-web-kit",
+      "version": "0.3.2",
+      "upstream_group": "objc2-frameworks"
+    }
+  ],
+  "historical_development_package": {
+    "run_id": 44122458362,
+    "job_id": 134177203395,
+    "artifact_id": 14350183579,
+    "pr_source_head": "c09e5d5dcc01abf3c9221a7e9e1311c636af700c",
+    "tested_merge_sha": "df35231eab29aa2d4a043fd9be60888504507716",
+    "tested_merge_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+    "zip_sha256": "cbed165a62710d1d302f3ab28cc3e6e12165d270f9c14ff858d6e93ac00b99e0",
+    "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f",
+    "complete_build_log_sha256": "a578b7229fc2cba4712768711dedeee18ba532e0d79a28841cce534738ab1bdb",
+    "version": "0.1.0",
+    "files_observed": [
+      "AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+      "AgentBaton.app/Contents/MacOS/baton",
+      "AgentBaton.app/Contents/MacOS/batond",
+      "AgentBaton.app/Contents/Info.plist",
+      "AgentBaton.app/Contents/Resources/icon.icns"
+    ],
+    "arch": "arm64",
+    "standalone_notice_present": false,
+    "mount_mode": "macos read-only; detached",
+    "independent_integration_review": "separate download, ZIP and DMG verification, separate mount and lock comparison"
+  },
+  "target_mpl_review": {
+    "cssparser": {
+      "version": "0.37.0",
+      "license": "MPL-2.0",
+      "cargo_registry_archive_sha256": "8c9cdaae01d5ed7882b04d795e7f752f46ff52d2fa3b50a20d28c464510bba98",
+      "manifest_sha256": "0ac783c96e15668a9efd9e43c9218953c49bf1441779ea622d065d7b643c7697",
+      "source": "https://static.crates.io/crates/cssparser/cssparser-0.37.0.crate",
+      "notice_artifacts": [
+        {
+          "path": "LICENSE",
+          "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+          "bytes": 16726
+        }
+      ],
+      "both_target_views": "build or proc-macro only",
+      "historical_compiled_as_build_input": true,
+      "final_binary_link_attribution": "not_verified"
+    },
+    "dtoa-short": {
+      "version": "0.3.5",
+      "license": "MPL-2.0",
+      "cargo_registry_archive_sha256": "cd1511a7b6a56299bd043a9c167a6d2bfb37bf84a6dfceaba651168adfb43c87",
+      "manifest_sha256": "f6316d9ba867b8cdcdc39142bcc1690f769cc54e41c4425b96fe33ee442e11b5",
+      "source": "https://static.crates.io/crates/dtoa-short/dtoa-short-0.3.5.crate",
+      "notice_artifacts": [
+        {
+          "path": "LICENSE",
+          "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+          "bytes": 16725
+        }
+      ],
+      "both_target_views": "build or proc-macro only",
+      "historical_compiled_as_build_input": true,
+      "final_binary_link_attribution": "not_verified"
+    },
+    "selectors": {
+      "version": "0.38.0",
+      "license": "MPL-2.0",
+      "cargo_registry_archive_sha256": "8adfa1c298912827b8a28b223b3b874357397ae706e6190acd9bf28cee99114d",
+      "manifest_sha256": "83630f5e117638281303f757127dfffc3f621c8d2ff03f99ff7f7589748bacd8",
+      "source": "https://static.crates.io/crates/selectors/selectors-0.38.0.crate",
+      "notice_artifacts": [],
+      "both_target_views": "build or proc-macro only",
+      "historical_compiled_as_build_input": true,
+      "final_binary_link_attribution": "not_verified"
+    },
+    "option-ext": {
+      "version": "0.2.0",
+      "license": "MPL-2.0",
+      "cargo_registry_archive_sha256": "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d",
+      "manifest_sha256": "ecd67cb17a0586f1406b7d494ef93191ed8ebf149db46667a7778052d94e1e6c",
+      "source": "https://static.crates.io/crates/option-ext/option-ext-0.2.0.crate",
+      "notice_artifacts": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "66a3107d5ad6a058aab753eaac2047ccb2ed0e39465dd0fe5844da3e300d5172",
+          "bytes": 16727
+        }
+      ],
+      "both_target_views": "normal and build",
+      "historical_compiled_as_build_input": true,
+      "final_binary_link_attribution": "not_verified"
+    }
+  },
+  "original_commands": [
+    "bash docs/execution/release-license-audit/replay-graphs.sh \"$BATON_RUNTIME_DIR/graph-replay\"",
+    "python3 docs/execution/release-license-audit/inventory.py collect (exact arguments in REPRODUCE.md)",
+    "python3 docs/execution/release-license-audit/inventory.py verify docs/execution/release-license-audit/LOCK-INVENTORY.json",
+    "gh api repos/wanderbot-auto/AgentBaton/actions/artifacts/14350183579/zip",
+    "gh api repos/wanderbot-auto/AgentBaton/actions/jobs/134177203395/logs",
+    "hdiutil attach -readonly -noautoopen -nobrowse -mountpoint <task-private path> <verified DMG>",
+    "otool -L <actual bundled executable>",
+    "git diff --check; scripts/collab.sh scope"
+  ],
+  "unresolved": [
+    "Owner license selection, copyright and contribution rights, and feedback mechanism",
+    "Company versus open core rights and independent distribution boundary",
+    "Final package per-file attributions, static link map, source delivery and notices",
+    "Provider distribution and service-account permissions for selected platform artifacts",
+    "Production release and code signing authority"
+  ],
+  "evidence_sha256": {
+    "AUDIT.md": "22217d9b233887a350a73572e0f3ce70abc877585bac07e21c0f79abf1020f3e",
+    "CHECKPOINT.md": "2da1318db3d8f0bcd6b9bfd993fe7057e4d5496d635384a863e57a5172184d4b",
+    "LOCK-INVENTORY.json": "45c6eb03b3901bcd3f7b966d9e56f869310be4da522d6feeb2be567fd76b6eb1",
+    "OFFICIAL-NOTICES.tar.gz": "c2b1fa32ef14cf50abaeae396b13a3b2c37cdb16d14dda9dce7c5a2cb0dc8dda",
+    "OWNER-REVIEW.md": "f775eb50dfafbabeba0c33166cd194b270a4e8aa1086f2cec58a95866069b73f",
+    "PLAN.md": "93ec4ad8e61c9fdb7faef16acc1aa384654f09ec283b778c30b58e36cf20cb0f",
+    "PROGRESS.md": "4a7f59db350d71db8be82c8f678048f081a0734ecca4a3cb7eb45ec0b643badf",
+    "REPRODUCE.md": "64fa45241fe738cc4b1d37ede201ea23938f00008542710ada46bee950fd8ece",
+    "artifact/SHA256SUMS": "973439c0ce916fe16d4cb7aeedecb760b6ff90672d275cb13b5ed7ff5cdfe80a",
+    "artifact/build-record.txt": "4f8821603b1fafbeb9d3f3756de80654eca9b9b1949292e7a0e5fb80295f7e5d",
+    "artifact/bundle-observations.log": "a33d6f3e21399b8aed98ead7df1674fb7fe17eb9ba3ace56c92699c0de22a541",
+    "artifact/cargo-lock-delta.json": "f07114cabbba1bc15cef9eae31c620e4043a9891153b1320174e9f01091195bd",
+    "artifact/commit.json": "d70248b3a6707d8e07a976df7c99007efa836303f67197acacb88d0d584d6c9e",
+    "artifact/detach.log": "7a042615bf3722a3771413c5ae0834a1153311a88abad4deef4d8ad80a5c7273",
+    "artifact/git-inputs.json": "7aee6d94cc3297c4b00ff3f2e9611819048f86b530df3c33444eac486bfc0580",
+    "artifact/release-build-extract.log": "4e5a4f66be6bb960b662e4cb36a76a0b9ff1fbb443cb5612be2add3a1119301b",
+    "graphs/mpl-current.log": "ee788203fe2bd24e6c04a725541e87c16dc75ba7f79781d913b65920e8c6b230",
+    "graphs/mpl-historical.log": "8d253225b717c28b7ba33418d70fce0393887c3bde90d5d0314319338e0c03b0",
+    "inventory.py": "dcdf7d108c70e247f95f46c22af4e5a5b8ec7f5d77ef188a7517ef3ba86ab74e",
+    "replay-graphs.sh": "d7eb417e75720c15fc365f11ea3db404588bea9bf6c6ab9b30cdbe9a8722e2cb",
+    "upstream/EXACT-MEMBER-OBSERVATIONS.json": "84c6a115f2123daae4696c1b7845a9768774d13cbef8f6eb0f7e301ea5416a74",
+    "upstream/UPSTREAM-SOURCES.json": "fc3ab6619553c267f47f55c3eada123cbd6466c4ddd60a1db1e1dd5befe8edc9",
+    "upstream/files/alloc-stdlib/LICENSE": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+    "upstream/files/apache/LICENSE-2.0.txt": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "upstream/files/claude-agent-acp/LICENSE": "6ed4f049cce59e05197d585bdf8a39980b45d546d6ea718ee344555f3a867c3a",
+    "upstream/files/claude-agent-acp/package.json": "a90eefc101b1d6b87a797c3ad8aea8128964aa47460bb088aebb2cb4cfb01de5",
+    "upstream/files/codex/LICENSE": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+    "upstream/files/codex/NOTICE": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915",
+    "upstream/files/codex/codex-cli/package.json": "40909fd0a5b9678dc40dca40e19880dea2edf3ef028eafee2ab9ebad516d1dce",
+    "upstream/files/codex-acp/LICENSE": "72ea310b40e1ee2c4aa61935d22065155c50bfde288b114c9cfd3e1fa34f8049",
+    "upstream/files/codex-acp/package.json": "36f919ab20d1dbf57a8dcc5be629d6678fb01330db399c0057c14aac7268b09a",
+    "upstream/files/objc2-block2/LICENSE.md": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "upstream/files/objc2-core/LICENSE.md": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "upstream/files/objc2-dispatch2/LICENSE.md": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "upstream/files/objc2-encode/LICENSE.md": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "upstream/files/objc2-frameworks/LICENSE.md": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "upstream/files/rust-historical/COPYRIGHT": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af",
+    "upstream/files/rust-historical/LICENSE-APACHE": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+    "upstream/files/rust-historical/LICENSE-MIT": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+    "upstream/infra-development-sample.json": "07ab545c71a7e8618c83b2646f8469c01a13ea5889fb192dc68c697f96d5de94",
+    "upstream/provider-manifests-summary.json": "68316ad2ec95ac9088d84b6c2ed530c72506ad5d8ba9aca809b5468da202da76"
+  }
+}

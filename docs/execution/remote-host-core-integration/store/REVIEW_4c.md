@@ -1,0 +1,5 @@
+# Fixed4c independent source review and bounded fixes
+
+Native read-only reviewer audited4c84a654f035c4b0150ce5b714beef638aa31927 with two coordinated read-only commands, no edits/build/tests. Two P2: broad host_* schema-name filter rejects ordinary opaque host_notes; ValueRef byte guard occurs after unbounded full SQL body projection. Root's independent review confirmed both and required negative JSON controls to mutate actual persisted raw records instead of fixed golden identities.
+
+Fix in progress: SQL CASE typeof/octet_length gates return invalid values as NULL without omitting rows; post-projection UTF-8/type/byte/cumulative checks retained. Covers schema/mirror/name/key, idempotency payload/result and actual event document. Exact Host object comparison retains attached index/trigger rejection; metadata-only incoming-FK scan preserves opaque rows/expressions. Real opaque rowid/BLOB/index preservation and four-MiB TEXT/BLOB projection tests added. JSON single-field negatives now derive from the actual valid persisted instance. No tests run yet; initial review is not clearance for a later untested source.

@@ -1,0 +1,83 @@
+{
+  "recorded_at_utc": "2026-11-21T13:35:49+00:00",
+  "requirement": "AB-DOM-005",
+  "status": "partial_evidence_and_reproduced_followup",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tested_checkout": "df35231eab29aa2d4a043fd9be60888504507716",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "artifact": 14350183579,
+  "architecture": "arm64",
+  "executables": {
+    "baton_sha256": "1d38b91fb401cfd3ef1486a845df246682f16b44b1b6e6d533e7959b256e8647",
+    "batond_sha256": "a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109",
+    "checked_signature": "codesign --verify --strict on each extracted matching executable"
+  },
+  "fixture_scope": "Two isolated private daemons, each restarted and joined. A generated local SQLite trigger forces the event write to abort. A bounded Unix socket relay forwards a real public Task write and withholds or truncates its reply only after the daemon commits it. No production input, credentials, or Provider calls.",
+  "first_probe": {
+    "script_sha256": "4dcfaec84280dfdf2a03a4cd357812e0cd863b78f32e0f9032fa58c8293c5d71",
+    "raw_log_sha256": "b51c4123fd3f20ca4881cc5898ab20b24bfbc445d6aee27dffc3aa3a112ba222",
+    "observed": {
+      "requirement_slice": "AB-DOM-005 local public CLI/daemon and SQLite outcome",
+      "rejection_before_write": {
+        "code": "INVALID_REQUEST",
+        "side_effect_state": "not_started",
+        "retryable": false,
+        "details_ref": null
+      },
+      "sqlite_outcome": {
+        "code": "INTERNAL_ERROR",
+        "side_effect_state": "unknown",
+        "retryable": false,
+        "details_ref": "sqlite-code:1811"
+      },
+      "real_cli_timeout_seconds": 5.02,
+      "cli_error_code": "PROVIDER_DISCONNECTED",
+      "write_committed_before_reply": true,
+      "same_task_after_restart": true,
+      "same_key_reconciled_once": true,
+      "owned_daemons_joined": true
+    }
+  },
+  "truncated_probe": {
+    "script_sha256": "a031b3d5049a371984cdac0616ef49aaaf65220f532e1f24feba064224bc5325",
+    "raw_log_sha256": "948ac92914123e6e659da0e1ab32cdd7fe56275f14f93007a5ea7c18a3620471",
+    "observed": {
+      "requirement_slice": "AB-DOM-005 local public CLI/daemon and SQLite outcome",
+      "rejection_before_write": {
+        "code": "INVALID_REQUEST",
+        "side_effect_state": "not_started",
+        "retryable": false,
+        "details_ref": null
+      },
+      "sqlite_outcome": {
+        "code": "INTERNAL_ERROR",
+        "side_effect_state": "unknown",
+        "retryable": false,
+        "details_ref": "sqlite-code:1811"
+      },
+      "real_cli_timeout_seconds": 5.01,
+      "cli_error_code": "PROVIDER_DISCONNECTED",
+      "truncated_reply_seconds": 0.01,
+      "truncated_reply_error": "RESOURCE_LIMIT",
+      "write_committed_before_reply": true,
+      "same_task_after_restart": true,
+      "same_key_reconciled_once": true,
+      "owned_daemons_joined": true
+    }
+  },
+  "open_behavior": "The same public mutation can commit with a truncated reply. The released CLI displays RESOURCE_LIMIT rather than a reconciliation hint. The exact call source propagates read_frame default not_started for this class of non-Session call. This branch needs conservative semantics after sending.",
+  "dependency_ready_followup": {
+    "proposed_scope": "crates/core/src/ipc.rs and a focused existing IPC test module or private fixture as justified after scoping.",
+    "acceptance": "Compare a valid daemon rejection, actual post-commit full timeout, EOF and truncated or oversized acknowledgement against the same created Task. Ambiguous write acknowledgements preserve unknown and reconciliation; retain no implicit replay or duplicate, bounded frames, server-side invalid-input rejection, and existing Session recovery.",
+    "priority": "Queue as the next independent implementation slice for the first suitable available window after current handoff.",
+    "reserved_worktree": "core-ipc-write-acknowledgement",
+    "registered_baseline": "70bcc2aeada84e454a128a4ef38db7251cc9b1fd",
+    "prepared_exact_source": "98fbff43597d23b9d466872699a852ae66502c4e"
+  },
+  "local_pr33_candidate_source_regions_byte_equal_to_protected_tree": {
+    "candidate": "98fbff43597d23b9d466872699a852ae66502c4e",
+    "crates/core/src/ipc.rs read_frame": "6cf77956140edfe47749262def5b2c07f05f767513f4b3b5d33df72d480b6e88",
+    "crates/core/src/ipc.rs call": "abf6a204e63b1ffdbb1df365631a51f6e8cfd3894f1c7a7ad7b6d43e7fa2c1bf",
+    "apps/cli/src/main.rs main and command dispatch": "5000eed15c223d0702fa56d0bcde9185f1933ea8e9ce48388ddbaff9c2ac559b"
+  }
+}

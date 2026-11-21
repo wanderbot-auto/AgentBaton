@@ -1,0 +1,18 @@
+{
+  "source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "status": "passed",
+  "command": [
+    "cargo",
+    "fmt",
+    "--all",
+    "--",
+    "--check"
+  ],
+  "started_utc": "2026-11-17T19:25:08.237085+00:00",
+  "note": "Explicit private SQLite19 fixtures only; no product activation/IPC/native/SSH/Provider acceptance.",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T19:25:09.384025+00:00",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "log_bytes": 0,
+  "all_started_child_processes_joined": true
+}

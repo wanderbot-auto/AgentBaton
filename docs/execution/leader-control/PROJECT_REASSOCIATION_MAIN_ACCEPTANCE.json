@@ -1,0 +1,80 @@
+{
+  "requirement": "AB-PRJ-003",
+  "status": "accepted",
+  "recorded_at_utc": "2026-11-21T11:41:43.061939+00:00",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "github_checked_merge": "df35231eab29aa2d4a043fd9be60888504507716",
+  "pull_request": 30,
+  "ci": {
+    "linux_job": 134177202383,
+    "apple_silicon_job": 134177203395,
+    "both_logs_passed": [
+      "workspace_reassociation_distinguishes_move_from_replacement",
+      "reassociation_requires_directory_identity_and_revision_archive_preserves_files"
+    ],
+    "required_checks_receipt": "docs/execution/leader-control/PROJECT_IMPORT_MAIN_ACCEPTANCE.json"
+  },
+  "independent_local_verification": {
+    "status": "passed",
+    "requirement": "AB-PRJ-003",
+    "architecture": "arm64",
+    "tools_sha256": {
+      "baton": "b80e896afee1fe0cce161c3fd615a458cb78a62f90d25e0e734f513a1f505281",
+      "batond": "927911040a1c2e746da083375fda128861f18b9ff9423a6338713af1043e5abb"
+    },
+    "fixtures": [
+      "directory",
+      "git"
+    ],
+    "observations": [
+      "rename preserves filesystem identity and project ID",
+      "same path and same visible content with different inode rejected",
+      "stored Git commit preserved and common directory moves with repository",
+      "invalid and stale operations produce no write",
+      "same-key replay produces only one reassociation event",
+      "prior task and journal preserved across both moves and daemon restart",
+      "both private daemon processes joined"
+    ]
+  },
+  "logs": {
+    "verification.log": {
+      "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/verification.log",
+      "sha256": "70131ddf65e621ee6f28e93de6eaad9c29eb948623a237a5e070c58aace2fe0e"
+    },
+    "check_reassociate.py": {
+      "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/check_reassociate.py",
+      "sha256": "2cb3d6689ce46399c87f4c6aadabecdfda2a1318cba78f1afff6426710a610b4"
+    },
+    "reassociate.json": {
+      "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/reassociate.json",
+      "sha256": "ab24d4a5a48a4e3e605def01b60e63d09cd967ee33ad67b30365c1110a4471f3"
+    },
+    "reassociate-daemon.log": {
+      "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/reassociate-daemon.log",
+      "sha256": "333b8b542525f087b2dad932f0094afe69f9fc3667ce9eb051ff306a4f9370db"
+    }
+  },
+  "source_trace": [
+    "apps/cli/src/main.rs",
+    "crates/workspaces/src/lib.rs",
+    "crates/core/src/registry.rs",
+    "crates/core/src/ipc.rs",
+    "apps/desktop/src/Projects.tsx",
+    "apps/desktop/src-tauri/src/lib.rs"
+  ],
+  "scope": "Reassociate an existing local project by verified filesystem identity. Remote-host routing and workspace adoption remain distinct.",
+  "superseded_partial_scope_notes": [
+    "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
+    "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete.",
+    "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
+  ],
+  "applicability": {
+    "unit": "applicable",
+    "integration": "applicable",
+    "provider": "not_applicable",
+    "native_arm64": "not_applicable",
+    "native_x86_64": "not_applicable",
+    "ci": "applicable"
+  }
+}

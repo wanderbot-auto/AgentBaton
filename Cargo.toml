@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = ["crates/core", "crates/providers", "crates/workspaces", "crates/config", "apps/daemon", "apps/cli"]
-exclude = ["tools/environment-smoke", "apps/desktop/src-tauri"]
+exclude = ["tools/environment-smoke", "apps/desktop/src-tauri", "crates/remote-host"]
 
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }

@@ -1,0 +1,8 @@
+bootstrap exit=0
+design exit=0
+static_infra exit=0
+positive_retained exit=0
+python_infrastructure exit=0
+node_infrastructure exit=0
+rust_smoke exit=0
+rust_smoke_clippy exit=0

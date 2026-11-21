@@ -1,0 +1,19 @@
+{
+  "current": "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be",
+  "previous": "e5036fd15afa431228a9b11553b0602e144636dda58fecf4fbbbcaac8633f6f3",
+  "previous_git": "98413ca1f6e1006a74d5c6ff7f40494b0509da7c",
+  "earlier": "0131bee1842f3856507def3f41d4d45f0a9b38511167886461fc96d8a32d37fe",
+  "earlier_git": "cde501db847d1bbfc27a298e16cd772afc1a41e9",
+  "original_two_anchor_bytes_unchanged": true,
+  "private_browser_fixture_single_literal": true,
+  "pinned_unchanged": {
+    ".github/workflows/product.yml": "edfffb07b5d5c8ecb3039962f5ad54e77cd187a4afd33f89941564b89603bff4",
+    "scripts/record-integration-browser-ci-evidence.py": "f4cae560fb2dbd3d5105f1433c4a8c4461d134e3fa940c2a099abb789fa5f411",
+    "tests/infrastructure/schema18_source_fixture.py": "731efd2830996d21354a4fe7b9b9fbf08be93ec2e2ec43a73dbe746cfa49253f",
+    "tests/infrastructure/notification_screenshot_composition_fixture.py": "9d9148bf2cde2445d6ddfd5cba6ac0ee9554f7d9f327ca6a1bb30fd7e60b2886",
+    "tests/infrastructure/integration_screenshot_failure_fixture.py": "81c086d75bc7e6a31f9316495c4ea06df9dbe6be81cea09035015d8fac5b8a99",
+    "requirements-browser.txt": "89c9026218ec5d3805fd616896f87d21a7304ca5f62de32881fc8b4cb6b5d62b",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "apps/desktop/package-lock.json": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d"
+  }
+}

@@ -1,0 +1,22 @@
+collab: task runtime /private/tmp/ab-collab-0dvd6o1q
+Cargo.lock: OK
+apps/desktop/src-tauri/Cargo.lock: OK
+apps/desktop/package-lock.json: OK
+./AgentBaton-arm64-d70362ad1fc4b080537163be60cb830849ee4167-development.dmg: OK
+development.zip: OK
+agentbaton-desktop Cargo release features=[]
+baton Cargo release features=[]
+batond Cargo release features=[]
+tauri dependency Cargo release features=["common-controls-v6", "compression", "custom-protocol", "dbus", "default", "dynamic-acl", "tauri-runtime-wry", "tray-icon", "webkit2gtk", "webview2-com", "wry", "x11"]
+PASS original and assembled executables match read-only provenance digests
+codesign_inspect_path=apps/desktop/src-tauri/target/release/agentbaton-desktop
+apps/desktop/src-tauri/target/release/agentbaton-desktop: valid on disk
+apps/desktop/src-tauri/target/release/agentbaton-desktop: satisfies its Designated Requirement
+codesign_verify_exit=0
+codesign_inspect_path=apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop
+apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop: code has no resources but signature indicates they must be present
+codesign_verify_exit=1
+codesign_inspect_path=apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app
+apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app: code has no resources but signature indicates they must be present
+codesign_verify_exit=1
+PASS no attachment for the task private build or provenance

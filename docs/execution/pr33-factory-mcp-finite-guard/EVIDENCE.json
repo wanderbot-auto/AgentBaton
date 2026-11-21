@@ -1,0 +1,49 @@
+{
+  "base": "26e659dc1297984d8cbbb09945b445cbd1002e97",
+  "source_head": "df5d640db558ef90834a381fe008af4475d95d20",
+  "source_tree": "2034919627b18c04f637e4113c1a3940993214f7",
+  "projector_sha256": "88da82f3f97601f7a0c71948bec4a4caf562be87c3343d8751b034cb9124d76d",
+  "unchanged_collector_sha256": "6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93",
+  "inverse_parent_projector_sha256": "8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741",
+  "historical_source_chain": "verified; exact preceding Git blob byte comparison followed by old inverses",
+  "trigger": {
+    "trace": "exact factory_base collect_started_records assertion leaf",
+    "line": 556,
+    "exception": "original first capture AssertionError",
+    "projection_schema": 7
+  },
+  "prior_hosted_failure": {
+    "job": 136824666701,
+    "archive": 14704169450,
+    "hosted_source": "ea63c70e49dc1d37594c0ed5a6798dbda848f0ce",
+    "last_check": "CG02",
+    "observed_v5_contains_process_state": false
+  },
+  "tests": {
+    "pinned_python": "repository .venv Python 3.12.12",
+    "targeted_pass": 64,
+    "infrastructure_pass": 1122,
+    "infrastructure_skip": 16,
+    "infrastructure_fail": 0,
+    "infrastructure_seconds": 95.901
+  },
+  "failure_retained": "Initial focused run hit two historical source fixture integration assertions. The outer inverse now restores exact old input, including for original mutation checks.",
+  "logs": {
+    "finite-focus.log": {
+      "path": "/private/tmp/ab-collab-vj79jo20/finite-focus.log",
+      "sha256": "5e154f6d3566fe5f40c0bcc628ad90dd10ecc86599aa6f9c71f7ac7dd355b47e"
+    },
+    "finite-focus-2.log": {
+      "path": "/private/tmp/ab-collab-vj79jo20/finite-focus-2.log",
+      "sha256": "1781de59e530e9f86da942fc1c64ce2c2b30c70cc65df01d855ea8a0add6a86e"
+    },
+    "finite-infra.log": {
+      "path": "/private/tmp/ab-collab-vj79jo20/finite-infra.log",
+      "sha256": "d577a52c7c40918039b63d31493ea7bbc6883a14bcc5b54f4914ae40e2768234"
+    }
+  },
+  "probes_added": false,
+  "collector_behavior_changed": false,
+  "hosted_rerun": false,
+  "remote_mutations": []
+}

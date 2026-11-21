@@ -13,6 +13,11 @@ from tests.infrastructure import integration_screenshot_failure_fixture as I
 from tests.infrastructure import notification_screenshot_composition_fixture as C
 from tests.infrastructure import test_integration_browser_ci_evidence_runtime as R
 
+from tests.infrastructure.host19_integration_browser_source_fixture import (
+    DRIVER_PATH,
+    read_historical_driver,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 STEPS = ('scroll', 'viewport', 'bounding_box', 'capture', 'record')
 E, F = R.E, R.F
@@ -149,7 +154,7 @@ class CompleteOldSourceInverse(unittest.TestCase):
         for path, strip, before in [
             ('apps/desktop/tests/integration-real-ipc.py', strip_driver, I.DRIVER_BEFORE_SHA256),
             ('scripts/record-integration-browser-ci-evidence.py', I.strip_screenshot_projector_layer, I.PROJECTOR_BEFORE_SHA256)]:
-            source = (ROOT / path).read_text(); restored = strip(source)
+            source = read_historical_driver(ROOT) if path == DRIVER_PATH else (ROOT / path).read_text(); restored = strip(source)
             self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), before)
             self.assertEqual(strip(restored), restored)
         original = R.strip_runtime_failure_projection((ROOT / 'scripts/record-integration-browser-ci-evidence.py').read_text())
@@ -159,7 +164,7 @@ class CompleteOldSourceInverse(unittest.TestCase):
         pairs = [('apps/desktop/tests/integration-real-ipc.py', strip_driver, [*I.DRIVER_EDITS, C.REFOCUS_EDIT], AssertionError),
             ('scripts/record-integration-browser-ci-evidence.py', I.strip_screenshot_projector_layer, I.PROJECTOR_EDITS, ValueError)]
         for path, strip, edits, error in pairs:
-            text = (ROOT / path).read_text()
+            text = read_historical_driver(ROOT) if path == DRIVER_PATH else (ROOT / path).read_text()
             mutations = [text + '\n# unreviewed outside change\n', text.replace('= 536870912', '= 1073741824', 1) if path.startswith('apps/') else text.replace('MAX_REPORT, MAX_STATUS', 'CHANGED_REPORT, MAX_STATUS', 1)]
             for _, new in edits:
                 new = new.replace("'dimension': 'Linux Chromium only'", "'dimension': f'{platform} Chromium only'")

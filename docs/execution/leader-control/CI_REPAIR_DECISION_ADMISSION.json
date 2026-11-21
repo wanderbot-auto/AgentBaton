@@ -1,0 +1,41 @@
+{
+  "requirement": "AB-REL-006",
+  "worker_base": "502c053479ba03827d47b795a79d82ded5ee5100",
+  "tested_source": "3a903021e9cf91ef00033ba9b1913b37cc09ccb8",
+  "delivery": "f03026a5ac6ce662f4ad42e16e350beafd668401",
+  "input_target": "bd97dcf2adbe2a439aa2253ed4d118cc069cc850",
+  "feature": "bd894a012ddb504b0e576f20f1f8fabb3dc8e949",
+  "feature_push_verified": true,
+  "tree": "6720e71b5d5e8255af12b33266a4b2e1e714277d",
+  "worker_evidence": "docs/execution/ci-repair-decision/CAS_REUSE_EVIDENCE.json",
+  "worker_evidence_sha256": "4204eba44efd92e99021b22d3dadfb66696c66399b3179d9d5faf2fa50886e03",
+  "independent_source": {
+    "focused_passed": 9,
+    "log": "/tmp/ab-a-ci-repair-review.nNwJ99FO",
+    "raw_archive_members_verified": 26,
+    "real_store_fixture": "Observed the exact confirmed Git ref, actual Store returned ContinueRequired, wrong commit and missing CAS were refused, original reconcile returns true and INPUT_CHANGED as appropriate, and no decision event was written. The CI evidence itself is typed fixture input."
+  },
+  "exact_composition": {
+    "focused_passed": 9,
+    "foundation_passed": 987,
+    "foundation_existing_skips": 16,
+    "bootstrap_files": 93,
+    "log_root": "/tmp/ab-ci-repair-composed.NwARnkMe",
+    "scope": "passed"
+  },
+  "known_failures": {
+    "integration_schema17": {
+      "failed": 12,
+      "passed": 3,
+      "both_fixed_base_and_tested_worker_source": true,
+      "required_default_workspace_target": true,
+      "next": "schema17-rust-gate"
+    }
+  },
+  "claim_transfer": {
+    "closed_worker": "de7a04b6fe0d6581f8558b0e2c6a2623666bf3cf200116f5f298a267f8504c1d",
+    "integration_before": "1a42b4b0bc0dd2613eaa321227f1394ca7a78eb7768ec44fe45e7dd450e27621",
+    "integration_after": "bd5fa83b502e605d4b01fb38b525603edcf2ba95f6ca70bc461214b5bc908e54"
+  },
+  "scope": "Read-only local Store eligibility and continuation decision, no live CI observation, persistent CI repair rules/history integration, external actions, repair scheduling, App wiring, or hosted gate verified."
+}

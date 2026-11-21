@@ -1,0 +1,58 @@
+{
+  "command": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/infrastructure",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "head_before": "d38c5cd3c1b172d144aebb88bba68e17cf2416b9",
+  "head_after": "d38c5cd3c1b172d144aebb88bba68e17cf2416b9",
+  "source_before": {
+    "scripts/prepare-schema18-migration-fixture.py": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289",
+    "scripts/generate-schema18-migration-fixture.py": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+    "tests/infrastructure/test_schema18_migration_preparation.py": "39f43c6cdf1f381878d0f8c9e3d5b3d7c30b5edfbbccaed0be06b7c681feeb7e",
+    "tests/infrastructure/test_schema19_host_migration_evidence.py": "6ddda8778482da206a23eb106ec7b66b5d70bf43ab29c30d1bfa5682ec9fd34c"
+  },
+  "source_after": {
+    "scripts/prepare-schema18-migration-fixture.py": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289",
+    "scripts/generate-schema18-migration-fixture.py": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+    "tests/infrastructure/test_schema18_migration_preparation.py": "39f43c6cdf1f381878d0f8c9e3d5b3d7c30b5edfbbccaed0be06b7c681feeb7e",
+    "tests/infrastructure/test_schema19_host_migration_evidence.py": "6ddda8778482da206a23eb106ec7b66b5d70bf43ab29c30d1bfa5682ec9fd34c"
+  },
+  "source_unchanged": true,
+  "status_after": "",
+  "exit_code": 0,
+  "elapsed_seconds": 23.81861704122275,
+  "recorded_at": "2026-11-17T22:43:10.478144+00:00",
+  "log_sha256": "fab1ead7d4127f35e1a5801711af34bd8341779f37e4b0e5fcef55a3e8a5438b",
+  "venv_python": "Python 3.12.12",
+  "no_rust_build_or_product_fixture_rerun": true,
+  "total": 916,
+  "passed": 900,
+  "skipped": 16,
+  "failed": 0,
+  "skipped_cases": [
+    "test_actual_worker_cannot_adopt_new_fence_lease (test_remote_host.RealCompanionTests.test_actual_worker_cannot_adopt_new_fence_lease) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_clock_rollback_stops_actual_worker_but_keeps_cancel_and_reconcile (test_remote_host.RealCompanionTests.test_clock_rollback_stops_actual_worker_but_keeps_cancel_and_reconcile) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_disconnect_cancel_reconcile_and_join (test_remote_host.RealCompanionTests.test_disconnect_cancel_reconcile_and_join) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_half_frame_unknown_fields_unknown_version_and_oversize (test_remote_host.RealCompanionTests.test_half_frame_unknown_fields_unknown_version_and_oversize) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_journal_failure_after_file_effect_remains_unknown_without_retry (test_remote_host.RealCompanionTests.test_journal_failure_after_file_effect_remains_unknown_without_retry) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_journal_write_failure_before_any_spawn (test_remote_host.RealCompanionTests.test_journal_write_failure_before_any_spawn) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_lease_expires_during_actual_worker (test_remote_host.RealCompanionTests.test_lease_expires_during_actual_worker) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_lost_response_and_lost_ack_reopen_exactly_one_effect (test_remote_host.RealCompanionTests.test_lost_response_and_lost_ack_reopen_exactly_one_effect) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_old_companion_deadline_cannot_pause_new_fence (test_remote_host.RealCompanionTests.test_old_companion_deadline_cannot_pause_new_fence) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_parallel_owned_workers_do_not_false_pause_on_highwater (test_remote_host.RealCompanionTests.test_parallel_owned_workers_do_not_false_pause_on_highwater) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_partial_frame_deadline (test_remote_host.RealCompanionTests.test_partial_frame_deadline) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_process_kill_after_dispatch_is_unknown_not_replayed (test_remote_host.RealCompanionTests.test_process_kill_after_dispatch_is_unknown_not_replayed) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_real_auth_budget_permission_and_binding_denials (test_remote_host.RealCompanionTests.test_real_auth_budget_permission_and_binding_denials) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_real_idle_is_not_partial_frame_timeout (test_remote_host.RealCompanionTests.test_real_idle_is_not_partial_frame_timeout) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_reopen_fails_on_corrupt_or_future_schema_without_effects (test_remote_host.RealCompanionTests.test_reopen_fails_on_corrupt_or_future_schema_without_effects) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'",
+    "test_symlink_output_cannot_overwrite_source (test_remote_host.RealCompanionTests.test_symlink_output_cannot_overwrite_source) ... skipped 'independent workspace: run scripts/verify-remote-host.py explicitly'"
+  ],
+  "dimension": "source/finite/mock/local infrastructure;not Linux OS/native/Provider acceptance"
+}

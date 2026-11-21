@@ -1,6 +1,8 @@
 //! Bounded reverse keyset pagination of the existing journal; no schema change.
 //! Revision continuity proves only retained normalized local events, never full
 //! Provider capture. Cursors are read positions, not execution authority.
+pub mod retention;
+
 use crate::{
     storage::{db_error, decode, Event, Store},
     CoreError, Result,

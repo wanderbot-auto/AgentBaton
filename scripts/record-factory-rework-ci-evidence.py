@@ -17,7 +17,7 @@ import sys
 import tempfile
 
 CONTRACT = 'agentbaton.factory-rework-progress.v1'
-SCHEMA = 18
+SCHEMA = 19
 MAX_DB = 16 * 1024 * 1024
 MAX_CASES = 16
 MAX_ENTRIES = 64

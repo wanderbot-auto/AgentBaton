@@ -1,0 +1,20 @@
+{
+  "source": "c7e672cd2d92edfa232656c0cab1328aff86565f",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--test",
+    "conversation_schema18"
+  ],
+  "exit": 101,
+  "seconds": 2.05,
+  "log_sha256": "8a2b710ee36095a7ee940743d8eba947c8d0de4492cc44f653313d1bbf2905e4",
+  "env": {
+    "CARGO_BUILD_JOBS": "3",
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  }
+}

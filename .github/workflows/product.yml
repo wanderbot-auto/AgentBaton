@@ -12,7 +12,7 @@ jobs:
   core:
     name: Product / Rust
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -80,6 +80,131 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
+      - &fresh_schema18_gate
+        name: Migrate and restore a freshly built genuine schema18 database
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I - <<'FRESH18'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import shutil
+          import subprocess
+          import sys
+          import tempfile
+          import tomllib
+          import traceback
+
+          historical = 'a4e03303b54bd5a5544131e95ad39662f8310e29'
+          historical_tree = 'ddd5bddbeeb8011fa070d53e67f7978deae87214'
+          old_lock_sha256 = '539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38'
+          remote = 'https://github.com/wanderbot-auto/AgentBaton.git'
+          result = dict(contract='agentbaton.fresh-schema18-ci.v1', source=None, tree=None,
+                        historical_source=historical, historical_tree=historical_tree,
+                        stage='checkout', test_exit=None, status='failed')
+          os.umask(0o077)
+          private = None
+          exit_code = 1
+
+          def require(value):
+              if not value:
+                  raise ValueError('Fresh schema18 gate refused')
+
+          def registry_crates(raw):
+              return {(p['name'], p['version'], p['source'], p['checksum'])
+                      for p in tomllib.loads(raw.decode())['package'] if p.get('source', '').startswith('registry+')}
+
+          try:
+              workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve(strict=True)
+              temporary = Path(os.environ['RUNNER_TEMP']).resolve(strict=True)
+              private = Path(tempfile.mkdtemp(prefix='agentbaton-fresh18-', dir=temporary))
+              require(Path.cwd().resolve() == workspace and not private.is_relative_to(workspace))
+              env = {k: os.environ[k] for k in ('PATH', 'LANG', 'LC_ALL', 'TMPDIR', 'CARGO_HOME', 'RUSTUP_HOME')
+                     if k in os.environ}
+              git_env = {**env, 'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null',
+                         'GIT_NO_REPLACE_OBJECTS': '1', 'GIT_NO_LAZY_FETCH': '1',
+                         'GIT_ALLOW_PROTOCOL': 'https', 'GIT_PROTOCOL_FROM_USER': '0',
+                         'GIT_TERMINAL_PROMPT': '0'}
+              git = [str(Path(shutil.which('git')).resolve(strict=True)), '-c', 'core.hooksPath=/dev/null',
+                     '-c', 'core.fsmonitor=false', '-c', 'credential.helper=', '-c', 'http.followRedirects=false']
+              with (private / 'inputs.log').open('xb') as inputs:
+                  def git_read(*args):
+                      return subprocess.check_output([*git, *args], env=git_env, stderr=inputs, timeout=20)
+
+                  def candidate():
+                      pair = git_read('rev-parse', 'HEAD', 'HEAD^{tree}').decode().splitlines()
+                      require(len(pair) == 2 and all(re.fullmatch('[a-f0-9]{40}', item) for item in pair)
+                              and pair[0] == os.environ['GITHUB_SHA']
+                              and not git_read('status', '--porcelain=v1', '--untracked-files=no'))
+                      return pair
+
+                  pinned = candidate()
+                  result.update(source=pinned[0], tree=pinned[1], stage='historical-fetch')
+                  subprocess.run([*git, 'fetch', '--depth=1', '--no-tags', '--no-write-fetch-head',
+                                  '--no-recurse-submodules', remote, historical], env=git_env,
+                                 stdout=inputs, stderr=subprocess.STDOUT, timeout=120, check=True)
+                  old_commit, old_tree = git_read('rev-parse', historical + '^{commit}',
+                                                  historical + '^{tree}').decode().splitlines()
+                  require((old_commit, old_tree) == (historical, historical_tree) and candidate() == pinned)
+                  old_lock = git_read('show', historical + ':Cargo.lock')
+                  current_lock = Path('Cargo.lock').read_bytes()
+                  require(hashlib.sha256(old_lock).hexdigest() == old_lock_sha256
+                          and registry_crates(old_lock) <= registry_crates(current_lock))
+
+                  result['stage'] = 'registry-cache'
+                  toolchain = [str(Path(shutil.which('rustup')).resolve(strict=True)), 'which', '--toolchain', 'stable']
+                  def tool(name):
+                      raw = subprocess.check_output([*toolchain, name], env=env, stderr=inputs, timeout=20)
+                      path = Path(raw.decode().strip())
+                      require(path.is_absolute())
+                      return str(path.resolve(strict=True))
+
+                  rustc, cargo = tool('rustc'), tool('cargo')
+                  target = private / 'target'
+                  target.mkdir(mode=0o700)
+                  env.update(CARGO_TARGET_DIR=str(target), RUSTC=rustc, CARGO_PROFILE_TEST_DEBUG='0',
+                             CARGO_TERM_COLOR='never')
+                  subprocess.run([cargo, 'fetch', '--locked'], env=env, stdout=inputs,
+                                 stderr=subprocess.STDOUT, check=True)
+                  require(candidate() == pinned and Path('Cargo.lock').read_bytes() == current_lock)
+                  env.update(CARGO_NET_OFFLINE='true', AGENTBATON_FRESH18_CARGO=cargo,
+                             AGENTBATON_FRESH18_RUSTC=rustc,
+                             AGENTBATON_FRESH18_PYTHON=str(Path(sys.executable).resolve(strict=True)))
+                  result['stage'] = 'migration'
+                  log = private / 'migration.log'
+                  with log.open('xb') as capture:
+                      subprocess_result = subprocess.run([
+                          cargo, 'test', '--locked', '--offline', '-p', 'agentbaton-core',
+                          '--features', 'fresh-schema18-migration-tests', '--test', 'host_registry_fresh18_migration',
+                          '--', '--nocapture', '--test-threads=1',
+                      ], env=env, stdout=capture, stderr=subprocess.STDOUT, check=False)
+                  result['test_exit'] = subprocess_result.returncode
+                  if result['test_exit'] != 0:
+                      exit_code = result['test_exit'] if 0 < result['test_exit'] < 256 else 1
+                      require(candidate() == pinned and Path('Cargo.lock').read_bytes() == current_lock)
+                  else:
+                      result['stage'] = 'result'
+                      with log.open('rb') as captured:
+                          captured.seek(max(0, log.stat().st_size - 4096))
+                          require(b'test result: ok. 1 passed; 0 failed; 0 ignored;' in captured.read())
+                      require(candidate() == pinned and Path('Cargo.lock').read_bytes() == current_lock)
+                      result.update(stage='complete', status='passed')
+                      exit_code = 0
+          except Exception:
+              if private is not None:
+                  with (private / 'diagnostic.log').open('x') as diagnostic:
+                      traceback.print_exc(file=diagnostic)
+
+          public = json.dumps(result, sort_keys=True, separators=(',', ':'))
+          print(public)
+          if summary := os.environ.get('GITHUB_STEP_SUMMARY'):
+              with open(summary, 'a', encoding='utf-8') as output:
+                  output.write('### Fresh schema 18 migration\n\n    ' + public + '\n')
+          raise SystemExit(exit_code)
+          FRESH18
       - name: Validate captured messages against hash-pinned official native schema
         run: |
           set -euo pipefail
@@ -138,27 +263,7 @@ jobs:
           set -euo pipefail
           npm --prefix apps/desktop run typecheck
           npm --prefix apps/desktop test
-          python3 - <<'PYBUILD'
-          import json, pathlib, subprocess, time
-          root = pathlib.Path.cwd()
-          def git(*args):
-              return subprocess.check_output(['git', *args], text=True).strip()
-          source = git('rev-parse', 'HEAD')
-          if git('status', '--porcelain', '--untracked-files=no'):
-              raise SystemExit('Frontend build requires a clean tracked checkout')
-          command = ['npm', '--prefix', 'apps/desktop', 'run', 'build']
-          started = time.monotonic()
-          result = subprocess.run(command)
-          unchanged = source == git('rev-parse', 'HEAD') and not git('status', '--porcelain', '--untracked-files=no')
-          record = {'source': source, 'command': command, 'exit': result.returncode,
-                    'seconds': time.monotonic() - started, 'source_head_and_tracked_unchanged': unchanged}
-          output = root / 'artifacts/ui-browser/frontend-build-record.json'
-          output.parent.mkdir(parents=True, exist_ok=True)
-          with output.open('x') as stream:
-              json.dump(record, stream, indent=2)
-              stream.write('\n')
-          raise SystemExit(result.returncode if result.returncode else (0 if unchanged else 1))
-          PYBUILD
+          python3 scripts/prepare-schema19-browser-ci.py frontend --runner-temp "$RUNNER_TEMP"
       - name: Preview transport timing and failure contracts
         run: |
           python3 apps/desktop/tests/test_data_preview_browser_timing.py
@@ -174,41 +279,39 @@ jobs:
           set -euo pipefail
           rustup toolchain install stable --profile minimal
           cargo test --locked -p agentbaton-core --features preview-evidence --lib evidence_gate -- --nocapture --test-threads=1
-          CARGO_PROFILE_DEV_DEBUG=0 cargo build --locked --bin batond --bin baton --features agentbaton-core/preview-evidence
+          CARGO_PROFILE_DEV_DEBUG=0 python3 scripts/prepare-schema19-browser-ci.py core --runner-temp "$RUNNER_TEMP"
           python3 scripts/prepare-browser-runtime.py --output artifacts/browser-venv
           artifacts/browser-venv/bin/python -m pip install --only-binary=:all: --require-hashes -r requirements-browser.txt
           artifacts/browser-venv/bin/python -m playwright install --with-deps chromium
       - name: Actual frontend with real Unix IPC and responsive screenshots
         run: |
           set -euo pipefail
-          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser
-          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/approved-commands
-          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --output artifacts/ui-browser/goal-planning
-          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --batond target/debug/batond --structured-editor --output artifacts/ui-browser/goal-plan-editor
-          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --preview-evidence --batond target/debug/batond --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
+          python3 scripts/prepare-schema19-browser-ci.py freeze --runner-temp "$RUNNER_TEMP"
+          core_tools="$(realpath "$RUNNER_TEMP")/agentbaton-browser-candidate/tools"
+          AGENTBATON_CI_CHROMIUM="$(
+          artifacts/browser-venv/bin/python - <<'CHROMIUM'
+          import pathlib
+          from playwright.sync_api import sync_playwright
+
+          with sync_playwright() as playwright:
+              print(pathlib.Path(playwright.chromium.executable_path).resolve(strict=True))
+          CHROMIUM
+          )"
+          test -x "$AGENTBATON_CI_CHROMIUM"
+          export AGENTBATON_CI_CHROMIUM
+          artifacts/browser-venv/bin/python apps/desktop/tests/quiet-canvas-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser
+          artifacts/browser-venv/bin/python apps/desktop/tests/command-validation-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser/approved-commands
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --output artifacts/ui-browser/goal-planning
+          artifacts/browser-venv/bin/python apps/desktop/tests/goal-planning-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --batond "$core_tools/batond" --structured-editor --output artifacts/ui-browser/goal-plan-editor
+          artifacts/browser-venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --chromium "$AGENTBATON_CI_CHROMIUM" --preview-evidence --batond "$core_tools/batond" --candidate-manifest artifacts/ui-browser/goal-execution-candidate.json --frontend apps/desktop/dist --output artifacts/ui-browser/data-workspaces
           artifacts/browser-venv/bin/python - <<'PY'
-          import asyncio, hashlib, json, pathlib, subprocess, sys
-          from playwright.async_api import async_playwright
-          def git(*args):
-              return subprocess.check_output(['git', *args], text=True).strip()
-          assert not git('status', '--porcelain', '--untracked-files=no'), 'Tracked source changed during CI build'
-          candidate = {
-              'schema': 18,
-              'git_head': git('rev-parse', 'HEAD'),
-              'git_tree': git('rev-parse', 'HEAD^{tree}'),
-              'dirty': False,
-              'cargo_features': ['agentbaton-core/preview-evidence'],
-              'binaries': {name: hashlib.sha256(pathlib.Path('target/debug', name).read_bytes()).hexdigest() for name in ['batond', 'baton']},
-              'scope': 'CI-built Linux dev evidence candidate; only this UI preview tool build sets CARGO_PROFILE_DEV_DEBUG=0 (debuginfo=0); dev opt-level/debug_assertions/panic defaults and existing package overrides are unchanged; preview-evidence is non-default and release-prohibited, configured only by the private Data fixture; actual schema checked by read-only SQLite; not a release artifact',
-          }
-          pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').write_text(json.dumps(candidate, indent=2) + '\n')
-          async def chromium_executable_path():
-              async with async_playwright() as playwright:
-                  return playwright.chromium.executable_path
-          chromium = asyncio.run(chromium_executable_path())
+          import hashlib, json, os, pathlib, subprocess, sys
+          core_tools = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True) / 'agentbaton-browser-candidate/tools'
+          candidate = json.loads(pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes())
+          chromium = os.environ['AGENTBATON_CI_CHROMIUM']
           subprocess.run([
               sys.executable, 'apps/desktop/tests/goal-execution-real-ipc.py',
-              '--batond', 'target/debug/batond',
+              '--batond', str(core_tools / 'batond'),
               '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
               '--frontend', 'apps/desktop/dist',
               '--output', 'artifacts/ui-browser/goal-execution',
@@ -356,7 +459,7 @@ jobs:
           run_task_workspace_evidence()
           graph_base = [
               sys.executable, 'apps/desktop/tests/goal-graph-real-ipc.py',
-              '--batond', 'target/debug/batond',
+              '--batond', str(core_tools / 'batond'),
               '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
               '--frontend', 'apps/desktop/dist', '--chromium', chromium,
           ]
@@ -373,7 +476,7 @@ jobs:
               try:
                   subprocess.run([
                       sys.executable, 'apps/desktop/tests/factory-real-ipc.py',
-                      '--case', case, '--batond', 'target/debug/batond',
+                      '--case', case, '--batond', str(core_tools / 'batond'),
                       '--candidate-manifest', 'artifacts/ui-browser/goal-execution-candidate.json',
                       '--frontend', 'apps/desktop/dist', '--chromium', chromium,
                       '--output', 'artifacts/ui-browser/factory-' + case,
@@ -383,17 +486,10 @@ jobs:
           if factory_failures:
               raise SystemExit('Factory runtime checks failed: ' + json.dumps(factory_failures))
           frontend = pathlib.Path('apps/desktop/dist')
-          planning_candidate = {
-              **candidate,
-              'source_head': candidate['git_head'],
-              'compiled_core_source_head': candidate['git_head'],
-              'frontend_assets': {str(path.relative_to(frontend)): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(frontend.rglob('*')) if path.is_file()},
-          }
           planning_manifest = pathlib.Path('artifacts/ui-browser/factory-child-planning-candidate.json')
-          planning_manifest.write_text(json.dumps(planning_candidate, indent=2) + '\n')
           subprocess.run([
               sys.executable, 'apps/desktop/tests/factory-child-planning-real-ipc.py',
-              '--run', '--tools', 'target/debug', '--frontend', str(frontend),
+              '--run', '--tools', str(core_tools), '--frontend', str(frontend),
               '--manifest', str(planning_manifest), '--chromium', chromium,
               '--output', 'artifacts/ui-browser/factory-child-planning',
           ], check=True)
@@ -409,7 +505,7 @@ jobs:
                           subprocess.run([
                               sys.executable, 'apps/desktop/tests/factory-child-goal-real-ipc.py',
                               '--run', '--case', case,
-                              '--tools', 'target/debug', '--frontend', str(frontend),
+                              '--tools', str(child_goal_private.parent / 'agentbaton-browser-candidate/tools'), '--frontend', str(frontend),
                               '--manifest', str(planning_manifest), '--chromium', chromium,
                               '--output', str(child_goal_private / case),
                           ], check=True, stdout=log, stderr=subprocess.STDOUT)
@@ -469,6 +565,13 @@ jobs:
               spec.loader.exec_module(module)
               return module
 
+          def candidate_preparer():
+              path = pathlib.Path('scripts/prepare-schema19-browser-ci.py')
+              spec = importlib.util.spec_from_file_location('_ci_schema19_candidate', path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+
           def copy_tool(source, destination, expected):
               stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_nlink,
                                     value.st_size, value.st_mtime_ns, value.st_ctime_ns)
@@ -493,7 +596,8 @@ jobs:
               if stamp(before) != stamp(os.stat(source, follow_symlinks=False)):
                   raise ValueError('Built integration tool path changed')
 
-          def actual_schema_probe(module, tools, private, source):
+          def actual_schema_probe(module, tools, private, binding, verify_inputs):
+              verify_inputs()
               runtime = private / 'probe-runtime'
               runtime.mkdir(mode=0o700)
               snapshot = None
@@ -506,12 +610,21 @@ jobs:
                           if process.poll() is not None or time.monotonic() >= deadline:
                               raise ValueError('Actual schema probe did not start')
                           time.sleep(.02)
+                      token = (runtime / 'session.token').lstat()
+                      endpoint = (runtime / 'batond.sock').lstat()
+                      if (process.poll() is not None or not stat.S_ISREG(token.st_mode)
+                              or stat.S_IMODE(token.st_mode) != 0o600 or token.st_uid != os.geteuid()
+                              or token.st_nlink != 1 or not stat.S_ISSOCK(endpoint.st_mode)
+                              or endpoint.st_uid != os.geteuid() or stat.S_IMODE(endpoint.st_mode) != 0o600):
+                          raise ValueError('Actual probe transport refused')
                       snapshot = module.Host(runtime).result('system.snapshot', {})
-                      if not (type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 18
+                      if not (type(snapshot) is dict
+                              and type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 19
                               and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1):
                           raise ValueError('Actual Core schema probe refused')
                   finally:
-                      if process.poll() is None:
+                      alive = process.poll() is None
+                      if alive:
                           process.send_signal(signal.SIGTERM)
                       try:
                           exit_code = process.wait(timeout=10)
@@ -519,10 +632,11 @@ jobs:
                           process.kill()
                           process.wait(timeout=5)
                           raise ValueError('Forced probe kill is not successful cleanup')
-                      if type(exit_code) is not int or exit_code != 0:
+                      if not alive or type(exit_code) is not int or exit_code != 0:
                           raise ValueError('Actual schema probe failed cleanup')
-              private_json(private / 'schema-probe.json', {'source': source, 'api_version': snapshot['api_version'],
-                           'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': 0, 'joined': True})
+              verify_inputs()
+              private_json(private / 'schema-probe.json', {**binding, 'api_version': snapshot['api_version'],
+                           'database_schema_version': snapshot['database_schema_version'], 'daemon_exit': exit_code, 'joined': True})
 
           def run_integration_browser():
               temporary = pathlib.Path(os.environ['RUNNER_TEMP']).resolve(strict=True)
@@ -537,17 +651,22 @@ jobs:
               try:
                   if git('status', '--porcelain', '--untracked-files=no'):
                       raise ValueError('Tracked integration source changed')
-                  diagnostic['stage'] = 'paired_record_read'
-                  manifest_raw = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json').read_bytes()
-                  build_raw = pathlib.Path('artifacts/ui-browser/frontend-build-record.json').read_bytes()
+                  tree = git('rev-parse', 'HEAD^{tree}')
                   diagnostic['stage'] = 'driver_import'
                   module = source_driver()
+                  preparer = candidate_preparer()
+                  diagnostic['stage'] = 'paired_record_read'
+                  manifest_path = pathlib.Path('artifacts/ui-browser/goal-execution-candidate.json')
+                  build_path = pathlib.Path('artifacts/ui-browser/frontend-build-record.json')
+                  manifest_raw = preparer.read_record(manifest_path)
+                  build_raw = preparer.read_record(build_path)
+                  core_record = temporary / 'agentbaton-browser-core-build.json'
+                  core_raw = preparer.read_record(core_record)
                   diagnostic['stage'] = 'paired_record_decode'
                   manifest, build = module.decode(manifest_raw), module.decode(build_raw)
                   diagnostic['stage'] = 'paired_metadata_guard'
-                  if not (type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == source
-                          and manifest.get('dirty') is False and build['source'] == source and type(build['exit']) is int
-                          and build['exit'] == 0 and build['source_head_and_tracked_unchanged'] is True):
+                  if not (type(manifest) is dict and type(build) is dict
+                          and preparer.verify_pair(manifest_raw, build_raw, core_raw, source, tree) == manifest):
                       raise ValueError('Paired integration source/build metadata refused')
                   diagnostic['stage'] = 'private_records'
                   for name, raw in [('candidate.json', manifest_raw), ('frontend-build-record.json', build_raw)]:
@@ -560,9 +679,29 @@ jobs:
                   tools.mkdir(mode=0o700)
                   for name in ('batond', 'baton'):
                       diagnostic['stage'] = 'copy_' + name
-                      copy_tool(pathlib.Path('target/debug') / name, tools / name, manifest['binaries'][name])
+                      copy_tool(temporary / 'agentbaton-browser-candidate/tools' / name, tools / name, manifest['binaries'][name])
+                  private_pins = {name: preparer.file_pin(tools / name, preparer.TOOL_LIMIT,
+                      executable=True, single_link=True) for name in preparer.TOOLS}
+                  if not all(pin['mode'] == 0o500 and pin['sha256'] == manifest['binaries'][name]
+                             for name, pin in private_pins.items()):
+                      raise ValueError('Private Integration tool pin refused')
+                  binding = {'source': source, 'manifest_sha256': hashlib.sha256(manifest_raw).hexdigest(),
+                      'build_record_sha256': hashlib.sha256(build_raw).hexdigest(),
+                      'tools_sha256': {name: pin['sha256'] for name, pin in private_pins.items()}}
+
+                  def verify_inputs():
+                      if (preparer.git_identity() != (source, tree)
+                              or preparer.read_record(manifest_path) != manifest_raw
+                              or preparer.read_record(build_path) != build_raw
+                              or preparer.read_record(core_record) != core_raw
+                              or preparer.read_record(private / 'candidate.json') != manifest_raw
+                              or preparer.read_record(private / 'frontend-build-record.json') != build_raw
+                              or preparer.core_pins(tools) != private_pins):
+                          raise ValueError('Integration probe input bytes or identity changed')
+                      preparer.verify_pair(manifest_raw, build_raw, core_raw, source, tree)
+
                   diagnostic['stage'] = 'schema_probe'
-                  actual_schema_probe(module, tools, private, source)
+                  actual_schema_probe(module, tools, private, binding, verify_inputs)
                   status['probe_passed'] = True
                   diagnostic['stage'] = 'chromium_discovery'
                   chromium = chromium_path()
@@ -582,6 +721,7 @@ jobs:
                           '--expected-source-head', source, '--chromium', str(chromium), '--output', str(private / 'driver'),
                       ], stdout=log, stderr=subprocess.STDOUT, check=False).returncode
                   diagnostic['stage'] = 'driver_returned'
+                  verify_inputs()
               except Exception as error:
                   kinds = ((ImportError, 'import_error'), (OSError, 'os_error'), (ValueError, 'value_error'),
                            (KeyError, 'key_error'), (TypeError, 'type_error'), (AttributeError, 'attribute_error'))
@@ -597,7 +737,8 @@ jobs:
               finally:
                   private_json(private / 'status.json', status)
                   private_json(private / 'setup-diagnostic.json', diagnostic)
-              return 0 if type(status['driver_exit']) is int and status['driver_exit'] == 0 and status['probe_passed'] is True else 1
+              return 0 if (type(status['driver_exit']) is int and status['driver_exit'] == 0
+                  and status['probe_passed'] is True and diagnostic['exception_kind'] is None) else 1
 
           if __name__ == '__main__':
               raise SystemExit(run_integration_browser())
@@ -672,26 +813,208 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
   desktop:
-    name: Product / ${{ matrix.os }}
+    name: Product / ${{ matrix.os }} Core and migrations
     runs-on: ${{ matrix.os }}
-    # Native tests, two application profiles, release audit and DMG packaging
-    # must finish on the same exact checkout. Per-test/product limits stay fixed.
+    # Keep the existing budget for the full Core and genuine schema14/15/16 gates.
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
         os: [macos-15]
+    outputs:
+      source_receipt: ${{ steps.core_source_complete.outputs.source_receipt }}
+      core_evidence_id: ${{ steps.core_artifact.outputs.artifact-id }}
+      core_evidence_sha256: ${{ steps.core_artifact.outputs.artifact-digest }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Bind the macOS Core checkout
+        id: core_source_start
+        env:
+          MACOS_SOURCE_STAGE: core-start
+        run: &macos_source_binding |
+          set -euo pipefail
+          python3 - <<'MACOS_SOURCE_BINDING'
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import subprocess
+
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+
+          def git(*args):
+              return subprocess.check_output(
+                  ['git', '--no-replace-objects', *args], text=True,
+              ).strip()
+
+          def encoded(value):
+              return json.dumps(value, sort_keys=True, separators=(',', ':'))
+
+          def output(name, value):
+              with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as stream:
+                  stream.write(f'{name}={encoded(value)}\n')
+
+          def source_context():
+              env = os.environ
+              host = os.uname()
+              require(host.sysname == 'Darwin' and host.machine == 'arm64',
+                      'macOS native validation requires Apple Silicon')
+              event = env['GITHUB_EVENT_NAME']
+              require(event in {'pull_request', 'workflow_dispatch'}, 'Unexpected macOS check trigger')
+              with open(env['GITHUB_EVENT_PATH'], encoding='utf-8') as stream:
+                  payload = json.load(stream)
+              repository = env['GITHUB_REPOSITORY']
+              repository_id = env['GITHUB_REPOSITORY_ID']
+              workflow_path = '.github/workflows/product.yml'
+              workflow_ref = env['GITHUB_WORKFLOW_REF']
+              workflow_sha = env['GITHUB_WORKFLOW_SHA']
+              require(str(payload['repository']['id']) == repository_id
+                      and payload['repository']['full_name'] == repository,
+                      'Unexpected macOS repository authority')
+              checkout, tree = git('rev-parse', 'HEAD', 'HEAD^{tree}').splitlines()
+              require(checkout == env['GITHUB_SHA'] and not git('status', '--porcelain=v1', '--untracked-files=no'),
+                      'macOS checkout is not the clean event SHA')
+              ref = env['GITHUB_REF']
+              require(workflow_ref == f'{repository}/{workflow_path}@{ref}' and workflow_sha == checkout,
+                      'Unexpected macOS workflow source')
+              pr_number = 0
+              base_ref, base, head, merge_ref = '', '', checkout, ''
+              if event == 'pull_request':
+                  pull = payload['pull_request']
+                  pr_number = payload['number']
+                  require(type(pr_number) is int and pr_number > 0, 'Invalid macOS PR number')
+                  base_ref, base, head = pull['base']['ref'], pull['base']['sha'], pull['head']['sha']
+                  merge_ref = f'refs/pull/{pr_number}/merge'
+                  require(base_ref == 'main' and ref == merge_ref, 'Unexpected macOS PR merge ref')
+                  headers = git('cat-file', '-p', checkout).split('\n\n', 1)[0]
+                  parents = re.findall(r'^parent ([0-9a-f]{40})$', headers, re.MULTILINE)
+                  require(parents == [base, head], 'macOS checkout parents differ from PR base/head')
+              shas = (checkout, tree, head, workflow_sha) + ((base,) if event == 'pull_request' else ())
+              require(all(re.fullmatch(r'[0-9a-f]{40}', value) for value in shas), 'Invalid macOS source SHA')
+              run_id, run_attempt = env['GITHUB_RUN_ID'], env['GITHUB_RUN_ATTEMPT']
+              require(all(re.fullmatch(r'[1-9][0-9]{0,19}', value)
+                          for value in (repository_id, run_id, run_attempt)), 'Invalid macOS run identity')
+              return {
+                  'repository': repository, 'repository_id': repository_id,
+                  'workflow_path': workflow_path, 'workflow_ref': workflow_ref, 'workflow_sha': workflow_sha,
+                  'event': event, 'ref': ref, 'pr_number': pr_number, 'base_ref': base_ref,
+                  'base': base, 'head': head, 'merge_ref': merge_ref, 'checkout': checkout, 'tree': tree,
+                  'run_id': run_id, 'run_attempt': run_attempt,
+                  'os': host.sysname, 'architecture': host.machine,
+              }
+
+          def artifact(artifact_id, digest):
+              require(re.fullmatch(r'[1-9][0-9]{0,19}', artifact_id)
+                      and re.fullmatch(r'[0-9a-f]{64}', digest), 'Invalid macOS artifact identity')
+              return {'id': artifact_id, 'sha256': digest}
+
+          def main():
+              env = os.environ
+              stage = env['MACOS_SOURCE_STAGE']
+              context = source_context()
+              protocol = 'agentbaton.macos-core-ci.v1'
+              gates = {
+                  'frontend': 'success', 'schema14_build': 'success', 'schema15_build': 'success',
+                  'schema16_build': 'success', 'core_native': 'success', 'schema14_migrate': 'success',
+                  'schema15_migrate': 'success', 'schema16_migrate': 'success',
+                  'migration_evidence': 'success', 'rework_evidence': 'success', 'core_artifact': 'success',
+              }
+              if stage == 'core-start':
+                  output('source_context', context)
+                  return
+              if stage == 'core-complete':
+                  require(env['MACOS_CORE_START_CONTEXT'] == encoded(context), 'macOS Core source changed')
+                  expected_outcomes = ' '.join(f'{name}={result}' for name, result in gates.items())
+                  require(env['MACOS_CORE_GATE_OUTCOMES'] == expected_outcomes, 'An exact macOS Core gate did not pass')
+                  receipt = {
+                      'contract': protocol, 'source': context, 'gates': gates,
+                      'core_evidence': artifact(env['MACOS_CORE_ARTIFACT_ID'], env['MACOS_CORE_ARTIFACT_SHA256']),
+                  }
+                  output('source_receipt', receipt)
+                  print(encoded(receipt))
+                  return
+              require(stage in {'native-start', 'native-complete', 'package-check', 'release-complete'},
+                      'Unknown macOS source stage')
+              raw = env['MACOS_CORE_RECEIPT']
+              require(0 < len(raw) <= 4096, 'Missing or oversized macOS Core receipt')
+              receipt = json.loads(raw)
+              require(type(receipt) is dict and set(receipt) == {'contract', 'source', 'gates', 'core_evidence'}
+                      and encoded(receipt) == raw and receipt['contract'] == protocol
+                      and encoded(receipt['source']) == encoded(context) and receipt['gates'] == gates,
+                      'macOS Core proof differs from the release checkout or attempt')
+              core_evidence = artifact(env['MACOS_CORE_ARTIFACT_ID'], env['MACOS_CORE_ARTIFACT_SHA256'])
+              require(receipt['core_evidence'] == core_evidence,
+                      'macOS Core receipt differs from the independently reported upload')
+              if stage == 'native-start':
+                  output('source_context', context)
+                  return
+              native = artifact(env['MACOS_NATIVE_ARTIFACT_ID'], env['MACOS_NATIVE_ARTIFACT_SHA256'])
+              require(core_evidence['id'] != native['id'], 'macOS Core and Native uploads must be distinct')
+              native_gates = dict.fromkeys((
+                  'native_frontend', 'native_sidecars', 'native_webview', 'native_owner_grant',
+                  'native_factory_approval', 'native_library', 'native_registration',
+                  'integration_driver', 'integration_evidence', 'native_artifact',
+              ), 'success')
+              integration_cases = {
+                  case: {'driver_exit': 0, 'projection_exit': 0, 'complete': True}
+                  for case in ('first-page', 'last-page')
+              }
+              native_receipt = {
+                  'contract': 'agentbaton.macos-native-ci.v1', 'source': context,
+                  'core_evidence': core_evidence, 'native_evidence': native,
+                  'gates': native_gates, 'integration_cases': integration_cases,
+              }
+              if stage == 'native-complete':
+                  require(env['MACOS_NATIVE_START_CONTEXT'] == encoded(context), 'macOS Native source changed')
+                  expected_outcomes = ' '.join(f'{name}={result}' for name, result in native_gates.items())
+                  require(env['MACOS_NATIVE_GATE_OUTCOMES'] == expected_outcomes, 'An exact macOS Native gate did not pass')
+
+                  def unique_object(pairs):
+                      value = dict(pairs)
+                      require(len(value) == len(pairs), 'Duplicate key in Native Integration proof')
+                      return value
+
+                  proof_path = Path('artifacts/native-smoke/integration-execution.json')
+                  with proof_path.open('rb') as stream:
+                      proof = stream.read(8193)
+                  require(0 < len(proof) <= 8192, 'Missing or oversized Native Integration proof')
+                  expected_proof = {
+                      'contract': 'agentbaton.integration-native-ci.v1',
+                      'status': 'driver_and_projection_passed', 'cases': integration_cases,
+                      'private_history_published': False, 'visual_review': 'not_established',
+                      'runtime_acceptance': False,
+                  }
+                  require(encoded(json.loads(proof, object_pairs_hook=unique_object)) == encoded(expected_proof),
+                          'Both Native Integration driver and projection cases must pass')
+                  output('source_receipt', native_receipt)
+                  print(encoded(native_receipt))
+                  return
+              require(env['MACOS_NATIVE_RECEIPT'] == encoded(native_receipt),
+                      'macOS Native proof differs from the packaging checkout, attempt or uploads')
+              if stage == 'release-complete':
+                  development = artifact(env['MACOS_DEVELOPMENT_ARTIFACT_ID'], env['MACOS_DEVELOPMENT_ARTIFACT_SHA256'])
+                  require(len({core_evidence['id'], native['id'], development['id']}) == 3,
+                          'macOS evidence roles must use distinct artifacts')
+                  print(encoded({
+                      'contract': 'agentbaton.macos-release-ci.v1', 'source': context, 'core_evidence': core_evidence,
+                      'native_evidence': native, 'development': development,
+                  }))
+
+          main()
+          MACOS_SOURCE_BINDING
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
       - name: Toolchain
         run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - name: Frontend dependencies and validation
+        id: frontend
         working-directory: apps/desktop
         run: |
           set -euo pipefail
@@ -700,6 +1023,7 @@ jobs:
           npm test
           npm run build
       - name: Build genuine native schema14 history for the required migration gate
+        id: schema14_build
         run: |
           set -euo pipefail
           # Freeze the original native14 pair before normal17 overwrites target.
@@ -707,18 +1031,21 @@ jobs:
           python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy14-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Build genuine schema15 Task history for the required migration gate
+        id: schema15_build
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy15-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
       - name: Build genuine schema16 workspace history for the required migration gate
+        id: schema16_build
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy16-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Core and native host tests
+        id: core_native
         env:
           # Each fixture owns real Git/SQLite/process work. Keep the original
           # per-test deadlines while avoiding unrelated fixture contention.
@@ -741,6 +1068,7 @@ jobs:
           bash scripts/prepare-desktop-sidecars.sh
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml
       - name: Migrate genuine native schema14 history with corruption and rollback controls
+        id: schema14_migrate
         env:
           AGENTBATON_ACTUAL_SCHEMA14_FIXTURE: ${{ runner.temp }}/agentbaton-legacy14-fixture
           RUST_TEST_THREADS: '1'
@@ -749,6 +1077,7 @@ jobs:
           cargo test --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings
       - name: Migrate genuine nonempty schema15 Task history with corruption and receipt controls
+        id: schema15_migrate
         env:
           AGENTBATON_ACTUAL_SCHEMA15_FIXTURE: ${{ runner.temp }}/agentbaton-legacy15-fixture
           RUST_TEST_THREADS: '1'
@@ -757,6 +1086,7 @@ jobs:
           cargo test --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- -D warnings
       - name: Migrate genuine nonempty schema16 workspace history with corruption and receipt controls
+        id: schema16_migrate
         env:
           AGENTBATON_ACTUAL_SCHEMA16_FIXTURE: ${{ runner.temp }}/agentbaton-legacy16-fixture/manifest.json
           RUST_TEST_THREADS: '1'
@@ -764,26 +1094,146 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
+      - name: Retain bounded native migration metadata without private history
+        id: migration_evidence
+        if: always()
+        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
+      - name: Retain finite rework progress without private runtime data
+        id: rework_evidence
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          output = pathlib.Path('artifacts/native-smoke')
+          output.mkdir(parents=True, exist_ok=True)
+          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
+          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'wb') as report:
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
+          PY
+      - name: Upload finite macOS Core evidence
+        id: core_artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-core-${{ matrix.os }}-${{ github.sha }}
+          path: |
+            artifacts/native-smoke/factory-test-tools/probe-stdout.log
+            artifacts/native-smoke/factory-test-tools/probe-stderr.log
+            artifacts/native-smoke/factory-test-tools/probe-snapshot.stderr
+            artifacts/native-smoke/factory-test-tools/probe-snapshot.json
+            artifacts/native-smoke/factory-test-tools/probe-cleanup.json
+            artifacts/native-smoke/factory-test-tools/probe-failure.json
+            artifacts/native-smoke/factory-test-tools/manifest.json
+            artifacts/native-smoke/legacy-migration/summary.json
+            artifacts/native-smoke/factory-rework-progress.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Record the successful macOS Core source and evidence
+        id: core_source_complete
+        env:
+          MACOS_SOURCE_STAGE: core-complete
+          MACOS_CORE_START_CONTEXT: ${{ steps.core_source_start.outputs.source_context }}
+          MACOS_CORE_ARTIFACT_ID: ${{ steps.core_artifact.outputs.artifact-id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ steps.core_artifact.outputs.artifact-digest }}
+          MACOS_CORE_GATE_OUTCOMES: >-
+            frontend=${{ steps.frontend.outcome }}
+            schema14_build=${{ steps.schema14_build.outcome }}
+            schema15_build=${{ steps.schema15_build.outcome }}
+            schema16_build=${{ steps.schema16_build.outcome }}
+            core_native=${{ steps.core_native.outcome }}
+            schema14_migrate=${{ steps.schema14_migrate.outcome }}
+            schema15_migrate=${{ steps.schema15_migrate.outcome }}
+            schema16_migrate=${{ steps.schema16_migrate.outcome }}
+            migration_evidence=${{ steps.migration_evidence.outcome }}
+            rework_evidence=${{ steps.rework_evidence.outcome }}
+            core_artifact=${{ steps.core_artifact.outcome }}
+        run: *macos_source_binding
+  desktop_release:
+    name: Product / ${{ matrix.os }} Native
+    runs-on: ${{ matrix.os }}
+    needs: desktop
+    if: ${{ always() }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [macos-15]
+    outputs:
+      source_receipt: ${{ steps.native_source_complete.outputs.source_receipt }}
+      native_evidence_id: ${{ steps.native_artifact.outputs.artifact-id }}
+      native_evidence_sha256: ${{ steps.native_artifact.outputs.artifact-digest }}
+    steps:
+      - name: Require successful macOS Core validation
+        env:
+          MACOS_CORE_RESULT: ${{ needs.desktop.result }}
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+        run: |
+          set -euo pipefail
+          if [[ "$MACOS_CORE_RESULT" != success || -z "$MACOS_CORE_RECEIPT" ||
+                -z "$MACOS_CORE_ARTIFACT_ID" || -z "$MACOS_CORE_ARTIFACT_SHA256" ]]; then
+            echo 'The required macOS Core validation did not finish successfully with bound evidence.'
+            exit 1
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Verify the upstream receipt against the macOS release checkout
+        id: native_source_start
+        env:
+          MACOS_SOURCE_STAGE: native-start
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+        run: *macos_source_binding
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Prepare the macOS release frontend
+        id: native_frontend
+        working-directory: apps/desktop
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+      - name: Prepare release sidecars for the independent macOS runner
+        id: native_sidecars
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --bin batond --bin baton
+          bash scripts/prepare-desktop-sidecars.sh
+      - *fresh_schema18_gate
       - name: Actual macOS WebView and daemon lifecycle acceptance
+        id: native_webview
         run: |
           set -euo pipefail
           mkdir -p artifacts/native-smoke
           bash scripts/native-macos-smoke.sh artifacts/native-smoke 2>&1 | tee artifacts/native-smoke/lane.log
       - name: Actual native Owner Grant dialog and private database acceptance
+        id: native_owner_grant
         run: |
           set -euo pipefail
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
           cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
           python3 scripts/native-owner-dialog-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --output artifacts/native-smoke/owner-dialog
       - name: Actual Native Factory planning approval and unchanged Grant evidence
+        id: native_factory_approval
         run: |
           set -euo pipefail
           python3 scripts/native-owner-dialog-smoke.py --kind factory_planning --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --companion target/debug/baton --output artifacts/native-smoke/factory-planning-owner-dialog
       - name: Native library tests with smoke features
+        id: native_library
         env:
           RUST_TEST_THREADS: '1'
         run: cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib -- --test-threads=1
       - name: Actual Native background registration IPC in generated private paths
+        id: native_registration
         run: |
           set -euo pipefail
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib background_service -- --test-threads=1
@@ -791,6 +1241,7 @@ jobs:
           cp target/debug/batond apps/desktop/src-tauri/target/debug/batond
           python3 scripts/native-background-service-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-background-service-smoke --daemon target/debug/batond --output artifacts/native-smoke/background-registration
       - name: Actual Native integration approval and early cancellation
+        id: integration_driver
         run: |
           set -euo pipefail
           python3 - <<'INTEGRATION_NATIVE'
@@ -828,7 +1279,8 @@ jobs:
               run_integration_cases()
           INTEGRATION_NATIVE
       - name: Retain finite Native integration evidence without private snapshots
-        if: always()
+        id: integration_evidence
+        if: ${{ always() && steps.native_source_start.outcome == 'success' }}
         run: |
           python3 - <<'INTEGRATION_EVIDENCE'
           import importlib.util, json, os, pathlib, subprocess, sys
@@ -889,40 +1341,131 @@ jobs:
           if __name__ == '__main__':
               project_integration_cases()
           INTEGRATION_EVIDENCE
-      - name: Retain bounded native migration metadata without private history
-        if: always()
-        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
-      - name: Retain finite rework progress without private runtime data
-        if: always()
-        run: |
-          python3 - <<'PY'
-          import os, pathlib, subprocess, sys
-          output = pathlib.Path('artifacts/native-smoke')
-          output.mkdir(parents=True, exist_ok=True)
-          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
-          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-          with os.fdopen(fd, 'wb') as report:
-              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
-          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
+        id: native_artifact
+        if: ${{ always() && steps.native_source_start.outcome == 'success' }}
         with:
           name: native-webview-${{ matrix.os }}-${{ github.sha }}
           path: artifacts/native-smoke/
           if-no-files-found: warn
           retention-days: 14
+      - name: Record successful macOS Native validation and uploaded evidence
+        id: native_source_complete
+        env:
+          MACOS_SOURCE_STAGE: native-complete
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_START_CONTEXT: ${{ steps.native_source_start.outputs.source_context }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ steps.native_artifact.outputs.artifact-id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ steps.native_artifact.outputs.artifact-digest }}
+          MACOS_NATIVE_GATE_OUTCOMES: >-
+            native_frontend=${{ steps.native_frontend.outcome }}
+            native_sidecars=${{ steps.native_sidecars.outcome }}
+            native_webview=${{ steps.native_webview.outcome }}
+            native_owner_grant=${{ steps.native_owner_grant.outcome }}
+            native_factory_approval=${{ steps.native_factory_approval.outcome }}
+            native_library=${{ steps.native_library.outcome }}
+            native_registration=${{ steps.native_registration.outcome }}
+            integration_driver=${{ steps.integration_driver.outcome }}
+            integration_evidence=${{ steps.integration_evidence.outcome }}
+            native_artifact=${{ steps.native_artifact.outcome }}
+        run: *macos_source_binding
+  desktop_package:
+    name: Product / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: [desktop, desktop_release]
+    if: ${{ always() }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [macos-15]
+    steps:
+      - name: Require successful macOS Core and Native validation
+        env:
+          MACOS_CORE_RESULT: ${{ needs.desktop.result }}
+          MACOS_NATIVE_RESULT: ${{ needs.desktop_release.result }}
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
+        run: |
+          set -euo pipefail
+          if [[ "$MACOS_CORE_RESULT" != success || "$MACOS_NATIVE_RESULT" != success ||
+                -z "$MACOS_CORE_RECEIPT" || -z "$MACOS_CORE_ARTIFACT_ID" || -z "$MACOS_CORE_ARTIFACT_SHA256" ||
+                -z "$MACOS_NATIVE_RECEIPT" || -z "$MACOS_NATIVE_ARTIFACT_ID" || -z "$MACOS_NATIVE_ARTIFACT_SHA256" ]]; then
+            echo 'The required macOS Core and Native validation did not finish successfully with bound evidence.'
+            exit 1
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Verify the Core and Native receipts against the macOS packaging checkout
+        env:
+          MACOS_SOURCE_STAGE: package-check
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
+        run: *macos_source_binding
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Prepare the macOS release frontend
+        working-directory: apps/desktop
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+      - name: Prepare release sidecars for the independent macOS runner
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --bin batond --bin baton
+          bash scripts/prepare-desktop-sidecars.sh
       - name: Build desktop UI and application
         working-directory: apps/desktop
         run: |
           set -euo pipefail
-          npm run tauri -- build --bundles app
+          npm run tauri -- build --bundles app -- --locked
       - name: Audit the actual default release application for test controls
         run: bash scripts/native-audit-release.sh apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop
       - name: Package development application and evidence
         run: bash scripts/package-development-macos.sh
+      - name: Verify the macOS release source before publishing the development artifact
+        env:
+          MACOS_SOURCE_STAGE: package-check
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
+        run: *macos_source_binding
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: development_artifact
         with:
           name: development-${{ matrix.os }}-${{ github.sha }}
           path: artifacts/development/
           if-no-files-found: error
           retention-days: 14
+      - name: Record successful macOS validation and development artifact identities
+        env:
+          MACOS_SOURCE_STAGE: release-complete
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
+          MACOS_DEVELOPMENT_ARTIFACT_ID: ${{ steps.development_artifact.outputs.artifact-id }}
+          MACOS_DEVELOPMENT_ARTIFACT_SHA256: ${{ steps.development_artifact.outputs.artifact-digest }}
+        run: *macos_source_binding

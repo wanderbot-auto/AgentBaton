@@ -1,0 +1,170 @@
+{
+  "status": "local_core_receipt_ack_verified_ready_for_leader_evidence_review",
+  "base": "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28",
+  "feature_target": "origin/collab/host-registration-integration",
+  "source_commit": "438bc935611c886ad86f45bb34011f816692d670",
+  "source_tree": "f68a474307d638d841cac691b3ad31383d647fca",
+  "source_files": {
+    "crates/core/src/client_recovery_journal.rs": {
+      "bytes": 25768,
+      "sha256": "9792580abce655e5edada72d4ddf5d2858e4cc0988ddeca6ded9e20d2a8888b1",
+      "git_blob": "e0ad244222687a1b6c4b1c4e34ea424c724af6e9"
+    },
+    "crates/core/src/host_registration_recovery.rs": {
+      "bytes": 6878,
+      "sha256": "cd138104655f680ae689cd56b1f8b098e7fdc715cf7a8aa88f72d0a4b07bad0a",
+      "git_blob": "d7aa75f48600e074c5a6b7406bad29446d5951e8"
+    },
+    "crates/core/src/host_registration_recovery_tests.rs": {
+      "bytes": 30435,
+      "sha256": "cd0a9d6fbc9b1010070bea5c1bc5800873346d7c9f98b7757347d51bc5621396",
+      "git_blob": "ca63339bb17d40c57acc95a4f0925093b5e972a0"
+    },
+    "crates/core/src/host_registry.rs": {
+      "bytes": 27299,
+      "sha256": "8bd22ed68506303e47fda18a76d51451e98f9aa2d2fa8ffc55f22dfb2f859b77",
+      "git_blob": "68aff432ce33d846dc844a7a8ae818dba34d63d6"
+    }
+  },
+  "environment": {
+    "host": "aarch64-apple-darwin",
+    "macos": "26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-11-10)",
+    "clippy": "0.1.91 (ed61e7d7e2 2025-11-07)",
+    "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-receipt-ack",
+    "runtime": "/private/tmp/ab-collab-oeejmzju",
+    "command_wrapper": "bash scripts/collab.sh run -- env CARGO_BUILD_JOBS=2",
+    "all_own_children_joined": true,
+    "heavy_slot_released_and_reported": true
+  },
+  "checks_by_log": {
+    "fmt-heavy-window.log": {
+      "command": "cargo fmt --all -- --check",
+      "started_utc": "2026-11-18T14:18:30Z",
+      "finished_utc": "2026-11-18T14:18:31Z",
+      "exit": 0
+    },
+    "journal.log": {
+      "command": "cargo test --locked -p agentbaton-core --lib client_recovery_journal",
+      "started_utc": "2026-11-18T14:18:31Z",
+      "finished_utc": "2026-11-18T14:20:18Z",
+      "exit": 0,
+      "harness_passed": 27,
+      "artifact": "target/debug/deps/agentbaton_core-3e149a5721946c12"
+    },
+    "host-registry.log": {
+      "command": "cargo test --locked -p agentbaton-core --lib registry::host_registry::tests",
+      "started_utc": "2026-11-18T14:20:18Z",
+      "finished_utc": "2026-11-18T14:20:24Z",
+      "exit": 0,
+      "harness_passed": 24,
+      "artifact": "target/debug/deps/agentbaton_core-3e149a5721946c12"
+    },
+    "host-ipc.log": {
+      "command": "cargo test --locked -p agentbaton-core --lib ipc::host_registry_wire::tests",
+      "started_utc": "2026-11-18T14:20:24Z",
+      "finished_utc": "2026-11-18T14:20:26Z",
+      "exit": 0,
+      "harness_passed": 13,
+      "artifact": "target/debug/deps/agentbaton_core-3e149a5721946c12"
+    },
+    "message-frame.log": {
+      "command": "cargo test --locked -p agentbaton-core --lib ipc::frame_tests",
+      "started_utc": "2026-11-18T14:20:26Z",
+      "finished_utc": "2026-11-18T14:20:27Z",
+      "exit": 0,
+      "harness_passed": 11,
+      "artifact": "target/debug/deps/agentbaton_core-3e149a5721946c12"
+    },
+    "clippy.log": {
+      "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+      "started_utc": "2026-11-18T14:20:27Z",
+      "finished_utc": "2026-11-18T14:20:45Z",
+      "exit": 0
+    }
+  },
+  "distinct_test_cases": {
+    "new_host_receipt_ack": 8,
+    "new_host_receipt_ack_test_names": [
+      "lookup_reply_requires_explicit_null_or_a_closed_receipt",
+      "a_fresh_matching_store_receipt_acknowledges_only_the_host_journal",
+      "absent_or_failed_lookup_never_writes_the_host_journal",
+      "acknowledgement_rejects_wrong_key_body_host_or_sequence",
+      "acknowledgement_reuses_receipt_semantic_checks",
+      "acknowledgement_compares_all_captured_fields_after_the_lookup",
+      "a_concurrent_acknowledgement_and_reservation_cannot_lose_the_new_intent",
+      "acknowledgement_reports_lock_contention_after_lookup_and_keeps_intent"
+    ],
+    "previous_host_journal": 9,
+    "existing_client_journal": 7,
+    "existing_host_registry": 24,
+    "existing_host_ipc": 13,
+    "existing_ipc_frame": 11,
+    "total_effective_passed": 72,
+    "excluded_unset_env_harness_entries": [
+      "client_recovery_journal::host_registration_recovery::tests::subprocess_reserve",
+      "client_recovery_journal::tests::subprocess_reserve_fixture",
+      "client_recovery_journal::tests::subprocess_hold_lock_fixture"
+    ]
+  },
+  "artifacts": {
+    "target/debug/deps/agentbaton_core-3e149a5721946c12": {
+      "bytes": 33558160,
+      "sha256": "69b95af5ca0381139d03d887aa47f204c31f57e7ded0b0e46ca95bee1bbbb1ed",
+      "architecture": "Mach-O 64-bit executable arm64"
+    }
+  },
+  "raw_logs": {
+    "logs/clippy.log": {
+      "bytes": 2653,
+      "sha256": "a1345f6372bc61b80c0758ebd200ca9bb8d50982ca35ae7b808e02de8a28a0a4"
+    },
+    "logs/environment.log": {
+      "bytes": 499,
+      "sha256": "52a49ab8ced4f74ba682f044a7690a4b6b33c40c7134d4f8641cf90996e65da2"
+    },
+    "logs/fmt-first.log": {
+      "bytes": 53,
+      "sha256": "8a90352772715ed9dbfaa0672666b6ba443fb07827f72ad45091de73d1fd9671"
+    },
+    "logs/fmt-frozen.log": {
+      "bytes": 53,
+      "sha256": "8a90352772715ed9dbfaa0672666b6ba443fb07827f72ad45091de73d1fd9671"
+    },
+    "logs/fmt-heavy-window.log": {
+      "bytes": 219,
+      "sha256": "08d9b528852f7026b1cdecbd106be967ccdf7a537e2a8df6f6e0b550bd1ca741"
+    },
+    "logs/host-ipc.log": {
+      "bytes": 2085,
+      "sha256": "6aebecfc599d60f2808ea10a2d710bf8ab8e4644d2272ffc993612c049a3cf17"
+    },
+    "logs/host-registry.log": {
+      "bytes": 3126,
+      "sha256": "6596b7fda6790f8feef1a2e57d1183ab364d177da03e257bbce80ffe95d11813"
+    },
+    "logs/journal.log": {
+      "bytes": 6351,
+      "sha256": "0dc6213b196b079ae0f48f143ed9d69d7959d2077365ffa63e380b94d90f5498"
+    },
+    "logs/message-frame.log": {
+      "bytes": 1600,
+      "sha256": "eb73c48c8dd3349855ec7295911eb204b70145d139a929a0bd7320034c2719c0"
+    },
+    "logs/source-preflight.log": {
+      "bytes": 524,
+      "sha256": "8b4658d69c9db84dd59a6503eabc1d2275378baccdad528d6f916222e4d1a9ec"
+    }
+  },
+  "source_scope_exit": 0,
+  "source_diff_check_exit": 0,
+  "source_feature_target_preview_exit": 0,
+  "leader_source_review": "static review passed at fixed source",
+  "verification_notes": [
+    "Each targeted test, format and lint invocation passed on its first run; there is no failed Rust check to archive.",
+    "Receipt source is a controlled real local Store19 or controlled negative callback. No native application, CI, real Provider, or remote Host validation ran.",
+    "The trusted native Rust layer must supply the fixed read-only lookup. Receipt data alone does not establish lookup provenance.",
+    "Post-rename directory-sync failure handling is inherited; the specific filesystem fault was not injected."
+  ]
+}

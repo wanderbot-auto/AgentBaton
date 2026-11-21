@@ -1,0 +1,48 @@
+collab: task runtime /private/tmp/ab-collab-rqfc_2w8
+........F.................................................................................................................................................................................................................................................................................................................................................................................................................................................................Finite integration browser projection refused
+Finite integration browser projection refused
+...................................................................................................................................................Finite integration browser projection refused
+..............................................................Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+.Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+..Integration Native evidence projection refused
+.Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+...........................................................ssssssssssssssss.........................................fatal: ambiguous argument 'a4e03303b54bd5a5544131e95ad39662f8310e29^{commit}': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+..............................Finite task notification projection refused
+.........................................................................................................
+======================================================================
+FAIL: test_complete_production_inverse_and_all_nineteen_original_tests (test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_complete_production_inverse_and_all_nineteen_original_tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-integration/tests/infrastructure/test_background_service_native_smoke_source.py", line 290, in test_complete_production_inverse_and_all_nineteen_original_tests
+    self.assertEqual(restored_parent_bridge_token_sha(lib), PARENT_BRIDGE_TOKEN_SHA256)
+AssertionError: '715668045d351fce14e6773b411c0a4fcf935735d5051a5d74870cfbc11de523' != 'b5dcc8f034fc0f8f73b8b5d74cffd772f94b2ce4b81eda2c671240696641cb2d'
+- 715668045d351fce14e6773b411c0a4fcf935735d5051a5d74870cfbc11de523
++ b5dcc8f034fc0f8f73b8b5d74cffd772f94b2ce4b81eda2c671240696641cb2d
+
+
+----------------------------------------------------------------------
+Ran 922 tests in 23.546s
+
+FAILED (failures=1, skipped=16)
+{"status": "failed_or_interrupted", "dimension": "Linux/browser/generatedACP/private_test_host_not_OS"}
+{"status": "passed", "dimension": "Linux/browser/generatedACP/private_test_host_not_OS"}

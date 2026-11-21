@@ -1,0 +1,52 @@
+{
+  "task": "HOST19-P1",
+  "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
+  "status": "leader_accepted_local_Core19_slice",
+  "tests": {
+    "focused_distinct_passed": 73,
+    "historical_Host_and_backup": {
+      "source": "991b25218dfe70e0bbf9080bdaf0bd1712c3cdfb",
+      "passed": 59
+    },
+    "normal_migration_and_inverse": {
+      "source": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+      "passed": 12
+    },
+    "actual18_and_accepted_tool_seal": {
+      "source": "921661ecb06030115e6f49927e2931c2ec26be2e",
+      "passed": 2,
+      "replacement_refusals": 8
+    },
+    "infrastructure": {
+      "source": "921661ecb06030115e6f49927e2931c2ec26be2e",
+      "total": 916,
+      "passed": 900,
+      "existing_skipped": 16,
+      "failures": 0
+    },
+    "fmt_and_strict_clippy": {
+      "source": "921661ecb06030115e6f49927e2931c2ec26be2e",
+      "result": "passed",
+      "receipts": [
+        "seal-fmt",
+        "seal-clippy"
+      ]
+    }
+  },
+  "normal_Store19": "implemented_and_executed",
+  "genuine18_fixture_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+  "fixture_cookie": 1,
+  "scope_source_files": 14,
+  "P2_native_UI_CI": "not_run_out_of_scope",
+  "source_before_review_fix": "be23fbbd9558a94bfc17ab803eba9ce46dab9551",
+  "trusted_controller_boundary": "operator-selected local Python; not fixture-supplied; pin is not an interpreter trust substitute",
+  "processes": "none;old18 daemons74155/75958/82144 all normaljoined0;no forcedkill",
+  "source_head": "921661ecb06030115e6f49927e2931c2ec26be2e",
+  "old_tool_pins": {
+    "build": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+    "batond": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+    "baton": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf"
+  },
+  "accepted_delivery_head": "37bd007bed01504e4cde849e2510f2555bcaf984",
+  "handoff": "leader authorized finish --handoff;no further source/build/push"
+}

@@ -1,0 +1,100 @@
+{
+  "task": "HOST19-activation-closure",
+  "base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+  "head_at_start": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+  "status": "ready_for_root_docs_review",
+  "previous_preflight": "406be16f56c89495595bf263a307a9d861d8e2a3",
+  "s1_source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+  "product_acceptance": false,
+  "tests": "not_run; analysis only",
+  "source_write_authority": "none",
+  "recorded_at": "2026-11-17T21:20:42.129599+00:00",
+  "scope": "own docs only",
+  "source_base_fixed": true,
+  "source_delta_counts": {
+    "previous207": 207,
+    "unchanged198": 198,
+    "changed9": 9,
+    "previous_semantic174": 174,
+    "changed_semantic3": 3
+  },
+  "C1": {
+    "status": "fixed candidate read only; final tests/delivery/admission pending",
+    "commit": "49348b2291da5c22fa994db9c452dfd2331d079a",
+    "paths": {
+      "crates/core/src/ipc.rs": {
+        "sha256": "97ef8e947fb05b6d3e75dcac5d6bab000bebfacc081ff2991b0894741f8b908f",
+        "bytes": 200495
+      },
+      "crates/core/src/host_registry_ipc.rs": {
+        "sha256": "6fea146d6df10c050e07a6f9391e57a2e9e97bad5e48c829d6657a955581afa4",
+        "bytes": 5399
+      },
+      "crates/core/src/host_registry_ipc_tests.rs": {
+        "sha256": "a4a3f02b266b25244b8a2d2758723177314a374036d0fca15339b20d926be902",
+        "bytes": 20517
+      }
+    },
+    "source_access": "git show fixed object only; no B dirty tree read"
+  },
+  "product_tests_build_SQL_runtime_native_GUI_CI_network": "not_run; prohibited in this task",
+  "analysis_failure": {
+    "exit_code": 1,
+    "observed": "AssertionError at generator line11; expected changed semantic count2 was incorrect",
+    "corrected": "actual matrix overlap3, context delta9; no artifact was generated on failed attempt; not a product test or weakened assertion"
+  },
+  "constraints": [
+    "no source writes",
+    "no uncommitted B read",
+    "no old tree edits",
+    "no refs except own docs commit and authorized finish",
+    "no push/PR/CI"
+  ],
+  "independent_review": {
+    "source": "schema_inverse_audit: fixed567 guard chain/readsites; no writes/tests",
+    "docs": "schema_current_guards:2 P2+P0 clarification found; recheck closed; hashes/bytes/blob/immutable tail/pins and148 uniqueness verified statically",
+    "acceptance": "root final docs/source allocation review remains; no product acceptance"
+  },
+  "commands_executed": "collab run only: source reads/hash/JSON generation and git read-only metadata; no product test or build",
+  "artifacts": {
+    "SOURCE_BINDINGS.json": {
+      "sha256": "658ea4659b54107d2859d75dc8f96a55a0115762f83bf1b0cb0981aaeecf85a6",
+      "bytes": 12936
+    },
+    "PROPOSED_SOURCE_DELTA.json": {
+      "sha256": "b47ab40423c7d31ddcb1a09dd590e23993cff59e7065960b8ef023de26de325b",
+      "bytes": 23874
+    },
+    "DELTA.md": {
+      "sha256": "66912781e3b3031c6584c3732e3173a7c17d59d61d80add84147b2558433b7e8",
+      "bytes": 6914
+    },
+    "FIXTURE_SEAM.md": {
+      "sha256": "1c837a16cd1b537f8fc75ec6ad7900733370187d5da64332273e1de83bd02862",
+      "bytes": 4745
+    },
+    "VALIDATION.md": {
+      "sha256": "9e6bb0b98ca3bde71135b9cc55371673c36f72530bbfd356a8e7ca360c856583",
+      "bytes": 7410
+    },
+    "INVERSE_DELTA.json": {
+      "sha256": "1ada18b1925c64ac587c1fea8a91a7eef785a4e09e4f733336195e9b73c8bfe8",
+      "bytes": 7227
+    },
+    "REVIEW.md": {
+      "sha256": "7a8cd4c16f90c584bbb7940288b9cf274bafdafc4f5c71510d0bf2b60147a005",
+      "bytes": 1967
+    },
+    "FINAL_CHECKS.json": {
+      "sha256": "aac99b5a6bbd7d9c8fa17aea1cef500d7e096628eafeb354fe72754425d622bd",
+      "bytes": 1223
+    },
+    "DELIVERY.md": {
+      "sha256": "b3de57681b0550b2f12a425915b356f7f644516e118a327eebb87359d526a3d6",
+      "bytes": 1684
+    }
+  },
+  "C1_reported_partial_validation": "leader reports same-source49316+fmt/clippy pass; fullinfra/archive/delivery pending, not independently executed here",
+  "next_scope": "4 independent producer/provenance writes plus1 reserved P1 Rust consumer;148 activation paths proposal only",
+  "final_static_checks": "passed; FINAL_CHECKS.json; no product test result"
+}

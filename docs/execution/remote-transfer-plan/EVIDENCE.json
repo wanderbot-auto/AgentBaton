@@ -1,0 +1,106 @@
+{
+  "requirement": "AB-EXT-002",
+  "scope": "pure transfer planning and complete in-memory integrity verification",
+  "base": "46e38016256dfe3ff2646eb546cad5b8179e27ef",
+  "validated_commit": "a15b4990a1e9837039990619a8affeed17bfa21f",
+  "validated_tree": "742b35553e3e7976fd2d1d64ce3d9896bb9592ff",
+  "crate_tree": "2bd5102b43d3038d9990d2f827a29cd0483884c3",
+  "lock_blobs": {
+    "crates/remote-host/Cargo.lock": "2e59864e503191c24a64cdc126c7ec046d625548",
+    "Cargo.lock": "b111c362b7ad360d5b4f9f1143e5bac38c5f5d9c"
+  },
+  "source_sha256": {
+    "crates/remote-host/src/lib.rs": "cc49979751cd93cc19cc4547e311209d851b5b63a201b44b627e70a982df2fb8",
+    "crates/remote-host/src/transfer.rs": "a47d6b4a108d6212fb00a1c7e770bd71adb6697750be689ea1f7c5478fadb156",
+    "crates/remote-host/tests/transfer.rs": "f657e70afa09c950baef18ddbf5c14bcdb94b1bf2f7ea263ecc77cdefd3b93d8"
+  },
+  "platform": {
+    "host": "aarch64-apple-darwin",
+    "macos": "26.6.1 (25G76)",
+    "rustc": "1.91.1",
+    "cargo": "1.91.1",
+    "rustfmt": "1.8.0-stable"
+  },
+  "environment": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "runner": "bash scripts/collab.sh run --",
+  "started_utc": "2026-11-18T17:39:06Z",
+  "ended_utc": "2026-11-18T17:39:12Z",
+  "baseline": {
+    "format_exit_code": 0,
+    "test_exit_code": 0,
+    "passed_tests": 36,
+    "log": "logs/baseline-test.log.gz"
+  },
+  "validation": [
+    {
+      "command": "cargo fmt --manifest-path crates/remote-host/Cargo.toml --all --check",
+      "exit_code": 0,
+      "log": "logs/fmt.log"
+    },
+    {
+      "command": "cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline --test transfer",
+      "exit_code": 0,
+      "log": "logs/transfer.log.gz",
+      "passed_tests": 11
+    },
+    {
+      "command": "cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline",
+      "exit_code": 0,
+      "log": "logs/all.log.gz",
+      "passed_tests": 47
+    },
+    {
+      "command": "cargo check --manifest-path crates/remote-host/Cargo.toml --locked --offline --all-targets",
+      "exit_code": 0,
+      "log": "logs/check.log"
+    },
+    {
+      "command": "cargo clippy --manifest-path crates/remote-host/Cargo.toml --locked --offline --all-targets -- -D warnings",
+      "exit_code": 0,
+      "log": "logs/clippy.log"
+    }
+  ],
+  "fixtures": [
+    "immutable synthetic bytes abc, hello and empty input",
+    "known SHA-256 vectors",
+    "synthetic remote Host and approved project bindings"
+  ],
+  "merge_preview": {
+    "target": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+    "source": "a15b4990a1e9837039990619a8affeed17bfa21f",
+    "tree": "a3b2a6b50869b3c185538f9a8979275b97ae64a8",
+    "remote_host_subtree_matches": true,
+    "conflicts": false,
+    "log": "logs/source-preview.log"
+  },
+  "unverified": [
+    "current data approval and classification source resolution in production",
+    "scheduler revalidation and dispatch",
+    "file collection and actual transfer",
+    "real remote Host and Linux/CI"
+  ],
+  "review": "implementation and evidence self-reviewed; awaiting independent integration review",
+  "log_sha256": {
+    "logs/all.log.gz": "b170d6c3e4ed883e888fb821149e9de8671495dd453fd70f39364c53cbd62071",
+    "logs/baseline-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/baseline-test.log.gz": "152cf44335f7b36938595fba7243016f88a2100529e53041b7b0d54436e1ada2",
+    "logs/baseline.log": "ca47d56c9438c593d2e3f7b21034f94523f0adfeda74beefed2e8b32eefca50f",
+    "logs/check.log": "334515701e431b483f2a6c8f9de650e589ddb720a779e7934eae519576f6d3d8",
+    "logs/clippy.log": "02db5a66fa0c60ca8618bd08aac556eac4f3ec863e8630a0d353dba6a0f6e126",
+    "logs/development-clippy.log": "e94b10f3f6b1f59c0b04c645df1eae14e4938740641caae4ba7bcc46db4b58b1",
+    "logs/development.log.gz": "94f01bbee9cb185a930c5c7aea07d5ba288664cbb0445299b48bf338e5c953b6",
+    "logs/fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/source-preview.log": "61674b20431a7bc729dbd5673dd58f57fcc458b29c6f49397141396d4e0e6b70",
+    "logs/transfer.log.gz": "095823f50904fdeefd4bf7c28bed203b823a48a42cca0faa45c34805f954671e",
+    "logs/validation.log": "9b66c9ea54505659b5146ae0fe500d92ab18cdf9ba6cffc2122867b790c07b0f"
+  },
+  "uncompressed_log_sha256": {
+    "logs/all.log.gz": "702f6edc98b9b50083cc65162ebe315a5bd33722e565fba5e35ce4f16e1fdd85",
+    "logs/baseline-test.log.gz": "cb2d0316396490acab48ea8e561a8e6669007d5015a764e9355bb4091e8f830c",
+    "logs/development.log.gz": "790d32a7f76bd89b5cd5cbf5e9f4ab94841eb057020e80eb3720e2fad38a603a",
+    "logs/transfer.log.gz": "0c8d6864eaf31bfc8892884dc6a30d3fda57b9eb2d761415bb834c942b1a1b24"
+  }
+}

@@ -1,0 +1,32 @@
+   Compiling agentbaton-core v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/crates/core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 04s
+     Running tests/conversation_schema18.rs (target/debug/deps/conversation_schema18-1e5841b27b483af3)
+
+running 3 tests
+test exact18_inverse_refuses_wrong_version_modified_domain_nonempty_or_external_dependency ... ok
+test generated17_upgrade_preserves_every_old_row_and_private_backup_then_reopens_without_rewrite ... ok
+test inverse_participates_in_callers_atomic_boundary_without_accepting_nested_outer_call ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/integration_schema17.rs (target/debug/deps/integration_schema17-322ac0b290238bf1)
+
+running 15 tests
+test controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen ... ok
+test controlled_current18_then_original_factory_inverse_keeps_one_rollback_boundary ... ok
+test controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_then_upgrades ... ok
+test controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes ... ok
+test controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_dependencies ... ok
+test controlled_empty17_outer_refuses_nested_and_inner_refuses_committed_transactions ... ok
+test corrupt_non_sqlite_input_is_not_replaced_by_a_fresh_empty18_database ... ok
+test fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_rows ... ok
+test future19_refuses_before_backup_or_recovery_with_committed_wal_preserved ... ok
+test opaque16_at_object_budget_refuses_additive17_overflow_atomically ... ok
+test opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependencies ... ok
+test opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata ... ok
+test opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated ... ok
+test synthetic_incomplete_label16_refuses_without_committing_partial17_authority ... ok
+test synthetic_late_ddl_conflict_rolls_back_all_prior17_ddl_version_and_wal_bytes ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.68s
+

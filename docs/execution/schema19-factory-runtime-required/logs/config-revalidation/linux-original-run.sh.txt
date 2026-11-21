@@ -1,0 +1,33 @@
+set -euo pipefail
+expected=a72d35d01067fde5adae16f05a930870f58b1571
+export GIT_OPTIONAL_LOCKS=0
+export CARGO_HOME=/tmp/config-verify-cargo
+export CARGO_TARGET_DIR=/tmp/config-verify-target
+export RUST_TEST_THREADS=1
+[[ $(git rev-parse HEAD) == "$expected" ]]
+[[ $(git rev-parse 'HEAD^{tree}') == aed04f79ea4e8ae2657bee2c055c46b062fcede9 ]]
+if [[ ! -f /tmp/config-verify-build-complete ]]; then
+    git rev-parse HEAD 'HEAD^{tree}' > /evidence/identity
+    { uname -sm; rustc --version; python3 --version; cc --version | head -1; } > /evidence/platform
+    mkdir "$CARGO_HOME"
+    cp -a /registry "$CARGO_HOME/registry"
+    nice -n 15 cargo build -j 1 --workspace --offline --locked --bins > /evidence/build.log 2>&1
+    python3 scripts/prepare-factory-test-tools.py --source "$CARGO_TARGET_DIR/debug" --output /tmp/config-verify-frozen --evidence /evidence/probe > /evidence/prepare.json 2> /evidence/prepare.stderr
+    nice -n 15 cargo test -j 1 --offline --locked -p agentbaton-core --test factory_runtime_ipc --no-run > /evidence/no-run.log 2>&1
+    touch /tmp/config-verify-build-complete
+else
+    [[ ! -e /evidence/factory.start ]]
+    export AGENTBATON_FACTORY_TEST_TOOLS=/tmp/config-verify-frozen
+    export AGENTBATON_CHILD_PLAN_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+    export AGENTBATON_CHILD_GOAL_COMPANION="$AGENTBATON_FACTORY_TEST_TOOLS/baton"
+    python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS" > /evidence/before-verify.json
+    cmp /evidence/prepare.json /evidence/before-verify.json
+    printf '%s\n' "$$" > /evidence/factory.pid
+    date -u +%FT%TZ > /evidence/factory.start
+    result=0
+    cargo test --offline --locked -p agentbaton-core --test factory_runtime_ipc -- --test-threads=1 --show-output > /evidence/factory.log 2>&1 || result=$?
+    printf '%s\n' "$result" > /evidence/factory.exit
+    date -u +%FT%TZ > /evidence/factory.end
+    python3 scripts/prepare-factory-test-tools.py --verify --output "$AGENTBATON_FACTORY_TEST_TOOLS" > /evidence/after-verify.json
+    cmp /evidence/prepare.json /evidence/after-verify.json
+fi

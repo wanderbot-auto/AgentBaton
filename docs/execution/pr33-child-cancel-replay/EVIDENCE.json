@@ -1,0 +1,465 @@
+{
+  "baseline": "b3e274802672d5173c2a06e5badfe3bdafc19b9e",
+  "hosted_checkout": "0bef7594e7f44cf9cd2e9e1c946257b7556479da",
+  "hosted_run": 44787136337,
+  "hosted_job": 136464852658,
+  "hosted_artifact_id": 14655666543,
+  "hosted_artifact_sha256": "dcac89802cc85a4ff1c168e91ffccc5c92654821c3276cffec109d5782a52a66",
+  "matching_hosted_local_pins": {
+    "git_tree": "93c2f76419ee16b8d4326d166c19d86104cd20ec",
+    "frontend_assets_sha256": "4c73ccc0cead9f79f813a3217abf40576f39df339e033b29f67855557f9f9086",
+    "harness_sha256": "320af1df2802e6e543c68ca3f5ce26d15bcba4a3beba057314fbd561ef44b73d",
+    "projector_sha256": "8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741"
+  },
+  "hosted": {
+    "normal": {
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "driver_lines": null,
+      "capture_failure": null,
+      "stale_cas": 2,
+      "summary_sha256": "79ff4ae303c0113004a3399779d9ed2cd92a1b24eeea1a6c4acb02db96ecc54a"
+    },
+    "lost-start": {
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG03",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "driver_lines": null,
+      "capture_failure": null,
+      "stale_cas": 2,
+      "summary_sha256": "de4c93aee73a868738541570acfbfa5267c9423a45e8fd153e18c476b8c3c4cf"
+    },
+    "cancel": {
+      "status": "failed",
+      "exit_code": 1,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": false,
+      "driver_lines": [
+        2174,
+        2157,
+        1644,
+        1810
+      ],
+      "capture_failure": {
+        "substage": "started_records",
+        "errno": 3,
+        "helper_source": "factory_base",
+        "helper_line": 525
+      },
+      "stale_cas": 2,
+      "summary_sha256": "c7aa7348372de63fc8d179931f1ec31627df1b54cad5e541c81cee47d1da04af"
+    }
+  },
+  "local": {
+    "baseline-cancel": {
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG04",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "driver_lines": null,
+      "capture_failure": null,
+      "stale_cas": 2,
+      "summary_sha256": "9d0843667af04c0cf9fdde0223a7b1f17c1763cf14584d89a54e5b468398d056",
+      "bridge_start_count": 1,
+      "bridge_cancel_count": 2,
+      "explicit_cancel_recovery": {
+        "same_key_payload_cas": true,
+        "core_cancelled": true,
+        "task_accepted": false
+      }
+    },
+    "baseline-lost": {
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG03",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "driver_lines": null,
+      "capture_failure": null,
+      "stale_cas": 2,
+      "summary_sha256": "c76c946aee973b60703690aacdc2a6578f50616d438dcb2a5cae6b42bc23e415",
+      "bridge_start_count": 2,
+      "bridge_cancel_count": 0
+    },
+    "baseline-normal": {
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG05",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "driver_lines": null,
+      "capture_failure": null,
+      "stale_cas": 2,
+      "summary_sha256": "b428aefbbbb40158a3871400f66e64cef9821944847850f224f02bdc184fc492",
+      "bridge_start_count": 1,
+      "bridge_cancel_count": 0
+    },
+    "experimental-cancel": {
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG04",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "driver_lines": null,
+      "capture_failure": null,
+      "stale_cas": 2,
+      "summary_sha256": "cba79b750d3826b664b443a7ae638248d848c44fb5ff7098583dcad9ecdc19ac",
+      "bridge_start_count": 1,
+      "bridge_cancel_count": 2,
+      "proc": {
+        "mode": "fixed",
+        "held": true,
+        "proc_read_errno": 3,
+        "experimental_delta": "catch ProcessLookupError only at late bound companion stat",
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:525",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError"
+      },
+      "explicit_cancel_recovery": {
+        "same_key_payload_cas": true,
+        "core_cancelled": true,
+        "task_accepted": false
+      }
+    },
+    "experimental-second": {
+      "status": "passed",
+      "exit_code": 0,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        },
+        {
+          "id": "CG04",
+          "status": "passed"
+        },
+        {
+          "id": "CG06",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": true,
+      "driver_lines": null,
+      "capture_failure": null,
+      "stale_cas": 2,
+      "summary_sha256": "6f41cf993cd1fbe09644be7fa6bd44b540c0f34b7046c4136c385122d15f7b01",
+      "bridge_start_count": 1,
+      "bridge_cancel_count": 2,
+      "proc": {
+        "mode": "fixed",
+        "held": true,
+        "proc_read_errno": 3,
+        "experimental_delta": "catch ProcessLookupError only at late bound companion stat",
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:525",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError"
+      },
+      "explicit_cancel_recovery": {
+        "same_key_payload_cas": true,
+        "core_cancelled": true,
+        "task_accepted": false
+      }
+    },
+    "original-cancel": {
+      "status": "failed",
+      "exit_code": 1,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": false,
+      "driver_lines": [
+        2174,
+        2157,
+        1644,
+        1810
+      ],
+      "capture_failure": {
+        "substage": "started_records",
+        "errno": 3,
+        "helper_source": "factory_base",
+        "helper_line": 525
+      },
+      "stale_cas": 2,
+      "summary_sha256": "0ae1cfbfccfe9455d5a9d612586e9252aec2374a30f5f1152c8d03b6d4b756d3",
+      "bridge_start_count": 1,
+      "bridge_cancel_count": 0,
+      "proc": {
+        "mode": "original",
+        "held": true,
+        "proc_read_errno": 3,
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:525",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError"
+      }
+    },
+    "original-second": {
+      "status": "failed",
+      "exit_code": 1,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": false,
+      "driver_lines": [
+        2174,
+        2157,
+        1644,
+        1810
+      ],
+      "capture_failure": {
+        "substage": "started_records",
+        "errno": 3,
+        "helper_source": "factory_base",
+        "helper_line": 525
+      },
+      "stale_cas": 2,
+      "summary_sha256": "669374285e15ee3f3cca48349f942028f811987e9f0e52a9b38a7c5dafab8ae2",
+      "bridge_start_count": 1,
+      "bridge_cancel_count": 0,
+      "proc": {
+        "mode": "original",
+        "held": true,
+        "proc_read_errno": 3,
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:525",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError"
+      }
+    },
+    "permission-cancel": {
+      "status": "failed",
+      "exit_code": 1,
+      "checks": [
+        {
+          "id": "CG01",
+          "status": "passed"
+        },
+        {
+          "id": "CG02",
+          "status": "passed"
+        }
+      ],
+      "cleanup_complete": false,
+      "driver_lines": [
+        2174,
+        2157,
+        1644,
+        1810
+      ],
+      "capture_failure": {
+        "substage": "started_records",
+        "errno": 13,
+        "helper_source": "factory_base",
+        "helper_line": 525
+      },
+      "stale_cas": 2,
+      "summary_sha256": "d3d79fe8fccba2d68bdbb86cf47362775e67d5c53e104773aa79b900c3b3f39b",
+      "bridge_start_count": 1,
+      "bridge_cancel_count": 0,
+      "proc": {
+        "mode": "permission",
+        "held": true,
+        "proc_read_errno": 3,
+        "experimental_delta": "catch ProcessLookupError only at late bound companion stat",
+        "already_bound": true,
+        "old_record_pinned": true,
+        "start_ticks_match": true,
+        "group_match": true,
+        "owner_uid_match": true,
+        "bound_parent_match": true,
+        "parent_wait": "fixture_owner_natural_wait",
+        "before_read_state": "Z",
+        "trial_callsite": "factory_base:525",
+        "original_pid_absent_before_read": true,
+        "proc_read_error_type": "ProcessLookupError",
+        "negative_fault_at_delivery": "PermissionError/EACCES"
+      }
+    }
+  },
+  "independent_actual_linux_subreaper": {
+    "non_adopted_zombie_not_waited": true,
+    "adopted_same_pid_birth_and_group": true,
+    "wrong_birth_refused": true,
+    "wrong_group_refused": true,
+    "changed_record_refused": true,
+    "exact_wait_once": true,
+    "repeat_wait_noop": true,
+    "signal_sent": false,
+    "core_join_claim": false,
+    "subreaper_restored": true
+  },
+  "existing_control_tests_passed": 66,
+  "private_probes": {
+    "probe.py": "177ed6e2bdccaf2daa9ef8cbd527f0bb5cdba211af8034fcd794b7b9064932d0",
+    "process-controls.py": "87ae02d0d64c437f873b646b6b8ad8d58767717259026407b365682031f8d667",
+    "launch-cancel.sh": "6b381846d2ec6b0cbc8af540837a127bb78d4a863a10be7e40e0e8578bae883a",
+    "run-cancel.sh": "a2ce2247822c832f523983dea7016bb605d1e25f4e4184b6aab90a1556b1e59c"
+  }
+}

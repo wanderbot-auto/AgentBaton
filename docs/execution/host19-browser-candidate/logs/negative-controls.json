@@ -1,0 +1,50 @@
+[
+  {
+    "case": "old",
+    "exit": 2,
+    "stage": "candidate_schema_guard",
+    "runtime_entered": false
+  },
+  {
+    "case": "future",
+    "exit": 2,
+    "stage": "candidate_schema_guard",
+    "runtime_entered": false
+  },
+  {
+    "case": "bool",
+    "exit": 2,
+    "stage": "candidate_schema_guard",
+    "runtime_entered": false
+  },
+  {
+    "case": "float",
+    "exit": 2,
+    "stage": "candidate_schema_guard",
+    "runtime_entered": false
+  },
+  {
+    "case": "string",
+    "exit": 2,
+    "stage": "candidate_schema_guard",
+    "runtime_entered": false
+  },
+  {
+    "case": "bad-provenance",
+    "exit": 2,
+    "stage": "candidate_source_guard",
+    "runtime_entered": false
+  },
+  {
+    "case": "bad-hash",
+    "exit": 2,
+    "stage": "candidate_tool_hash_guard",
+    "runtime_entered": false
+  },
+  {
+    "case": "bad-mode",
+    "exit": 2,
+    "stage": "core_owner_mode_guard",
+    "runtime_entered": false
+  }
+]

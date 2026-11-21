@@ -10,6 +10,7 @@ import unittest
 from unittest import mock
 
 from tests.infrastructure import child_goal_capture_source_fixture as S
+from tests.infrastructure import host19_child_goal_source_fixture as H
 from tests.infrastructure import test_child_goal_finite_diagnostics as F
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -177,7 +178,10 @@ class CaptureSourceInverses(unittest.TestCase):
 
     def test_missing_duplicate_unknown_moved_layers_and_original_guards_are_not_normalized(self):
         for path,record in S.LAYERS.items():
-            text=(ROOT/path).read_text();changes=[text+'\n# unknown\n',text.replace('schema_required=17','schema_required=16',1)if 'schema_required=17'in text else text.replace("'schema'", "'foreign_schema'",1)]
+            text=(ROOT/path).read_text()
+            if path == H.PROJECTOR:
+                text = H.restore_mcp_late_wait_layer(text)
+            changes=[text+'\n# unknown\n',text.replace('schema_required=17','schema_required=16',1)if 'schema_required=17'in text else text.replace("'schema'", "'foreign_schema'",1)]
             for before,after in record['edits']:
                 changes.extend([text.replace(after,before,1),text+after,text.replace(after,'',1)+after,text.replace(after,after.replace('\n','\r\n')if '\n'in after else after+' ',1)])
             for changed in changes:
@@ -185,6 +189,186 @@ class CaptureSourceInverses(unittest.TestCase):
                 # A completely restored original is explicitly valid; partial/moved layers are not.
                 if hashlib.sha256(changed.encode()).hexdigest()in record['legacy']:continue
                 with self.assertRaises(AssertionError):S.strip_capture_failure_layer(path,changed)
+
+
+class McpLateWaitProjection(unittest.TestCase):
+    def observation(self):
+        return {'stage': 'bound_MCP_late_wait_still_present', 'before_state': 'S', 'after_state': 'Z',
+                'after_parent_is_controller': True, 'birth_matches': True,
+                'pgid_matches': True, 'pgid_error_type': None}
+
+    def assertion(self, observation, *, filename=BASE, name='collect_started_records', line=556,
+                  changed_binding=False, current=None, controller=12345, error=None):
+        code = '\n' * (line - 2) + (
+            f'def {name}(late_observation, old, fixed, current, reaper, error):\n'
+            '    raise error\n'
+        )
+        namespace = {}
+        exec(compile(code, str(filename), 'exec'), namespace)
+        old = {'path': SECRET, 'pid': 12345, 'identity': {'birth': SECRET}}
+        fixed = {**old, 'path': 'changed'} if changed_binding else copy.deepcopy(old)
+        current = {'parent_pid': 54321, 'state': 'S'} if current is None else current
+        if error is None:
+            error = AssertionError(SECRET)
+        try:
+            namespace[name](observation, old, fixed, current, types.SimpleNamespace(pid=controller), error)
+        except BaseException as observed:
+            self.assertIs(observed, error)
+            return observed
+        self.fail('Synthetic assertion did not raise')
+
+    def record(self, error, substage='started_records'):
+        recorder = P.FiniteRuntimeDiagnosticsV5()
+        recorder.completed('CG02')
+        recorder.capture_failure(substage, error)
+        recorder.failure(error, 'runtime', str(DRIVER), ValueError)
+        return recorder.snapshot()
+
+    def test_locator_names_the_unchanged_actual_assertion(self):
+        raw = BASE.read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),
+                         '6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93')
+        collector = next(node for node in ast.parse(raw).body
+                         if isinstance(node, ast.FunctionDef) and node.name == 'collect_started_records')
+        exact = [node for node in ast.walk(collector) if isinstance(node, ast.Assert)
+                 and node.lineno == P.MCP_LATE_WAIT_CAPTURE['helper_line']]
+        self.assertEqual(len(exact), 1)
+        self.assertIn('Bound MCP still exists after late adopted-child wait', ast.unparse(exact[0].msg))
+
+    def test_exact_first_assertion_projects_only_closed_scalars_without_probes(self):
+        error = self.assertion(self.observation())
+        with (mock.patch.object(P.os, 'getpid', side_effect=AssertionError('Unexpected probe')) as pid,
+              mock.patch.object(P.os, 'getpgid', side_effect=AssertionError('Unexpected probe')) as pgid,
+              mock.patch.object(Path, 'open', side_effect=AssertionError('Unexpected read')) as read):
+            got = P.finite_diagnostics(self.record(error))
+        for probe in (pid, pgid, read):
+            probe.assert_not_called()
+        self.assertEqual(got['version'], 7)
+        self.assertEqual(got['capture_failure'], P.MCP_LATE_WAIT_CAPTURE)
+        self.assertEqual(got['mcp_late_wait'], {
+            'before_state': 'sleeping', 'after_state': 'zombie', 'binding_matches': True, 'birth_matches': True,
+            'before_parent_is_controller': False, 'after_parent_is_controller': True, 'process_group_match': 'match',
+        })
+        public = json.dumps(got)
+        for private in (SECRET, '12345', '54321', str(BASE), 'pgid_error_type'):
+            self.assertNotIn(private, public)
+
+    def test_mismatch_and_unobserved_process_group_never_publish_raw_error(self):
+        for observed, private, group in ((False, None, 'mismatch'), (None, SECRET, 'unobserved')):
+            with self.subTest(group=group):
+                raw = {**self.observation(), 'pgid_matches': observed, 'pgid_error_type': private}
+                got = self.record(self.assertion(raw, current={'parent_pid': 12345, 'state': 'S'}))
+                self.assertIs(got['mcp_late_wait']['before_parent_is_controller'], True)
+                self.assertEqual(P.finite_diagnostics(got)['mcp_late_wait']['process_group_match'], group)
+                self.assertNotIn(SECRET, json.dumps(got))
+
+    def test_missing_invalid_or_foreign_capture_preserves_legacy_v5(self):
+        raw = self.observation()
+        cases = (
+            (None, {}),
+            ({**raw, 'before_state': SECRET}, {}),
+            ({**raw, 'after_parent_is_controller': 1}, {}),
+            ({**raw, 'pgid_matches': None}, {}),
+            ({**raw, 'pid': 12345}, {}),
+            (raw, {'controller': None}),
+            (raw, {'changed_binding': True}),
+            (raw, {'current': {'parent_pid': True, 'state': 'S'}}),
+            (raw, {'filename': Path('/private/foreign/factory-real-ipc.py')}),
+            (raw, {'name': 'unrelated_assertion'}),
+            (raw, {'line': 557}),
+            (raw, {'error': RuntimeError(SECRET)}),
+        )
+        for observation, options in cases:
+            with self.subTest(options=options, observation=observation):
+                got = self.record(self.assertion(observation, **options))
+                self.assertEqual(P.finite_diagnostics(got)['version'], 5)
+                self.assertNotIn('mcp_late_wait', got)
+                self.assertNotIn(SECRET, json.dumps(got))
+        self.assertEqual(self.record(self.assertion(raw), substage='graph_records')['version'], 5)
+        with mock.patch.object(P, 'mcp_late_wait_observation', side_effect=RuntimeError(SECRET)):
+            self.assertEqual(self.record(self.assertion(raw))['version'], 5)
+
+    def test_later_assertion_cannot_extend_the_first_failure(self):
+        recorder = P.FiniteRuntimeDiagnosticsV5()
+        original = caught(AssertionError(SECRET), filename=BASE, line=557)
+        recorder.capture_failure('started_records', original)
+        recorder.failure(original, 'runtime', str(DRIVER), ValueError)
+        baseline = recorder.snapshot()
+        later = self.assertion(self.observation())
+        recorder.capture_failure('started_records', later)
+        recorder.failure(later, 'cleanup', str(DRIVER), ValueError)
+        self.assertEqual(recorder.snapshot(), baseline)
+        self.assertEqual(baseline['version'], 5)
+
+    def test_invalid_v7_and_versions_without_exact_capture_fields_are_refused(self):
+        good = self.record(self.assertion(self.observation()))
+        checks = (
+            lambda row: row.pop('mcp_late_wait'),
+            lambda row: row.update(version=5),
+            lambda row: row.update(version=7.0),
+            lambda row: row.update(failure_class='runtime_error'),
+            lambda row: row['capture_failure'].update(helper_line=557),
+            lambda row: row['capture_failure'].update(substage='graph_records'),
+            lambda row: row['mcp_late_wait'].update(after_state=SECRET),
+            lambda row: row['mcp_late_wait'].update(process_group_match=SECRET),
+            lambda row: row['mcp_late_wait'].update(estimated_pid=12345),
+            lambda row: row['mcp_late_wait'].update(after_parent_is_controller=1),
+            lambda row: row['mcp_late_wait'].update(binding_matches=False),
+            lambda row: row['mcp_late_wait'].update(birth_matches=False),
+            lambda row: row['mcp_late_wait'].update(before_state='zombie', after_parent_is_controller=False),
+        )
+        for change in checks:
+            value = copy.deepcopy(good)
+            change(value)
+            with self.assertRaises(P.Refused):
+                P.finite_diagnostics(value)
+        _, manifest, summary, report = F.OLD.inputs()
+        report.update(status='failed_or_interrupted', failure={'message': SECRET}, finite_diagnostics=good)
+        result = P.project(report, manifest, summary, 'normal', 1, 'e' * 64)
+        self.assertEqual(result['finite_diagnostics'], good)
+        self.assertNotIn(SECRET, json.dumps(result))
+        with self.assertRaises(P.Refused):
+            P.project(report, manifest, summary, 'normal', 0, 'e' * 64)
+        report['status'] = 'passed'
+        with self.assertRaises(P.Refused):
+            P.project(report, manifest, summary, 'normal', 1, 'e' * 64)
+
+    def test_old_failure_and_success_projection_bytes_remain_identical(self):
+        path = Path(P.__file__)
+        module = types.ModuleType('prior_mcp_failure_projector')
+        module.__file__ = str(path)
+        exec(compile(H.restore_mcp_late_wait_layer(path.read_text()), str(path), 'exec'), module.__dict__)
+        for status in ('passed', 'failed_or_interrupted'):
+            _, manifest, summary, report = F.OLD.inputs()
+            recorder = P.FiniteRuntimeDiagnosticsV5()
+            if status != 'passed':
+                error = caught(OSError(2, SECRET), filename=BASE, line=555)
+                recorder.capture_failure('started_records', error)
+                recorder.failure(error, 'runtime', str(DRIVER), ValueError)
+            expected_version = 4 if status == 'passed' else 5
+            report.update(status=status, finite_diagnostics=recorder.snapshot())
+            code = int(status != 'passed')
+            if code:
+                report['failure'] = {'message': SECRET}
+            old = module.project(report, manifest, summary, 'normal', code, 'e' * 64)
+            new = P.project(report, manifest, summary, 'normal', code, 'e' * 64)
+            self.assertEqual(new['finite_diagnostics']['version'], expected_version)
+            self.assertEqual(json.dumps(new, indent=2), json.dumps(old, indent=2))
+
+    def test_exact_outer_inverse_preserves_the_prior_and_historical_source(self):
+        raw = Path(P.__file__).read_text()
+        old = H.restore_mcp_late_wait_layer(raw)
+        self.assertEqual(H.sha(raw), H.MCP_LATE_WAIT_LAYER[0])
+        self.assertEqual(H.sha(old), '8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741')
+        self.assertEqual(H.restore_mcp_late_wait_layer(old), old)
+        self.assertEqual(H.restore_child_goal_before_schema19(H.PROJECTOR, raw),
+                         H.restore_child_goal_before_schema19(H.PROJECTOR, old))
+        for altered in (raw + '# unknown\n', raw.replace('== 7:', '== 8:', 1),
+                        raw.replace("'match', 'mismatch', 'unobserved'", "'match', 'mismatch', 'unobserved', 'other'", 1)):
+            with self.assertRaises(AssertionError):
+                H.restore_mcp_late_wait_layer(altered)
+            with self.assertRaises(AssertionError):
+                H.restore_child_goal_before_schema19(H.PROJECTOR, altered)
 
 
 if __name__=='__main__':unittest.main()

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from functools import partial
 import hashlib
@@ -39,13 +40,14 @@ MAX_RESPONSE_BYTES = 4_194_304
 MAX_GRAPH_REVIEW_BYTES = 1_048_576
 MAX_LEGACY_REVIEW_BYTES = 16_384
 SAFE_INTEGER = 9_007_199_254_740_991
+GRAPH_SCHEMA = 19
 GRAPH_KINDS = frozenset({'goal_graph_execution', 'goal_node_acceptance'})
 MUTATION_METHODS = frozenset({'goal_plans.propose', 'goal_plans.revise', 'goal_graph_runs.cancel', 'goal_graph_runs.advance_plan'})
 READ_ONLY_HTTP_METHODS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
     'workspaces.list', 'grants.list', 'goal_scopes.list', 'goal_scopes.get', 'goal_plans.get', 'goal_plans.list',
     'goal_plans.ready_preview', 'goal_graph_runs.list', 'goal_graph_runs.get', 'goal_runs.list', 'events.subscribe'})
 PENDING_DEPENDENCIES = (
-    'Root-frozen updated schema18 binary/manifest and new composed Graph UI assets',
+    'Root-frozen schema19 binary/manifest and new composed Graph UI assets',
     'Actual current Graph Owner and Integrity/Data/Command five-node browser runs plus Data-range/Command-timeout negative runs',
     'Independent review plus remaining drift, unknown, cancellation, ledger/CAS, explicit rejection and transport-drop matrix',
 )
@@ -694,9 +696,7 @@ INTEGRATION_RECORD_TABLES = {
     'attempts': 'integration_attempts', 'ref_fences': 'integration_ref_fences',
 }
 
-def current_integration_counts(db):
-    schema = db.execute('PRAGMA user_version').fetchone()[0]
-    assert type(schema) is int and schema == 18
+def _integration_counts(db):
     counts = {}
     for key, table in INTEGRATION_RECORD_TABLES.items():
         row = db.execute("SELECT type,CASE WHEN length(CAST(sql AS BLOB))<=65536 THEN sql END FROM sqlite_master WHERE name=?", (table,)).fetchone()
@@ -707,15 +707,7 @@ def current_integration_counts(db):
     return counts
 
 
-def current_factory_counts(db):
-    """Global private-fixture counts, not root-filtered authority or Core receipts.
-
-    Exact current schema, all12 Factory and four zero integration tables are mandatory. Missing/unknown DB
-    state raises; no absent table, failed query or NULL count becomes zero.
-    """
-    schema = db.execute('PRAGMA user_version').fetchone()[0]
-    assert type(schema) is int and schema == 18
-    current_integration_counts(db)
+def _factory_counts(db):
     counts = {}
     for key, table in FACTORY_RECORD_TABLES.items():
         value = db.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0]
@@ -724,7 +716,23 @@ def current_factory_counts(db):
     return counts
 
 
+def current_integration_counts(db):
+    """Keep the schema 18 contract for historical Factory evidence consumers."""
+    schema = db.execute('PRAGMA user_version').fetchone()[0]
+    assert type(schema) is int and schema == 18
+    return _integration_counts(db)
+
+
+def current_factory_counts(db):
+    """Keep the schema 18 contract for historical Factory evidence consumers."""
+    schema = db.execute('PRAGMA user_version').fetchone()[0]
+    assert type(schema) is int and schema == 18
+    current_integration_counts(db)
+    return _factory_counts(db)
+
+
 def verify_candidate(binary: Path, manifest_raw: bytes) -> dict:
+    """Keep the schema 18 contract for historical Factory evidence consumers."""
     manifest = json.loads(manifest_raw)
     assert type(manifest.get('schema')) is int and manifest.get('schema') == 18, 'Only an explicit frozen schema18 binary may execute Graph'
     entry = manifest['binaries']['batond']
@@ -732,6 +740,66 @@ def verify_candidate(binary: Path, manifest_raw: bytes) -> dict:
     assert re.fullmatch('[0-9a-f]{64}', expected) and sha(binary.read_bytes()) == expected
     assert manifest.get('git_head') or manifest.get('source_head'), 'Candidate must bind actual source'
     return manifest
+
+
+def graph_source():
+    root = Path(__file__).resolve().parents[3]
+    require(not subprocess.check_output(['git', 'status', '--porcelain=v1', '--untracked-files=no'], cwd=root),
+        'Graph source has tracked changes')
+    head, tree = subprocess.check_output(['git', 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=root, text=True).splitlines()
+    return head, tree
+
+
+def verify_graph_candidate(binary: Path, manifest_raw: bytes, head: str, tree: str) -> tuple[dict, str]:
+    manifest = json.loads(manifest_raw, object_pairs_hook=unique_object)
+    require(type(manifest) is dict and type(manifest.get('schema')) is int
+        and manifest['schema'] == GRAPH_SCHEMA, 'Only an explicit frozen schema19 binary may execute current Graph')
+    heads = [manifest[name] for name in ('git_head', 'source_head', 'compiled_core_source_head') if name in manifest]
+    require(('git_head' in manifest or 'source_head' in manifest)
+        and all(type(value) is str and value == head for value in heads)
+        and manifest.get('git_tree') == tree and manifest.get('dirty') is False
+        and manifest.get('tracked_clean', True) is True, 'Candidate must match the clean Graph source and tree')
+    binaries = manifest.get('binaries')
+    require(type(binaries) is dict, 'Candidate is missing its binary pins')
+    entry = binaries.get('batond')
+    expected = entry.get('sha256') if type(entry) is dict else entry
+    require(type(expected) is str and re.fullmatch('[0-9a-f]{64}', expected) is not None
+        and sha(binary.read_bytes()) == expected, 'Candidate daemon changed')
+    return manifest, expected
+
+
+def graph_database_schema(db):
+    version = db.execute('PRAGMA user_version').fetchone()[0]
+    require(type(version) is int and version == GRAPH_SCHEMA, 'Read-only Graph database must report integer schema 19')
+    return version
+
+
+def graph_factory_counts(db):
+    graph_database_schema(db)
+    _integration_counts(db)
+    return _factory_counts(db)
+
+
+@contextmanager
+def graph_database(runtime: Path):
+    with closing(sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True)) as db:
+        db.execute('PRAGMA query_only=ON')
+        db.execute('BEGIN')
+        graph_database_schema(db)
+        yield db
+
+
+def graph_schema_evidence(host, runtime: Path):
+    response = host.call(FixedCall('system.snapshot', {}))
+    snapshot = response.get('result')
+    require('error' not in response and type(snapshot) is dict
+        and type(snapshot.get('api_version')) is int and snapshot['api_version'] == 1
+        and type(snapshot.get('database_schema_version')) is int
+        and snapshot['database_schema_version'] == GRAPH_SCHEMA, 'Private Graph snapshot must report API 1 and integer schema 19')
+    with graph_database(runtime) as db:
+        database_version = graph_database_schema(db)
+    return {'ipc_api_version': snapshot['api_version'], 'ipc_database_schema_version': snapshot['database_schema_version'],
+        'sqlite_user_version': database_version}
 
 
 def verify_public_graph_request(request, scope, reuse):
@@ -796,10 +864,8 @@ def verify_validation_receipt(runtime: Path, detail: dict, definition: dict, cas
     producer = next(c for c in detail['candidates'] if c['node_id'] == 'produce-report')
     assert observed_subject['task_id'] == detail['run']['task_id'] and observed_subject['attempt_id'] == producer['attempt_id']
     assert observed_subject['task_id'] != definition['task_id'] and observed_subject['attempt_id'] != definition['attempt_id']
-    with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
-        db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 18
-        assert current_factory_counts(db)['child_goal_runs'] == 0
+    with graph_database(runtime) as db:
+        assert graph_factory_counts(db)['child_goal_runs'] == 0
         raw = db.execute('SELECT document FROM goal_graph_validations WHERE id=?', [receipt['id']]).fetchone()[0]
         original_validation_receipt(view, json.loads(raw, object_pairs_hook=unique_object))
         job_state, origin_raw = db.execute('SELECT state,document FROM goal_graph_jobs WHERE id=?', [node['job_id']]).fetchone()
@@ -1204,13 +1270,13 @@ def driver_self_check() -> dict:
     check('no deterministic validation falsely included', not any(x['kind'] == 'validate' for x in revised['nodes']))
     compile(VALIDATION_ACP, '<generated-graph-acp>', 'exec')
     check('generated ACP syntax', True)
-    for schema in [11, 12, 13, 14, 15, 16, 17, 19, 13.0, 14.0, 15.0, 16.0, 18.0, True, '13', '14', '15', '16', '17', None]:
+    for schema in [11, 12, 13, 14, 15, 16, 17, 18, 20, 13.0, 14.0, 15.0, 16.0, 18.0, 19.0, True, '13', '14', '15', '16', '17', '19', None]:
         try:
-            verify_candidate(Path('/must-not-read-a-binary'), json.dumps({'schema': schema}).encode())
-        except AssertionError:
-            check('old/missing schema refused before binary access ' + str(schema), True)
+            verify_graph_candidate(Path('/must-not-read-a-binary'), json.dumps({'schema': schema}).encode(), 'a' * 40, 'b' * 40)
+        except BoundaryRefusal:
+            check('wrong/missing schema refused before binary access ' + str(schema), True)
         else:
-            raise AssertionError('Old schema was admitted')
+            raise AssertionError('Wrong schema was admitted')
     with tempfile.TemporaryDirectory(prefix='graph-readonly-pin-check-') as temporary:
         root = Path(temporary); folder = root / 'reports'; folder.mkdir(); target = folder / 'candidate'
         target.write_bytes(b'fixed report'); fs = target.stat(); rs = root.stat()
@@ -1238,8 +1304,21 @@ def driver_self_check() -> dict:
     return {'status': 'passed', 'dimension': 'static plan constructor/generated Python syntax/manifest negatives and isolated readonly FD controls; no Core/browser execution or minted receipts', 'count': len(rows), 'checks': rows}
 
 
+def verify_graph_run_inputs(report, manifest_path: Path, binary: Path):
+    require(graph_source() == (report['source'], report['git_tree'])
+        and sha(manifest_path.read_bytes()) == report['manifest_sha256']
+        and sha(binary.read_bytes()) == report['daemon_sha256']
+        and sha(Path(__file__).read_bytes()) == report['harness_sha256'],
+        'Graph candidate inputs changed during the run')
+
+
+def record_graph_failure(report, failure, clean):
+    report['status'] = 'failed_or_interrupted'
+    report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}
+
+
 def owner_only_driver(args, output: Path) -> int:
-    """Runnable real driver. Every receipt comes from the supplied exact schema18 Core.
+    """Runnable real driver. Every receipt comes from the supplied exact schema19 Core.
 
     Owner-only is deliberately separate from pending deterministic Validate and
     negative Graph scenarios. An old acceptance projection fails strict checks.
@@ -1251,14 +1330,17 @@ def owner_only_driver(args, output: Path) -> int:
     try:
         assert args.batond and args.candidate_manifest and args.frontend
         binary, frontend = args.batond.resolve(strict=True), args.frontend.resolve(strict=True)
-        manifest_raw = args.candidate_manifest.resolve(strict=True).read_bytes()
-        manifest = verify_candidate(binary, manifest_raw)  # before any process/token/listener
-        assert sha(binary.read_bytes()) != 'fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e', 'Old Owner-only Core5541 is not the new Graph validation-contract API'
+        manifest_path = args.candidate_manifest.resolve(strict=True)
+        manifest_raw = manifest_path.read_bytes()
+        source_head, source_tree = graph_source()
+        manifest, daemon_digest = verify_graph_candidate(binary, manifest_raw, source_head, source_tree)
+        assert daemon_digest != 'fc5d33dca48d4b46dc7c5aa8eaf2235be8222f04ea959ba139561c0fa380d77e', 'Old Owner-only Core5541 is not the new Graph validation-contract API'
         assert (frontend / 'index.html').is_file()
+        require(sys.platform == 'linux' and Path('/proc/self/stat').is_file(), 'Current Graph browser evidence requires Linux procfs')
         from playwright.sync_api import expect, sync_playwright
-    except (AssertionError, OSError, ValueError, KeyError, ImportError) as failure:
+    except (AssertionError, OSError, ValueError, KeyError, ImportError, subprocess.CalledProcessError) as failure:
         refusal = {'status': 'preflight_refused', 'actual_runtime': 'not_run',
-            'harness_sha256': sha(Path(__file__).read_bytes()), 'schema_required': 18,
+            'harness_sha256': sha(Path(__file__).read_bytes()), 'schema_required': GRAPH_SCHEMA,
             'failure': {'type': type(failure).__name__, 'message': str(failure)},
             'no_process_token_read_or_listener': True}
         (output / 'preflight-refusal.json').write_text(json.dumps(refusal, indent=2) + '\n')
@@ -1268,7 +1350,8 @@ def owner_only_driver(args, output: Path) -> int:
         'dimension': 'actual built React/Linux Chromium/finite test HTTP/authenticated Unix Core/generated owned ACP',
         'not_claimed': ([] if case else ['deterministic Validate five-node flow']) + ['full Graph failure matrix', 'native OS Owner dialog',
             'macOS', 'real Provider/model', 'OS sandbox', 'whole product completion'],
-        'candidate': manifest, 'manifest_sha256': sha(manifest_raw), 'daemon_sha256': sha(binary.read_bytes()),
+        'candidate': manifest, 'source': source_head, 'git_tree': source_tree, 'schema_required': GRAPH_SCHEMA,
+        'manifest_sha256': sha(manifest_raw), 'daemon_sha256': daemon_digest,
         'harness_sha256': sha(Path(__file__).read_bytes()), 'frontend_assets_sha256': assets(),
         'checks': [], 'http_requests': [], 'private_reviews': [], 'observations': {}, 'screenshots': [], 'cleanup': [],
         'http_readonly_reply_aborts': [], 'http_unexpected_errors': []}
@@ -1316,6 +1399,8 @@ def owner_only_driver(args, output: Path) -> int:
                 response = host.call(FixedCall(method, params, key, revision))
                 assert not response.get('error'), clean({'method': method, 'response': response})
                 return response['result']
+            report['schema_evidence'] = {'manifest_schema': manifest['schema'], **graph_schema_evidence(host, runtime)}
+            passed('exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup')
             def approved(method, params, key, kind, revision=None):
                 proposal = result(method, params, key, revision)
                 assert proposal['kind'] == kind
@@ -1387,8 +1472,7 @@ def owner_only_driver(args, output: Path) -> int:
                 definition = approved(method, policy_selection, 'graph:source-definition', approval_kind)
                 result('goal_runs.cancel', {'run_id': legacy['id']}, 'graph:cancel-bootstrap', bootstrap['run']['revision'])
                 cancelled = wait(lambda: result('goal_runs.get', {'run_id': legacy['id']}), lambda d: d['run']['state'] == 'cancelled')
-                with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
-                    db.execute('PRAGMA query_only=ON')
+                with graph_database(runtime) as db:
                     assert all(db.execute('SELECT count(*) FROM ' + table).fetchone()[0] == 0 for table in ['validation_runs', 'data_validation_runs', 'command_validation_runs'])
                     assert db.execute('SELECT consumed FROM budgets WHERE scope=?', ['project:' + project['id']]).fetchone()[0] == 1
                     assert db.execute('SELECT count(*) FROM attempts').fetchone()[0] == 1
@@ -1636,8 +1720,7 @@ def owner_only_driver(args, output: Path) -> int:
                         owned = json.loads((workspace_root / ('reports/fixture-owned-' + candidate['attempt_id'] + '.json')).read_text())
                         assert ticks(owned['pid']) != owned['start_ticks']
                         report['observations']['owned_task_requests'].append({'origin': 'real_graph_failure_producer', 'utf8_bytes': len(raw), 'sha256': sha(raw), 'raw_utf8': raw.decode(), 'request': request, 'candidate': candidate, 'owned_process_identity': owned, 'owned_process_gone': True})
-                        with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
-                            db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
+                        with graph_database(runtime) as db:
                             assert db.execute('SELECT count(*) FROM attempts').fetchone()[0] == 3
                             assert db.execute('SELECT count(*) FROM sessions').fetchone()[0] == 2
                             assert db.execute('SELECT count(*) FROM goal_graph_acceptances').fetchone()[0] == 0
@@ -1721,10 +1804,8 @@ def owner_only_driver(args, output: Path) -> int:
                             else:
                                 assert n['execution_kind'] == 'connection' and n['state'] == 'candidate' and n['stop_confirmed'] is True
                         passed('real private Owner decisions and declared checks gate dependent Summary and all-required TaskAccepted with canonical fresh projections')
-                        with sqlite3.connect((runtime / 'baton.sqlite3').as_uri() + '?mode=ro', uri=True) as db:
-                            db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                            assert db.execute('PRAGMA user_version').fetchone()[0] == 18
-                            assert current_factory_counts(db)['child_goal_runs'] == 0
+                        with graph_database(runtime) as db:
+                            assert graph_factory_counts(db)['child_goal_runs'] == 0
                             event_rows = db.execute('SELECT sequence,document FROM events ORDER BY sequence LIMIT 4097').fetchall()
                             assert len(event_rows) <= 4096 and all(len(raw.encode()) <= MAX_GRAPH_REVIEW_BYTES for _, raw in event_rows)
                             events = [(seq, json.loads(raw)) for seq, raw in event_rows]
@@ -1826,7 +1907,7 @@ def owner_only_driver(args, output: Path) -> int:
                     phase['value'] = 'browser_closing'
                     browser.close(); browser = None
         except BaseException as failure:
-            report['failure'] = {'type': type(failure).__name__, 'message': clean(failure), 'traceback': clean(traceback.format_exc())}
+            record_graph_failure(report, failure, clean)
         finally:
             pump = lambda: None
             phase['value'] = 'http_shutdown'
@@ -1922,7 +2003,11 @@ def owner_only_driver(args, output: Path) -> int:
             if report['http_unexpected_errors']:
                 report['status'] = 'failed_or_interrupted'
             if report['status'] == 'passed':
-                passed('HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone')
+                try:
+                    verify_graph_run_inputs(report, manifest_path, binary)
+                    passed('HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone')
+                except (AssertionError, OSError, ValueError, subprocess.CalledProcessError) as failure:
+                    record_graph_failure(report, failure, clean)
             phase['value'] = 'closed'
             log.close()
             if token:
@@ -1951,7 +2036,7 @@ def main():
     parser.add_argument('--chromium', default='/usr/bin/chromium')
     args = parser.parse_args()
     output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
-    attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': 18}
+    attribution = {'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), 'schema_required': GRAPH_SCHEMA}
     assert sum([args.self_check, args.driver_self_check, args.transport_self_check, args.validation_self_check, args.provider_self_check, args.packet_self_check, args.owner_only, bool(args.validation_case)]) <= 1, 'Choose one explicit mode'
     assert args.packet_self_check or not args.packet, 'Actual packet inputs are only for the pure packet check'
     if args.packet_self_check:
@@ -1986,17 +2071,18 @@ def main():
         return 0
     if args.owner_only or args.validation_case:
         return owner_only_driver(args, output)
-    # Full five-node/negative matrix remains pending. Only explicit --owner-only
-    # invokes the separate real four-node driver, with a schema18 preflight.
+    # The owner-only and validator scenarios require explicit invocation.
     report = {**attribution, 'status': 'pending_dependencies', 'actual_runtime': 'not_run',
               'pending': list(PENDING_DEPENDENCIES), 'no_successful_graph_execution_or_acceptance_claimed': True}
     if args.candidate_manifest is not None:
-        raw = args.candidate_manifest.resolve(strict=True).read_bytes(); manifest = json.loads(raw)
-        report['manifest_sha256'] = hashlib.sha256(raw).hexdigest()
-        if type(manifest.get('schema')) is not int or manifest.get('schema') != 18:
-            report['refusal'] = 'Older schema binary is not exact Graph17 execution evidence'
-        else:
-            report['manifest_schema'] = 18
+        raw = args.candidate_manifest.resolve(strict=True).read_bytes()
+        report['manifest_sha256'] = sha(raw)
+        try:
+            require(args.batond is not None, 'A candidate daemon is required for Graph attribution')
+            manifest, _ = verify_graph_candidate(args.batond, raw, *graph_source())
+            report['manifest_schema'] = manifest['schema']
+        except (AssertionError, OSError, ValueError, subprocess.CalledProcessError) as failure:
+            report['refusal'] = str(failure)
     (output / 'pending-runtime.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps({'status': report['status'], 'actual_runtime': report['actual_runtime'], 'pending': report['pending']}))
     return 2

@@ -1,0 +1,135 @@
+{
+  "requirements": [
+    "AB-REL-004",
+    "AB-EXT-006"
+  ],
+  "tool_head": "c4accb5dc0901aa219a31dfe9fbe31cc0c241450",
+  "pr": 33,
+  "local_source_commit": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+  "local_source_tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+  "workspace_kind": "independent pinned detached checkout in collab task runtime",
+  "tracked_tree_clean_after_build": true,
+  "toolchain_environment": {
+    "architecture": "arm64",
+    "macos": "26.6.1 (25G76)",
+    "xcode": "27.2 (27B52)",
+    "rust": "1.91.1",
+    "node": "26.7.0",
+    "npm": "11.19.0",
+    "python": "3.15.2",
+    "tauri_cli": "2.12.4",
+    "vite": "8.3.5",
+    "cache_mode": "npm and Cargo offline"
+  },
+  "hosted_comparison": {
+    "run_id": 44432204086,
+    "job_id": 135252128867,
+    "job_head_sha": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+    "observed_status_at_handoff": "in_progress, Core and native host tests",
+    "workflow_node_pin": "24",
+    "workflow_rust_channel": "stable",
+    "live_log_result": "HTTP 404 before completion; live patch versions unavailable",
+    "historical_completed_job_id": 134177203395,
+    "historical_node": "24.22.2",
+    "historical_rust": "1.100.0",
+    "historical_xcode": "16.4"
+  },
+  "successful_execution": {
+    "tool_session_id": 72291,
+    "pid": 20625,
+    "started_utc": "2026-11-19T01:03:26Z",
+    "ended_utc": "2026-11-19T01:06:24Z",
+    "exit": 0,
+    "child_reaped": true,
+    "native_test_marker_audit": "passed",
+    "mounted_file_sha256_matches": 5,
+    "owned_mounts_after_check": 0,
+    "tauri_cargo_lock_sha256_before_after": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    "exact_commands_and_local_flags": "logs/build-locked.sh",
+    "signing_profile": "env -i allowlist; Tauri --no-sign; codesign read-only"
+  },
+  "diagnostic_attempts": [
+    {
+      "pid": 16284,
+      "exit": 1,
+      "stage": "npm config",
+      "reason": "same user/global config file rejected",
+      "log": "logs/attempt1-npm-config.log"
+    },
+    {
+      "pid": 16418,
+      "exit": 127,
+      "stage": "Tauri option output check",
+      "reason": "no rg in clean PATH",
+      "log": "logs/attempt2-help-parser.log"
+    },
+    {
+      "pid": 16558,
+      "exit": 1,
+      "stage": "tracked input freeze after package generation",
+      "reason": "Tauri Cargo.lock removed one blank line",
+      "resolved_toml_package_count": 443,
+      "resolved_toml_same": true,
+      "drifted_archive_excluded": true,
+      "original_lock_sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+      "rewritten_lock_sha256": "e4fe8dd737f2bd9d4cee31de0bf36e55f213ee5c2a583891f8718aa8ec3748b2",
+      "preserved_dmg_sha256": "71cae8a5a3e1fe100b24dc5d6455c14f186267ca1ffc6abe25f9cf1803138464",
+      "log": "logs/attempt3-lock-drift.log.gz"
+    }
+  ],
+  "local_artifacts": {
+    "development_dmg": {
+      "path": "/private/tmp/ab-collab-0dgnp8ti/ci-14530c62/locked-build/source/artifacts/development/AgentBaton-arm64-14530c62a0b532e2ba43ca4be4fbc75ccc41d856-development.dmg",
+      "bytes": 14510581,
+      "sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498"
+    },
+    "development_zip": {
+      "path": "/private/tmp/ab-collab-0dgnp8ti/ci-14530c62/locked-build/output/development.zip",
+      "bytes": 14447704,
+      "sha256": "112323195860008afb10912ed6fb92ee4f9e32c5b549eef36ed7a76d44e56649"
+    },
+    "readonly_report": "logs/provenance.json",
+    "codesign_strict_exit": {
+      "desktop": 1,
+      "cli": 0,
+      "daemon": 0
+    },
+    "unverified": [
+      "static linker attribution",
+      "embedded Web attribution",
+      "launch and Gatekeeper",
+      "notarization",
+      "archive-bound functional testing"
+    ]
+  },
+  "evidence_original_uncompressed_sha256": {
+    "logs/attempt3-lock-drift.log.gz": "30be2372d30e7181b4489c06a654c9d549ce50c9c4b02c76f4c791fe8308e774",
+    "logs/locked-build.log.gz": "4b61a9d8c38d0d1f015686d6374fa6d37f67a377ccc4112931ff30b97d77782b",
+    "logs/tauri-help.log.gz": "37282d59597e67f9495102bcc83a405a2c6aafdab65adebbc441f42f90d1ebdd",
+    "logs/tauri-lock-drift.patch.gz": "783454e9f12525df4f9a40624eb6a35a22728003d66556b4143bfeba9061a71f"
+  },
+  "evidence_sha256": {
+    "CHECKPOINT.md": "68f7893503bdb71e6e877ec5351f4253d23b10bea7f5c9c8e4c3a21aabaaf7ec",
+    "PLAN.md": "a144b1ac0e5553b51098ee8319e60b9eee9d5b49ab92f7cb26a79fc3df694d45",
+    "PROGRESS.md": "34cc017547bb522206352717f803436eaaf551fbbfa289670ac664f3d977e277",
+    "REPRODUCE.md": "ca7aa522ec2c53b8893a1648fb3620d147400a3e7597e7d0e75304e32b283b04",
+    "logs/SHA256SUMS": "23222660cfbdbd1b9cbb4a591ff916fc8814d666fd0ee128f558ca2826806811",
+    "logs/archive.sha256": "8ac51ea83a667872c51723967676967dfa0c4731dbeaad400661083144f6b416",
+    "logs/attempt1-npm-config.log": "03ab5ca7ad737a5e83b0b13182bac2004d5d527bc909e5c28e208077c4899ac8",
+    "logs/attempt2-help-parser.log": "6295f139327c166020449e89cc1ac18d301c25a7439f59d247931212cffb4dbb",
+    "logs/attempt3-lock-drift.log.gz": "d50e985c8a97cf464b38aaa859eb6947fc413bc0ba8e5ff1457b598290ac1c47",
+    "logs/build-locked.sh": "947c88cbc54ea8b731d3c9c8c468adcc3c15eefef4dde595c8aa52c4c148f2ac",
+    "logs/build-record.txt": "83f4c6b98cafde55c84b0169f037a8f0eeaff4a87c6c932911740fb23eefb5d1",
+    "logs/codesign-strict.log": "aa32751d48223fb744b7bbd24d40f0551082c83d33696703f37e79682ba3a23c",
+    "logs/locked-build.log.gz": "69f55c61a926224c0c7730d6445c212c4867bba7f3aa952de786bd33b65e8c4f",
+    "logs/locked-inputs.git-blob-list": "3d7de4d912259dad73aa56370adbf1ee074e171abf2387926e7ec7f2a0d7f6dc",
+    "logs/mount-cleanup.log": "28df74fb9f0661b9009e4d8f8516b24656e1c6adc2c8a52b35484035a41314d2",
+    "logs/prelock-dmg-checksum.log": "6dbe656626b129b3c94439f28a8a27834b8c06384e505a5cd1455cf61c7ec64c",
+    "logs/provenance.json": "bdb071600df4c6677408cdc951323591e6050b5d570647422d9bd1d16d466d88",
+    "logs/tauri-help.log.gz": "2f15412bab83b3ebf1f84ec33f179e4741a442d61ac8f998d99402dbcc79d671",
+    "logs/tauri-lock-after.sha256": "4ea3816f8a423880a84871496b567f9fa7e1012f6e2ca57726b627adeaea3369",
+    "logs/tauri-lock-before.sha256": "4ea3816f8a423880a84871496b567f9fa7e1012f6e2ca57726b627adeaea3369",
+    "logs/tauri-lock-drift.patch.gz": "413a28633eea52b5d7ea2a019be2b37845b1911d9eb671a1eca4a7646d0beff4",
+    "logs/tauri-lock-semantic.log": "9728d7a530ccb52554b61abd218fce2b662993fa658b08a59a3960185a176fc0"
+  }
+}

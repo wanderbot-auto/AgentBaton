@@ -1,0 +1,124 @@
+{
+  "requirement": "AB-PRJ-001",
+  "status": "accepted",
+  "recorded_at_utc": "2026-11-21T11:33:11.601566+00:00",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "reviewed_pull_request": 30,
+  "github_checked_merge": "df35231eab29aa2d4a043fd9be60888504507716",
+  "ci": {
+    "product_run": 44122458362,
+    "environment_run": 44122458345,
+    "five_required_jobs": {
+      "Product / Rust": 134177202383,
+      "Product / macos-15": 134177203395,
+      "Product / UI": 134177203465,
+      "Environment / ubuntu-24.04": 134177203348,
+      "Environment / macos-15": 134177204277
+    },
+    "verified_source_binding": "Both product logs record df35231. Its Git tree matches protected main ddd5bddb exactly.",
+    "real_tests_observed_in_both_raw_ci_logs": [
+      "imports_data_without_executing_scripts_or_initializing_git",
+      "import_does_not_invoke_configured_fsmonitor",
+      "import_and_isolation_reject_clean_filters_before_status_can_run_them",
+      "directory_import_is_persistent_idempotent_and_does_not_execute_contents",
+      "imported_projects_isolated_workspace_restart_and_archive_use_real_ipc"
+    ]
+  },
+  "independent_local_verification": {
+    "rust_suite_counts": {
+      "agentbaton-workspaces/safety": 23,
+      "agentbaton-core/project_ipc": 3,
+      "agentbaton-core/registry": 10
+    },
+    "commands": [
+      "cargo test --offline --locked -p agentbaton-workspaces --test safety -- --test-threads=1",
+      "cargo test --offline --locked -p agentbaton-core --test registry --test project_ipc -- --test-threads=1",
+      "cargo build --offline --locked --bin baton --bin batond",
+      "codesign --verify --strict (both locally built executables)",
+      "baton projects list; baton projects import PATH NAME KEY (real Unix IPC)"
+    ],
+    "local_checks": {
+      "status": "passed",
+      "requirement": "AB-PRJ-001",
+      "architecture": "arm64",
+      "cli_and_daemon": {
+        "baton": "b80e896afee1fe0cce161c3fd615a458cb78a62f90d25e0e734f513a1f505281",
+        "batond": "927911040a1c2e746da083375fda128861f18b9ff9423a6338713af1043e5abb"
+      },
+      "observations": [
+        "executable positive control creates its marker",
+        "unselected source is untouched",
+        "file input refused with no registry row",
+        "only selected canonical directory is registered",
+        "same-key import is idempotent",
+        "duplicate request refused",
+        "same project persists across a real daemon restart",
+        "no script execution marker or Git directory in selected source",
+        "selected script bytes and mode unchanged",
+        "both private daemon processes joined"
+      ]
+    },
+    "logs": {
+      "verification.log": {
+        "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/verification.log",
+        "sha256": "70131ddf65e621ee6f28e93de6eaad9c29eb948623a237a5e070c58aace2fe0e"
+      },
+      "check_import.py": {
+        "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/check_import.py",
+        "sha256": "a34f68f71bcdc8ea9098206f6518de2e096208a5246e6aaf27f0ecefb74b7765"
+      },
+      "smoke.json": {
+        "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/smoke.json",
+        "sha256": "804d24f98f9a83bfa86965211e5549c10b1e1e96d9adba797c6a17010773e093"
+      },
+      "actual-daemon.log": {
+        "local_path": "/private/tmp/ab-leader-project-import.IHZXRZx4/actual-daemon.log",
+        "sha256": "bbacc111d7e82eeda654ce7d61003ffd62300e4c0d535a421b83e2b0d46d78bc"
+      }
+    }
+  },
+  "source_trace": [
+    "apps/cli/src/main.rs",
+    "apps/daemon/src/main.rs",
+    "crates/core/src/ipc.rs",
+    "crates/core/src/registry.rs",
+    "crates/workspaces/src/lib.rs",
+    "apps/desktop/src/Projects.tsx",
+    "apps/desktop/src/api.ts",
+    "apps/desktop/src-tauri/src/lib.rs"
+  ],
+  "superseded_partial_scope_notes": [
+    "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
+    "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
+  ],
+  "applicability": {
+    "unit": "applicable",
+    "integration": "applicable",
+    "provider": "not_applicable",
+    "native_arm64": "not_applicable",
+    "native_x86_64": "not_applicable",
+    "ci": "applicable"
+  },
+  "scope": "Project registration only (explicit directory, no source execution or automatic Git initialization). No separate Provider or architecture-specific UI criterion. Workspace isolation and adoption have separate requirement IDs.",
+  "requirement_report_overlay": {
+    "verified_report_source": "ea63c70e49dc1d37594c0ed5a6798dbda848f0ce",
+    "change": "Overlay only the AB-PRJ-001 row and its receipt onto the exact PR33 checkout",
+    "output_reference_counts": {
+      "exists": 2385,
+      "missing": 0,
+      "unavailable": 0,
+      "unsafe": 0
+    },
+    "output_requirement_counts": {
+      "accepted": 1,
+      "implementing": 127,
+      "not_started": 2
+    },
+    "report_sha256": {
+      "report.json": "a7984477d079de73f174c985e48a1a3f4fedf4263b1a3f071cf0cd353eacdc33",
+      "report.md": "0f18dda9954835ef4aebbecaf86e3b9db3b40c22358445456839ff27e170c1f5"
+    },
+    "published": false
+  }
+}

@@ -1,0 +1,2172 @@
+{
+  "base": "36a99a4fbcc58424b01815cdd44414317a1fbb3c",
+  "tested_hosted_merge": "91fc92d2121cfc52a76c32c21d65965b0794ac28",
+  "matching_hosted_and_local": {
+    "git_tree": "43aea670c1008f86d7244001586a24376d70c124",
+    "harness_sha256": "320af1df2802e6e543c68ca3f5ce26d15bcba4a3beba057314fbd561ef44b73d",
+    "projector_sha256": "8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741",
+    "frontend_assets_sha256": "d016f20517a5fdb6a6b3322066d2e855ec3a17899fe2107a3053640885e3224a",
+    "frontend_asset_count": 3
+  },
+  "hosted": {
+    "run": 44778549757,
+    "job": 136434794905,
+    "zip_sha256": "3125c764f2b805df304f6d6bb36260669e47d6f71c9040ee71966fffa2a0eafb",
+    "cases": {
+      "normal": {
+        "case": "normal",
+        "status": "failed",
+        "exit_code": 1,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": false,
+        "cleanup_record_count": 6,
+        "projection_sha256": "3fd8343087a8feaf42b17957fe0f8a7eb2f4e03a406891a616fd41ef471e0c05",
+        "bounded_start_failure": {
+          "stage": "receipt_wait",
+          "bridge_start_requests": "zero",
+          "start_reply": "unobserved",
+          "start_refusal": null,
+          "first_context_refusal": {
+            "method": "factory_child_plans.context",
+            "code": "WORKSPACE_BUSY",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "unmapped_context_error": false,
+          "truncated": false,
+          "click_causality": "not_established"
+        },
+        "failure_lines": [
+          2143,
+          1801
+        ],
+        "stale_start_cas": 2
+      },
+      "lost-start": {
+        "case": "lost-start",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG03",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "2570ea3fedde47e80a9a6d5fef4e3ebdb34c80fbd522ee7d8d5a274ed06abf23",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2
+      },
+      "cancel": {
+        "case": "cancel",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG04",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "028a8e05e7c825cc065aabe5206c92d16dbe07a48b6a26c454c145700f1dc013",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2
+      }
+    }
+  },
+  "local": {
+    "architecture": "Linux arm64 (uname -m aarch64)",
+    "network": "none",
+    "rust_image": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "browser_image": "sha256:c8d3ccc82fe9c76e85539ff9be96567d310ce9ebc2357bdbb1c2335ddfcca88d",
+    "chromium": "151.0.7922.34",
+    "compiled_candidate": {
+      "compiled_core_source_head": "91fc92d2121cfc52a76c32c21d65965b0794ac28",
+      "manifest_sha256": "7cfd8d50dc8101792a7ee753e14ea090f624923a262aae48831ca4d65e43402b",
+      "tools_sha256": {
+        "batond": "418e3516d3549b8dac6e9db128ea60efec984ec55121c5c2f72a424dd6a451c1",
+        "baton": "2706cd95ecdd71793599c1b21d47ef3685040c08c107d4821d2bbf1220502b06"
+      }
+    },
+    "cases": {
+      "controlled-normal": {
+        "case": "normal",
+        "status": "failed",
+        "exit_code": 1,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": false,
+        "cleanup_record_count": 6,
+        "projection_sha256": "12c71bd87a24dc5a087249aec1017d9c1272300e2cd8bdc3b1e2c7d098bfb69b",
+        "bounded_start_failure": {
+          "stage": "receipt_wait",
+          "bridge_start_requests": "zero",
+          "start_reply": "unobserved",
+          "start_refusal": null,
+          "first_context_refusal": null,
+          "unmapped_context_error": false,
+          "truncated": false,
+          "click_causality": "not_established"
+        },
+        "failure_lines": [
+          2143,
+          1801
+        ],
+        "stale_start_cas": 2,
+        "bridge_start_count": 0,
+        "renderer": {
+          "trace_sha256": "8794fc9c621fb77b85e455fe393dd78841d5f282811c3ac1308b568d5d8c3e61",
+          "control": "renderer_reply_replacement",
+          "leading_trusted_refreshes": [
+            {
+              "label": "Refresh Factory records",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child-plan history",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child Goal execution",
+              "disabled": false,
+              "trusted": true
+            }
+          ],
+          "window": [
+            {
+              "from_click_ms": 0.0,
+              "type": "click",
+              "label": "Execute this exact saved child plan",
+              "disabled": false,
+              "trusted": true,
+              "panel": {
+                "epoch": "2",
+                "fresh": "true",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "false",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": false,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 2.2,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 74.3,
+              "type": "invoke",
+              "command": "factory_child_goals_list",
+              "id": 179,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 141.7,
+              "type": "reply",
+              "command": "factory_child_goals_list",
+              "id": 179,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 141.8,
+              "type": "invoke",
+              "command": "factory_child_plans_context",
+              "id": 182,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 142.6,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 219.4,
+              "type": "reply",
+              "command": "factory_child_plans_context",
+              "id": 182,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 219.5,
+              "type": "controlled_delivery",
+              "command": "factory_child_plans_context",
+              "id": 182,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 220.2,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": true
+              }
+            }
+          ]
+        }
+      },
+      "controlled-second": {
+        "case": "normal",
+        "status": "failed",
+        "exit_code": 1,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": false,
+        "cleanup_record_count": 6,
+        "projection_sha256": "286019e1ee0f91ddb6a8a41a3932a54a25e4d38dd4eb6e228b89bc4886ef9bf5",
+        "bounded_start_failure": {
+          "stage": "receipt_wait",
+          "bridge_start_requests": "zero",
+          "start_reply": "unobserved",
+          "start_refusal": null,
+          "first_context_refusal": null,
+          "unmapped_context_error": false,
+          "truncated": false,
+          "click_causality": "not_established"
+        },
+        "failure_lines": [
+          2143,
+          1801
+        ],
+        "stale_start_cas": 2,
+        "bridge_start_count": 0,
+        "renderer": {
+          "trace_sha256": "ded970fd6686942ebd57945f417c04446a92b4360eb76ed53bf273d28a40bcf0",
+          "control": "renderer_reply_replacement",
+          "leading_trusted_refreshes": [
+            {
+              "label": "Refresh Factory records",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child-plan history",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child Goal execution",
+              "disabled": false,
+              "trusted": true
+            }
+          ],
+          "window": [
+            {
+              "from_click_ms": 0.0,
+              "type": "click",
+              "label": "Execute this exact saved child plan",
+              "disabled": false,
+              "trusted": true,
+              "panel": {
+                "epoch": "2",
+                "fresh": "true",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "false",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": false,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 2.1,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 17.0,
+              "type": "invoke",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 42.1,
+              "type": "reply",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 42.3,
+              "type": "invoke",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 43.0,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 74.0,
+              "type": "reply",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 74.2,
+              "type": "controlled_delivery",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 74.8,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": true
+              }
+            }
+          ]
+        }
+      },
+      "natural-baseline": {
+        "case": "normal",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "4bb014d8067391575c26b0c468c311c61eec6ebcea670997fbd68e42a046fd56",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2,
+        "bridge_start_count": 1
+      },
+      "natural-cancel": {
+        "case": "cancel",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG04",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "6209c3da7802c4986ef53ff4bdff457ef714e35173aee13cb269e194b8d09bb4",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2,
+        "bridge_start_count": 1
+      },
+      "natural-lost": {
+        "case": "lost-start",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG03",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "0ee0e490ba6f4346bdc16db2b8efffaeaa8596c968d5560915f6aaba925009a9",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2,
+        "bridge_start_count": 2
+      },
+      "real-one": {
+        "case": "normal",
+        "status": "failed",
+        "exit_code": 1,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": false,
+        "cleanup_record_count": 6,
+        "projection_sha256": "0c3a21f71d472dd8fefcb9209c2b8e8b63499d8009a1f40a0388753d262376f1",
+        "bounded_start_failure": {
+          "stage": "receipt_wait",
+          "bridge_start_requests": "zero",
+          "start_reply": "unobserved",
+          "start_refusal": null,
+          "first_context_refusal": {
+            "method": "factory_child_plans.context",
+            "code": "WORKSPACE_BUSY",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "unmapped_context_error": false,
+          "truncated": false,
+          "click_causality": "not_established"
+        },
+        "failure_lines": [
+          2143,
+          1801
+        ],
+        "stale_start_cas": 2,
+        "bridge_start_count": 0,
+        "renderer": {
+          "trace_sha256": "791d0ca2718b7c5ad30f5b764482ae2956aa14730f85a9f4305159e319259399",
+          "control": "external_concurrent_core_reads",
+          "leading_trusted_refreshes": [
+            {
+              "label": "Refresh Factory records",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child-plan history",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child Goal execution",
+              "disabled": false,
+              "trusted": true
+            }
+          ],
+          "window": [
+            {
+              "from_click_ms": 0.0,
+              "type": "click",
+              "label": "Execute this exact saved child plan",
+              "disabled": false,
+              "trusted": true,
+              "panel": {
+                "epoch": "2",
+                "fresh": "true",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "false",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": false,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 2.2,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 22.3,
+              "type": "invoke",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.8,
+              "type": "reply",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.9,
+              "type": "invoke",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 48.0,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 1,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 48.2,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 2,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 48.2,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 3,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 48.9,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 73.4,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 2,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started",
+                "site": "factory_owner_read"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 76.5,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 1,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 92.9,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 3,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 93.1,
+              "type": "reply",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started",
+                "site": "factory_owner_read"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 93.7,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": true
+              }
+            }
+          ]
+        }
+      },
+      "real-three": {
+        "case": "normal",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "03bb29c59925c589cbb97873bed5090a072cb3a376b534f132dc56445e3eb2c1",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2,
+        "bridge_start_count": 1,
+        "renderer": {
+          "trace_sha256": "4b0e55d3df36235f9f993795a7f422a4d8112614a6cac31b8c5d7c02eafa7aa7",
+          "control": "external_concurrent_core_reads",
+          "leading_trusted_refreshes": [
+            {
+              "label": "Refresh Factory records",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child-plan history",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child Goal execution",
+              "disabled": false,
+              "trusted": true
+            }
+          ],
+          "window": [
+            {
+              "from_click_ms": 0.0,
+              "type": "click",
+              "label": "Execute this exact saved child plan",
+              "disabled": false,
+              "trusted": true,
+              "panel": {
+                "epoch": "2",
+                "fresh": "true",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "false",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": false,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 1.8,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 19.8,
+              "type": "invoke",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.6,
+              "type": "reply",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.7,
+              "type": "invoke",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.8,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 1,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 48.0,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 2,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 48.1,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 3,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 48.7,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 75.1,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 3,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started",
+                "site": "factory_owner_read"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 78.5,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 1,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 86.2,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 2,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started",
+                "site": "factory_owner_read"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 96.2,
+              "type": "reply",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 117.4,
+              "type": "invoke",
+              "command": "factory_child_goals_start",
+              "id": 175,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 164.7,
+              "type": "reply",
+              "command": "factory_child_goals_start",
+              "id": 175,
+              "error": null,
+              "panel": {
+                "epoch": "4",
+                "fresh": "false",
+                "loading": "false",
+                "busy": "true",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "start",
+                "start_disabled": true,
+                "alert": false
+              }
+            }
+          ]
+        }
+      },
+      "real-two": {
+        "case": "normal",
+        "status": "failed",
+        "exit_code": 1,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": false,
+        "cleanup_record_count": 6,
+        "projection_sha256": "735edade6d8be2cbea5907fcf513462f57b1bf36cda3aad8e57082495db48440",
+        "bounded_start_failure": {
+          "stage": "receipt_wait",
+          "bridge_start_requests": "zero",
+          "start_reply": "unobserved",
+          "start_refusal": null,
+          "first_context_refusal": {
+            "method": "factory_child_plans.context",
+            "code": "WORKSPACE_BUSY",
+            "retryable": false,
+            "side_effect_state": "not_started"
+          },
+          "unmapped_context_error": false,
+          "truncated": false,
+          "click_causality": "not_established"
+        },
+        "failure_lines": [
+          2143,
+          1801
+        ],
+        "stale_start_cas": 2,
+        "bridge_start_count": 0,
+        "renderer": {
+          "trace_sha256": "326750181be78b1e981d95791a7e5a717998d894c07c735449f8733395516d13",
+          "control": "external_concurrent_core_reads",
+          "leading_trusted_refreshes": [
+            {
+              "label": "Refresh Factory records",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child-plan history",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child Goal execution",
+              "disabled": false,
+              "trusted": true
+            }
+          ],
+          "window": [
+            {
+              "from_click_ms": 0,
+              "type": "click",
+              "label": "Execute this exact saved child plan",
+              "disabled": false,
+              "trusted": true,
+              "panel": {
+                "epoch": "2",
+                "fresh": "true",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "false",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": false,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 2.1,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 20.2,
+              "type": "invoke",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 46.3,
+              "type": "reply",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 46.7,
+              "type": "invoke",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 46.8,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 1,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.1,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 2,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.2,
+              "type": "peer_read_invoke",
+              "command": "factory_child_plans_context",
+              "index": 3,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 47.8,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 70.3,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 3,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started",
+                "site": "factory_owner_read"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 72.8,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 1,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 88.9,
+              "type": "peer_read_reply",
+              "command": "factory_child_plans_context",
+              "index": 2,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 89,
+              "type": "reply",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "error": {
+                "code": "WORKSPACE_BUSY",
+                "retryable": false,
+                "side_effect": "not_started",
+                "site": "factory_owner_read"
+              },
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 89.5,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": true
+              }
+            }
+          ]
+        }
+      },
+      "trace-normal": {
+        "case": "normal",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "cd9a8b5c510ae8e60e89e3d6bb7eb283b4270287efbe2324ebbf797710236960",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2,
+        "bridge_start_count": 1,
+        "renderer": {
+          "trace_sha256": "8104a1562cd8895f14099259781456ccc5b0d33715f35b293956ea6cc9303566",
+          "control": "observation_only",
+          "leading_trusted_refreshes": [
+            {
+              "label": "Refresh Factory records",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child-plan history",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child Goal execution",
+              "disabled": false,
+              "trusted": true
+            }
+          ],
+          "window": [
+            {
+              "from_click_ms": 0.0,
+              "type": "click",
+              "label": "Execute this exact saved child plan",
+              "disabled": false,
+              "trusted": true,
+              "panel": {
+                "epoch": "2",
+                "fresh": "true",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "false",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": false,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 2.3,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 23.5,
+              "type": "invoke",
+              "command": "factory_child_goals_list",
+              "id": 150,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 49.2,
+              "type": "reply",
+              "command": "factory_child_goals_list",
+              "id": 150,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 49.4,
+              "type": "invoke",
+              "command": "factory_child_plans_context",
+              "id": 153,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 50.1,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 81.5,
+              "type": "reply",
+              "command": "factory_child_plans_context",
+              "id": 153,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 118.2,
+              "type": "invoke",
+              "command": "factory_child_goals_start",
+              "id": 160,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 161.6,
+              "type": "reply",
+              "command": "factory_child_goals_start",
+              "id": 160,
+              "error": null,
+              "panel": {
+                "epoch": "4",
+                "fresh": "false",
+                "loading": "false",
+                "busy": "true",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "start",
+                "start_disabled": true,
+                "alert": false
+              }
+            }
+          ]
+        }
+      },
+      "trace-second": {
+        "case": "normal",
+        "status": "passed",
+        "exit_code": 0,
+        "checks": [
+          {
+            "id": "CG01",
+            "status": "passed"
+          },
+          {
+            "id": "CG02",
+            "status": "passed"
+          },
+          {
+            "id": "CG05",
+            "status": "passed"
+          },
+          {
+            "id": "CG06",
+            "status": "passed"
+          }
+        ],
+        "cleanup_complete": true,
+        "cleanup_record_count": 8,
+        "projection_sha256": "e17f85a9b2015290bd20537638963844b851b48a5310714e96a8357aebc4860d",
+        "bounded_start_failure": null,
+        "failure_lines": null,
+        "stale_start_cas": 2,
+        "bridge_start_count": 1,
+        "renderer": {
+          "trace_sha256": "ed0588fb6d2d8265fd19eac990d4d2a519f110345a50c70b8888d0ec4bbdd001",
+          "control": "observation_only",
+          "leading_trusted_refreshes": [
+            {
+              "label": "Refresh Factory records",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child-plan history",
+              "disabled": false,
+              "trusted": true
+            },
+            {
+              "label": "Refresh child Goal execution",
+              "disabled": false,
+              "trusted": true
+            }
+          ],
+          "window": [
+            {
+              "from_click_ms": 0.0,
+              "type": "click",
+              "label": "Execute this exact saved child plan",
+              "disabled": false,
+              "trusted": true,
+              "panel": {
+                "epoch": "2",
+                "fresh": "true",
+                "loading": "false",
+                "busy": "false",
+                "disabled": "false",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": false,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 2.1,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 18.4,
+              "type": "invoke",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 45.4,
+              "type": "reply",
+              "command": "factory_child_goals_list",
+              "id": 159,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 45.6,
+              "type": "invoke",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "false",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 46.3,
+              "type": "dom",
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 77.3,
+              "type": "reply",
+              "command": "factory_child_plans_context",
+              "id": 162,
+              "error": null,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 92.5,
+              "type": "invoke",
+              "command": "factory_child_goals_start",
+              "id": 169,
+              "panel": {
+                "epoch": "3",
+                "fresh": "false",
+                "loading": "true",
+                "busy": "false",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "none",
+                "start_disabled": true,
+                "alert": false
+              }
+            },
+            {
+              "from_click_ms": 128.8,
+              "type": "reply",
+              "command": "factory_child_goals_start",
+              "id": 169,
+              "error": null,
+              "panel": {
+                "epoch": "4",
+                "fresh": "false",
+                "loading": "false",
+                "busy": "true",
+                "disabled": "true",
+                "parent-ready": "true",
+                "parent-refresh-only": "false",
+                "summary-fresh": "true",
+                "pending-kind": "start",
+                "start_disabled": true,
+                "alert": false
+              }
+            }
+          ]
+        }
+      }
+    },
+    "retained_private_filenames": {
+      "observer": "observe.py and observe.js",
+      "launch": "launch-cases.sh and run-cases.sh",
+      "log_status": "local-status.log",
+      "source": "checkout",
+      "outputs": "out/<case>/report.json and out/<case>/start-renderer-trace.json"
+    }
+  },
+  "limit": "Controlled mechanism demonstrated. No natural reproduction or hosted reader attribution. Product UI and Core remained unchanged during baseline replay."
+}

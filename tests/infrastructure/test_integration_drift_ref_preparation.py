@@ -6,6 +6,7 @@ import unittest
 from unittest import mock
 
 import integration_drift_ref_preparation_fixture as F
+from schema19_integration_source_fixture import read_schema18_source
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / F.PATH
@@ -19,7 +20,7 @@ def function(text, name):
 
 class DriftPreparationSource(unittest.TestCase):
     def current_and_before(self):
-        current = SOURCE.read_text()
+        current = read_schema18_source(ROOT, SOURCE)
         return current, F.restore_before_drift_ref_preparation(current)
 
     def test_whole_runtime_and_existing_observers_restore_exact_original(self):
@@ -115,7 +116,7 @@ class DriftPreparationSource(unittest.TestCase):
             self.assertNotIn(forbidden, record)
 
     def test_any_budget_deadline_old_assert_or_cleanup_change_fails_exact_whole_source(self):
-        raw = SOURCE.read_text()
+        raw = read_schema18_source(ROOT, SOURCE)
         for token, changed in [('"wall_time_ms":500', '"wall_time_ms":501'),
                                ('"cleanup_time_ms":500', '"cleanup_time_ms":501'),
                                ('Duration::from_millis(500)', 'Duration::from_millis(501)'),
@@ -129,7 +130,7 @@ class DriftPreparationSource(unittest.TestCase):
                 F.restore_before_drift_ref_preparation(raw.replace(token, changed, 1))
 
     def test_duplicate_moved_removed_helper_and_unrelated_source_are_rejected(self):
-        raw = SOURCE.read_text()
+        raw = read_schema18_source(ROOT, SOURCE)
         helper = F.EDITS[0][0]
         for bad in (raw + '\n', helper + raw, raw.replace(helper, '', 1) + helper,
                     raw.replace('let value = reprepare_host_git(f, args, self.deadline);',
@@ -141,7 +142,7 @@ class DriftPreparationSource(unittest.TestCase):
         raw = F.FIXTURE.read_bytes()
         for bad in (raw + b'\n', b'{}', raw.replace(b'500', b'501', 1)):
             with self.assertRaises(AssertionError): F.load_inverse(bad)
-        current = SOURCE.read_text()
+        current = read_schema18_source(ROOT, SOURCE)
         edits = [list(x) for x in F.EDITS]
         edits[-1][1] += '// hidden change\n'
         with mock.patch.object(F, 'EDITS', edits), self.assertRaises(AssertionError):

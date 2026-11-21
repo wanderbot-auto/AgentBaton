@@ -1,0 +1,83 @@
+{
+  "requirement": "AB-COR-001",
+  "status": "accepted",
+  "recorded_at_utc": "2026-11-21T11:53:55.917317+00:00",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "github_checked_merge": "df35231eab29aa2d4a043fd9be60888504507716",
+  "reviewed_pull_request": 30,
+  "hosted": {
+    "linux_job": 134177202383,
+    "macos_arm64_job": 134177203395,
+    "observed_passed_in_both_raw_logs": [
+      "socket_workflow_single_writer_and_restart_history",
+      "unauthenticated_unknown_version_and_malformed_do_not_mutate"
+    ],
+    "native_step": "Actual macOS WebView and daemon lifecycle acceptance",
+    "native_log_marker": "PASS actual macOS WebView, product goal form, restricted Tauri IPC, persisted restart and owned cleanup",
+    "native_scope": "The exact Tauri smoke harness routes real WebView product calls through dispatch_production. It requires a second daemon's nonzero exit and a reopened WebView after an owned restart. It is not a multi-user or remote Host authentication test.",
+    "native_corroboration": "docs/execution/leader-control/PR30_ACCEPTANCE.json"
+  },
+  "independent_local": {
+    "process_run": {
+      "status": "passed",
+      "architecture": "arm64",
+      "requirement": "AB-COR-001",
+      "tools": {
+        "baton": "b80e896afee1fe0cce161c3fd615a458cb78a62f90d25e0e734f513a1f505281",
+        "batond": "927911040a1c2e746da083375fda128861f18b9ff9423a6338713af1043e5abb"
+      },
+      "observations": [
+        "two overlapping actual daemon starts admit one writer",
+        "loser returns WORKSPACE_BUSY",
+        "private token and Unix socket mode 0600",
+        "version handshake returns API 1 / Store 18",
+        "wrong token and unsupported API refuse before effects",
+        "four CLI requests with the same key commit one task and one event",
+        "restart rotates the private token and preserves journal/task state",
+        "all owned processes joined"
+      ]
+    },
+    "ipc_integration_passed": 5,
+    "writer_lock_unit_passed": 2,
+    "writer_lock_unit_binary_sha256": "a6c75239825cb98afa84a7f8f20453a3f17eedb70ce429e2412b0e0ff8137ed4",
+    "first_unit_filter": "The wrong Rust module filter selected zero tests. Corrected against the same signed binary and verified both target names and counts.",
+    "logs": {
+      "report.json": {
+        "local_path": "/private/tmp/ab-leader-corenode-main.pToTgSLC/report.json",
+        "sha256": "63bd78d3ec7d7f49c9156276a66b7cf25bac79153a1f3fa9ecec559d6a4d712a"
+      },
+      "check_single_authority.py": {
+        "local_path": "/private/tmp/ab-leader-corenode-main.pToTgSLC/check_single_authority.py",
+        "sha256": "054fe3decfa1825619bb591c52a0f2790d703f75c7b8c605ef08ee06868998d1"
+      },
+      "ipc-tests.log": {
+        "local_path": "/private/tmp/ab-leader-corenode-main.pToTgSLC/ipc-tests.log",
+        "sha256": "11315705e26a05ff695fde26c86b592464204dc4c655cd61df28c00f2dc1e8da"
+      },
+      "ipc-writer-lock-tests.log": {
+        "local_path": "/private/tmp/ab-leader-corenode-main.pToTgSLC/ipc-writer-lock-tests.log",
+        "sha256": "8ccbe2a76126176bb0b169ae92bb5238f858348f046c275957ed99767cfe52c4"
+      }
+    }
+  },
+  "trace": [
+    "crates/core/src/ipc.rs",
+    "crates/core/tests/ipc.rs",
+    "apps/cli/src/main.rs",
+    "apps/daemon/src/main.rs",
+    "apps/desktop/src-tauri/src/lib.rs",
+    "apps/desktop/src-tauri/src/bin/native_smoke.rs"
+  ],
+  "applicability": {
+    "unit": "applicable",
+    "integration": "applicable",
+    "provider": "not_applicable",
+    "native_arm64": "applicable",
+    "native_x86_64": "not_applicable",
+    "ci": "applicable"
+  },
+  "superseded_partial_scope_notes": [
+    "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+  ]
+}

@@ -1,0 +1,882 @@
+{
+  "task": "schema19-default-rust-workspace",
+  "platform": [
+    "Darwin arm64",
+    "ProductName:\t\tmacOS",
+    "ProductVersion:\t\t26.6.1",
+    "BuildVersion:\t\t25G76",
+    "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "binary: rustc",
+    "commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb",
+    "commit-date: 2025-11-07",
+    "host: aarch64-apple-darwin",
+    "release: 1.91.1",
+    "LLVM version: 21.1.2",
+    "cargo 1.91.1 (ea2d97820 2025-10-10)"
+  ],
+  "default_features": true,
+  "rust_test_threads": 1,
+  "original_reference": {
+    "head": "1060ff834f170de39e51cf14336525f53c2eb475",
+    "tree": "d9619f7b8bd8392058fe3c868571161044167eb8",
+    "original_hashes_verified": true
+  },
+  "base": {
+    "head": "84540f293a362c1098c6d6309df9cb1e12cb0dc8",
+    "tree": "b3ea94d0b077d6f2b26a7e49e4613a7997f8c935",
+    "interval": {
+      "started_utc": "2026-11-18T22:54:39Z",
+      "ended_utc": "2026-11-18T22:54:45Z"
+    },
+    "ordinary_bin_build": {
+      "argv": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "build",
+        "-j",
+        "1",
+        "--workspace",
+        "--offline",
+        "--locked",
+        "--bins"
+      ],
+      "exit": 0,
+      "log": {
+        "path": "logs/base-bins.log.gz",
+        "sha256": "68ecd8313b5b0340cb508f80b49fee490ac214a2c3876740c678ab4685fa46de"
+      }
+    },
+    "five_targets_prebuild": {
+      "argv": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "test",
+        "-j",
+        "1",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "admission_performance",
+        "--test",
+        "data_workspaces",
+        "--test",
+        "migration_v5",
+        "--test",
+        "migration_v6",
+        "--test",
+        "workspace_open_ipc",
+        "--no-run"
+      ],
+      "exit": 0,
+      "log": {
+        "path": "logs/base-no-run.log.gz",
+        "sha256": "dd42aced6ad0bfc8976271a345757f364501b95a2ccf683253667d7f0559fd57"
+      }
+    },
+    "frozen_tools": {
+      "matching_receipts": [
+        {
+          "path": "logs/base-prepare.json",
+          "sha256": "9c9cd09d63dcc6bb7e10db9ab2b607a99b45cc7600ada7d28e28531ed079fb27"
+        },
+        {
+          "path": "logs/base-before-verify.json",
+          "sha256": "9c9cd09d63dcc6bb7e10db9ab2b607a99b45cc7600ada7d28e28531ed079fb27"
+        },
+        {
+          "path": "logs/base-after-verify.json",
+          "sha256": "9c9cd09d63dcc6bb7e10db9ab2b607a99b45cc7600ada7d28e28531ed079fb27"
+        }
+      ],
+      "product_binaries": {
+        "baton": "7c3434906ae821c21383fe65e67f8dd880d7f6a88f2ee41f2102575ef0bcdf46",
+        "batond": "f39c0ba337681438c21f35c706a39566cdb3602ba17ec8e7469cfbc3c60b3a97"
+      },
+      "tool_probe_cleanup": {
+        "path": "logs/base-probe/probe-cleanup.json",
+        "sha256": "d7e9b3fc7fd413be7770a8f4ab8cd0242f606cdcef3aa023dee1090469095f2d"
+      },
+      "prepare_argv": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "$CARGO_TARGET_DIR/debug",
+        "--output",
+        "$AGENTBATON_FACTORY_TEST_TOOLS",
+        "--evidence",
+        "$EVIDENCE/base-probe"
+      ],
+      "verify_argv": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--verify",
+        "--output",
+        "$AGENTBATON_FACTORY_TEST_TOOLS"
+      ]
+    },
+    "failures": 7
+  },
+  "candidate": {
+    "head": "31295af9469511ffe74872d9b1fb5f76e8a8552b",
+    "tree": "09270a218c6ce269aa348921e44dfbc3b19ad10f",
+    "interval": {
+      "started_utc": "2026-11-18T23:12:11Z",
+      "ended_utc": "2026-11-18T23:19:36Z"
+    },
+    "ordinary_bin_build": {
+      "argv": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "build",
+        "-j",
+        "1",
+        "--workspace",
+        "--offline",
+        "--locked",
+        "--bins"
+      ],
+      "exit": 0,
+      "log": {
+        "path": "logs/candidate-bins.log.gz",
+        "sha256": "e4b9fc5a3f66cf63f801231487b3b2ed774056a69d089e9b7d6d8f8071eb87e8"
+      }
+    },
+    "default_workspace_prebuild": {
+      "argv": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "test",
+        "-j",
+        "1",
+        "--workspace",
+        "--offline",
+        "--locked",
+        "--no-run"
+      ],
+      "exit": 0,
+      "log": {
+        "path": "logs/candidate-no-run.log.gz",
+        "sha256": "4930974bee3396c805bebe73147104f12e6668b8adf38dc858221a7894c19b8e"
+      }
+    },
+    "frozen_tools": {
+      "matching_receipts": [
+        {
+          "path": "logs/candidate-prepare.json",
+          "sha256": "65c25a52529505ace311ed0261ff7644ea29ca75c12751fc9f542b89f7ca408e"
+        },
+        {
+          "path": "logs/candidate-before-verify.json",
+          "sha256": "65c25a52529505ace311ed0261ff7644ea29ca75c12751fc9f542b89f7ca408e"
+        },
+        {
+          "path": "logs/candidate-after-verify.json",
+          "sha256": "65c25a52529505ace311ed0261ff7644ea29ca75c12751fc9f542b89f7ca408e"
+        },
+        {
+          "path": "logs/candidate-between-verify.json",
+          "sha256": "65c25a52529505ace311ed0261ff7644ea29ca75c12751fc9f542b89f7ca408e"
+        }
+      ],
+      "product_binaries": {
+        "baton": "7c3434906ae821c21383fe65e67f8dd880d7f6a88f2ee41f2102575ef0bcdf46",
+        "batond": "f39c0ba337681438c21f35c706a39566cdb3602ba17ec8e7469cfbc3c60b3a97"
+      },
+      "tool_probe_cleanup": {
+        "path": "logs/candidate-probe/probe-cleanup.json",
+        "sha256": "3bc568740fc5619c070c26f7829d2eda3467ab981f5ae0ac6249e07564ede485"
+      },
+      "prepare_argv": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--source",
+        "$CARGO_TARGET_DIR/debug",
+        "--output",
+        "$AGENTBATON_FACTORY_TEST_TOOLS",
+        "--evidence",
+        "$EVIDENCE/candidate-probe"
+      ],
+      "verify_argv": [
+        "python3",
+        "scripts/prepare-factory-test-tools.py",
+        "--verify",
+        "--output",
+        "$AGENTBATON_FACTORY_TEST_TOOLS"
+      ]
+    },
+    "fmt": {
+      "argv": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "log": {
+        "path": "logs/candidate-fmt.log.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      }
+    },
+    "clippy": {
+      "argv": [
+        "nice",
+        "-n",
+        "15",
+        "cargo",
+        "clippy",
+        "-j",
+        "1",
+        "--offline",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "log": {
+        "path": "logs/candidate-clippy.log.gz",
+        "sha256": "2852f7a18d13b2b75efd685575e2889eeaa3c9113d8015a36088d4f5dc88099f"
+      }
+    }
+  },
+  "first_candidate": {
+    "head": "be4226b5730fb13297a6e1fdc08a572ca8159f8b",
+    "tree": "d629f53fc7d6cc86a8ef623a997c531453d5b8f7",
+    "runtime_started_utc": "2026-11-18T23:03:37Z",
+    "runtime_ended_utc": "2026-11-18T23:03:58Z",
+    "results": {
+      "admission_performance": {
+        "exit": 0,
+        "counts": {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.1
+        },
+        "log": {
+          "path": "logs/first-candidate/candidate-admission_performance.log.gz",
+          "sha256": "86a6f84d11e19aa4057f309c0b54d92de705e440e585f7139c87ff840c544401"
+        }
+      },
+      "data_workspaces": {
+        "exit": 0,
+        "counts": {
+          "status": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 5.47
+        },
+        "log": {
+          "path": "logs/first-candidate/candidate-data_workspaces.log.gz",
+          "sha256": "4c8996a6a0c86d4636d34b1e58fbf9b0f09ba4cd7df90ed89e46eac6b7623b4a"
+        }
+      },
+      "migration_v5": {
+        "exit": 101,
+        "counts": {
+          "status": "FAILED",
+          "passed": 1,
+          "failed": 1,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.49
+        },
+        "log": {
+          "path": "logs/first-candidate/candidate-migration_v5.log.gz",
+          "sha256": "93e0e1c28a3a6987b7189afc9a46aab162468812dbdd092efaad0bfc303103e1"
+        }
+      },
+      "migration_v6": {
+        "exit": 101,
+        "counts": {
+          "status": "FAILED",
+          "passed": 1,
+          "failed": 1,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.37
+        },
+        "log": {
+          "path": "logs/first-candidate/candidate-migration_v6.log.gz",
+          "sha256": "31e0ff03d5a73e30c049c49a83e1a979ea6f07002677381b088582bfd8bf3b23"
+        }
+      },
+      "workspace_open_ipc": {
+        "exit": 0,
+        "counts": {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.54
+        },
+        "log": {
+          "path": "logs/first-candidate/candidate-workspace_open_ipc.log.gz",
+          "sha256": "18cab0861f149f5570cb59a04c562c2bf0db776d55d622e274522836e19c5694"
+        }
+      }
+    },
+    "workspace_started": false,
+    "frozen_receipts": [
+      {
+        "path": "logs/first-candidate/candidate-prepare.json",
+        "sha256": "d67ae9c3a57cbd8522610908831e380d32c035fd0e55f737c36acf855b375ffe"
+      },
+      {
+        "path": "logs/first-candidate/candidate-before-verify.json",
+        "sha256": "d67ae9c3a57cbd8522610908831e380d32c035fd0e55f737c36acf855b375ffe"
+      },
+      {
+        "path": "logs/first-candidate/candidate-between-verify.json",
+        "sha256": "d67ae9c3a57cbd8522610908831e380d32c035fd0e55f737c36acf855b375ffe"
+      },
+      {
+        "path": "logs/first-candidate/candidate-after-verify.json",
+        "sha256": "d67ae9c3a57cbd8522610908831e380d32c035fd0e55f737c36acf855b375ffe"
+      }
+    ],
+    "independent_bundled_sqlite_diagnostic": {
+      "output": {
+        "path": "logs/first-candidate/sqlite-preparation-error.log.gz",
+        "sha256": "2847d028bf34ba5e8e7cd2cde27d471819cce0a676faeba817214492d7964d0d"
+      },
+      "probe_source": {
+        "path": "logs/first-candidate/legacy-collision.rs",
+        "sha256": "f43682f1c46a8f1485f28ab1306a292355cc29d70c6afbb529288c04b3fc636d"
+      },
+      "error_projection": "Core db_error projects numeric diagnostics for SqliteFailure and omits them for SqlInputError"
+    }
+  },
+  "second_candidate": {
+    "head": "13df8e17764daea8279a237cf6b1d2aa6db01ce7",
+    "tree": "66cf66f36b25d0521cf1bbb79370aaa4104f56aa",
+    "runtime_interval": {
+      "started_utc": "2026-11-18T23:07:30Z",
+      "ended_utc": "2026-11-18T23:07:52Z"
+    },
+    "results": {
+      "admission_performance": {
+        "exit": 0,
+        "counts": {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.04
+        },
+        "log": {
+          "path": "logs/second-candidate/candidate-admission_performance.log.gz",
+          "sha256": "cf963eb19d6c4bc54546f60205947ac3a90b1f7ec293a5851888c8a3bdf686f6"
+        }
+      },
+      "data_workspaces": {
+        "exit": 0,
+        "counts": {
+          "status": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 6.16
+        },
+        "log": {
+          "path": "logs/second-candidate/candidate-data_workspaces.log.gz",
+          "sha256": "cdd8b335d133f93abf8a93b7e6c5e22db5344ca40a68daf9f4fba58af76986bd"
+        }
+      },
+      "migration_v5": {
+        "exit": 101,
+        "counts": {
+          "status": "FAILED",
+          "passed": 1,
+          "failed": 1,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 2.56
+        },
+        "log": {
+          "path": "logs/second-candidate/candidate-migration_v5.log.gz",
+          "sha256": "8e9449e7f26d6277af3187faecbc1c497933fbdc9289d44deb19769c14b27a78"
+        }
+      },
+      "migration_v6": {
+        "exit": 101,
+        "counts": {
+          "status": "FAILED",
+          "passed": 1,
+          "failed": 1,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 2.49
+        },
+        "log": {
+          "path": "logs/second-candidate/candidate-migration_v6.log.gz",
+          "sha256": "1273cab097ec2ae4ec85bdded4d10e8e9180c6af47fc194f2546d37daf35cd47"
+        }
+      },
+      "workspace_open_ipc": {
+        "exit": 0,
+        "counts": {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.5
+        },
+        "log": {
+          "path": "logs/second-candidate/candidate-workspace_open_ipc.log.gz",
+          "sha256": "b8126a05014c50b6da8c5defd3740ed920b070c7ec6abe9a3ad51a6ddbbe0e3f"
+        }
+      }
+    },
+    "workspace_started": false,
+    "frozen_receipts": [
+      {
+        "path": "logs/second-candidate/candidate-prepare.json",
+        "sha256": "14099abae67d41e5284c17e761e3f9ae725cf844ec96e0bee4bb71a0d0112510"
+      },
+      {
+        "path": "logs/second-candidate/candidate-before-verify.json",
+        "sha256": "14099abae67d41e5284c17e761e3f9ae725cf844ec96e0bee4bb71a0d0112510"
+      },
+      {
+        "path": "logs/second-candidate/candidate-between-verify.json",
+        "sha256": "14099abae67d41e5284c17e761e3f9ae725cf844ec96e0bee4bb71a0d0112510"
+      },
+      {
+        "path": "logs/second-candidate/candidate-after-verify.json",
+        "sha256": "14099abae67d41e5284c17e761e3f9ae725cf844ec96e0bee4bb71a0d0112510"
+      }
+    ],
+    "sqlite_sidecar_diagnostic": {
+      "v4": {
+        "before_store_open": {
+          "main": {
+            "bytes": 753664,
+            "sha256": "ba349ad71fe542ef717c8407a306f5f32bb13ea0ea38f6fa8cd54a19315100b4"
+          },
+          "wal": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "shm": {
+            "bytes": 32768,
+            "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+          }
+        },
+        "after_store_error": {
+          "main": {
+            "bytes": 753664,
+            "sha256": "ba349ad71fe542ef717c8407a306f5f32bb13ea0ea38f6fa8cd54a19315100b4"
+          },
+          "wal": null,
+          "shm": null
+        },
+        "logic_sentinel_backup_and_control": "passed in the instrumented probe",
+        "log": {
+          "path": "logs/second-candidate/run-v5.log.gz",
+          "sha256": "1344e75e88a71f77b2b4fe4c81bf05a33adb5fdeb57f8e109af5eb92d48c4194"
+        },
+        "instrumentation": {
+          "path": "logs/second-candidate/v5.patch",
+          "sha256": "a114415c2057d3532fe4643d95a4a2ed82b6b9f97db3c5e58aebe5688721a1d7"
+        }
+      },
+      "v5": {
+        "before_store_open": {
+          "main": {
+            "bytes": 753664,
+            "sha256": "5a91593df87d9602f9c17bfc2d8218aed660a086ff7768c3fd22b301c61a9bf3"
+          },
+          "wal": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "shm": {
+            "bytes": 32768,
+            "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+          }
+        },
+        "after_store_error": {
+          "main": {
+            "bytes": 753664,
+            "sha256": "5a91593df87d9602f9c17bfc2d8218aed660a086ff7768c3fd22b301c61a9bf3"
+          },
+          "wal": null,
+          "shm": null
+        },
+        "logic_sentinel_backup_and_control": "passed in the instrumented probe",
+        "log": {
+          "path": "logs/second-candidate/run-v6.log.gz",
+          "sha256": "81ec04ac1965bd077b585ae704efc09ec0c919b18eb24d57adc8bf9ee204310f"
+        },
+        "instrumentation": {
+          "path": "logs/second-candidate/v6.patch",
+          "sha256": "47c24e9f22eef4957d25953093d4cfec2596abf2b6faaab37a1fbf48826bab5d"
+        }
+      }
+    }
+  },
+  "five_targets": {
+    "admission_performance": {
+      "original_baseline": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "admission_performance",
+          "--",
+          "--test-threads=1",
+          "--show-output",
+          "--exact",
+          "real_admission_profile_and_post_reservation_input_drift_remain_guarded"
+        ],
+        "exit": 101,
+        "log": {
+          "path": "logs/base-admission_performance.log.gz",
+          "sha256": "8a32e7bef4e78eb1ad9da2d17b77dec57dddcf10f328a25dd711f6a3e09641df"
+        },
+        "failures": [
+          "real_admission_profile_and_post_reservation_input_drift_remain_guarded"
+        ],
+        "reason": "current Store19 compared to old 18"
+      },
+      "candidate_full_target": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "admission_performance",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "logs/candidate-admission_performance.log.gz",
+          "sha256": "d2a7a95e82ee677b8ccb6535bcbaaf53bcb67bf6a7c35d1f7d6e207f71085e2e"
+        },
+        "counts": {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.19
+        }
+      }
+    },
+    "data_workspaces": {
+      "original_baseline": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "data_workspaces",
+          "--",
+          "--test-threads=1",
+          "--show-output",
+          "--exact",
+          "ready_copy_survives_deleted_original_and_restart_without_touching_model_budgets"
+        ],
+        "exit": 101,
+        "log": {
+          "path": "logs/base-data_workspaces.log.gz",
+          "sha256": "6da16b1fc07f1bde75b80a3a5737ac6de42356906b223f1f9a39f05edffbf536"
+        },
+        "failures": [
+          "ready_copy_survives_deleted_original_and_restart_without_touching_model_budgets"
+        ],
+        "reason": "current Store19 compared to old 18 after real copy and restart"
+      },
+      "candidate_full_target": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "data_workspaces",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "logs/candidate-data_workspaces.log.gz",
+          "sha256": "3abd601463bbe97210a5a20dbb8af54b4c11e74674b10e4bb1b26864046810b5"
+        },
+        "counts": {
+          "status": "ok",
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 6.12
+        }
+      }
+    },
+    "migration_v5": {
+      "original_baseline": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "migration_v5",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 101,
+        "log": {
+          "path": "logs/base-migration_v5.log.gz",
+          "sha256": "90ee83a1625deead0b6587e273fddcf6b7937ad0394fbe911608f3e43541fcb7"
+        },
+        "failures": [
+          "failed_runtime_migration_preserves_v4_version_and_unknown_table",
+          "v4_runtime_upgrade_preserves_original_tasks_and_private_backup"
+        ],
+        "reason": "old-shape helper rejects Store19 with InvalidQuery before building its v4 control"
+      },
+      "candidate_full_target": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "migration_v5",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "logs/candidate-migration_v5.log.gz",
+          "sha256": "073a52ca5ea43dc63b4d761ada416d4720ff97ba595c6fe544861a91e7bbd0aa"
+        },
+        "counts": {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.58
+        }
+      }
+    },
+    "migration_v6": {
+      "original_baseline": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "migration_v6",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 101,
+        "log": {
+          "path": "logs/base-migration_v6.log.gz",
+          "sha256": "7327d8858871f4269d3c7367c64d7aa19b121b5cc3123068be8f24d43189402e"
+        },
+        "failures": [
+          "failed_validation_upgrade_preserves_old_schema_and_unknown_records",
+          "v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup"
+        ],
+        "reason": "old-shape helper rejects Store19 with InvalidQuery before building its v5 control"
+      },
+      "candidate_full_target": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "migration_v6",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "logs/candidate-migration_v6.log.gz",
+          "sha256": "c12158fbbc2ea429cd5ef1e2ab0b4e3366fab83aaee414949b6210e46e9d9d9d"
+        },
+        "counts": {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 0.36
+        }
+      }
+    },
+    "workspace_open_ipc": {
+      "original_baseline": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "workspace_open_ipc",
+          "--",
+          "--test-threads=1",
+          "--show-output",
+          "--exact",
+          "owner_unix_read_returns_full_opaque_identity_chain_without_any_writes"
+        ],
+        "exit": 101,
+        "log": {
+          "path": "logs/base-workspace_open_ipc.log.gz",
+          "sha256": "e232f1276851ce022383272b51c9c7e7754244f885e4de17a4a9d488262de153"
+        },
+        "failures": [
+          "owner_unix_read_returns_full_opaque_identity_chain_without_any_writes"
+        ],
+        "reason": "current Store19 compared to old 18 during a real UnixIPC read-only database image"
+      },
+      "candidate_full_target": {
+        "argv": [
+          "cargo",
+          "test",
+          "--offline",
+          "--locked",
+          "-p",
+          "agentbaton-core",
+          "--test",
+          "workspace_open_ipc",
+          "--",
+          "--test-threads=1",
+          "--show-output"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "logs/candidate-workspace_open_ipc.log.gz",
+          "sha256": "6da15e8ccbaa94b6c01d76d2c45c168dcab700a81ab7da85764ae2cc3e7e6620"
+        },
+        "counts": {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0,
+          "duration_seconds": 1.46
+        }
+      }
+    }
+  },
+  "workspace": {
+    "argv": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "--workspace",
+      "--",
+      "--show-output"
+    ],
+    "exit": 101,
+    "log": {
+      "path": "logs/candidate-workspace.log.gz",
+      "sha256": "f2084de97b90ecb712486241af96ea0b17a77abb6f21cc862702672763b7ed78"
+    },
+    "interval": {
+      "started_utc": "2026-11-18T23:12:26Z",
+      "ended_utc": "2026-11-18T23:19:36Z"
+    },
+    "reported_target_count": 22,
+    "aggregate": {
+      "passed": 687,
+      "failed": 1,
+      "ignored": 0,
+      "measured": 0,
+      "filtered": 0
+    },
+    "natural_stopping_target": {
+      "invocation": "tests/factory_runtime_ipc.rs",
+      "failures": [
+        "actual_data_factory_wrong_start_revision_is_stale_before_read_worker_or_intent"
+      ],
+      "counts": {
+        "status": "FAILED",
+        "passed": 35,
+        "failed": 1,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0,
+        "duration_seconds": 72.13
+      },
+      "observed_event_projection": {
+        "path": "logs/workspace-factory-failure-projection.json",
+        "sha256": "2cbb7591aef2774852547509cbad63090d050a762da8ce13330eaf81876e7bca"
+      }
+    }
+  }
+}

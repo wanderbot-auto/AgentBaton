@@ -6,6 +6,9 @@ use agentbaton_config::runtime::{
     ManagedMcpTransport, NonSecretText, SourceProvenance,
 };
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
+
+#[path = "managed_mcps/diagnostics.rs"]
+pub mod diagnostics;
 const MARKER: &str = "baton-managed-codex-mcp";
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -147,11 +150,13 @@ fn source_binding(path: &str) -> Result<Value> {
     }
     let sha = executable_digest(p).map_err(|_| changed())?;
     let after = std::fs::symlink_metadata(p).map_err(|_| changed())?;
-    let identity = |m: &std::fs::Metadata| json!({"device":m.dev(),"inode":m.ino(),"mode":m.mode(),"uid":m.uid(),"size":m.size(),"mtime_seconds":m.mtime(),"mtime_nanoseconds":m.mtime_nsec(),"ctime_seconds":m.ctime(),"ctime_nanoseconds":m.ctime_nsec()});
-    if identity(&before) != identity(&after) {
+    if source_file_identity(&before) != source_file_identity(&after) {
         return Err(changed());
     }
-    Ok(json!({"executable_sha256":sha.as_str(),"identity":identity(&after)}))
+    Ok(json!({"executable_sha256":sha.as_str(),"identity":source_file_identity(&after)}))
+}
+fn source_file_identity(m: &std::fs::Metadata) -> Value {
+    json!({"device":m.dev(),"inode":m.ino(),"mode":m.mode(),"uid":m.uid(),"size":m.size(),"mtime_seconds":m.mtime(),"mtime_nanoseconds":m.mtime_nsec(),"ctime_seconds":m.ctime(),"ctime_nanoseconds":m.ctime_nsec()})
 }
 fn profile(c: &ProviderConnection) -> Result<ManagedMcpProfile> {
     if c.provider != "codex" || c.protocol_route != ProtocolRoute::CodexAppServer {

@@ -1,0 +1,23 @@
+Source: 8af2a779db682585d50968925be90f8e2440eb31
+Started (UTC): 2026-11-18T13:35:26Z
+Command: cargo test --locked -p agentbaton-core --lib ipc::frame_tests
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-3e149a5721946c12)
+
+running 11 tests
+test ipc::frame_tests::oversized_parser_returns_resource_limit_without_relying_on_error_delivery ... ok
+test ipc::frame_tests::session_send_recovery_only_checks_the_original_intent ... ok
+test ipc::frame_tests::inherited_nonblocking_stream_waits_for_the_delayed_complete_first_frame ... ok
+test ipc::frame_tests::uncommitted_client_intent_survives_reopen_and_does_not_send_again ... ok
+test ipc::frame_tests::legacy_daemon_rejects_recoverable_send_without_fallback ... ok
+test ipc::frame_tests::unreachable_daemon_does_not_leave_a_pending_task_message ... ok
+test ipc::frame_tests::data_validation_run_refuses_owned_workers_before_any_file_validation ... ok
+test ipc::frame_tests::daemon_retains_its_writer_lock_until_owned_worker_cleanup_finishes ... ok
+test ipc::frame_tests::fatal_actor_error_cancels_and_joins_owned_graph_reader_before_writer_lock_handoff ... ok
+test ipc::frame_tests::nonblocking_accepted_stream_waits_for_a_delayed_authenticated_first_frame ... ok
+test ipc::frame_tests::daemon_drop_releases_its_lock_even_with_an_old_duplicate_descriptor ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 433 filtered out; finished in 0.28s
+
+Finished (UTC): 2026-11-18T13:35:26Z
+Exit: 0

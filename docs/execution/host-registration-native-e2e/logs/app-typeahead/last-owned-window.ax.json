@@ -1,0 +1,1408 @@
+[
+  {
+    "role": "AXWindow",
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXRaise"
+    ],
+    "enabled": true,
+    "title": "AgentBaton"
+  },
+  {
+    "label": "",
+    "value": "",
+    "role": "AXGroup",
+    "title": "",
+    "actions": [],
+    "enabled": true
+  },
+  {
+    "actions": [],
+    "enabled": true,
+    "title": "",
+    "label": "",
+    "role": "AXGroup",
+    "value": ""
+  },
+  {
+    "enabled": true,
+    "role": "AXScrollArea",
+    "title": "",
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "role": "AXWebArea",
+    "value": "",
+    "label": "AgentBaton",
+    "enabled": true
+  },
+  {
+    "role": "AXGroup",
+    "label": "设置",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "value": "",
+    "title": "设置"
+  },
+  {
+    "role": "AXHeading",
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "设置",
+    "enabled": true
+  },
+  {
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "role": "AXStaticText",
+    "enabled": true,
+    "value": "设置"
+  },
+  {
+    "enabled": true,
+    "title": "关闭",
+    "value": "",
+    "label": "关闭",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXButton"
+  },
+  {
+    "title": "恢复连接创建",
+    "value": "",
+    "role": "AXGroup",
+    "label": "恢复连接创建",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "role": "AXHeading",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "恢复连接创建",
+    "value": "",
+    "enabled": true
+  },
+  {
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "value": "恢复连接创建",
+    "enabled": true,
+    "title": ""
+  },
+  {
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "role": "AXGroup",
+    "title": "",
+    "value": ""
+  },
+  {
+    "value": "只有托管 Skill 和 MCP 连接创建会在真正退出或崩溃后保留最小请求身份。这不恢复其他草稿、发送或审批。查询不会重放创建、启动版本探测或授予执行权限。",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "label": "",
+    "title": ""
+  },
+  {
+    "enabled": true,
+    "role": "AXButton",
+    "label": "",
+    "title": "刷新恢复记录",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": ""
+  },
+  {
+    "role": "AXGroup",
+    "title": "",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "enabled": true
+  },
+  {
+    "title": "",
+    "enabled": true,
+    "label": "",
+    "role": "AXStaticText",
+    "value": "未发现待处理的托管 Skill 或 MCP 连接创建记录。",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "后台服务",
+    "title": "后台服务",
+    "role": "AXGroup",
+    "enabled": true,
+    "value": ""
+  },
+  {
+    "role": "AXHeading",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "后台服务",
+    "enabled": true,
+    "label": ""
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "value": "后台服务",
+    "role": "AXStaticText",
+    "enabled": true,
+    "label": ""
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "label": "",
+    "role": "AXGroup",
+    "enabled": true,
+    "value": ""
+  },
+  {
+    "title": "",
+    "enabled": true,
+    "value": "隐藏会保留同一窗口及内存中的未决操作 key。通过菜单栏或 Dock 返回同一窗口。这不会退出应用、停止服务或启用登录启动，也不保证睡眠、注销或重启后持续运行。真正退出或崩溃后，仅托管 Skill 和 MCP 连接创建保留最小恢复身份，请在恢复设置核对；其他未决 UI key 和草稿尚不恢复。",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "role": "AXStaticText"
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": "",
+    "enabled": true,
+    "title": "",
+    "role": "AXList",
+    "label": ""
+  },
+  {
+    "enabled": true,
+    "role": "AXGroup",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": "",
+    "label": ""
+  },
+  {
+    "title": "",
+    "value": "已认证服务实例",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "label": "",
+    "role": "AXStaticText"
+  },
+  {
+    "label": "",
+    "value": "",
+    "role": "AXGroup",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "title": ""
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "enabled": true,
+    "label": "",
+    "value": "4d4f3de4-5230-4811-9668-6475ac57654d",
+    "title": ""
+  },
+  {
+    "title": "",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "enabled": true,
+    "role": "AXGroup"
+  },
+  {
+    "title": "",
+    "label": "",
+    "role": "AXStaticText",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": "服务启动时间",
+    "enabled": true
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "enabled": true,
+    "role": "AXGroup",
+    "title": "",
+    "value": ""
+  },
+  {
+    "role": "AXStaticText",
+    "title": "",
+    "value": "2026-11-18T16:37:14.219634Z",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "label": ""
+  },
+  {
+    "role": "AXGroup",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "enabled": true,
+    "value": ""
+  },
+  {
+    "label": "",
+    "value": "最后观测时间",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "title": "",
+    "enabled": true
+  },
+  {
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXGroup",
+    "title": "",
+    "value": ""
+  },
+  {
+    "label": "",
+    "value": "2026-11-18T16:37:16.705Z",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "title": "",
+    "role": "AXStaticText"
+  },
+  {
+    "enabled": true,
+    "label": "",
+    "title": "",
+    "value": "",
+    "role": "AXGroup",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "role": "AXStaticText",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": "观测到本服务持有的 Provider 工作进程",
+    "enabled": true,
+    "label": ""
+  },
+  {
+    "label": "",
+    "value": "",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXGroup"
+  },
+  {
+    "enabled": true,
+    "value": "否",
+    "title": "",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText"
+  },
+  {
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXGroup",
+    "label": "",
+    "title": "",
+    "value": ""
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "title": "",
+    "role": "AXStaticText",
+    "label": "",
+    "value": "服务实例已变化。这不代表未完成操作已经恢复。"
+  },
+  {
+    "label": "",
+    "title": "",
+    "value": "",
+    "role": "AXGroup",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true
+  },
+  {
+    "role": "AXStaticText",
+    "label": "",
+    "value": "仅反映此服务持有的工作进程，不代表全部任务，也不保证工作正在推进。",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "title": ""
+  },
+  {
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXGroup",
+    "title": ""
+  },
+  {
+    "role": "AXStaticText",
+    "title": "",
+    "label": "",
+    "value": "启动恢复扫描已完成；未知结果仍可能需要核对。",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true
+  },
+  {
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "enabled": true,
+    "title": "刷新后台状态",
+    "value": "",
+    "role": "AXButton"
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXGroup",
+    "value": "",
+    "label": "",
+    "enabled": true,
+    "title": ""
+  },
+  {
+    "label": "",
+    "enabled": true,
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": "",
+    "role": "AXCheckBox",
+    "title": "我理解隐藏不等于退出或停止工作。原生审批或确认正在进行时不能使用隐藏按钮；须先完成或取消该审批。"
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "value": "我理解隐藏不等于退出或停止工作。原生审批或确认正在进行时不能使用隐藏按钮；须先完成或取消该审批。",
+    "role": "AXStaticText",
+    "title": "",
+    "enabled": true
+  },
+  {
+    "enabled": false,
+    "role": "AXButton",
+    "title": "隐藏窗口并保持服务不变",
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXList",
+    "title": ""
+  },
+  {
+    "value": "",
+    "title": "",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXGroup"
+  },
+  {
+    "enabled": true,
+    "label": "",
+    "role": "AXStaticText",
+    "value": "外观",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "role": "AXGroup",
+    "enabled": true,
+    "title": "",
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "value": "Quiet Canvas · 浅色",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "role": "AXStaticText",
+    "label": ""
+  },
+  {
+    "role": "AXGroup",
+    "title": "",
+    "label": "",
+    "value": "",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "value": "只读证据",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "label": "",
+    "enabled": true
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXGroup",
+    "title": "",
+    "label": "",
+    "value": "",
+    "enabled": true
+  },
+  {
+    "title": "",
+    "label": "",
+    "enabled": true,
+    "role": "AXStaticText",
+    "value": "由本地后台保存",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "role": "AXGroup",
+    "value": "",
+    "label": "",
+    "enabled": true
+  },
+  {
+    "value": "",
+    "enabled": true,
+    "role": "AXDisclosureTriangle",
+    "title": "远程主机",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "role": "AXStaticText",
+    "label": "",
+    "enabled": true,
+    "value": "远程主机"
+  },
+  {
+    "label": "远程主机",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": "",
+    "enabled": true,
+    "role": "AXGroup",
+    "title": "远程主机"
+  },
+  {
+    "role": "AXHeading",
+    "title": "已登记的主机",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "label": "",
+    "value": ""
+  },
+  {
+    "role": "AXStaticText",
+    "label": "",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "value": "已登记的主机"
+  },
+  {
+    "title": "刷新主机登记表",
+    "label": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXButton",
+    "value": ""
+  },
+  {
+    "role": "AXGroup",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": "",
+    "title": "",
+    "label": "",
+    "enabled": true
+  },
+  {
+    "title": "",
+    "label": "",
+    "value": "尚无已登记的主机。",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXStaticText"
+  },
+  {
+    "value": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "enabled": true,
+    "role": "AXGroup",
+    "label": ""
+  },
+  {
+    "enabled": true,
+    "label": "",
+    "value": "",
+    "role": "AXGroup",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "enabled": true,
+    "label": "登记主机",
+    "value": "",
+    "role": "AXGroup",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "role": "AXStaticText",
+    "value": "登记主机",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "label": "",
+    "enabled": true
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "value": "声明的平台",
+    "enabled": true,
+    "role": "AXStaticText",
+    "title": ""
+  },
+  {
+    "enabled": true,
+    "value": "声明的平台",
+    "title": "",
+    "label": "",
+    "role": "AXStaticText",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "enabled": true,
+    "value": "Linux",
+    "role": "AXPopUpButton",
+    "title": "声明的平台",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": ""
+  },
+  {
+    "enabled": true,
+    "value": "主机名称",
+    "role": "AXStaticText",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": ""
+  },
+  {
+    "title": "",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "value": "主机名称",
+    "enabled": true
+  },
+  {
+    "label": "",
+    "title": "主机名称",
+    "enabled": true,
+    "role": "AXTextField",
+    "value": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXStaticText",
+    "value": "预期协议主机 ID",
+    "label": "",
+    "title": ""
+  },
+  {
+    "value": "预期协议主机 ID",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "label": "",
+    "enabled": true
+  },
+  {
+    "label": "",
+    "title": "预期协议主机 ID",
+    "role": "AXTextField",
+    "value": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true
+  },
+  {
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "value": "SSH 端点地址",
+    "label": "",
+    "enabled": true
+  },
+  {
+    "role": "AXStaticText",
+    "title": "",
+    "value": "SSH 端点地址",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "enabled": true
+  },
+  {
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXTextField",
+    "value": "",
+    "enabled": true,
+    "title": "SSH 端点地址",
+    "label": ""
+  },
+  {
+    "label": "",
+    "value": "SSH 用户",
+    "role": "AXStaticText",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": ""
+  },
+  {
+    "title": "",
+    "enabled": true,
+    "label": "",
+    "value": "SSH 用户",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText"
+  },
+  {
+    "role": "AXTextField",
+    "label": "",
+    "title": "SSH 用户",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "value": ""
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "label": "",
+    "enabled": true,
+    "value": "SSH 主机密钥别名",
+    "title": ""
+  },
+  {
+    "label": "",
+    "value": "SSH 主机密钥别名",
+    "enabled": true,
+    "role": "AXStaticText",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "enabled": true,
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "title": "SSH 主机密钥别名",
+    "value": "",
+    "role": "AXTextField"
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXStaticText",
+    "label": "",
+    "title": "",
+    "value": "known_hosts 引用"
+  },
+  {
+    "role": "AXStaticText",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "value": "known_hosts 引用",
+    "title": "",
+    "label": ""
+  },
+  {
+    "role": "AXTextField",
+    "title": "known_hosts 引用",
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true
+  },
+  {
+    "title": "",
+    "value": "known_hosts 文件 SHA-256",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXStaticText"
+  },
+  {
+    "value": "known_hosts 文件 SHA-256",
+    "role": "AXStaticText",
+    "label": "",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": ""
+  },
+  {
+    "label": "",
+    "title": "known_hosts 文件 SHA-256",
+    "enabled": true,
+    "role": "AXTextField",
+    "value": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "title": "",
+    "value": "传输身份引用",
+    "enabled": true,
+    "role": "AXStaticText",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": ""
+  },
+  {
+    "role": "AXStaticText",
+    "title": "",
+    "value": "传输身份引用",
+    "enabled": true,
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "value": "",
+    "enabled": true,
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "title": "传输身份引用",
+    "role": "AXTextField"
+  },
+  {
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXStaticText",
+    "title": "",
+    "value": "配置引用",
+    "label": ""
+  },
+  {
+    "label": "",
+    "title": "",
+    "enabled": true,
+    "role": "AXStaticText",
+    "value": "配置引用",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "role": "AXTextField",
+    "title": "配置引用",
+    "enabled": true,
+    "label": "",
+    "value": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "title": "",
+    "label": "",
+    "value": "",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXGroup"
+  },
+  {
+    "label": "",
+    "title": "",
+    "value": "填写 known_hosts 文件的 SHA-256。SSH 服务器指纹另行记录。",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "role": "AXStaticText"
+  },
+  {
+    "value": "SSH 端口",
+    "role": "AXStaticText",
+    "enabled": true,
+    "label": "",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "title": "",
+    "value": "SSH 端口",
+    "enabled": true,
+    "role": "AXStaticText",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": ""
+  },
+  {
+    "value": "22",
+    "role": "AXTextField",
+    "title": "SSH 端口",
+    "enabled": true,
+    "label": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "title": "",
+    "label": "",
+    "enabled": true,
+    "role": "AXIncrementor",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "value": ""
+  },
+  {
+    "value": "",
+    "label": "",
+    "role": "AXIncrementorArrow",
+    "title": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true
+  },
+  {
+    "role": "AXIncrementorArrow",
+    "title": "",
+    "value": "",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "label": ""
+  },
+  {
+    "role": "AXStaticText",
+    "enabled": true,
+    "value": "声明的配置归属",
+    "label": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": ""
+  },
+  {
+    "value": "声明的配置归属",
+    "title": "",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXStaticText",
+    "label": ""
+  },
+  {
+    "title": "声明的配置归属",
+    "role": "AXPopUpButton",
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "enabled": true,
+    "label": "",
+    "value": "外部只读"
+  },
+  {
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXButton",
+    "label": "",
+    "value": "",
+    "title": "添加目录映射",
+    "enabled": true
+  },
+  {
+    "title": "登记主机",
+    "role": "AXButton",
+    "label": "",
+    "value": "",
+    "enabled": true,
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "role": "AXGroup",
+    "title": "",
+    "enabled": true,
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "value": ""
+  },
+  {
+    "role": "AXDisclosureTriangle",
+    "label": "",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "连接证据",
+    "value": ""
+  },
+  {
+    "label": "",
+    "value": "连接证据",
+    "enabled": true,
+    "role": "AXStaticText",
+    "title": "",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ]
+  },
+  {
+    "actions": [
+      "AXPress",
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "title": "",
+    "label": "",
+    "enabled": true,
+    "role": "AXGroup",
+    "value": ""
+  },
+  {
+    "label": "",
+    "value": "",
+    "title": "后台与登录启动",
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "role": "AXDisclosureTriangle",
+    "enabled": true
+  },
+  {
+    "value": "后台与登录启动",
+    "enabled": true,
+    "actions": [
+      "AXShowMenu",
+      "AXScrollToVisible"
+    ],
+    "label": "",
+    "role": "AXStaticText",
+    "title": ""
+  },
+  {
+    "role": "AXButton",
+    "enabled": true,
+    "title": "",
+    "value": "",
+    "actions": [
+      "AXPress"
+    ],
+    "label": ""
+  },
+  {
+    "label": "",
+    "enabled": true,
+    "role": "AXButton",
+    "value": "",
+    "title": "",
+    "actions": [
+      "AXPress",
+      "AXZoomWindow",
+      "AXShowMenu"
+    ]
+  },
+  {
+    "label": "",
+    "role": "AXGroup",
+    "enabled": true,
+    "value": "",
+    "title": "",
+    "actions": []
+  },
+  {
+    "enabled": true,
+    "label": "",
+    "role": "AXGroup",
+    "title": "",
+    "value": "",
+    "actions": []
+  },
+  {
+    "actions": [
+      "AXPress"
+    ],
+    "label": "",
+    "role": "AXButton",
+    "value": "",
+    "enabled": true,
+    "title": ""
+  },
+  {
+    "value": "AgentBaton",
+    "label": "",
+    "actions": [],
+    "enabled": true,
+    "role": "AXStaticText",
+    "title": ""
+  }
+]

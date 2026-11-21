@@ -8,6 +8,7 @@ import unittest
 
 import yaml
 from tests.infrastructure import test_background_service_native_smoke_source as BG
+from tests.infrastructure.macos_ci_partition_source_fixture import normalize_partitioned_workflow
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE_PRODUCT_SHA256 = '4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d'
@@ -27,6 +28,46 @@ HISTORICAL_BUILDERS = {
     15: 'scripts/prepare-schema15-migration-fixture.py',
     16: 'scripts/prepare-schema16-migration-fixture.py',
 }
+
+
+FRESH18_STEP = 'Migrate and restore a freshly built genuine schema18 database'
+FRESH18_WORKFLOW_SHA256 = '80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c'
+BEFORE_FRESH18_SHA256 = '4f248709236379b697ac5af503dab42b143f6ed2779e8a9f7ee8a3ebc6f29ea2'
+FRESH18_STEPS = (
+    (11, '      - &fresh_schema18_gate\n', '506bc9354060baddbb5f76ca6be59f252926b63b2be1926d9673790966495728'),
+    (43, '      - *fresh_schema18_gate\n', '523a7f9ebbfa41c028663ac7157d09023c2ed008e596d7b6f2ac5d83c02df911'),
+)
+
+
+def workflow_sha256(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def restore_workflow_before_fresh18(text):
+    text = normalize_partitioned_workflow(text)
+    digest = workflow_sha256(text)
+    if digest == BEFORE_FRESH18_SHA256:
+        return text
+    if digest != FRESH18_WORKFLOW_SHA256:
+        raise ValueError('Complete fresh schema18 workflow bytes changed')
+    headers = list(re.finditer(r'^      - .*\n', text, re.MULTILINE))
+    for index, header, pin in reversed(FRESH18_STEPS):
+        if index + 1 >= len(headers) or headers[index][0] != header:
+            raise ValueError('Fresh schema18 gate position or alias changed')
+        start, end = headers[index].start(), headers[index + 1].start()
+        if workflow_sha256(text[start:end]) != pin:
+            raise ValueError('Fresh schema18 gate block changed')
+        text = text[:start] + text[end:]
+    if workflow_sha256(text) != BEFORE_FRESH18_SHA256:
+        raise ValueError('Fresh schema18 inverse did not restore the entire prior workflow')
+    return text
+
+
+def normalize_fresh18_workflow(text):
+    text = normalize_partitioned_workflow(text)
+    if workflow_sha256(text) == FRESH18_WORKFLOW_SHA256:
+        return restore_workflow_before_fresh18(text)
+    return text
 
 
 def historical_targets(job):
@@ -236,6 +277,9 @@ def strip_conversation_schema18(text):
 
 def strip_integration_setup_diagnostics(text):
     """Replace only a complete pinned step with its complete pinned original."""
+    from tests.infrastructure.test_schema19_browser_ci_workflow import normalize_workflow
+
+    text = normalize_workflow(text)
     # Older inverse tests also pass the already-peeled, exactly schema17 layer.
     # Mixed, missing and duplicated current sites still fail the strict inverse.
     if any(current in text for current, _ in CONVERSATION_SCHEMA18_SITES):
@@ -375,7 +419,8 @@ def verify_only_six_historical_target_changes(text):
 
 class Genuine16WorkflowWiring(unittest.TestCase):
     def setUp(self):
-        self.workflow = yaml.load((ROOT / '.github/workflows/product.yml').read_text(), Loader=yaml.BaseLoader)
+        source = normalize_partitioned_workflow((ROOT / '.github/workflows/product.yml').read_text())
+        self.workflow = yaml.load(source, Loader=yaml.BaseLoader)
 
     def lanes(self):
         lanes = []
@@ -473,7 +518,9 @@ class Genuine16WorkflowWiring(unittest.TestCase):
                             historical_targets(job)
 
     def test_schema18_inverse_refuses_missing_duplicate_or_other_version_at_each_exact_site(self):
-        text = (ROOT / '.github/workflows/product.yml').read_text()
+        from tests.infrastructure.test_schema19_browser_ci_workflow import historical_workflow
+
+        text = historical_workflow()
         for current, historical in CONVERSATION_SCHEMA18_SITES:
             for changed in (text.replace(current, historical, 1), text.replace(current, current.replace('18', '19'), 1), text + current):
                 with self.assertRaises(ValueError):
@@ -484,7 +531,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
         verify_only_six_historical_target_changes((ROOT / '.github/workflows/product.yml').read_text())
 
     def test_reverse_normalization_does_not_hide_any_other_workflow_change(self):
-        original = (ROOT / '.github/workflows/product.yml').read_text()
+        original = normalize_partitioned_workflow((ROOT / '.github/workflows/product.yml').read_text())
         for old, new in [
             ('timeout-minutes: 60', 'timeout-minutes: 61'),
             ('contents: read', 'contents: write'),
@@ -542,6 +589,52 @@ class Genuine16WorkflowWiring(unittest.TestCase):
             self.assertIn('retention-days: 14', original)
             with self.assertRaises(ValueError):
                 verify_only_six_historical_target_changes(original.replace('retention-days: 14', 'retention-days: 15', 1))
+
+
+class FreshSchema18WorkflowWiring(unittest.TestCase):
+    def setUp(self):
+        self.raw = normalize_partitioned_workflow((ROOT / '.github/workflows/product.yml').read_bytes().decode())
+
+    def test_shared_required_step_is_after_schema16_and_leaves_all_other_steps_exact(self):
+        current = yaml.load(self.raw, Loader=yaml.BaseLoader)
+        previous = yaml.load(restore_workflow_before_fresh18(self.raw), Loader=yaml.BaseLoader)
+        gates = []
+        for lane in ('core', 'desktop'):
+            steps = current['jobs'][lane]['steps']
+            matches = [i for i, step in enumerate(steps) if step.get('name') == FRESH18_STEP]
+            self.assertEqual(len(matches), 1)
+            index, = matches
+            self.assertTrue(steps[index - 1]['name'].startswith('Migrate genuine nonempty schema16'))
+            gate = steps.pop(index)
+            self.assertEqual(set(gate), {'name', 'shell', 'run'})
+            self.assertEqual(gate['shell'], 'bash')
+            gates.append(gate)
+        self.assertEqual(gates[0], gates[1])
+        self.assertEqual(current, previous)
+        run = gates[0]['run']
+        self.assertIn("'fetch', '--depth=1', '--no-tags', '--no-write-fetch-head'", run)
+        self.assertIn("'fetch', '--locked'", run)
+        self.assertIn("'test', '--locked', '--offline', '-p', 'agentbaton-core'", run)
+        self.assertIn("'--features', 'fresh-schema18-migration-tests', '--test', 'host_registry_fresh18_migration'", run)
+        self.assertIn("stdout=capture, stderr=subprocess.STDOUT", run)
+        self.assertNotIn('artifacts/', run)
+        self.assertNotIn('secrets.', run)
+        program = run.split("<<'FRESH18'\n", 1)[1].removesuffix('FRESH18\n')
+        compile(program, '<actual fresh schema18 workflow body>', 'exec')
+
+    def test_inverse_rejects_moves_alias_removal_and_unapproved_gate_or_job_changes(self):
+        previous = restore_workflow_before_fresh18(self.raw)
+        self.assertEqual(restore_workflow_before_fresh18(previous), previous)
+        alias = '      - *fresh_schema18_gate\n'
+        without_alias = self.raw.replace(alias, '')
+        marker = '      - name: Actual native Owner Grant dialog and private database acceptance\n'
+        for changed in (without_alias, self.raw.replace(alias, alias + alias),
+                        without_alias.replace(marker, alias + marker),
+                        self.raw.replace('fresh-schema18-migration-tests', 'actual-schema18-migration-tests'),
+                        self.raw.replace("'--offline', '-p'", "'-p'", 1),
+                        self.raw.replace('timeout-minutes: 25', 'timeout-minutes: 26')):
+            with self.assertRaises(ValueError):
+                restore_workflow_before_fresh18(changed)
 
 
 if __name__ == '__main__':

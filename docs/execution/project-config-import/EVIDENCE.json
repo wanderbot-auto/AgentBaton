@@ -1,0 +1,291 @@
+{
+  "requirement": "AB-CFG-009",
+  "scope": "Config-only project inspection, trusted confirmation, managed snapshot publication and reconciliation",
+  "base_sha": "b5681ec4fa3ff2f48fe0c40bc24b436ce4e1c4ea",
+  "tested_source_sha": "c537182e7a723eed8562f8fe90cffe643f0213ad",
+  "verification_started_at_utc": "2026-11-18T19:40:03.595283+00:00",
+  "runner": {
+    "wrapper": [
+      "bash",
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ],
+    "arch": "arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-10-10)",
+    "environment_log": "logs/environment.txt"
+  },
+  "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+  "fixtures": [
+    "Temporary local Git project; no hooks, git signing, remote or Provider invocation",
+    "Synthetic Skills, MCP and Hook declarations and a separately registered managed definition",
+    "Real manifest rename failure induced after atomic snapshot publication in a private test root"
+  ],
+  "checks": [
+    {
+      "label": "targeted",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-config",
+        "--locked",
+        "--offline",
+        "--test",
+        "project_import",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:07.540536+00:00",
+      "log": "logs/targeted.log.gz",
+      "totals": {
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0
+      }
+    },
+    {
+      "label": "actual-failure",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-config",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--",
+        "project_import",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:09.243635+00:00",
+      "log": "logs/actual-failure.log.gz",
+      "totals": {
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 1
+      }
+    },
+    {
+      "label": "full",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-config",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:16.274976+00:00",
+      "log": "logs/full.log.gz",
+      "totals": {
+        "passed": 98,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0
+      }
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:17.469579+00:00",
+      "log": "logs/fmt.log.gz"
+    },
+    {
+      "label": "check",
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "agentbaton-config",
+        "--all-targets",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:18.496658+00:00",
+      "log": "logs/check.log.gz"
+    },
+    {
+      "label": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "agentbaton-config",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:40:19.852185+00:00",
+      "log": "logs/clippy.log.gz"
+    }
+  ],
+  "scope_and_preview": "logs/scope-preview.txt",
+  "not_run": [
+    "Core project lifecycle, once-per-project owner confirmation registry, shared IPC",
+    "native App confirmation and cancellation, real Provider identity and runtime loading",
+    "native Hook activation and AB-CFG-010 subsequent risk checks",
+    "Linux and CI"
+  ],
+  "current_verified_source_sha": "d601689a0dc85c47ef3b483bccef867de2d5d747",
+  "review_followup": {
+    "prior_evidence_head": "f4cf1523c780a07d5f08a048675468ccbb0f88c9",
+    "tested_source_sha": "d601689a0dc85c47ef3b483bccef867de2d5d747",
+    "reason": "pin NativeSourceRoot and instruction-only Skill read to the same verified source descriptor",
+    "verification_started_at_utc": "2026-11-18T19:44:20.842960+00:00",
+    "checks": [
+      {
+        "label": "targeted",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-config",
+          "--locked",
+          "--offline",
+          "--test",
+          "project_import",
+          "--",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "finished_at_utc": "2026-11-18T19:44:24.363594+00:00",
+        "log": "logs/fd-targeted.log.gz",
+        "totals": {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0
+        }
+      },
+      {
+        "label": "import-unit",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-config",
+          "--locked",
+          "--offline",
+          "--lib",
+          "--",
+          "project_import",
+          "--test-threads=1"
+        ],
+        "exit_code": 0,
+        "finished_at_utc": "2026-11-18T19:44:25.886832+00:00",
+        "log": "logs/fd-import-unit.log.gz",
+        "totals": {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 1
+        }
+      },
+      {
+        "label": "full",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "agentbaton-config",
+          "--locked",
+          "--offline"
+        ],
+        "exit_code": 0,
+        "finished_at_utc": "2026-11-18T19:44:32.027630+00:00",
+        "log": "logs/fd-full.log.gz",
+        "totals": {
+          "passed": 99,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered": 0
+        }
+      },
+      {
+        "label": "fmt",
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit_code": 0,
+        "finished_at_utc": "2026-11-18T19:44:33.186687+00:00",
+        "log": "logs/fd-fmt.log.gz"
+      },
+      {
+        "label": "check",
+        "command": [
+          "cargo",
+          "check",
+          "-p",
+          "agentbaton-config",
+          "--all-targets",
+          "--locked",
+          "--offline"
+        ],
+        "exit_code": 0,
+        "finished_at_utc": "2026-11-18T19:44:33.839796+00:00",
+        "log": "logs/fd-check.log.gz"
+      },
+      {
+        "label": "clippy",
+        "command": [
+          "cargo",
+          "clippy",
+          "-p",
+          "agentbaton-config",
+          "--all-targets",
+          "--locked",
+          "--offline",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0,
+        "finished_at_utc": "2026-11-18T19:44:34.913477+00:00",
+        "log": "logs/fd-clippy.log.gz"
+      }
+    ],
+    "environment_log": "logs/fd-environment.txt",
+    "scope_and_preview": "logs/scope-preview-fd.txt",
+    "fixture": "swap two real temporary directories after opening the approved source, verify fixed descriptor reaches old native and Skill data, reject changed root and restore normal read",
+    "original_logs_sha256": {
+      "logs/targeted.log.gz": "427306f37c2814f57e263095844230486e6bcd76fbd1d60d2126563c2daa4551",
+      "logs/actual-failure.log.gz": "8756259e2d7335a05379bc2b055f614ea3d78984241be8ee2d739fec16655852",
+      "logs/full.log.gz": "5dfb2175e6ecebd83aa71f2c223e613ce1ec4ca4499c43f535f5a694f2ada44d",
+      "logs/fmt.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "logs/check.log.gz": "2cd934ddd50f449d3c8f1033ee77e3345fc756ca6c20f1e3d55650517db0d60a",
+      "logs/clippy.log.gz": "a70ac0f5d732a48b80d903ac7c2f9637ea818cabe4a2fe05bd0cd1b8aac54037",
+      "logs/environment.txt": "907b4829497c3d385375d820ec8f693a6149e32159519aeecf08166a0462d955",
+      "logs/scope-preview.txt": "4bfb633a81333483edf0bf81a3d9326a46ddb6149d079138d9539fb3e4715a15"
+    }
+  }
+}

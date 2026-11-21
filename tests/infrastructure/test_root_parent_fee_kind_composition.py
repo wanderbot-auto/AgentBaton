@@ -43,7 +43,8 @@ class RootParentFeeSourceComposition(unittest.TestCase):
 
     def test_unknown_outer_region_schema_budget_fees_and_output_cap_tamper_refuse(self):
         text = PROJECTOR.read_text()
-        mutations = [text+'# foreign\n', text.replace('SCHEMA = 18','SCHEMA = 16',1),
+        mutations = [text+'# foreign\n', text.replace('SCHEMA = 19','SCHEMA = 16',1),
+                     text.replace('SCHEMA = 19','SCHEMA = 20',1),
                      text.replace('attempt not in seen','True',1),
                      text.replace("totals['settled_count'] += 1", "totals['settled_count'] += 0",1),
                      text.replace('MAX_PUBLIC = ', 'MAX_PUBLIC = 2 * ',1)]

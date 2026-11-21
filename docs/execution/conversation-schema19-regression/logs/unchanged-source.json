@@ -1,0 +1,17 @@
+{
+  "base": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+  "source": "9d1d1d99b17982b0acc4b275179e5edff5820821",
+  "unchanged": {
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "crates/core/src/storage.rs": "c1a7368b3cb8bc505ee999f758e1e641e1ddde3907c8d6ddc7935470ea1a6c6e",
+    "crates/core/src/host_registry_migration.rs": "a154f08419bfd6985cfa1df46048b33cad27f312fd4fc79a123a8e949089720a",
+    "crates/core/src/conversations_history.rs": "3235655289501bcbe4caebde5dd07579658fca5d080cac00f68fb1fe892c7f04",
+    "crates/core/src/conversations_history/retention.rs": "16910b5bd3e28535ad4f7cf531fecab07c10be56e9bcf8ad17074ab557e22ae9",
+    "crates/core/tests/fixtures/pre_conversation_schema.rs": "ad614f521ae1aee477ebc11ff93c64c2e900dc96101730d73801b3b6e002c5ce",
+    "crates/core/tests/fixtures/pre_host_schema.rs": "55a054f083d698ba28199b210e6a2e79def42f7ab83f952b43cf621e4c377cb2",
+    "crates/core/tests/host_registry_actual18_migration.rs": "b3024da6f05c515944f042c1e6c582dff3c705f867d659ff3fb4b0aac9c62697",
+    "scripts/generate-schema18-migration-fixture.py": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+    "scripts/prepare-schema18-migration-fixture.py": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289"
+  },
+  "history_schema_assertion_only": true
+}

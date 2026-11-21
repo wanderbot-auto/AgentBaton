@@ -1,0 +1,13 @@
+
+> @agentbaton/desktop@0.1.0 typecheck
+> tsc --noEmit
+
+src/App.test.tsx(82,53): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/App.test.tsx(83,57): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/App.test.tsx(95,65): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.

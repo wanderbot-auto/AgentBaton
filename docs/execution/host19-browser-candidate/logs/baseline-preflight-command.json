@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-integration-browser/apps/desktop/tests/integration-real-ipc.py",
+    "--run",
+    "--case",
+    "all",
+    "--batond",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-integration-browser/artifacts/host19-integration-browser/tools/batond",
+    "--candidate-manifest",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-integration-browser/artifacts/host19-integration-browser/actual-schema19-candidate.json",
+    "--frontend",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-integration-browser/apps/desktop/dist",
+    "--frontend-build-record",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-integration-browser/artifacts/host19-integration-browser/frontend-build.json",
+    "--expected-source-head",
+    "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+    "--chromium",
+    "/Users/wander/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "--output",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host19-integration-browser/artifacts/host19-integration-browser/driver-preflight"
+  ],
+  "exit": 2,
+  "source_guard": {
+    "head": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+    "tracked_clean": true,
+    "driver_sha256": "e5036fd15afa431228a9b11553b0602e144636dda58fecf4fbbbcaac8633f6f3"
+  },
+  "report": {
+    "status": "preflight_refused",
+    "actual_runtime": "NOT_RUN",
+    "kind": "Refusal",
+    "no_process_token_or_listener": true
+  },
+  "diagnostic": {
+    "version": 1,
+    "declared_source": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+    "driver_sha256": "e5036fd15afa431228a9b11553b0602e144636dda58fecf4fbbbcaac8633f6f3",
+    "stage": "candidate_schema_guard",
+    "exception_kind": "refusal",
+    "run_requested": true,
+    "runtime_case_entered": false,
+    "runtime_checks": {
+      "chromium_owner_allowed": null,
+      "chromium_mode_allowed": null,
+      "python_owner_allowed": null,
+      "python_mode_allowed": null
+    }
+  },
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "machine": "arm64",
+  "macos": "26.6.1"
+}

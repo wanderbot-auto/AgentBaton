@@ -50,7 +50,7 @@ def report():
                          'daemon_stop': {'pid': 999999, 'wait_exitcode': 0, 'popen_reaped': True},
                          'http_thread': {'thread_alive_after_join': False},
                          'tools_after': copy.deepcopy(tools), 'assets_after': copy.deepcopy(assets)},
-             'no_execution': {'schema': 18, 'no_execution_or_grants': True,
+             'no_execution': {'schema': 19, 'no_execution_or_grants': True,
                               'table_counts': {name: 0 for name in P.TABLES}},
              'screenshots': [], 'http': [{'token': SECRET}], 'error': {'private': SECRET},
              'runtime': {'path': SECRET}, 'raw_report': SECRET}
@@ -110,6 +110,8 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
         self.assertEqual(value['report_sha256'], P.sha(raw))
         self.assertEqual(value['cases'], [{'id': name, 'status': 'passed'} for name in P.CASES])
         self.assertIs(value['no_execution']['driver_asserted_no_execution'], True)
+        self.assertEqual(value['no_execution']['schema'], 19)
+        self.assertEqual(value['no_execution']['table_counts']['host_registrations'], 0)
         self.assertIs(value['private_history_published'], False)
         self.assertNotIn(SECRET, json.dumps(value)); self.assertNotIn('pid', json.dumps(value))
         self.assertEqual((self.private / 'report.json').read_bytes(), raw)
@@ -126,6 +128,40 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
         self.assertEqual(code, 0); self.assertEqual(projected['status'], 'failed')
         self.assertFalse(projected['no_execution']['driver_asserted_no_execution'])
         self.assert_no_images(output); self.assertNotIn(SECRET, json.dumps(projected))
+
+    def test_host_registration_counts_reject_missing_unknown_nonzero_and_wrong_types(self):
+        for variant in ('missing', 'unknown', 1, True, False, 0.0, '0'):
+            with self.subTest(variant=variant):
+                value = report()
+                counts = value['no_execution']['table_counts']
+                if variant == 'missing':
+                    del counts['host_registrations']
+                elif variant == 'unknown':
+                    counts['host_registrations_view'] = 0
+                else:
+                    counts['host_registrations'] = variant
+                self.write(value)
+                code, result, output = self.run_projection()
+                self.assertEqual(code, 1)
+                self.assertEqual(result['status'], 'invalid')
+                self.assertEqual({path.name for path in output.iterdir()}, {'summary.json'})
+
+    def test_projection_opens_only_report_and_allowlisted_images(self):
+        self.write()
+        (self.private / 'baton.sqlite3').write_text(SECRET)
+        read = P.regular_bytes
+        filenames = []
+
+        def observe(descriptor, name, limit, **kwargs):
+            filenames.append(name)
+            return read(descriptor, name, limit, **kwargs)
+
+        with mock.patch.object(P, 'regular_bytes', side_effect=observe):
+            code, value, output = self.run_projection()
+        self.assertEqual(code, 0)
+        self.assertEqual(value['status'], 'passed')
+        self.assertEqual(set(filenames), {'report.json', *P.PNG_NAMES})
+        self.assertNotIn(SECRET, (output / 'summary.json').read_text())
 
     def test_missing_private_or_report_is_pending_nonzero(self):
         for private in [self.private, self.root / 'absent-private']:
@@ -229,7 +265,14 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
         for name in P.TABLES:
             if name in P.NONZERO_ALLOWED: continue
             value = report(); value['no_execution']['table_counts'][name] = 1; self.write(value)
-            code, result, out = self.run_projection(); self.assertEqual(code, 0); self.assertFalse(result['no_execution']['driver_asserted_no_execution']); self.assert_no_images(out)
+            code, result, out = self.run_projection()
+            if name == 'host_registrations':
+                self.assertEqual(code, 1)
+                self.assertEqual(result['status'], 'invalid')
+            else:
+                self.assertEqual(code, 0)
+                self.assertFalse(result['no_execution']['driver_asserted_no_execution'])
+            self.assert_no_images(out)
         for mode in ['missing', 'extra', 'bool', 'float', 'negative', 'oversize']:
             value = report(); counts = value['no_execution']['table_counts']
             if mode == 'missing': counts.pop('sessions')
@@ -238,7 +281,7 @@ class TaskWorkspaceProjectionTests(unittest.TestCase):
             self.write(value); code, _, out = self.run_projection(); self.assertEqual(code, 1); self.assert_no_images(out)
 
     def test_schema_old_future_and_float_do_not_coerce(self):
-        for schema in [15, 16, 17, 19, 16.0, 18.0, True, '16', '17']:
+        for schema in [15, 16, 17, 18, 20, 16.0, 18.0, 19.0, True, False, '16', '17', '19']:
             value = report(); value['no_execution']['schema'] = schema; self.write(value)
             self.assertEqual(self.run_projection()[0], 1)
 

@@ -1,0 +1,15 @@
+# AB-CFG-010 project configuration drift
+
+Use the exact approved first import and a separately approved update binding. The first rule changes only content of explicitly selected instruction-only skills with trusted classification of the new exact bytes. Source structure, excluded inputs, commands, approvals, and configured privileges are constrained by the captured shape.
+
+Use one immutable successor per previous snapshot SHA. Existing private transaction lock, manifest and fsync primitives bind the publication. Use exclusive rename to make actual slot creation non-overwriting. Reopen by exact binding and reconcile uncertainty without replay. Core/App trusted registry and recurring scan wiring are a subsequent coordination step.
+
+Exercise actual roots, same-state no-op, approved skill update, attached rule and base forgery, added capabilities and ambiguous source structures, replacement races and durable restart recovery. Keep all activity on the two declared paths and evidence directory.
+
+## Core and App integration boundary
+
+The trusted caller first resolves the original approval and calls prepare_project_config_update_binding against the original source and explicit rule. Persist the resulting rule binding through the existing owner approval path. For each scan, supply the current trusted ProjectImportScope and the latest approved version. Persist a Ready version binding and transaction UUID before applying. After an interrupted response, recover that binding exactly before considering any new intent. Persist the new current pointer only after Applied. Existing runtime attempts continue to use their pinned plan. A new RuntimePlan is a configuration candidate and still requires the normal existing runtime materialization and execution authorization.
+
+Candidate shared integration paths for the leader to reserve are crates/core/src/ipc.rs and the project and approval persistence layer around crates/core/src/registry.rs. Prefer an owned Core project configuration module for durable current and pending references. Add the necessary module registration and coordinate the existing runtime plan binding in crates/core/src/runtime_config.rs and crates/core/src/sessions.rs. The normal desktop flow starts in apps/desktop/src/Projects.tsx and would need the typed API in apps/desktop/src/api.ts and its restricted Tauri dispatch in apps/desktop/src-tauri/src/lib.rs. Resolve integration paths and persistence contract with the leader before implementation. The existing runtime source and approval registry must supply real identities and current revisions. Never construct confirmed approval from raw client or project input.
+
+The Config contract scans declared project surfaces and compares their bounded snapshots at publication time. It verifies private source and destination descriptors and never follows a substituted root. It uses a per-parent append slot, so a stored old reference remains readable without walking the chain. Filesystems that reject exclusive rename leave the original version intact and surface a failure or reconciliation state. Linux and the normal desktop path remain unverified in this phase.

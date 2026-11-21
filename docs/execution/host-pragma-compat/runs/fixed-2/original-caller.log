@@ -1,0 +1,8 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-3e149a5721946c12)
+
+running 1 test
+test task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 421 filtered out; finished in 0.09s
+

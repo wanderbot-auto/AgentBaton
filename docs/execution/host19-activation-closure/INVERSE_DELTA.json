@@ -1,0 +1,112 @@
+{
+  "base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+  "policy": "complete19 input SHA + exact non-overlapping spans + complete fixed18-composition output SHA, then unchanged old inverses; no runtime Git/discovery/range or accepted-hash broadening",
+  "target_18_composition": "567 plus finally admitted C1; candidate493 available, final delivery pending; do not erase A/B/C1 in19 normalization",
+  "edges": [
+    {
+      "source": "apps/desktop/src-tauri/src/lib.rs",
+      "readers": [
+        "tests/infrastructure/test_background_service_native_smoke_source.py:285",
+        "tests/infrastructure/test_background_service_native_smoke_source.py:482"
+      ],
+      "order": [
+        "exact19 complete lib -> fixed567 complete18 lib",
+        "original fixture cfg + bridge removals",
+        "restored_parent_bridge_token_sha218-238 and ensure_daemon old function hash",
+        "default/release no-test-hook controls"
+      ]
+    },
+    {
+      "source": "native controller/integration_database and native current callers",
+      "readers": [
+        "tests/infrastructure/test_background_service_native_smoke_source.py:346"
+      ],
+      "order": [
+        "exact19 source -> complete fixed567 corresponding18 bytes",
+        "unchanged UNCHANGED_FILE_PINS + native_acceptance_followup manifest"
+      ]
+    },
+    {
+      "source": ".github/workflows/product.yml",
+      "readers": [
+        "tests/infrastructure/test_background_service_native_smoke_source.py:394",
+        "other old workflow graph consumers in406 SOURCE_INVERSE_GRAPH"
+      ],
+      "order": [
+        "new complete19 workflow -> finally accepted18 workflow (567 equalsa4 here)",
+        "original ARM matrix/background/native/dev-profile/schema18/private-browser/setup normalizers in existing order"
+      ]
+    },
+    {
+      "source": "schema18 source/host/collector harnesses",
+      "readers": [
+        "tests/infrastructure/schema18_source_fixture.py",
+        "tests/infrastructure/schema18_host_fixture.py",
+        "tests/infrastructure/test_integration_stage_evidence_source.py",
+        "406 four special chains"
+      ],
+      "order": [
+        "exact19 -> accepted18-composition complete file",
+        "if needed independently pinned A/B/C1 -> a4 adapter at actual historical-reader boundary, never erase live source",
+        "original18->17/notification/capture/fee-kind/diagnostic/preparation inverses in original order"
+      ]
+    }
+  ],
+  "desktop_lock_chain": {
+    "unchanged": true,
+    "source19_activation_needs_no_lock_edit": true,
+    "order": [
+      "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+      "f1ad092cfc6b1317d259831e197e160d100de8c6ef292b075104531276667515",
+      "4d47820152c17d63b61829fa7d83d2fbbdb4c9cbbfdbd03168207f0e442e068d"
+    ],
+    "guard": "strip_host_registration_lock_v1:63-81 then old libc inverse354-362",
+    "negative_controls": "node/edge/version/checksum/unknown suffix/CRLF/BOM retained294-339; no alternate arbitrary hash branch"
+  },
+  "C1": {
+    "commit": "49348b2291da5c22fa994db9c452dfd2331d079a",
+    "final_admission_pending": true,
+    "ipc": "already dynamic snapshot; preserve exact module/four post-auth arms. Normalizer does not remove C1 as a side effect.",
+    "new_children": "Do not strip/delete new child modules because a4 lacks them. Only add source-bound adapters where an actual pinned reader exists.",
+    "fixture_test": "493 ordinary18 assumes Daemon::bind produces18; change setup while preserving original refusal/auth/error assertions, plus real ordinary19 actor tests"
+  },
+  "factory": {
+    "immutable_source": "crates/core/tests/fixtures/pre_factory_schema.rs",
+    "full_sha256": "407a1a9c5a5fdb191aa24c8875eb4ee49416306e0c4c928948cd6f6024003a65",
+    "tail_lines_in_fixed567": "257-276 inclusive; source slice including execute_batch and FK check",
+    "tail_slice_sha256": "abab588855690126e25979627d0925a2c346039bb73a572fc86f15269a52d265",
+    "new_wrapper": "crates/core/tests/fixtures/current19_factory_schema.rs",
+    "ordering": "Host19->18; unchanged public current_child_goal18->17->16->14 (actual SQL210); exact pinned terminal Factory tail->12; caller late-fail/commit; restore FK outside transaction",
+    "no_existing_sentinel_exception": "Frozen pre_host requires exact complete reference; refuse all extra entry objects. Use known events-table collision or post-validation same-transaction caller object for late-fail.",
+    "separate_child_plan_entry": "Host19->18 then unchanged public helper to14 in caller-owned transaction; old caller may explicitly synthesize13 using its original DDL. Not part of full Factory->12; not a genuine13 producer."
+  },
+  "negative_controls": [
+    "unknown byte outside spans",
+    "missing/partial/moved/duplicate edit",
+    "wrong path/input/output hash or manifest",
+    "wrong source layer ordering",
+    "strict19 equality replaced with range",
+    "complete original18 strict idempotent input only, no arbitrary fallback"
+  ],
+  "immutable_pins": {
+    "crates/core/tests/fixtures/pre_conversation_schema.rs": "ad614f521ae1aee477ebc11ff93c64c2e900dc96101730d73801b3b6e002c5ce",
+    "crates/core/tests/fixtures/pre_integration_schema.rs": "c0545cded330429324047b30f032b4e81ea0b4ed4ed24c1efc15000e041aa990",
+    "crates/core/tests/fixtures/pre_factory_schema.rs": "407a1a9c5a5fdb191aa24c8875eb4ee49416306e0c4c928948cd6f6024003a65",
+    "tests/infrastructure/schema18_source_fixture.py": "731efd2830996d21354a4fe7b9b9fbf08be93ec2e2ec43a73dbe746cfa49253f",
+    "tests/infrastructure/schema18_host_fixture.py": "fc29d7ac446c9b39464b11ae1b2d1ba339784decce9cda3d94d820cd4adcf83d",
+    "tests/infrastructure/fixtures/schema18_source_inverse.json": "e6e5b7ab00f0cf919cb6f75e267e4e8ec7e91a55262ff100d66655ca5657e109",
+    "tests/infrastructure/fixtures/native_acceptance_followup.json": "4c676e3f72912687d30844afcee5653c9420106ffe43d7cf33babb09b19d1f0a",
+    "scripts/native-run.py": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a",
+    "apps/desktop/src-tauri/tests/test_native_runner.py": "505535682e62c3a1ee5dd3d4a46a6436aaa5e095081ffb74b8e347d99158cb66",
+    "scripts/prepare-legacy-migration-fixture.py": "b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90",
+    "scripts/prepare-schema15-migration-fixture.py": "67c2d59e2f8801de56842f6cf8ea58989925d2947d222bbbb93cae8e66ec17e7",
+    "scripts/prepare-schema16-migration-fixture.py": "5e814e979115d15a9696b78d586f63a30c01df3548b323dd99f8f5acbd48713a",
+    "scripts/generate-schema16-migration-fixture.py": "8a262559410c3b2dfe3c55a0468e21b5e4026c3d10274881abd5c7019252077e",
+    "scripts/record-legacy-migration-ci-evidence.py": "b71ce16f984bd531f37a5fb3f106c7251e3ae4e65ab884aac18dc50bbf3ffb30",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0"
+  },
+  "review": "read-only subagent schema_inverse_audit confirmed fixed567 guard chain/read sites; no tests/writes"
+}

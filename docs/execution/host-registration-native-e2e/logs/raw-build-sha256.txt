@@ -1,0 +1,2 @@
+6acee3684f52c98f1d6089fa84567a0654454df0d0ab966281bc9ee6b957aecc  /Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/docs/execution/host-registration-native-e2e/logs/build.log
+a3f1d7d2d00712abaeb4c17c137a91af1dbae9f3532400e8c714799d07e7b451  /Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/docs/execution/host-registration-native-e2e/logs/build-isolated.log

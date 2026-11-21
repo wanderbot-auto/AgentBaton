@@ -1,0 +1,21 @@
+error[E0505]: cannot move out of `destination` because it is borrowed
+    --> crates/core/src/execution/update_readiness.rs:1403:29
+     |
+1391 |         let destination = root.join("backup.sqlite3");
+     |             ----------- binding `destination` declared here
+1392 |         let mut stage = BackupStage::allocate(&destination).unwrap();
+     |                                               ------------ borrow of `destination` occurs here
+...
+1403 |         assert_eq!(fs::read(destination).unwrap(), b"existing evidence");
+     |                             ^^^^^^^^^^^ move out of `destination` occurs here
+...
+1406 |     }
+     |     - borrow might be used here, when `stage` is dropped and runs the `Drop` code for type `update_readiness::BackupStage`
+     |
+help: consider cloning the value if the performance cost is acceptable
+     |
+1392 |         let mut stage = BackupStage::allocate(&destination.clone()).unwrap();
+     |                                                           ++++++++
+
+For more information about this error, try `rustc --explain E0505`.
+error: could not compile `agentbaton-core` (lib test) due to 1 previous error

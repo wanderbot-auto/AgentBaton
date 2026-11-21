@@ -1,5 +1,7 @@
 //! Durable dispatch boundaries. These trusted core methods are deliberately not IPC methods:
 //! policy resolution and native executor identity verification must precede their use.
+pub mod update_readiness;
+
 use crate::{
     storage::{append_event, db_error, decode, encode, now, Store, Task, TaskState},
     CoreError, Result,

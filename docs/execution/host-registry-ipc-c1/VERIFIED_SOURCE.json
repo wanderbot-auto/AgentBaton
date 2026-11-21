@@ -1,0 +1,279 @@
+{
+  "task": "RHOST002C1",
+  "base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+  "verified_source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+  "source_sha256": {
+    "crates/core/src/ipc.rs": "97ef8e947fb05b6d3e75dcac5d6bab000bebfacc081ff2991b0894741f8b908f",
+    "crates/core/src/host_registry_ipc.rs": "6fea146d6df10c050e07a6f9391e57a2e9e97bad5e48c829d6657a955581afa4",
+    "crates/core/src/host_registry_ipc_tests.rs": "a4a3f02b266b25244b8a2d2758723177314a374036d0fca15339b20d926be902"
+  },
+  "source_composite_sha256": "dd346fbad914203c713810ccdaaa1f3f7ff17d6d277a3243b1fa0f87b48cd6f7",
+  "parent_IPC_restores_byte_exact_base_after_only_module_and4arms_removed": true,
+  "protected_base_sha256": {
+    "crates/core/src/host_registry.rs": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
+    "crates/core/src/host_registry_migration.rs": "3f2d0151d4d1ce8ce08670f528dee1ef024a27054ff5f7e3c70bf3bfdf612168",
+    "crates/core/src/storage.rs": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+    "crates/core/src/lib.rs": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb",
+    "crates/core/src/client_recovery_journal.rs": "d547955d36ac1ebbd4ba6d327b93690e5682dbdf267fc0f5530372c597cba649",
+    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    "apps/desktop/src-tauri/src/lib.rs": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb",
+    "apps/desktop/src/App.tsx": "4dba10bcedf797802d9dc906325d3a134233fbfd28e193d0736d950ccd173095"
+  },
+  "checks": [
+    {
+      "evidence": "runs/lf-complete/fmt.json",
+      "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "expected_counts": null,
+      "started_utc": "2026-11-17T21:27:29.294072+00:00",
+      "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+      "response_budget_includes_LF": true,
+      "exit_code": 0,
+      "actual_counts": [],
+      "count_gate": true,
+      "finished_utc": "2026-11-17T21:27:30.381505+00:00",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/lf-complete/clippy.json",
+      "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "-j",
+        "2",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "expected_counts": null,
+      "started_utc": "2026-11-17T21:27:30.381778+00:00",
+      "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+      "response_budget_includes_LF": true,
+      "exit_code": 0,
+      "actual_counts": [],
+      "count_gate": true,
+      "finished_utc": "2026-11-17T21:27:37.540746+00:00",
+      "log_sha256": "88ff5aaa649d1c7477f4ecd0cffc8531a5a75ac28b363e8b1a14cc0bd6980b77",
+      "bytes": 215,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/lf-complete/host-ipc.json",
+      "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "ipc::host_registry_wire::tests",
+        "-j",
+        "2",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "expected_counts": [
+        12
+      ],
+      "started_utc": "2026-11-17T21:27:37.541003+00:00",
+      "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+      "response_budget_includes_LF": true,
+      "exit_code": 0,
+      "actual_counts": [
+        12
+      ],
+      "count_gate": true,
+      "finished_utc": "2026-11-17T21:28:24.622446+00:00",
+      "log_sha256": "bacda4afb21bcc5210357d39629f6271e9729df4bdac00f810ecb7899aedec46",
+      "bytes": 1843,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/lf-complete/background-wire.json",
+      "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "ipc::background_wire_tests",
+        "-j",
+        "2",
+        "--",
+        "--test-threads=1"
+      ],
+      "expected_counts": [
+        1
+      ],
+      "started_utc": "2026-11-17T21:28:24.622681+00:00",
+      "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+      "response_budget_includes_LF": true,
+      "exit_code": 0,
+      "actual_counts": [
+        1
+      ],
+      "count_gate": true,
+      "finished_utc": "2026-11-17T21:28:24.834925+00:00",
+      "log_sha256": "77e388b0b07422aa2599d7089b1adae87b597adce715803b6b5b3b31489e2a29",
+      "bytes": 386,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/lf-complete/conversation-wire.json",
+      "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "ipc::conversation_wire_tests",
+        "-j",
+        "2",
+        "--",
+        "--test-threads=1"
+      ],
+      "expected_counts": [
+        2
+      ],
+      "started_utc": "2026-11-17T21:28:24.835100+00:00",
+      "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+      "response_budget_includes_LF": true,
+      "exit_code": 0,
+      "actual_counts": [
+        2
+      ],
+      "count_gate": true,
+      "finished_utc": "2026-11-17T21:28:24.926198+00:00",
+      "log_sha256": "1c30b146acfc2c655847e820783565dfcf024b0b85a63cff42a0d9dbd661c430",
+      "bytes": 466,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/lf-complete/frame.json",
+      "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "ipc::frame_tests::oversized_parser_returns_resource_limit_without_relying_on_error_delivery",
+        "-j",
+        "2",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "expected_counts": [
+        1
+      ],
+      "started_utc": "2026-11-17T21:28:24.926389+00:00",
+      "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+      "response_budget_includes_LF": true,
+      "exit_code": 0,
+      "actual_counts": [
+        1
+      ],
+      "count_gate": true,
+      "finished_utc": "2026-11-17T21:28:25.009852+00:00",
+      "log_sha256": "2a8e6ea27e78a9998c61991188d81d91254741bf84306574b989eff2f2d4e685",
+      "bytes": 378,
+      "all_children_joined": true,
+      "status": "passed"
+    }
+  ],
+  "infrastructure": {
+    "evidence": "runs/infrastructure/evidence.json",
+    "source": "49348b2291da5c22fa994db9c452dfd2331d079a",
+    "total": 897,
+    "skipped": 16,
+    "passed": 881,
+    "failed": 0,
+    "input_count": 751,
+    "inputs_unchanged": true,
+    "log_sha256": "dc3343e361a8dfb13a75bd598480a103136639bd65b945ca46335cbe08d36790",
+    "capture_semantics": "751 captured-before non-doc existing tracked input subset; post-run artifact stores unchanged boolean and empty changed_inputs only, not a second hash manifest. Current independent/root and own rereads corroborate before hashes.",
+    "current_recheck_matches_all_before_hashes": true
+  },
+  "counts": {
+    "new_private_dispatch_and_codec": 12,
+    "old_background_wire": 1,
+    "old_conversation_wire": 2,
+    "old_frame": 1,
+    "distinct_selected_Rust_passed": 16,
+    "earlier_c1e16_not_added": true
+  },
+  "test_binary": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registry-ipc-c1/target/debug/deps/agentbaton_core-3e149a5721946c12",
+    "bytes": 33021840,
+    "sha256": "07199c531bcfe40fcc878a20e4c4c5ac16d3b65ac4bfd819059818ffbb383350"
+  },
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "run_env": {
+      "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-c34vkzoi",
+      "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registry-ipc-c1/target",
+      "CARGO_BUILD_JOBS": null,
+      "RUST_TEST_THREADS": null,
+      "RUSTFLAGS": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "RUSTC_WRAPPER": null
+    }
+  },
+  "review": "Root reports independent493 review noP1/P2 and LF closed; firstc1e no main-path blocker but framing clarification preserved.",
+  "processes": {
+    "all_sessions_joined": [
+      62993,
+      39965,
+      52117
+    ],
+    "new_service_actor_workers": 0,
+    "heavy_slot": "released after successful fixed493 checks; additional infrastructure also joined"
+  },
+  "boundaries": [
+    "Param limit applies serialized Value before typed decoding, not original raw spans/duplicate keys",
+    "Post-guard Host successful result envelope includes request ID/worst-case revision/empty warnings plus final LF<=512KiB; global invalid-envelope/error limits remain unchanged",
+    "Private Daemon.handle with actual A migration19, not real actor/new Host socket/native",
+    "Actual frame regression is existing old parser control, not new Host UDS evidence",
+    "No Store19 activation/startup/backup or C2 durable client intent/native/UI/SSH/Provider/main/CI acceptance",
+    "Full root workspace runtime suite not run; explicit16+all-target lint+infra only"
+  ]
+}

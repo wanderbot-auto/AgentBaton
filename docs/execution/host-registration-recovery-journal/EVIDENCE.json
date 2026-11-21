@@ -1,0 +1,158 @@
+{
+  "status": "local_core_slice_verified_ready_for_leader_evidence_review",
+  "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
+  "feature_target": "origin/collab/host-registration-integration",
+  "source_commit": "8af2a779db682585d50968925be90f8e2440eb31",
+  "source_tree": "6520392bd9cf116e319136b2b8649a2fe3061d42",
+  "source_files": {
+    "crates/core/src/client_recovery_journal.rs": {
+      "bytes": 25737,
+      "sha256": "035b91eae9b950b1135c0ed7b4e01f41ac7fd87b7d08c8a051589eb10e9290be",
+      "git_blob": "e0d859e741b4175ce576943bd9e3ca2744069c6d"
+    },
+    "crates/core/src/host_registration_recovery.rs": {
+      "bytes": 3883,
+      "sha256": "569a0c8e07b7f0663bddf1fda8130fcf2ab676e8a4d99db16b63c7caa5668b6e",
+      "git_blob": "d82fce0e17c6efffd03a631edf9cb7a595650393"
+    },
+    "crates/core/src/host_registration_recovery_tests.rs": {
+      "bytes": 16697,
+      "sha256": "d22a1892abde659b257c81017d6699b5061381af077b5a76e3c5181fe97f4827",
+      "git_blob": "188c70bb1967522fa2003e25a5c47eb70b242586"
+    }
+  },
+  "environment": {
+    "host": "aarch64-apple-darwin",
+    "macos": "26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-11-10)",
+    "clippy": "0.1.91 (ed61e7d7e2 2025-11-07)",
+    "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-recovery-journal",
+    "runtime": "/private/tmp/ab-collab-1d8nazfb",
+    "test_wrapper": "bash scripts/collab.sh run -- env CARGO_BUILD_JOBS=2 bash -s",
+    "all_own_children_joined": true
+  },
+  "fmt": {
+    "command": "bash scripts/collab.sh run -- cargo fmt --all -- --check",
+    "exit": 0
+  },
+  "checks_by_log": {
+    "journal.log": {
+      "command": "cargo test --locked -p agentbaton-core --lib client_recovery_journal",
+      "started_utc": "2026-11-18T13:33:15Z",
+      "finished_utc": "2026-11-18T13:35:10Z",
+      "exit": 0,
+      "harness_passed": 19,
+      "artifact": "target/debug/deps/agentbaton_core-3e149a5721946c12"
+    },
+    "resumed/message-frame.log": {
+      "command": "cargo test --locked -p agentbaton-core --lib ipc::frame_tests",
+      "started_utc": "2026-11-18T13:35:26Z",
+      "finished_utc": "2026-11-18T13:35:26Z",
+      "exit": 0,
+      "harness_passed": 11,
+      "artifact": "target/debug/deps/agentbaton_core-3e149a5721946c12"
+    },
+    "resumed/message-reply-loss.log": {
+      "command": "cargo test --locked -p agentbaton-core --test sessions_ipc lost_task_message_reply_recovers_original_turn_without_dispatching_again -- --exact",
+      "started_utc": "2026-11-18T13:35:26Z",
+      "finished_utc": "2026-11-18T13:36:42Z",
+      "exit": 0,
+      "harness_passed": 1,
+      "artifact": "target/debug/deps/sessions_ipc-8e2583c848d1171e"
+    },
+    "resumed/message-reopen.log": {
+      "command": "cargo test --locked -p agentbaton-core --test sessions_ipc desktop_process_exit_recovers_committed_message_without_resending -- --exact",
+      "started_utc": "2026-11-18T13:36:42Z",
+      "finished_utc": "2026-11-18T13:36:43Z",
+      "exit": 0,
+      "harness_passed": 1,
+      "artifact": "target/debug/deps/sessions_ipc-8e2583c848d1171e"
+    },
+    "resumed/clippy.log": {
+      "command": "cargo clippy --locked -p agentbaton-core --all-targets -- -D warnings",
+      "started_utc": "2026-11-18T13:36:43Z",
+      "finished_utc": "2026-11-18T13:37:01Z",
+      "exit": 0
+    }
+  },
+  "distinct_test_cases": {
+    "new_host_journal": 9,
+    "existing_client_recovery_journal": 7,
+    "existing_ipc_frame": 11,
+    "existing_session_message_integration": 2,
+    "total_effective_passed": 29,
+    "excluded_unset_env_harness_entries": [
+      "client_recovery_journal::host_registration_recovery::tests::subprocess_reserve",
+      "client_recovery_journal::tests::subprocess_reserve_fixture",
+      "client_recovery_journal::tests::subprocess_hold_lock_fixture"
+    ],
+    "host_multi_process_case": "Both child exit statuses and the exact winning key and body after both children exit are asserted in concurrent_processes_preserve_the_winning_key_and_body_after_exit."
+  },
+  "artifacts": {
+    "target/debug/deps/agentbaton_core-3e149a5721946c12": {
+      "bytes": 33317360,
+      "sha256": "c2aef544129c90fa4ac0c6790f337ecec75437507d4083d90eedd1f908e9ec4b",
+      "architecture": "Mach-O 64-bit executable arm64"
+    },
+    "target/debug/deps/sessions_ipc-8e2583c848d1171e": {
+      "bytes": 31131536,
+      "sha256": "9d3b0e80626262d85a9332b0a34ea7e37f23f77e2beae35e198455dedab8e07b",
+      "architecture": "Mach-O 64-bit executable arm64"
+    }
+  },
+  "raw_logs": {
+    "logs/environment.log": {
+      "bytes": 458,
+      "sha256": "c7527ee365993bbe6a3f74cdb32a2c20ca0f3a31d395c680284e8f4c3633f12f"
+    },
+    "logs/fmt-first-attempt.log": {
+      "bytes": 88,
+      "sha256": "9d4ab068465830f2bd01056fadfc6549a684418de43887a4d95de3917e1837d9"
+    },
+    "logs/fmt.log": {
+      "bytes": 53,
+      "sha256": "a53d173626998199a669be1230c3c7ac37ff9b9705275b6526e279ba5e9084e0"
+    },
+    "logs/initial-batch-disposition.log": {
+      "bytes": 558,
+      "sha256": "e6a36c57644cd71c73787e655294e784644a45fbd3d1ebc28195cd835062c15b"
+    },
+    "logs/journal.log": {
+      "bytes": 5264,
+      "sha256": "713d48dd55f17d6ce6fe1fb8dba68a95e2c25315dddc13a672a66a3733deb53f"
+    },
+    "logs/resumed/clippy.log": {
+      "bytes": 2625,
+      "sha256": "1a4abdbafa671cc2e66c56feb8fc1a528bce5105936903c7683d3d7bef3b1fea"
+    },
+    "logs/resumed/message-frame.log": {
+      "bytes": 1547,
+      "sha256": "228d153d3bd5ecc64714aecbbcb090c808d68d1657c6f0e7c71db6ffd43b6111"
+    },
+    "logs/resumed/message-reopen.log": {
+      "bytes": 624,
+      "sha256": "b7d18fc9b6f5a4436cddef37beca46b27b1992aea77397ec959ec0ba478b3bde"
+    },
+    "logs/resumed/message-reply-loss.log": {
+      "bytes": 796,
+      "sha256": "17b87519b78fc343de56a5b17ca699eb0a971e72c6fc2d6b82179ea78ff7cadf"
+    },
+    "logs/source-preflight.log": {
+      "bytes": 524,
+      "sha256": "6bef2911f760375809ce83e366a5b4ef4ad84a791b72d9fd42b3fa4f44e54e40"
+    }
+  },
+  "verification_notes": [
+    "The initial fmt wrapper failed after executing fmt because zsh reserves status. The separate corrected fmt invocation exited 0.",
+    "The first journal invocation passed. The first batch exited 1 due to four intentionally skipped commands after the slot correction, see initial-batch-disposition.log. The exact overlap with A was not independently established in window B.",
+    "The resumed batch ran after the leader confirmed A joined and exited 0.",
+    "Host and session tests use synthetic metadata and local fixtures. No application-native, CI, real Provider, or remote Host validation ran.",
+    "Post-rename directory-sync failure handling is inherited. It was not separately fault-injected."
+  ],
+  "source_scope_exit": 0,
+  "source_diff_check_exit": 0,
+  "source_feature_target_preview_exit": 0,
+  "leader_source_review": "static review of fixed source, no blocker reported",
+  "remaining_handoff": "receipt semantics and confirmed cleanup require a separate host_registry.rs ownership transfer"
+}

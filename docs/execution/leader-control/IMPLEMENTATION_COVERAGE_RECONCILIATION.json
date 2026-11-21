@@ -1,0 +1,118 @@
+{
+  "prior_status": "110 partially implemented, 20 not_started",
+  "audited_coverage": {
+    "partial": 115,
+    "integrated_source_partial": 114,
+    "started_draft_pr_only": 1,
+    "not_started_evidence": 15,
+    "accepted": 0
+  },
+  "reclassified": {
+    "AB-SES-008": {
+      "fixed_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "source_refs": [
+        {
+          "path": "apps/desktop/src-tauri/src/lib.rs",
+          "sha256": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb"
+        },
+        {
+          "path": "apps/desktop/src-tauri/src/background_policy.rs",
+          "sha256": "08378e56153b7f79ffc46f1b2c4525a837ea3d83067a2cb81b7404e640d24982"
+        },
+        {
+          "path": "apps/desktop/src/BackgroundService.test.tsx",
+          "sha256": "e11d959272aca4cac6e10b5bbaf75b8dcb68fa42de18282d05ea5e4a5e6f971f"
+        }
+      ],
+      "conclusion": "Managed UI close-to-background gating and draft preservation are implemented. Actual continued authorized work through full UI exit and separate stop remain to be demonstrated for the current bundle.",
+      "existing_evidence": "docs/execution/background-login-registration/EVIDENCE.json",
+      "included_in_integrated_source": true,
+      "prior_evidence_sha256": "dc1258722b482efcae5645135907baf38391b71c8864d1bb74e6ab4e49f81695"
+    },
+    "AB-TSK-001": {
+      "fixed_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "source_refs": [
+        {
+          "path": "crates/core/src/goal_runtime.rs",
+          "sha256": "840408fd598da3f95a39d96973507c01a0098e3377a5705184acf6cf3177e4ff"
+        },
+        {
+          "path": "crates/core/src/goal_store.rs",
+          "sha256": "21e1d85e90d42e58dea3e9098fa0653a70a2980dbc69586f23b65e28a3c2e750"
+        }
+      ],
+      "conclusion": "Typed task execution contract produced from a validated, authorized GoalPlan. Actual natural-language-only completion of all contract fields and clarification behaviour remain unproven.",
+      "existing_evidence": "docs/execution/goal-runtime-real-ipc/EVIDENCE.json",
+      "included_in_integrated_source": true,
+      "prior_evidence_sha256": "63e75c021ac00b74b184602d552e2a43309929a1b61033a5282498460a2a2d2d"
+    },
+    "AB-SES-009": {
+      "fixed_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "source_refs": [
+        {
+          "path": "apps/desktop/src-tauri/src/workspace_open.rs",
+          "sha256": "e317fe58db8332185a100b1ec0c8ea2b415e89ee2c209d67dc14b70c9e41056b"
+        },
+        {
+          "path": "apps/desktop/src/ExternalWorkspaceOpen.tsx",
+          "sha256": "91398f5d97a396e61c47f1655d2e84508038a7e92b1f25cc4c7a680442e01b5d"
+        },
+        {
+          "path": "apps/desktop/src/ExternalWorkspaceOpen.integration.test.tsx",
+          "sha256": "efa6291788b01f83a16d95a8eac97197c7136bd5a937c4f990d84bbd4e5be8d5"
+        }
+      ],
+      "conclusion": "Owner-only directory read, narrow Native Terminal handoff and normal task UI. Current real macOS Terminal opening evidence remains a separate acceptance gate.",
+      "existing_evidence": "docs/execution/workspace-open-directory/COMPOSED_ROOT8B_RESULTS.json",
+      "included_in_integrated_source": true,
+      "prior_evidence_sha256": "50222afb8affd7ec6f2e752c0f01bbc9946deaf80bbacd9e72a7ac8706d2d595"
+    },
+    "AB-SES-011": {
+      "fixed_source": "9e897d6f6bf0b823e187930fbb84f897be51b89e",
+      "source_refs": [
+        {
+          "path": "apps/desktop/src/App.tsx",
+          "sha256": "89f5ba3561139a1882e7d8c836c7adb56d65009e0fb24007265e665fcdff69fc"
+        },
+        {
+          "path": "apps/desktop/src/StandaloneConversations.tsx",
+          "sha256": "48c65fa969d2f6d5edfc3a0813c9570046e85fe909d2a8877f81bf4ed91732f2"
+        },
+        {
+          "path": "apps/desktop/src/StandaloneConversations.test.tsx",
+          "sha256": "6e863201246d25dfde665d21364c45b8c36a6ef56f539ac9fd0890ef646fb18d"
+        }
+      ],
+      "conclusion": "Normal app flow selects conversation excerpts, reviews an editable summary in the original project and explicitly creates a draft. Complete contract derivation and durable provenance of all selected excerpts remain unproven.",
+      "existing_evidence": null,
+      "included_in_integrated_source": true
+    },
+    "AB-SEC-008": {
+      "fixed_source": "0febc59cf919cb3fe2e2152d8092ccd8c21167a3",
+      "source_refs": [
+        {
+          "path": "crates/core/src/history_export.rs",
+          "sha256": "aafdf4159adbde1a47b2dc02b37a9476ff643850db95976824c72a558e82d57d"
+        },
+        {
+          "path": "apps/desktop/src/ProjectHistoryExport.tsx",
+          "sha256": "bf4051220e211a16c8c694130e19000fe234d707fd58b1916248231d15ee2299"
+        },
+        {
+          "path": "crates/core/src/history_export_tests.rs",
+          "sha256": "b5db5c29936ac22e5578d73e703e076b57b2e4709cfa4a9b0c3a7f9fbaa700b4"
+        },
+        {
+          "path": "apps/desktop/src/ProjectHistoryExport.test.tsx",
+          "sha256": "293d322b37bcb7e959334248c3e6b93d60f66d7a274a53cd56fe6a08419df8ee"
+        }
+      ],
+      "conclusion": "History export implemented and exercised in a draft PR and isolated native bundle. The required macOS CI failure remains, and data deletion and full security acceptance remain pending.",
+      "existing_evidence": null,
+      "draft_pr_review": "docs/execution/leader-control/PR31_ACCEPTANCE.json",
+      "fixed_native_accepted_slice": "accepted_for_frozen_local_native_workflow",
+      "included_in_integrated_source": false
+    }
+  },
+  "scope_note": "Coverage counts existing verified implementation, including reviewed draft PR slices. No implication of merge or whole product acceptance."
+}

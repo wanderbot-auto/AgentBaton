@@ -1,0 +1,93 @@
+{
+  "requirement": "AB-DOM-002",
+  "status": "accepted",
+  "recorded_at_utc": "2026-11-21T13:24:53.032275+00:00",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "github_checked_merge": "df35231eab29aa2d4a043fd9be60888504507716",
+  "scope": "Common local public Core IPC envelope validation, version routing and typed parameter refusal. Tested task changes, project import, event read and empty-parameter requests; no claim about unapproved external Provider protocol versions.",
+  "trace": [
+    "crates/core/src/ipc.rs",
+    "crates/core/tests/ipc.rs",
+    "docs/execution/leader-control/TASK_SUBMISSION_IDEMPOTENCY_MAIN_ACCEPTANCE.json"
+  ],
+  "independent": {
+    "historical_build_artifact": 14350183579,
+    "result": {
+      "requirement": "AB-DOM-002",
+      "scope": "Local public Core IPC request envelope and exercised endpoint parameter schemas",
+      "archive_tools": {
+        "baton": "1d38b91fb401cfd3ef1486a845df246682f16b44b1b6e6d533e7959b256e8647",
+        "batond": "a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109"
+      },
+      "invalid_requests": {
+        "bad_json": {
+          "code": "INVALID_REQUEST",
+          "correlated": false
+        },
+        "unknown_envelope_key": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        },
+        "wrong_envelope_type": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        },
+        "unsupported_version": {
+          "code": "VERSION_UNSUPPORTED",
+          "correlated": true
+        },
+        "typoed_method": {
+          "code": "CAPABILITY_UNSUPPORTED",
+          "correlated": true
+        },
+        "extra_create_field_with_valid_required_fields": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        },
+        "unknown_cancel_field_with_valid_required_fields": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        },
+        "nonobject_parameters": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        },
+        "unknown_field_on_empty_parameters": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        },
+        "wrong_cursor_type": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        },
+        "extra_project_import_field": {
+          "code": "INVALID_REQUEST",
+          "correlated": true
+        }
+      },
+      "database_and_journal_stable": true,
+      "unchanged_after_restart": true,
+      "valid_cancel_positive_control": true,
+      "owned_daemons_joined": true
+    },
+    "archive_role_validation": "Independently rehashed and strictly verified both ARM64 executable signatures before running isolated actual daemon.",
+    "correlation": "Parseable envelopes retain the original request ID even when strict schema rejection occurs; the malformed JSON control has no usable request ID.",
+    "first_test_fixture_failure": "The first assertion assumed every rejected top-level envelope would lose its request ID. The real response retained the ID for valid JSON. Corrected the expectation and retained the first log.",
+    "raw_sha256": {
+      "probe.py": "1bfcfec517de8e67a853b20a48f22f00484ad624b52b859d6b8391fb995d8b46",
+      "test.log": "a1862e8352b527c5f564bb8a5d1207ee83e9e47b23b4e23d7cc9399cd3d09ea3",
+      "daemon.log": "7babd827a75aa1f778303240cd383393026a2ecfc20f035a1842701d579792ca",
+      "initial-probe.py": "eabb5bee3767501107b82b71ec8468d3a78a4c9d27fb071d788b97971eb7b1df",
+      "initial-correlation.log": "114573956060be36de046f19714ab316e3cbc575e5ab730e329019f9e293d422"
+    }
+  },
+  "hosted": {
+    "run": 44122458362,
+    "linux_job": 134177202383,
+    "macos_arm64_job": 134177203395,
+    "passed_test": "unauthenticated_unknown_version_and_malformed_do_not_mutate",
+    "linux_log_sha256": "1062cf1ba74f7511ea7a581b8bfa5ba0b86c6a57cfb9c9c964c0afc831167011",
+    "arm64_log_sha256": "a578b7229fc2cba4712768711dedeee18ba532e0d79a28841cce534738ab1bdb"
+  }
+}

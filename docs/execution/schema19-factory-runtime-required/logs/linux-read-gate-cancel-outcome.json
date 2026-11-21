@@ -1,0 +1,36 @@
+{
+  "active_before_release": 1,
+  "actual_read_bytes_before_stall": 65536,
+  "approved_scope_ttl_ms": 30000,
+  "attempts": 1,
+  "children": 0,
+  "complete_descendant_containment": "not_established",
+  "consumed": 1,
+  "dataset_bytes": 16777216,
+  "explicit_owner_cancel_issued": true,
+  "kernel_read_interruption": "not_claimed",
+  "leases_before_release": 1,
+  "macOS": "not_run",
+  "mode": "read_gate_cancel",
+  "original_leader_reaped": true,
+  "original_request_nonce": "controlled-large-data-original-nonce",
+  "owner_revoke_elapsed_ms": null,
+  "owner_status_elapsed_ms": 2,
+  "owner_status_responsive": true,
+  "owner_stop_elapsed_ms": 2,
+  "read_response": {
+    "error": {
+      "code": "CANCEL_REQUESTED",
+      "details_ref": null,
+      "message": "Data I/O cancellation was observed; partial files are retained",
+      "retryable": false,
+      "side_effect_state": "not_started"
+    },
+    "request_id": "controlled-large-data-original-nonce",
+    "revision": 0,
+    "warnings": []
+  },
+  "read_worker_thread_gone_after_pending_reply": true,
+  "ready_request_queue_deadline": "not_run; expiry mode tests approved scope expiry",
+  "worker_busy_until_explicit_release": true
+}

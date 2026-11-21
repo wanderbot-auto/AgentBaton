@@ -6,6 +6,8 @@
 //! migration-only API, which does not exist.
 #[path = "fixtures/pre_conversation_schema.rs"]
 pub mod pre_conversation_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::Store;
 use rusqlite::{types::ValueRef, Connection, OpenFlags};
 use serde_json::{json, Value};
@@ -445,7 +447,7 @@ fn fk_errors(db: &Connection) -> Vec<String> {
     values
 }
 fn tables(db: &Connection) -> Vec<String> {
-    let mut s = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").unwrap();
+    let mut s = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name NOT LIKE 'sqlite_%' OR name='sqlite_sequence') ORDER BY name").unwrap();
     let values = s
         .query_map([], |r| r.get(0))
         .unwrap()
@@ -550,14 +552,15 @@ fn schema14_with_approved_goal_upgrade(before: &Schema, path: &Path) -> Schema {
     }
     expected
 }
-fn integration_backups(dir: &Path) -> Vec<PathBuf> {
+fn private_migration_backups(dir: &Path, target: u32) -> Vec<PathBuf> {
+    let prefix = format!("history.pre-v{target}-");
     let mut paths: Vec<_> = fs::read_dir(dir)
         .unwrap()
         .map(|entry| entry.unwrap().path())
         .filter(|path| {
             let name = path.file_name().unwrap().to_str().unwrap();
             let Some(id) = name
-                .strip_prefix("history.pre-v18-")
+                .strip_prefix(&prefix)
                 .and_then(|value| value.strip_suffix(".sqlite3"))
             else {
                 return false;
@@ -578,7 +581,7 @@ fn integration_backups(dir: &Path) -> Vec<PathBuf> {
     paths.sort();
     paths
 }
-fn verify_integration_backup(
+fn verify_original14_backup(
     path: &Path,
     original: &Rows,
     original_schema: &Schema,
@@ -591,13 +594,13 @@ fn verify_integration_backup(
         &rows(&backup),
         original,
         path,
-        "Pre-v17 backup original14 rows and rowids",
+        "Private migration backup original14 rows and rowids",
     );
     assert_private_equal(
         &schema(&backup),
         original_schema,
         path,
-        "Pre-v17 backup every original14 DDL/index",
+        "Private migration backup every original14 DDL/index",
     );
     assert_eq!(
         backup
@@ -632,23 +635,54 @@ fn reject_unchanged(path: &Path) {
         path,
         "Failed migration changed rejected proof",
     );
-    let copies = integration_backups(path.parent().unwrap());
+    let copies = private_migration_backups(path.parent().unwrap(), 18);
     assert_eq!(copies.len(), 1);
-    verify_integration_backup(&copies[0], &data, &ddl, application_id);
+    verify_original14_backup(&copies[0], &data, &ddl, application_id);
+    let host_copies = private_migration_backups(path.parent().unwrap(), 19);
+    assert_eq!(host_copies.len(), 1);
+    verify_original14_backup(&host_copies[0], &data, &ddl, application_id);
+}
+
+// Preserve the strict schema18 validators on an isolated logical copy. The
+// real Store and the migrated database remain schema19 throughout the check.
+fn verify_current_layers(current: &Connection) {
+    schema19_legacy_migration::assert_empty_host19(current);
+    let mut projected = Connection::open_in_memory().unwrap();
+    {
+        let backup = rusqlite::backup::Backup::new(current, &mut projected).unwrap();
+        assert!(matches!(
+            backup.step(-1).unwrap(),
+            rusqlite::backup::StepResult::Done
+        ));
+    }
+    schema19_legacy_migration::remove_empty_host19(&projected).unwrap();
+    pre_integration_schema::verify_empty_integration17_current18(&projected).unwrap();
+    pre_conversation_schema::verify_empty_conversation18(&projected).unwrap();
 }
 
 #[test]
-fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_backups() {
+fn actual_nonempty_native_and_factory14_history_survives_store19_and_private_backups() {
     let (dir, path, manifest) = fixture();
     let db = Connection::open(&path).unwrap();
-    let original = rows(&db);
-    let original_schema = schema(&db);
-    let original_application_id: u32 = db
+    // Keep a committed snapshot of the genuine old version in the disposable
+    // copy's WAL without changing any historical row or its schema label.
+    db.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
+    db.pragma_update(None, "user_version", 14u32).unwrap();
+    let wal = path.with_file_name("history.sqlite3-wal");
+    let original_wal = fs::read(&wal).unwrap();
+    assert!(original_wal.len() > 32);
+    let pinned = db.unchecked_transaction().unwrap();
+    let original = rows(&pinned);
+    let original_sequence: i64 = pinned
+        .query_row("SELECT max(sequence) FROM events", [], |row| row.get(0))
+        .unwrap();
+    let original_schema = schema(&pinned);
+    let original_application_id: u32 = pinned
         .pragma_query_value(None, "application_id", |row| row.get(0))
         .unwrap();
     let expected_predecessor_schema = schema14_with_approved_goal_upgrade(&original_schema, &path);
     let old_cap_fk: Vec<(String, String)> = {
-        let mut s=db.prepare("SELECT \"table\",\"from\" FROM pragma_foreign_key_list('goal_graph_capabilities') ORDER BY id").unwrap();
+        let mut s=pinned.prepare("SELECT \"table\",\"from\" FROM pragma_foreign_key_list('goal_graph_capabilities') ORDER BY id").unwrap();
         let values = s
             .query_map([], |r| Ok((r.get(0)?, r.get(1)?)))
             .unwrap()
@@ -656,8 +690,14 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
             .collect();
         values
     };
-    drop(db);
     let store = Store::open(&path).unwrap();
+    assert_eq!(
+        store.sequence().unwrap(),
+        u64::try_from(original_sequence).unwrap()
+    );
+    assert!(fs::read(wal).unwrap().starts_with(&original_wal));
+    drop(pinned);
+    drop(db);
     let scope_id = manifest["native_goal_scope_id"].as_str().unwrap();
     let view = store.get_goal_scope(scope_id).unwrap();
     assert_eq!(view.id, scope_id);
@@ -671,14 +711,14 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
     assert!(!details.task_accepted);
     drop(store);
     let after = Connection::open(&path).unwrap();
-    assert_eq!(version(&after), 18);
+    assert_eq!(version(&after), 19);
     assert!(fk_errors(&after).is_empty());
-    pre_integration_schema::verify_empty_integration17_current18(&after).unwrap();
-    pre_conversation_schema::verify_empty_conversation18(&after).unwrap();
+    verify_current_layers(&after);
     let predecessor_schema: Schema = schema(&after)
         .into_iter()
         .filter(|row| {
-            row.2 != "factory_child_goal_runs"
+            row.2 != "host_registrations"
+                && row.2 != "factory_child_goal_runs"
                 && !pre_integration_schema::INTEGRATION17_TABLES.contains(&row.2.as_str())
                 && !pre_conversation_schema::CONVERSATION18_TABLES.contains(&row.2.as_str())
         })
@@ -709,6 +749,7 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
         new_rows.remove("factory_child_goal_runs") == Some(vec![]),
         "Historical Factory cannot gain execution authority; inspect retained private evidence"
     );
+    assert!(new_rows.remove("host_registrations") == Some(vec![]));
     assert_private_equal(
         &new_rows,
         &original,
@@ -782,14 +823,29 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
         &path,
         "Pre-v16 original14 complete DDL",
     );
-    let integration_saved = integration_backups(dir.path());
+    let integration_saved = private_migration_backups(dir.path(), 18);
     assert_eq!(integration_saved.len(), 1);
-    verify_integration_backup(
+    verify_original14_backup(
         &integration_saved[0],
         &original,
         &original_schema,
         original_application_id,
     );
+    let host_saved = private_migration_backups(dir.path(), 19);
+    assert_eq!(host_saved.len(), 1);
+    verify_original14_backup(
+        &host_saved[0],
+        &original,
+        &original_schema,
+        original_application_id,
+    );
+    let backup_bytes: Vec<_> = saved
+        .iter()
+        .chain(&semantic_saved)
+        .chain(&integration_saved)
+        .chain(&host_saved)
+        .map(|backup| (backup, fs::read(backup).unwrap()))
+        .collect();
     let after_rows = rows(&after);
     let after_schema = schema(&after);
     drop(after);
@@ -802,26 +858,35 @@ fn actual_nonempty_native_and_factory14_history_survives_store17_and_private_bac
     assert_eq!(
         task_workspace_backups(dir.path()).len(),
         1,
-        "Current17 reopen cannot create another semantic migration backup"
+        "Current19 reopen cannot create another semantic migration backup"
     );
     assert_eq!(
-        integration_backups(dir.path()),
+        private_migration_backups(dir.path(), 18),
         integration_saved,
-        "Current17 reopen cannot add an integration safety copy"
+        "Current19 reopen cannot add an integration safety copy"
     );
     let reopened = Connection::open(&path).unwrap();
-    pre_integration_schema::verify_empty_integration17_current18(&reopened).unwrap();
+    assert_eq!(private_migration_backups(dir.path(), 19), host_saved);
+    for (copy, raw) in backup_bytes {
+        assert_private_equal(
+            &fs::read(copy).unwrap(),
+            &raw,
+            &path,
+            "Reopen rewrote a migration backup",
+        );
+    }
+    verify_current_layers(&reopened);
     assert_private_equal(
         &rows(&reopened),
         &after_rows,
         &path,
-        "Current17 reopen must preserve every rowid/raw row",
+        "Current19 reopen must preserve every rowid/raw row",
     );
     assert_private_equal(
         &schema(&reopened),
         &after_schema,
         &path,
-        "Current17 reopen must preserve all DDL",
+        "Current19 reopen must preserve all DDL",
     );
 }
 
@@ -968,33 +1033,69 @@ fn actual14_corrupt_native_result_capability_or_ordered_receipt_is_rejected() {
     }
 }
 
-#[test]
-fn actual14_fixture_relabeled_future19_is_refused_before_backup_or_recovery() {
-    // Deliberate future-version corruption of this private copy only. Never
-    // relabel the historical14 source/generator/input or claim genuine18 data.
+fn reject_mislabeled_copy(label: u32, code: &str, message: &str) {
+    // Only the disposable copy carries the incorrect schema label.
     let (dir, path, _) = fixture();
-    let db = Connection::open(&path).unwrap();
-    db.execute_batch("PRAGMA user_version=19").unwrap();
-    let before = rows(&db);
-    let before_schema = schema(&db);
-    drop(db);
+    let keeper = Connection::open(&path).unwrap();
+    keeper.pragma_update(None, "wal_autocheckpoint", 0).unwrap();
+    keeper.pragma_update(None, "user_version", label).unwrap();
+    let before = rows(&keeper);
+    let before_schema = schema(&keeper);
     let before_raw = fs::read(&path).unwrap();
-    let error = match Store::open(&path) {
-        Ok(_) => panic!("Future19 must not open"),
-        Err(e) => e,
-    };
-    assert_eq!(error.code, "VERSION_UNSUPPORTED");
-    let db = Connection::open(&path).unwrap();
-    assert_eq!(version(&db), 19);
-    assert_private_equal(&rows(&db), &before, &path, "Future database changed");
-    assert_private_equal(&schema(&db), &before_schema, &path, "Future DDL changed");
+    let wal = path.with_file_name("history.sqlite3-wal");
+    let before_wal = fs::read(&wal).unwrap();
+    assert!(before_wal.len() > 32);
+    let error = Store::open(&path)
+        .err()
+        .expect("Incorrectly labeled old copy accepted");
+    assert_eq!(error.code, code);
+    assert_eq!(error.message, message);
+    let db = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    assert_eq!(version(&db), label);
+    assert_private_equal(&rows(&db), &before, &path, "Rejected database rows changed");
+    assert_private_equal(
+        &schema(&db),
+        &before_schema,
+        &path,
+        "Rejected database DDL changed",
+    );
     assert_private_equal(
         &fs::read(&path).unwrap(),
         &before_raw,
         &path,
-        "Future raw file changed",
+        "Rejected main file changed",
+    );
+    assert_private_equal(
+        &fs::read(wal).unwrap(),
+        &before_wal,
+        &path,
+        "Rejected committed WAL changed",
     );
     assert!(backups(dir.path()).is_empty());
     assert!(task_workspace_backups(dir.path()).is_empty());
-    assert!(integration_backups(dir.path()).is_empty());
+    assert!(private_migration_backups(dir.path(), 18).is_empty());
+    assert!(private_migration_backups(dir.path(), 19).is_empty());
+    assert!(fs::read_dir(dir.path()).unwrap().all(|entry| !entry
+        .unwrap()
+        .file_name()
+        .to_string_lossy()
+        .contains(".pre-v")));
+}
+
+#[test]
+fn actual14_fixture_mislabeled_current19_is_refused_before_backup_or_recovery() {
+    reject_mislabeled_copy(
+        19,
+        "INPUT_CHANGED",
+        "Integration current schema is incomplete or changed",
+    );
+}
+
+#[test]
+fn actual14_fixture_labeled_future20_is_refused_before_backup_or_recovery() {
+    reject_mislabeled_copy(
+        20,
+        "VERSION_UNSUPPORTED",
+        "Database was created by a newer application",
+    );
 }

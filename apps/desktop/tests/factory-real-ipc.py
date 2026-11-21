@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Built Factory UI -> fixed test HTTP -> actual authenticated Core17 Unix IPC.
+"""Built Factory UI -> fixed test HTTP -> actual authenticated Core19 Unix IPC.
 
 Owner review/finalization and resource creation exist only in the private host
 fixture. Generated ACP/MCP is an account-free test program, never a real model.
@@ -8,6 +8,7 @@ Default invocation records pending dependencies and exits2 without a process.
 from __future__ import annotations
 
 import argparse
+import errno
 from dataclasses import dataclass
 from functools import partial
 import hashlib
@@ -34,7 +35,8 @@ SUPPORT_PATH = Path(__file__).with_name('goal-graph-real-ipc.py')
 _spec = importlib.util.spec_from_file_location('_factory_existing_ipc_support', SUPPORT_PATH)
 support = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = support
-_spec.loader.exec_module(support)
+SUPPORT_SOURCE = SUPPORT_PATH.read_bytes()
+exec(compile(SUPPORT_SOURCE, str(SUPPORT_PATH), 'exec'), support.__dict__)
 FixedCall = support.FixedCall
 BoundaryRefusal = support.BoundaryRefusal
 require = support.require
@@ -46,7 +48,11 @@ MUTATIONS = frozenset({'factory_runs.start', 'factory_runs.cancel'})
 READS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
     'workspaces.list', 'grants.list', 'events.subscribe', 'goal_scopes.list',
     'factory_scopes.get', 'factory_scopes.list', 'factory_runs.get'})
-PENDING = ('Root immutable matching schema18 batond and sibling baton with manifest hashes',
+FACTORY_SCHEMA = 19
+GRAPH_SUPPORT_SHA256 = '550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18'
+MAX_TOOL_BYTES = {'batond': 256 * 1024 * 1024, 'baton': 128 * 1024 * 1024}
+MAX_FRONTEND_BYTES = 64 * 1024 * 1024
+PENDING = ('Root immutable matching schema19 batond and sibling baton with manifest hashes',
     'Root actual composed built Factory frontend and asset hashes',
     'Core-author confirmation of actual Factory runtime/ledger and private MCP contract')
 
@@ -519,6 +525,17 @@ def collect_started_records(runtime, workspace, scope, context, verified, output
                         reaper.reap(old)
                         try: after = support.proc_identity(expected['pid'])
                         except FileNotFoundError: after = None
+                        except ProcessLookupError as failure:
+                            if failure.errno != errno.ESRCH: raise
+                            # An already-open proc stat FD can lose its task
+                            # while the fixture's own parent waits for it.
+                            # Reopen only this bound PID. A surviving original
+                            # identity is not proof of its disappearance.
+                            try: after = support.proc_identity(expected['pid'])
+                            except FileNotFoundError: after = None
+                            else:
+                                if after['pid'] != expected['pid'] or after['start_ticks'] == expected['start_ticks']:
+                                    raise
                         late_observation = None
                         if after is not None and after['start_ticks'] == expected['start_ticks']:
                             late_observation = {'stage':'bound_MCP_late_wait_still_present',
@@ -1042,6 +1059,138 @@ def preflight(args):
     return binary, companion, frontend, manifest, raw
 
 
+@dataclass(frozen=True)
+class FactoryCandidate:
+    source_head: str
+    source_tree: str
+    manifest_path: Path
+    manifest: dict
+    manifest_raw: bytes
+    manifest_pin: dict
+    tool_paths: dict[str, Path]
+    tool_pins: dict
+    frontend: Path
+    asset_pins: dict
+
+
+def factory_input_pin(path: Path, limit: int, *, executable=False):
+    """Hash a bounded regular file through one FD and pin its identity."""
+    def stamp(info):
+        return (info.st_dev, info.st_ino, info.st_size, info.st_mode, info.st_uid,
+            info.st_nlink, info.st_mtime_ns, info.st_ctime_ns)
+
+    initial = path.lstat()
+    require(stat.S_ISREG(initial.st_mode) and 0 <= initial.st_size <= limit,
+        'Factory input must be a bounded regular file')
+    if executable:
+        mode = stat.S_IMODE(initial.st_mode)
+        require(initial.st_uid == os.getuid() and initial.st_nlink == 1 and initial.st_size > 0
+            and mode & 0o500 == 0o500 and not mode & 0o7022 and os.access(path, os.X_OK),
+            'Factory executable must be owned, single-link and safely executable')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    digest = hashlib.sha256()
+    with os.fdopen(fd, 'rb') as stream:
+        require(stamp(initial) == stamp(os.fstat(stream.fileno())), 'Factory input identity changed')
+        size = 0
+        while chunk := stream.read(min(1048576, initial.st_size - size + 1)):
+            size += len(chunk)
+            require(size <= initial.st_size, 'Factory input size changed')
+            digest.update(chunk)
+        require(size == initial.st_size and stamp(initial) == stamp(os.fstat(stream.fileno())) == stamp(path.lstat()),
+            'Factory input identity changed')
+    return {'identity': stamp(initial), 'bytes': size, 'sha256': digest.hexdigest()}
+
+
+def factory_frontend_pins(frontend: Path):
+    require(frontend.is_dir() and not frontend.is_symlink(), 'Factory frontend directory required')
+    paths = list(frontend.rglob('*'))
+    require(len(paths) <= 4096, 'Factory frontend entry bound exceeded')
+    pins = {}
+    remaining = MAX_FRONTEND_BYTES
+    for path in sorted(paths):
+        require(not path.is_symlink(), 'Factory frontend symlink refused')
+        if not path.is_dir():
+            pin = factory_input_pin(path, remaining)
+            pins[path.relative_to(frontend).as_posix()] = pin
+            remaining -= pin['bytes']
+    require('index.html' in pins, 'Factory frontend is missing index.html')
+    return pins
+
+
+def factory_tools_pins(paths):
+    return {name: factory_input_pin(paths[name], limit, executable=True) for name, limit in MAX_TOOL_BYTES.items()}
+
+
+def factory_current_source():
+    require(sha(SUPPORT_SOURCE) == sha(SUPPORT_PATH.read_bytes()) == GRAPH_SUPPORT_SHA256,
+        'Factory requires the reviewed schema19 Graph source')
+    return support.graph_source()
+
+
+def current_factory_preflight(args):
+    require(args.batond and args.candidate_manifest and args.frontend,
+        'Supply frozen batond/manifest and composed built frontend')
+    manifest_path = args.candidate_manifest.parent.resolve(strict=True) / args.candidate_manifest.name
+    raw, manifest_pin = bounded_file(manifest_path, 1048576)
+    manifest = json.loads(raw, object_pairs_hook=unique_object)
+    require(type(manifest) is dict and type(manifest.get('schema')) is int and manifest['schema'] == FACTORY_SCHEMA,
+        'Only integer schema19 candidate is current Factory runtime evidence')
+    head, tree = factory_current_source()
+    require(manifest.get('git_head') == head and manifest.get('compiled_core_source_head') == head
+        and manifest.get('source_head', head) == head and manifest.get('frontend_source_head', head) == head
+        and manifest.get('git_tree') == tree and manifest.get('dirty') is False
+        and manifest.get('tracked_clean', True) is True, 'Factory candidate source does not match the clean Git HEAD/tree')
+    hashes = manifest.get('binaries')
+    require(type(hashes) is dict and set(hashes) == set(MAX_TOOL_BYTES)
+        and all(type(digest) is str and re.fullmatch('[0-9a-f]{64}', digest) for digest in hashes.values()),
+        'Factory candidate requires exact batond and baton digests')
+    require(args.batond.name == 'batond', 'Factory daemon and companion must be sibling tools')
+    directory = args.batond.parent.resolve(strict=True)
+    tools = {name: directory / name for name in MAX_TOOL_BYTES}
+    tool_pins = factory_tools_pins(tools)
+    require({name: pin['sha256'] for name, pin in tool_pins.items()} == hashes, 'Factory frozen tool digest mismatch')
+    frontend = args.frontend.parent.resolve(strict=True) / args.frontend.name
+    assets = factory_frontend_pins(frontend)
+    require({name: pin['sha256'] for name, pin in assets.items()} == manifest.get('frontend_assets'),
+        'Factory candidate frontend assets do not match')
+    require(sys.platform == 'linux' and Path('/proc/self/stat').is_file(), 'Current Factory browser run requires Linux procfs')
+    return FactoryCandidate(head, tree, manifest_path, manifest, raw, manifest_pin, tools, tool_pins, frontend, assets)
+
+
+def verify_factory_installation(prepared, record, binary, companion):
+    require(factory_tools_pins(prepared.tool_paths) == prepared.tool_pins, 'Factory frozen tool identity changed')
+    installed = factory_tools_pins({'batond': binary, 'baton': companion})
+    for name, original in prepared.tool_pins.items():
+        copied = record['tools'][name]
+        require(copied['copy_sha256'] == copied['original_sha256'] == copied['original_after_sha256'] == original['sha256']
+            and copied['original_bytes'] == original['bytes']
+            and copied['installed_sha256'] == installed[name]['sha256']
+            and copied['installed_bytes'] == installed[name]['bytes'], 'Factory private tool copy changed')
+    require(installed['batond']['sha256'] == prepared.tool_pins['batond']['sha256'], 'Factory private daemon changed')
+    return installed
+
+
+def verify_factory_run_inputs(prepared, harness_sha256):
+    require(factory_current_source() == (prepared.source_head, prepared.source_tree)
+        and sha(Path(__file__).read_bytes()) == harness_sha256, 'Factory source changed during the run')
+    require(bounded_file(prepared.manifest_path, 1048576) == (prepared.manifest_raw, prepared.manifest_pin),
+        'Factory manifest changed during the run')
+    require(factory_tools_pins(prepared.tool_paths) == prepared.tool_pins, 'Factory frozen tool identity changed')
+    require(factory_frontend_pins(prepared.frontend) == prepared.asset_pins, 'Factory frontend changed during the run')
+
+
+def observe_factory_schema(host, runtime: Path):
+    response, raw = host.wire(FixedCall('system.snapshot', {}))
+    snapshot = response.get('result')
+    require('error' not in response and type(snapshot) is dict and type(snapshot.get('api_version')) is int
+        and snapshot['api_version'] == 1 and type(snapshot.get('database_schema_version')) is int
+        and snapshot['database_schema_version'] == FACTORY_SCHEMA, 'Factory snapshot must report API 1 and integer schema 19')
+    with support.graph_database(runtime) as db:
+        schema = support.graph_database_schema(db)
+    return {'ipc_api_version': snapshot['api_version'], 'ipc_database_schema_version': snapshot['database_schema_version'],
+        'sqlite_user_version': schema, 'snapshot_reply_sha256': sha(raw)}
+
+
 GENERATED_ACP = "import time\nFIXTURE_STARTED_NS=time.monotonic_ns()\nimport hashlib,json,os,signal,stat,subprocess,sys\nfrom pathlib import Path\n" + OBSERVER_ACK_CODE + r'''
 if '--version' in sys.argv:
  print('Generated account-free Factory ACP 1');sys.exit(0)
@@ -1167,7 +1316,8 @@ finally:
 
 
 def runtime_driver(args, output, attribution, prepared):
-    raw_binary, raw_companion, frontend, manifest, manifest_raw = prepared
+    raw_binary, raw_companion = (prepared.tool_paths[name] for name in ('batond', 'baton'))
+    frontend, manifest, manifest_raw = prepared.frontend, prepared.manifest, prepared.manifest_raw
     try:
         from playwright.sync_api import expect, sync_playwright
     except ImportError as failure:
@@ -1175,12 +1325,13 @@ def runtime_driver(args, output, attribution, prepared):
             'actual_runtime': 'not_run', 'reason': str(failure), 'no_process_token_read_or_listener': True}, indent=2) + '\n')
         return 2
     compile(GENERATED_ACP, '<generated-account-free-acp>', 'exec')
-    assets = {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()}
+    assets = {name: pin['sha256'] for name, pin in prepared.asset_pins.items()}
     report = {**attribution, 'status': 'failed_or_interrupted', 'case': args.case,
-        'dimension': 'actual built UI/Linux Chromium/fixed HTTP/authenticated Core13/generated ACP and real private Baton MCP',
+        'dimension': 'actual built UI/Linux Chromium/fixed HTTP/authenticated Core19/generated ACP and real private Baton MCP',
         'not_claimed': ['Native Owner OS dialog', 'macOS', 'real Provider/model', 'true response-drop recovery',
             'Provider disconnect side-effect recovery', 'complete Factory fault matrix', 'full product completion'],
         'candidate': manifest, 'candidate_manifest_sha256': sha(manifest_raw), 'frontend_assets_sha256': assets,
+        'source': prepared.source_head, 'git_tree': prepared.source_tree, 'frozen_tool_pins': prepared.tool_pins,
         'checks': [], 'private_owner_reviews': [], 'http': [], 'http_unexpected_errors': [], 'readonly_aborts': [],
         'observations': {}, 'screenshots': [], 'cleanup': [], 'cleanup_complete': False}
     token = ''; pump = lambda: None; observe_records = lambda: []
@@ -1214,6 +1365,8 @@ def runtime_driver(args, output, attribution, prepared):
         root = Path(temporary).resolve(); root.chmod(0o700)
         report['private_installation'] = {}
         binary, companion = install_private_tools(raw_binary, raw_companion, root / 'installed', report['private_installation'])
+        installed_pins = verify_factory_installation(prepared, report['private_installation'], binary, companion)
+        report['private_installation']['installed_file_pins'] = installed_pins
         runtime = root / 'runtime'; runtime.mkdir(mode=0o700)
         settings = root / 'generated-settings.json'
         provider = root / 'generated-factory-acp'
@@ -1254,6 +1407,9 @@ def runtime_driver(args, output, attribution, prepared):
             wait(lambda: ((runtime / 'session.token').is_file(), (runtime / 'batond.sock').exists(), daemon.poll()),
                 lambda v: v[0] and v[1] and v[2] is None)
             host = PrivateHost(runtime); token = host.token
+            report['observations']['schema_evidence'] = {'manifest_schema': manifest['schema'],
+                **observe_factory_schema(host, runtime)}
+            passed('current candidate, actual private IPC snapshot and read-only SQLite agree on schema 19 before Owner setup')
             def owner_resource(method, params, kind, key, revision=None):
                 proposal = host.result(method, params, key, revision)
                 assert proposal['kind'] == kind
@@ -1479,11 +1635,14 @@ def runtime_driver(args, output, attribution, prepared):
                         parent = [r for r in records if r['stage'].startswith('parent')]
                         assert len({r['owned_provider']['pid'] for r in parent}) == 2
                         assert parent[0]['request']['task_id'] == parent[1]['request']['task_id'] == task['id']
-                    with sqlite3.connect('file:' + str(runtime / 'baton.sqlite3') + '?mode=ro', uri=True) as db:
-                        db.execute('PRAGMA query_only=ON'); db.execute('BEGIN')
-                        report['observations']['actual_sqlite_schema'] = db.execute('PRAGMA user_version').fetchone()[0]
-                        assert report['observations']['actual_sqlite_schema'] == 18
-                        counts = support.current_factory_counts(db)
+                    else:
+                        assert all(row['result_available'] is False for row in detail['tasks'])
+                        outputs = [workspace_root / 'reports' / name for name in ('report-child.txt', 'report-parent.txt')]
+                        assert not any(path.exists() or path.is_symlink() for path in outputs)
+                        report['observations']['declared_results_available'] = False
+                    with support.graph_database(runtime) as db:
+                        report['observations']['actual_sqlite_schema'] = support.graph_database_schema(db)
+                        counts = support.graph_factory_counts(db)
                         report['observations']['factory_record_counts'] = counts
                         assert counts['child_goal_runs'] == counts['child_plan_heads'] == counts['child_plan_revisions'] == 0
                         report['observations']['legacy_goal_table_counts'] = {table: db.execute(
@@ -1524,11 +1683,9 @@ def runtime_driver(args, output, attribution, prepared):
                     expect(panel.get_by_text('Completed Factory processing does not accept the task.', exact=True)).to_be_visible()
                     shot('02-real-' + terminal + '-task-history', region)
                     assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])
-                    assert sha(Path(__file__).read_bytes()) == attribution['harness_sha256']
-                    assert {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()} == assets
-                    assert sha(binary.read_bytes()) == manifest['binaries']['batond']
-                    assert sha(companion.read_bytes()) == report['private_installation']['tools']['baton']['installed_sha256']
-                    assert sha(raw_binary.read_bytes()) == manifest['binaries']['batond'] and sha(raw_companion.read_bytes()) == manifest['binaries']['baton']
+                    verify_factory_run_inputs(prepared, attribution['harness_sha256'])
+                    require(factory_tools_pins({'batond': binary, 'baton': companion}) == installed_pins,
+                        'Factory private installed tool identity changed')
                     passed('actual built Factory UI shows terminal history without acceptance or source/asset drift')
                     report['status'] = 'passed'
                 except BaseException as failure:
@@ -1600,6 +1757,9 @@ def runtime_driver(args, output, attribution, prepared):
                 if token:
                     path.write_bytes(path.read_bytes().replace(token.encode(), b'[redacted generated Owner token]'))
             cleanup_call(report, 'daemon_log_redaction', redact_log, clean)
+            if report['status'] == 'passed':
+                cleanup_call(report, 'fixed_inputs_after_teardown',
+                    lambda: verify_factory_run_inputs(prepared, attribution['harness_sha256']), clean)
             report['cleanup_complete'] = bool(http_complete and daemon_complete is True and identity_complete is True
                 and not report.get('failure') and not report['http_unexpected_errors'])
             if not report['cleanup_complete']:
@@ -1935,8 +2095,9 @@ def main():
     parser.add_argument('--chromium', default='/usr/bin/chromium')
     args = parser.parse_args()
     assert sum([args.self_check, args.fixture_self_check, args.cleanup_self_check, args.diagnostic_self_check, bool(args.case)]) <= 1
-    output = args.output.resolve(); output.mkdir(parents=True, exist_ok=False)
-    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_PATH.read_bytes()), 'schema_required': 18}
+    output = args.output.resolve(); output.mkdir(mode=0o700 if args.case else 0o777, parents=True, exist_ok=False)
+    attribution = {'harness_sha256': sha(Path(__file__).read_bytes()), 'support_sha256': sha(SUPPORT_SOURCE),
+        'schema_required': FACTORY_SCHEMA if args.case else 18}
     if args.self_check:
         report = {**attribution, **boundary_self_check()}
         (output / 'boundary-checks.json').write_text(json.dumps(report, indent=2) + '\n')
@@ -1955,8 +2116,8 @@ def main():
         print(json.dumps({'status': report['status'], 'count': report['count']})); return 0
     if args.case:
         try:
-            prepared = preflight(args)
-        except (AssertionError, OSError, ValueError, KeyError) as failure:
+            prepared = current_factory_preflight(args)
+        except (AssertionError, OSError, ValueError, KeyError, subprocess.CalledProcessError) as failure:
             report = {**attribution, 'status': 'preflight_refused', 'actual_runtime': 'not_run',
                 'reason': str(failure), 'no_process_token_read_or_listener': True}
             (output / 'preflight-refusal.json').write_text(json.dumps(report, indent=2) + '\n')

@@ -1,0 +1,565 @@
+{
+  "task": "host19-task-workspace-ci",
+  "approval": "AB-START-001",
+  "fixed_base": "9e897d6f6bf0b823e187930fbb84f897be51b89e",
+  "tested_source": "5f6718778d06e415098ca81ee29c89aa86965480",
+  "tested_tree": "6183abc6985e889702aa78de11274175edc8e0a0",
+  "branch": "collab/host19-task-workspace-ci",
+  "recorded_at_utc": "2026-11-18T18:32:26Z",
+  "environment": {
+    "os": "macOS 26.6.1 (25G76)",
+    "arch": "arm64",
+    "kernel": "Darwin 25.6.0",
+    "versions": {
+      "git": "git version 2.54.0 (Apple Git-157)",
+      "node": "v26.7.0",
+      "npm": "11.19.0",
+      "python3": "Python 3.12.12",
+      "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+      "rustup": "rustup 1.28.2 (e4f3ad6f8 2025-04-28)",
+      "gh": "gh version 2.91.0 (2026-04-22)"
+    },
+    "infra_dependencies": {
+      "jsonschema": "4.26.0",
+      "PyYAML": "6.0.3"
+    },
+    "browser_runtime": "Owned copies from the verified Apple Silicon Chromium and private Playwright fixture. The Python and Chromium executables compared byte-identical. pip check passed."
+  },
+  "pipeline": "scripts/collab.sh run --",
+  "checks": [
+    {
+      "name": "npm-ci",
+      "command": "npm --prefix apps/desktop ci --offline --no-audit --no-fund",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/npm-ci.log",
+        "sha256": "2660e0aafb339145971666f6f690ab225384223772988f03fd1ef72a68a73a3f"
+      }
+    },
+    {
+      "name": "sidecars",
+      "command": "CARGO_BUILD_JOBS=2 cargo build --release --offline --locked --bin baton --bin batond",
+      "exit_code": 0,
+      "result": "passed, 1m 33s",
+      "log": {
+        "runtime_relative_path": "workspace-checks/sidecars.log",
+        "sha256": "d2744c1f1379f2f2d949348528d0520f8d0d565cf03fcad2fd2f9567b2e2b73f"
+      }
+    },
+    {
+      "name": "frontend",
+      "command": "npm --prefix apps/desktop run build",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/frontend.log",
+        "sha256": "3e00c172e4d2085398ef0f0948d8e3b8a5586fdab5297caece0a237502f8ddb8"
+      }
+    },
+    {
+      "name": "driver-targeted",
+      "command": "python -m unittest discover -s apps/desktop/tests -p test_task_workspace_binding_real_ipc.py -v",
+      "exit_code": 0,
+      "result": "62 passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/driver-targeted.log",
+        "sha256": "9fb21e1a90128202e05641da9c833a505553752fa9160ae38effa9bb61aa797c"
+      }
+    },
+    {
+      "name": "projector-targeted",
+      "command": "python -m unittest tests.infrastructure.test_task_workspace_ci_evidence tests.infrastructure.test_task_workspace_failure_stage tests.infrastructure.test_host19_task_workspace_source_fixture tests.infrastructure.test_task_workspace_ci_launch_diagnostics tests.infrastructure.test_task_workspace_ci_launch_diagnostic_inverse -v",
+      "exit_code": 0,
+      "result": "81 passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/projector-targeted.log",
+        "sha256": "d563442e59d54200b7a9fc7630253a263f4b5ce9feef0c75708132ee5d7c1d10"
+      }
+    },
+    {
+      "name": "design",
+      "command": "python scripts/validate_design.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/design.log",
+        "sha256": "9457746ba7e33cbe52d58dc22c3ea1c2f7df99c24217a176b90d8a096ea170d7"
+      }
+    },
+    {
+      "name": "infrastructure",
+      "command": "python scripts/validate_infrastructure.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/infrastructure.log",
+        "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      }
+    },
+    {
+      "name": "full-python",
+      "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "990 ran, 974 passed, 16 preexisting skips, projector-targeted tests included",
+      "log": {
+        "runtime_relative_path": "workspace-checks/full-python.log",
+        "sha256": "62af99d97956774ce08461e2cf62256339102ee851f5e00c0305c12dc69fd22d"
+      }
+    },
+    {
+      "name": "node",
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "4 passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/node.log",
+        "sha256": "7fd078ed261b2de8a5013ade5d3d075803f76edfa2da4734c1ddc2ca6ad780bb"
+      }
+    },
+    {
+      "name": "bootstrap",
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "result": "93 files verified",
+      "log": {
+        "runtime_relative_path": "workspace-checks/bootstrap.log",
+        "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      }
+    },
+    {
+      "name": "gate",
+      "command": "python scripts/check_gate.py --scope preparation",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/gate.log",
+        "sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+      }
+    },
+    {
+      "name": "doctor",
+      "command": "python scripts/doctor.py --strict",
+      "exit_code": 0,
+      "result": "passed",
+      "log": {
+        "runtime_relative_path": "workspace-checks/doctor.log",
+        "sha256": "70aa75918b9750cc994a7c82b7304ce44cceedb6c9eece8c7058c3adb846e99e"
+      }
+    },
+    {
+      "name": "rust-smoke",
+      "command": "cargo test --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\"",
+      "exit_code": 0,
+      "result": "2 passed. Byte-identical fixture from git archive, checked with cmp",
+      "log": {
+        "runtime_relative_path": "workspace-checks/rust-smoke.log",
+        "sha256": "464e51cacadb674a4bdc1c22a566450bd53de627c77d96e1dcc8714f4375fb07"
+      }
+    },
+    {
+      "name": "rust-clippy",
+      "command": "cargo clippy --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\" --all-targets -- -D warnings",
+      "exit_code": 0,
+      "result": "passed on the same archived fixture",
+      "log": {
+        "runtime_relative_path": "workspace-checks/rust-clippy.log",
+        "sha256": "c5dee5d22e0885c265b82d612e70a9045ea5976e50d079056ca798c9057b6f1d"
+      }
+    }
+  ],
+  "initial_targeted_failure": {
+    "exit_code": 1,
+    "tests": 62,
+    "passed": 61,
+    "cause": "Preexisting expectation compared the temporary /var alias with the driver's canonical /private/var path.",
+    "correction": "Canonicalized the local test fixture root before exact path comparisons.",
+    "log": {
+      "runtime_relative_path": "workspace-checks/driver-targeted-initial.log",
+      "sha256": "f49552b83b08ba01b78b2d44f1324bf018d33b1ba18361bc9ea580f94ea4c96a"
+    }
+  },
+  "historical_inverse": {
+    "verified_identical_to_base_bytes": true,
+    "old_schema": 18,
+    "old_expected_table_count": 63,
+    "sha256": {
+      "apps/desktop/tests/task-workspace-binding-real-ipc.py": "a4c0c4ef49a42c11000c25a135c664e121e47c5d94d3d1c90d5d22a47c5ce4b0",
+      "scripts/record-task-workspace-ci-evidence.py": "dd602c15aac5429939a768ff5d3ff8cc7eab0d1c2c02fe8bed5ce4437fd9d1da"
+    }
+  },
+  "actual_local_browser": {
+    "scope": "Actual local macOS Chromium and private Core with generated Task Workspace data",
+    "source": "5f6718778d06e415098ca81ee29c89aa86965480",
+    "tree": "6183abc6985e889702aa78de11274175edc8e0a0",
+    "platform": {
+      "macos": "26.6.1",
+      "kernel": "25.6.0",
+      "architecture": "arm64",
+      "browser_python": "3.13.2",
+      "playwright": "1.61.0",
+      "chromium": "149.0.7827.55"
+    },
+    "source_hashes": {
+      "driver": "e83fdd4a10b11877a79e11b3691ca96db37460ee897f693eced5d368d44e3bdd",
+      "projector": "6f40d9aca7afb760f20c96ed9ba704160e8b9a3bbb618ec81a7651a9a8161a3f"
+    },
+    "tools_sha256": {
+      "batond": "858711d6243b925cab0ae24b1e052fa7271e300d0bd8c1569c2751f884da8c53",
+      "baton": "f7a523845043c5743d4b612163bb28cc74d39a2d7e8c5c3e55a61920b9eedc80"
+    },
+    "tool_formats": {
+      "batond": "Mach-O 64-bit executable arm64",
+      "baton": "Mach-O 64-bit executable arm64"
+    },
+    "runtime_tools_sha256": {
+      "python": "c4f10ec6ab82c9b4528e4e07407b2b51712485f904172fe59186c24b03add59d",
+      "chromium": "11e393326c7d20a7c56641a7c65def33ea9c280da3b0b74cf8563b07989a0ee3"
+    },
+    "candidate_sha256": "5b8ed1b1c984f1d43c42a68d7054afd29548025f5dc877247abd338a12375a8b",
+    "frontend_build_record_sha256": "bae1659d74bf66d0faee8f162cea58d7a7a976a32f4ab09c663f9bbe62589756",
+    "actual_core_probe": {
+      "api_version": 1,
+      "db_schema": 19,
+      "sqlite_user_version": 19,
+      "ordinary_table_count": 64,
+      "host_registrations": 0,
+      "no_execution": true,
+      "wait_exit": 0,
+      "joined": true,
+      "runtime_removed": true
+    },
+    "preflight": {
+      "exit": 2,
+      "status": "NOT_RUN",
+      "sha256": "89f8e734036764b3ae893e42a6dfb95e29eead1f513e5ce72bf1d1b64d5aed18"
+    },
+    "driver": {
+      "exit": 0,
+      "status": "passed",
+      "flow_complete": true,
+      "scenarios": {
+        "WSI-B01": "passed",
+        "WSI-B02": "passed",
+        "WSI-B03": "passed",
+        "WSI-B04": "passed",
+        "WSI-B05": "passed",
+        "WSI-B06": "passed"
+      },
+      "failure": null,
+      "no_execution": {
+        "no_execution_or_grants": true,
+        "schema": 19,
+        "table_counts": {
+          "approval_proposals": 0,
+          "attempts": 0,
+          "budgets": 0,
+          "command_validation_policies": 0,
+          "command_validation_runs": 0,
+          "command_workspace_fences": 0,
+          "connections": 0,
+          "conversation_budgets": 0,
+          "conversation_dispatches": 0,
+          "conversation_turns": 0,
+          "conversations": 0,
+          "data_validation_policies": 0,
+          "data_validation_runs": 0,
+          "data_workspace_creations": 0,
+          "data_workspace_previews": 0,
+          "data_workspace_receipts": 0,
+          "dispatch_intents": 0,
+          "events": 16,
+          "execution_grants": 0,
+          "factory_attempts": 0,
+          "factory_budget_reservations": 0,
+          "factory_child_goal_runs": 0,
+          "factory_child_plan_heads": 0,
+          "factory_child_plan_revisions": 0,
+          "factory_delegations": 0,
+          "factory_handoffs": 0,
+          "factory_runs": 0,
+          "factory_scoped_handles": 0,
+          "factory_scopes": 0,
+          "factory_task_bindings": 0,
+          "factory_task_lineage": 0,
+          "goal_external_action_journal": 0,
+          "goal_grant_revisions": 0,
+          "goal_graph_acceptances": 0,
+          "goal_graph_candidates": 0,
+          "goal_graph_capabilities": 0,
+          "goal_graph_jobs": 0,
+          "goal_graph_owner_decisions": 0,
+          "goal_graph_validations": 0,
+          "goal_ledgers": 0,
+          "goal_node_evidence": 0,
+          "goal_plan_heads": 0,
+          "goal_plan_proposals": 0,
+          "goal_plan_revisions": 0,
+          "goal_run_nodes": 0,
+          "goal_run_reservations": 0,
+          "goal_runs": 0,
+          "goal_scopes": 0,
+          "host_registrations": 0,
+          "idempotency": 7,
+          "integration_attempts": 0,
+          "integration_policies": 0,
+          "integration_ref_fences": 0,
+          "integrations": 0,
+          "managed_workspaces": 3,
+          "projects": 1,
+          "session_runtime_snapshots": 0,
+          "session_turns": 0,
+          "sessions": 0,
+          "sqlite_sequence": 1,
+          "tasks": 3,
+          "validation_policies": 0,
+          "validation_runs": 0,
+          "workspace_leases": 0
+        }
+      },
+      "cleanup": {
+        "complete": true,
+        "wait_exit": 0,
+        "daemon_reaped": true,
+        "http_thread_alive_after_join": false
+      },
+      "report_sha256": "44733dd3c94d8f946170310120d9c2b79b60ad82653ed9175310a385738a4dbd",
+      "driver_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "screenshots": {
+        "01-first-task-ready-desktop.png": "5238919d98adf3441ebd71851e9163e93d46b928af69ae0e03116e9c8a81e0c0",
+        "02-second-task-exact-recovered-desktop.png": "214c5903b87ddd9903ab43c381b1868a871f228c2c6de8113185dd6dada7d10a",
+        "05-task2-bound-execution-desktop.png": "3a882c5ebc5c31b588b166e5ae44ba94df2bdc2ed58270ad8a655d97ae6b4088",
+        "06-task1-bound-execution-mobile.png": "fa347a71c4ae94cd3441d8dd21b60677ebf0bb061d857466d3c9215df56c0db4",
+        "07-unbound-entry-parent-refresh-recovery-desktop.png": "1b434656b6e207f234d9c48a01a93fc45335a83c5a358222a4ebbddb1e1e4783",
+        "08-unbound-entry-exact-recovered-desktop.png": "49638f780a56f6dae6431748742ce925498ce5eb6c1a37ba980a80ec9eaeb704",
+        "03-drift-invalidates-proof-desktop.png": "1398f14f8b88a201667749296e1010b4e69d41f049807f638731d151795fd33f",
+        "04-drift-history-mobile.png": "c4f3e7de145407d1832d57c196290579c3f0ec3b32e07686b71658b157c3b76d"
+      }
+    },
+    "projection": {
+      "exit": 0,
+      "status": "passed",
+      "failure_kind": "none",
+      "runtime_failure": null,
+      "exact_original_pngs": true,
+      "files": [
+        "01-first-task-ready-desktop.png",
+        "02-second-task-exact-recovered-desktop.png",
+        "03-drift-invalidates-proof-desktop.png",
+        "04-drift-history-mobile.png",
+        "05-task2-bound-execution-desktop.png",
+        "06-task1-bound-execution-mobile.png",
+        "07-unbound-entry-parent-refresh-recovery-desktop.png",
+        "08-unbound-entry-exact-recovered-desktop.png",
+        "summary.json"
+      ],
+      "summary_sha256": "76da1e07c508c6087994b36f55d3df24982adca146dbb97ecf93c478c46149a0"
+    },
+    "hosted_linux_ci": "not_run",
+    "replay": {
+      "runtime_relative_path": "workspace-local-replay.sh",
+      "sha256": "05a8b8d86a80c61de4ff356971bcf3e8606d9385ba3f882051c955a808270c04"
+    },
+    "finite_sample": {
+      "runtime_relative_path": "workspace-local.8PFTx8/finite-local-summary.json",
+      "sha256": "628aadd65b0fdce00908d23a2738c835b896ad49d3c0429c7624c39f911cdd85"
+    },
+    "core_probe": {
+      "runtime_relative_path": "workspace-local.8PFTx8/core-probe-summary.json",
+      "sha256": "40ec9952d19d85e8ba476fc7fbf096a305500f1216c37b9ce9514f1aa6807d5b"
+    },
+    "probe_log": {
+      "runtime_relative_path": "workspace-local.8PFTx8/probe.log",
+      "sha256": "80d6611e39fda6e838d6b133f19a2762aea6244ad843f6746c2715567f1a17e4"
+    },
+    "candidate": {
+      "runtime_relative_path": "workspace-local.8PFTx8/candidate.json",
+      "sha256": "5b8ed1b1c984f1d43c42a68d7054afd29548025f5dc877247abd338a12375a8b"
+    },
+    "frontend_build_record": {
+      "runtime_relative_path": "workspace-local.8PFTx8/frontend-build-record.json",
+      "sha256": "bae1659d74bf66d0faee8f162cea58d7a7a976a32f4ab09c663f9bbe62589756"
+    },
+    "raw_report": {
+      "runtime_relative_path": "workspace-local.8PFTx8/driver/report.json",
+      "sha256": "44733dd3c94d8f946170310120d9c2b79b60ad82653ed9175310a385738a4dbd"
+    },
+    "owned_daemon_log": {
+      "runtime_relative_path": "workspace-local.8PFTx8/driver/daemon.log",
+      "sha256": "b1f2380e58ca8d0ea5450b3f7a192fd261221e988665652bb9503534c7af1fa8"
+    },
+    "projected_summary": {
+      "runtime_relative_path": "workspace-local.8PFTx8/public/summary.json",
+      "sha256": "76da1e07c508c6087994b36f55d3df24982adca146dbb97ecf93c478c46149a0"
+    },
+    "raw_original_images": [
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/01-first-task-ready-desktop.png",
+        "sha256": "5238919d98adf3441ebd71851e9163e93d46b928af69ae0e03116e9c8a81e0c0"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/02-second-task-exact-recovered-desktop.png",
+        "sha256": "214c5903b87ddd9903ab43c381b1868a871f228c2c6de8113185dd6dada7d10a"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/05-task2-bound-execution-desktop.png",
+        "sha256": "3a882c5ebc5c31b588b166e5ae44ba94df2bdc2ed58270ad8a655d97ae6b4088"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/06-task1-bound-execution-mobile.png",
+        "sha256": "fa347a71c4ae94cd3441d8dd21b60677ebf0bb061d857466d3c9215df56c0db4"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/07-unbound-entry-parent-refresh-recovery-desktop.png",
+        "sha256": "1b434656b6e207f234d9c48a01a93fc45335a83c5a358222a4ebbddb1e1e4783"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/08-unbound-entry-exact-recovered-desktop.png",
+        "sha256": "49638f780a56f6dae6431748742ce925498ce5eb6c1a37ba980a80ec9eaeb704"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/03-drift-invalidates-proof-desktop.png",
+        "sha256": "1398f14f8b88a201667749296e1010b4e69d41f049807f638731d151795fd33f"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/driver/04-drift-history-mobile.png",
+        "sha256": "c4f3e7de145407d1832d57c196290579c3f0ec3b32e07686b71658b157c3b76d"
+      }
+    ],
+    "public_original_images": [
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/01-first-task-ready-desktop.png",
+        "sha256": "5238919d98adf3441ebd71851e9163e93d46b928af69ae0e03116e9c8a81e0c0"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/02-second-task-exact-recovered-desktop.png",
+        "sha256": "214c5903b87ddd9903ab43c381b1868a871f228c2c6de8113185dd6dada7d10a"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/05-task2-bound-execution-desktop.png",
+        "sha256": "3a882c5ebc5c31b588b166e5ae44ba94df2bdc2ed58270ad8a655d97ae6b4088"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/06-task1-bound-execution-mobile.png",
+        "sha256": "fa347a71c4ae94cd3441d8dd21b60677ebf0bb061d857466d3c9215df56c0db4"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/07-unbound-entry-parent-refresh-recovery-desktop.png",
+        "sha256": "1b434656b6e207f234d9c48a01a93fc45335a83c5a358222a4ebbddb1e1e4783"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/08-unbound-entry-exact-recovered-desktop.png",
+        "sha256": "49638f780a56f6dae6431748742ce925498ce5eb6c1a37ba980a80ec9eaeb704"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/03-drift-invalidates-proof-desktop.png",
+        "sha256": "1398f14f8b88a201667749296e1010b4e69d41f049807f638731d151795fd33f"
+      },
+      {
+        "runtime_relative_path": "workspace-local.8PFTx8/public/04-drift-history-mobile.png",
+        "sha256": "c4f3e7de145407d1832d57c196290579c3f0ec3b32e07686b71658b157c3b76d"
+      }
+    ],
+    "python_dependency_check": {
+      "runtime_relative_path": "workspace-local.8PFTx8/browser-pip-check.log",
+      "sha256": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09"
+    }
+  },
+  "local_cli_negatives": {
+    "finite_summary": {
+      "runtime_relative_path": "workspace-negatives.sJP4oP/summary.json",
+      "sha256": "033791004ab002942da578f8249487c54903161f11b320195f0c538d1325a038"
+    },
+    "scope": "Local CLI negative controls with generated alterations to separately retained actual inputs",
+    "tested_source": "5f6718778d06e415098ca81ee29c89aa86965480",
+    "checks": {
+      "driver-schema18": {
+        "exit": 1,
+        "private_output_files": [],
+        "candidate_sha256": "7421f62df643e1e8120120acb0ba20c8aa0562e548d6eab16a3af2a23deb14d9",
+        "log_sha256": "90db569b402cafecf20ae888ad8f499afb953b20b511ffaf535c9f76859f0433"
+      },
+      "driver-schema20": {
+        "exit": 1,
+        "private_output_files": [],
+        "candidate_sha256": "6aeecfb72159c9b606dcf97b1c5a8a3b3de4ec5404206cbb01b16f03b6e5fa3c",
+        "log_sha256": "90db569b402cafecf20ae888ad8f499afb953b20b511ffaf535c9f76859f0433"
+      },
+      "driver-schema_boolean": {
+        "exit": 1,
+        "private_output_files": [],
+        "candidate_sha256": "00d7b75eb17394e0b3201002407cd915e3103eea9fc61a890e56ae5b31dda0a2",
+        "log_sha256": "90db569b402cafecf20ae888ad8f499afb953b20b511ffaf535c9f76859f0433"
+      },
+      "driver-foreign_compiled_source": {
+        "exit": 1,
+        "private_output_files": [],
+        "candidate_sha256": "01401e65a687e44145472a4a81d3b48849d35e9b4c92fca2a7e2996a85c02a2c",
+        "log_sha256": "8b9bd087f868ed95ffb09f7cde541b6fadf47ce9cba60c1fbb69fdaf872dcb13"
+      },
+      "projector-missing_host": {
+        "exit": 1,
+        "public_output_files": [
+          "summary.json"
+        ],
+        "altered_report_sha256": "953dad85bb82989a8ce6453d305d858d6c0d067e1585e80459d4aa0767186291",
+        "summary_sha256": "de5742b28345aedb6591706800b707cbd97eeeb8f7fb7949f57f758597635346"
+      },
+      "projector-unknown_table": {
+        "exit": 1,
+        "public_output_files": [
+          "summary.json"
+        ],
+        "altered_report_sha256": "ef16a1f42bd0cab1a7acf0c2e2707f2ff5f2217c4386b21bfd7d1629d6dfd408",
+        "summary_sha256": "de5742b28345aedb6591706800b707cbd97eeeb8f7fb7949f57f758597635346"
+      },
+      "projector-nonempty_host": {
+        "exit": 1,
+        "public_output_files": [
+          "summary.json"
+        ],
+        "altered_report_sha256": "f67e7c10bba6dcef24faa944de3de4a7c824b4f322bb406d049d4005051b1bed",
+        "summary_sha256": "de5742b28345aedb6591706800b707cbd97eeeb8f7fb7949f57f758597635346"
+      },
+      "projector-schema18": {
+        "exit": 1,
+        "public_output_files": [
+          "summary.json"
+        ],
+        "altered_report_sha256": "dccb27182b235846068e9bca09f9f7358b6a0975a997cc639e1aad56fc3dd712",
+        "summary_sha256": "de5742b28345aedb6591706800b707cbd97eeeb8f7fb7949f57f758597635346"
+      },
+      "projector-foreign_source": {
+        "exit": 1,
+        "public_output_files": [
+          "summary.json"
+        ],
+        "altered_report_sha256": "702a14747128bb8de7e000dbe3d51a64cf742e9f6d628d96d9d8f54fb85ca65a",
+        "summary_sha256": "de5742b28345aedb6591706800b707cbd97eeeb8f7fb7949f57f758597635346"
+      }
+    },
+    "original_report_unchanged": true
+  },
+  "preview": [
+    {
+      "target": "9e897d6f6bf0b823e187930fbb84f897be51b89e",
+      "tree": "6183abc6985e889702aa78de11274175edc8e0a0",
+      "exit_code": 0
+    },
+    {
+      "target": "7de2112b9833fb5ec1b4f62b36ea9b5a3c88c603",
+      "tree": "bd3e42ea45d75995bd37a9347b3d7469b551d0c3",
+      "exit_code": 0
+    },
+    {
+      "target": "ce04c706856f00dcc455ad674c5ffd5820967132",
+      "tree": "5b9a0727b4eaf4ebd58026ada6235186ceda30a8",
+      "exit_code": 0
+    }
+  ],
+  "unverified": [
+    "Leader independent review and exact composed target",
+    "Shared workflow and actual hosted Linux CI"
+  ]
+}

@@ -532,7 +532,7 @@ impl IntegrationReadPlan {
             let version: u32 = connection
                 .pragma_query_value(None, "user_version", |r| r.get(0))
                 .map_err(db_error)?;
-            if version != 18 {
+            if version != 19 {
                 return Err(changed());
             }
             crate::conversations::validate_schema(&connection)?;
@@ -948,7 +948,7 @@ impl IntegrationReadProof {
             .conn
             .pragma_query_value(None, "user_version", |r| r.get(0))
             .map_err(db_error)?;
-        if version != 18 {
+        if version != 19 {
             return Err(changed());
         }
         crate::conversations::validate_schema(&reader.conn)?;

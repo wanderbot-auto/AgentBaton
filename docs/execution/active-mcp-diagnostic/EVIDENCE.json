@@ -1,0 +1,362 @@
+{
+  "requirement": "AB-CAP-006",
+  "scope": "core_standalone_owner_confirmed_managed_local_mcp_stdio_diagnostic",
+  "status": "local_and_independent_mcp_passed_with_five_reproduced_baseline_regression_failures",
+  "claim_base": "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+  "branch": "collab/active-mcp-diagnostic",
+  "product_source_sha": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
+  "runtime": {
+    "host_kernel_and_arch": "Darwin arm64",
+    "macos_version": "26.6.1",
+    "macos_build": "25G76",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "fixture_python": "Python 3.14.0a7",
+    "filesystem": "macOS APFS verified through successful descriptor cloning"
+  },
+  "checks": [
+    {
+      "id": "fmt",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-18T20:49:54Z",
+      "finished_utc": "2026-11-18T20:49:55Z",
+      "log": "logs/fmt.log.gz"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-18T20:49:55Z",
+      "finished_utc": "2026-11-18T20:50:07Z",
+      "log": "logs/clippy.log.gz"
+    },
+    {
+      "id": "active_and_old_managed_mcp",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "sessions::managed_mcps::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-18T20:50:07Z",
+      "finished_utc": "2026-11-18T20:50:28Z",
+      "log": "logs/active_and_old_managed_mcp.log.gz",
+      "test_only_env": {
+        "AB_MCP_DIAGNOSTIC_SYNTHETIC_EVIDENCE": "task log directory/synthetic-observation.json"
+      },
+      "harness_counts": {
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 453
+      }
+    },
+    {
+      "id": "managed_config",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-config",
+        "--test",
+        "managed_mcp",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-18T20:50:28Z",
+      "finished_utc": "2026-11-18T20:50:29Z",
+      "log": "logs/managed_config.log.gz",
+      "harness_counts": {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      }
+    },
+    {
+      "id": "update_readiness",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "update_readiness",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-18T20:50:29Z",
+      "finished_utc": "2026-11-18T20:51:06Z",
+      "log": "logs/update_readiness.log.gz",
+      "harness_counts": {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      }
+    },
+    {
+      "id": "core_lib",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "started_utc": "2026-11-18T20:51:06Z",
+      "finished_utc": "2026-11-18T20:56:50Z",
+      "log": "logs/core_lib.log.gz",
+      "harness_counts": {
+        "passed": 467,
+        "failed": 1,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      }
+    },
+    {
+      "id": "sessions_ipc",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 101,
+      "started_utc": "2026-11-18T20:56:50Z",
+      "finished_utc": "2026-11-18T20:59:54Z",
+      "log": "logs/sessions_ipc.log.gz",
+      "harness_counts": {
+        "passed": 59,
+        "failed": 4,
+        "ignored": 0,
+        "measured": 0,
+        "filtered_out": 0
+      }
+    },
+    {
+      "id": "design",
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "run",
+        "--",
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "scripts/validate_design.py"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-18T21:04:07Z",
+      "finished_utc": "2026-11-18T21:04:08Z",
+      "log": "logs/design.log.gz"
+    }
+  ],
+  "synthetic_wire_and_child_observation": "SYNTHETIC_OBSERVATION.json",
+  "failure_and_review_history": [
+    {
+      "log": "logs/initial-targeted-compile.log.gz",
+      "result": "E0277 in the test count type"
+    },
+    {
+      "log": "logs/initial-targeted-runtime.log.gz",
+      "result": "6 passed, 1 failed due to the injected schema trigger at Store reopen"
+    },
+    {
+      "log": "logs/initial-clippy.log.gz",
+      "result": "strict lint rejected a redundant closure that was corrected"
+    },
+    {
+      "log": "logs/initial-good-targeted.log.gz",
+      "result": "7 passed before the independent source-race review"
+    },
+    {
+      "log": "logs/source-path-race.log.gz",
+      "result": "deterministic red control, the substitute program actually started"
+    },
+    {
+      "log": "logs/manual-byte-copy.log.gz",
+      "result": "no-xattr policy rejected macOS-generated local entry files carrying system provenance"
+    },
+    {
+      "log": "logs/private-copy-targeted.log.gz",
+      "result": "9 passed including the exact late source replacement corrected"
+    },
+    {
+      "log": "logs/private-copy-legacy.log.gz",
+      "result": "9 new + 4 existing passed before owned-copy cleanup"
+    },
+    {
+      "log": "logs/private-copy-design-draft.log.gz",
+      "result": "placeholder evidence link missing during draft production; completed before final validation"
+    },
+    {
+      "log": "logs/private-copy-full-core-superseded.log.gz",
+      "result": "older source run interrupted for the reviewed copy cleanup change"
+    },
+    {
+      "log": "logs/baseline-manifest-setup.log.gz",
+      "result": "initial control archive missed the manifest for the daemon workspace member"
+    },
+    {
+      "log": "logs/owned-copy-first-targeted.log.gz",
+      "result": "11 new + 4 existing tests passed after removing owned entry copies"
+    }
+  ],
+  "baseline_control": {
+    "source_sha": "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+    "method": "git archive isolated in a private wrapper runtime, separate Cargo target directory",
+    "core_unit": {
+      "command_in_archive": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19"
+      ],
+      "result": "the existing test expected user_version=18 and Store returned 19",
+      "log": "logs/baseline-migration-control.log.gz"
+    },
+    "sessions_ipc": {
+      "command_in_archive": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "--exact",
+        "--test-threads=1",
+        "actual_graph_owner_decision_unlocks_dependent_summary_with_exact_candidate_input",
+        "actual_graph_owner_fixture_original_grant_expiry_still_refuses_new_dispatch",
+        "actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_executor_is_connected",
+        "actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_hashes_or_authority"
+      ],
+      "result": "four unchanged tests reproduced the three version assertions and the legacy Integration17 inverse refusal",
+      "log": "logs/baseline-sessions-control.log.gz"
+    }
+  },
+  "independent_linux": {
+    "reviewer": "leader-control",
+    "source_sha": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
+    "source_tree": "d20e11485274982ed07bb18a6ff54ed1a7a2e9bc",
+    "platform": "Linux ARM64 offline container",
+    "toolchain": "rustc 1.91.1",
+    "scope": "managed_mcps test filter covering 11 new and 4 existing tests with real generated local children",
+    "passed": 15,
+    "failed": 0,
+    "log": "logs/independent-linux-arm64.log.gz",
+    "tested_snapshot": "exact_product_source_tree",
+    "preview": {
+      "target_sha": "a183f4dd2df0e95d9a73575015275ef9a0daddb9",
+      "tree_sha": "cde89155345873d9dc0b70f4546f7d07a35a1172",
+      "result": "git_conflict_preview_only",
+      "tests_executed_on_this_tree": false
+    }
+  },
+  "preview": {
+    "target_ref": "origin/collab/host-registration-integration",
+    "target_sha": "6b03f0cdd7686db8ccaa7cb9f9b8e865c6eb6d5a",
+    "source_sha": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
+    "tree_sha": "c6ab257c33fb8900ccbdc403ce68308b1e053f16",
+    "result": "no_git_conflict_at_these_inputs",
+    "apple_silicon_tests_on_preview_merge_tree": false,
+    "scope_and_preview_log": "logs/scope-preview.log.gz"
+  },
+  "bounds": {
+    "approval_expiration_ms": 60000,
+    "protocol_timeout_ms": 4000,
+    "list_page_limit": 4,
+    "tool_limit": 128,
+    "entry_file_max_bytes": 536870912,
+    "direct_child_only": true,
+    "one_unresolved_diagnostic_at_a_time": true
+  },
+  "remaining": [
+    "Trusted native owner IPC and actor-owned delivery/cancellation/cleanup, workbench and update readiness composition.",
+    "Recovery after daemon restart when the original retained Child or entry handles are unavailable.",
+    "Broader Linux regression and external HTTP/Host transport approvals.",
+    "Real vendor or paid Provider tests, desktop package and production release are outside the verified scope."
+  ]
+}

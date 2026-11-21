@@ -1,0 +1,20 @@
+{
+  "env": {
+    "AGENTBATON_ACTUAL18_FIXTURE_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/conversation-schema19-regression/artifacts/conversation-schema19-regression/actual18-input",
+    "AGENTBATON_ACTUAL18_FROZEN_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen",
+    "AGENTBATON_ACTUAL18_BUILD_MANIFEST": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen/source-build-manifest.json",
+    "AGENTBATON_ACTUAL18_PYTHON": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+  },
+  "source_pins": {
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen/batond": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen/baton": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/build-boundaries/frozen/source-build-manifest.json": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+    "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host18-provenance/artifacts/host18-provenance/generated-boundaries/actual-schema18.sqlite3": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1"
+  },
+  "copy_pins": {
+    "actual-schema18.sqlite3": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+    "manifest.json": "99fa1de184bbe40a737d1db6f37c6f27b51e34acfdbcd45e47e645f74595cbfb",
+    "rpc-private.jsonl": "ef1080e08bc2bada993dda3d7db317f4ec04a9639f352266cd638a5b493d9264",
+    "tool-provenance.json": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018"
+  }
+}

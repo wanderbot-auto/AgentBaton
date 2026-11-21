@@ -1,0 +1,19 @@
+{
+  "source": "17a6539fb561f6b72e954052511710fd27c2821e",
+  "argv": [
+    "cargo",
+    "fmt",
+    "--manifest-path",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "--all",
+    "--",
+    "--check"
+  ],
+  "env": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  },
+  "exit": 1,
+  "seconds": 1.311,
+  "log_sha256": "79d107105832fdb093ae0f91f3ed9111309379df03c30b3b99db8e7663468319"
+}

@@ -1,0 +1,78 @@
+{
+  "recorded_at_utc": "2026-11-21T13:51:17+00:00",
+  "requirement": "AB-DOM-003",
+  "status": "partial",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "tested_checkout": "df35231eab29aa2d4a043fd9be60888504507716",
+  "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "hosted_artifact": 14350183579,
+  "architecture": "arm64",
+  "tested_executables": {
+    "baton": "1d38b91fb401cfd3ef1486a845df246682f16b44b1b6e6d533e7959b256e8647",
+    "batond": "a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109"
+  },
+  "test_script_sha256": "397b5ff34f947d5651a8249d3eb9880d1cf3d79d3bf492c39fdb0fe3ffd738c9",
+  "raw_log_sha256": "6c53c465b39bb7d70976c5eece443e6e04efe14ff0f0216d423455d63ef7c070",
+  "observed": {
+    "requirement_slice": "AB-DOM-003 public Task cancellation and exposure of evidence-linked acceptance",
+    "matrix": {
+      "draft": {
+        "next": "cancelled",
+        "event": "task.cancelled",
+        "stop_evidence": "no_attempt_dispatched"
+      },
+      "running": {
+        "next": "cancel_requested",
+        "event": "task.cancel_requested",
+        "stop_evidence": null
+      },
+      "outcome_unknown": {
+        "next": "cancel_requested",
+        "event": "task.cancel_requested",
+        "stop_evidence": null
+      },
+      "cancel_requested": {
+        "next": "cancel_requested",
+        "event": null,
+        "stop_evidence": null
+      },
+      "cancelled": {
+        "next": "cancelled",
+        "event": null,
+        "stop_evidence": null
+      }
+    },
+    "forged_acceptance_rejected": {
+      "forged_missing_ref": [
+        "PERMISSION_DENIED",
+        "PERMISSION_DENIED",
+        "PERMISSION_DENIED",
+        "PERMISSION_DENIED"
+      ],
+      "forged_bogus_ref": [
+        "PERMISSION_DENIED",
+        "PERMISSION_DENIED",
+        "PERMISSION_DENIED",
+        "PERMISSION_DENIED"
+      ],
+      "forged_nonterminal_ref": [
+        "INPUT_CHANGED",
+        "INPUT_CHANGED",
+        "INPUT_CHANGED",
+        "INPUT_CHANGED"
+      ]
+    },
+    "stale_and_repeat_covered": true,
+    "restart_state_persisted": true,
+    "initial_states": "Draft created normally; otherwise Task starting state or invalid claim seeded in disposable SQLite for input coverage.",
+    "owned_daemons_joined": true
+  },
+  "trace": [
+    "docs/07-data-contracts.md",
+    "crates/core/src/storage.rs",
+    "crates/core/src/goal_graph.rs",
+    "crates/core/src/ipc.rs",
+    "crates/core/tests/storage.rs"
+  ],
+  "remaining": "Complete normal and exceptional Task, Goal Run, and Attempt state transitions with real writer stop, acceptance and artifact/validation evidence. Seeded test input states do not establish those preceding transitions."
+}

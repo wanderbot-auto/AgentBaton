@@ -1,0 +1,20 @@
+{
+  "status": "awaiting_leader_exact_path_grant",
+  "failure_source": "dd92b4a97a47217c7fb79c9dc0a7063010641af6",
+  "failing_check": "strict Core all-target clippy -Dwarnings",
+  "error": "clippy::duplicate_mod:pre_conversation_schema.rs loaded in existing task_workspace_binding_tests and new current19_schema",
+  "additional_path": "crates/core/src/task_workspace_binding_tests.rs",
+  "minimal_change": "replace only initial #[path=../tests/fixtures/pre_conversation_schema.rs]/mod with use crate::host_registry_migration::tests::current19_schema::pre_conversation_schema",
+  "owned_changes": "cfg(test) tests/current19 modules pub(crate);no production behavior or lib declaration expansion",
+  "frozen": "original helper file/bodies/assertions/pins and production task binding unchanged",
+  "not_done": "outside-scope path not edited;no lint suppression/copy of helper;no Cargo after failure",
+  "dynamic_results": {
+    "new_sqlite": 18,
+    "original_conversation": 3,
+    "original_integration": 15,
+    "failed_or_ignored": 0,
+    "fmt": "passed",
+    "clippy": "failed duplicate_mod only",
+    "all_children_joined": true
+  }
+}

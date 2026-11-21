@@ -810,6 +810,18 @@ fn raw_dispatch(db: &Connection, id: &str) -> Result<DispatchIntent> {
 }
 
 fn historical_cas_confirmed(db: &Connection, run: &IntegrationRun) -> Result<bool> {
+    let confirmed = historical_cas_attempt(db, run)?.is_some();
+    if !confirmed && run.state == IntegrationState::ConfirmedLocalRef {
+        return Err(changed());
+    }
+    Ok(confirmed)
+}
+
+/// Returns the attempt bound to the exact historical CAS observation.
+pub(super) fn historical_cas_attempt(
+    db: &Connection,
+    run: &IntegrationRun,
+) -> Result<Option<IntegrationAttemptRecord>> {
     let policy = records::policy(db, &run.policy_id)?;
     let mut statement=db.prepare("SELECT sequence,CASE WHEN octet_length(document)<=1048576 THEN document END FROM events WHERE json_extract(document,'$.aggregate_id')=?1 AND json_extract(document,'$.source')='integration_core' AND json_extract(document,'$.kind')='integration.cas_observed' AND json_type(document,'$.payload.historical_cas_confirmed')='true' ORDER BY sequence LIMIT 2").map_err(db_error)?;
     let events = statement
@@ -823,10 +835,7 @@ fn historical_cas_confirmed(db: &Connection, run: &IntegrationRun) -> Result<boo
         return Err(changed());
     }
     let Some((sequence, text)) = events.into_iter().next() else {
-        if run.state == IntegrationState::ConfirmedLocalRef {
-            return Err(changed());
-        }
-        return Ok(false);
+        return Ok(None);
     };
     let event: crate::storage::Event = crate::storage::decode(&text.ok_or_else(limited)?)?;
     let attempt_id = event.payload["attempt_id"].as_str().ok_or_else(changed)?;
@@ -847,7 +856,7 @@ fn historical_cas_confirmed(db: &Connection, run: &IntegrationRun) -> Result<boo
     {
         return Err(changed());
     }
-    Ok(true)
+    Ok(Some(attempt))
 }
 
 impl Store {

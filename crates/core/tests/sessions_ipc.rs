@@ -1,7 +1,12 @@
 //! Real generated fixture child only. No vendor executable, identity, model or network is invoked.
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::ipc::{call, Daemon};
+use schema19_legacy_migration::{
+    assert_empty_host19, host19_backup, legacy_predecessor, remove_empty_host19,
+};
 use serde_json::{json, Value};
 use std::{
     os::unix::fs::{DirBuilderExt, PermissionsExt},
@@ -3683,8 +3688,9 @@ fn actual_graph_proposal_is_complete_new_authority_and_never_dispatches_before_e
     assert_eq!(
         db.pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
+    assert_empty_host19(&db);
     assert!(db
         .query_row(
             "SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",
@@ -3846,6 +3852,7 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
     // Prove the four exact new domains are empty before excluding them from
     // the historical row projection. The old-version read below never calls
     // this current17-only verifier and still compares every retained old row.
+    remove_empty_host19(&db).unwrap();
     pre_factory_schema::pre_integration_schema::verify_empty_integration17_current18(&db).unwrap();
     let before_projection = legacy_snapshot();
     pre_factory_schema::remove_empty_current_factory_increment(&db).unwrap();
@@ -3860,6 +3867,7 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
     .unwrap();
     db.execute_batch("DROP TRIGGER graph_fence_lease_insert; DROP TRIGGER graph_fence_lease_update; DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;PRAGMA user_version=11;").unwrap();
     drop(db);
+    let predecessor = legacy_predecessor(&path, 11);
     let store = agentbaton_core::storage::Store::open(&path).unwrap();
     let current = store.goal_run_details(run["id"].as_str().unwrap()).unwrap();
     assert_eq!(current["nodes"], stopped["nodes"]);
@@ -3872,6 +3880,25 @@ fn actual_legacy_candidate_migration_preserves_bytes_without_backfilling_graph_h
         0
     );
     let db = rusqlite::Connection::open(&path).unwrap();
+    assert_empty_host19(&db);
+    host19_backup(&path, &predecessor);
+    let old_backups: Vec<_> = std::fs::read_dir(&f.server.runtime)
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .filter(|file| {
+            file.file_name()
+                .unwrap()
+                .to_string_lossy()
+                .starts_with("baton.pre-v12-")
+                && file.extension().is_some_and(|ext| ext == "sqlite3")
+        })
+        .collect();
+    assert_eq!(old_backups.len(), 1);
+    let old_backup = &old_backups[0];
+    let metadata = std::fs::symlink_metadata(old_backup).unwrap();
+    assert!(metadata.is_file());
+    assert_eq!(metadata.permissions().mode() & 0o7777, 0o600);
+    assert!(legacy_predecessor(old_backup, 11).rows == predecessor.rows);
     assert_eq!(
         db.query_row("SELECT document FROM goal_runs", [], |r| r
             .get::<_, String>(0))
@@ -4052,8 +4079,8 @@ impl GraphOwnerGrantClock {
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .unwrap();
         assert_eq!(
-            version, 18,
-            "The graph owner fixture must observe the current schema 18"
+            version, 19,
+            "The graph owner fixture must observe the current schema 19"
         );
         let raw: String = db
             .query_row(

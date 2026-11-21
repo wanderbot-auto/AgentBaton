@@ -1,0 +1,56 @@
+{
+  "requirement": "AB-CAP-006",
+  "original_worker_base": "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+  "tested_source": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
+  "worker_delivery": "d2b847bbfe14feed513c1561ee5797d62f9ba4e6",
+  "target": "6b03f0cdd7686db8ccaa7cb9f9b8e865c6eb6d5a",
+  "feature": "375a054e69d3d411f32266c41b03ba2f6c682460",
+  "exact_tree": "4350a90af7cae33a19040c01deb27da8519bc040",
+  "feature_push_verified": true,
+  "checks": {
+    "macos_exact_composition": {
+      "passed": 15,
+      "failed": 0,
+      "new_active_diagnostic": 11,
+      "previous_managed_mcp": 4,
+      "log": {
+        "path": "/tmp/ab-mcp-exact-integration.HWAjz0Cu/mcp.log",
+        "sha256": "c2c510001bed8b7bf2fa062860da71c99da0adba3cfb6e4b1284a6806a566c2d"
+      }
+    },
+    "linux_source": {
+      "passed": 15,
+      "failed": 0,
+      "source": "2039ac842fcb13c87dcbc39a013ffd675c1b8dfe",
+      "review": "docs/execution/leader-control/MCP_DIAGNOSTIC_LINUX_REVIEW.json",
+      "log": {
+        "path": "/tmp/ab-mcp-linux-independent.SngyPvPp/linux.log",
+        "sha256": "cd040726885f4b8a78a1831e0ab760a6b50f62c868a0b25b4e511df1c3f34cb6"
+      }
+    },
+    "composition_infra": {
+      "passed": 987,
+      "skipped": 16,
+      "failed": 0,
+      "bootstrap_files": 93,
+      "log": {
+        "path": "/tmp/ab-mcp-exact-integration.HWAjz0Cu/infra.log",
+        "sha256": "9b87eeb37251dcd7794f9630fdde4cabed6ffa62255354d3d280ca9c4a0a680f"
+      }
+    }
+  },
+  "worker_evidence_sha256": "dea0e0486bc2f12704a3c59964436b3546043c0e30d6584c7ecb4a9730eb1fb3",
+  "worker_evidence": "docs/execution/active-mcp-diagnostic/EVIDENCE.json",
+  "known_full_suite_failures": {
+    "core": 1,
+    "sessions_ipc": 4,
+    "same_exact_names_and_errors_on_clean_worker_base": true,
+    "fixture_sources_identical_in_target": true
+  },
+  "claims": {
+    "closed_worker": "515a341b72675e8bd2f99d84dcfba5797199d14415ac9a1f4061648a75187cbc",
+    "parent_before": "0955fa8bf4648e299c39537a5e3315067c1eb40feb12cd644434b2bad6c9dab7",
+    "parent_after": "c9fb0e34051acca5a31f52be088e738c82e7e5b657ee5ed2e9df2e87ea113d21"
+  },
+  "remaining": "Trusted Owner IPC and UI, live actor lifecycle, durable update gating and unknown restart reconciliation, authorized external transport, and entire requirement acceptance."
+}

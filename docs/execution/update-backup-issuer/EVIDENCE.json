@@ -1,0 +1,167 @@
+{
+  "requirement": "AB-REL-007",
+  "scope": "Store-issued SQLite backup proof for the existing development-update preflight",
+  "owner_acknowledged": "OWNER-001",
+  "branch": "collab/update-backup-issuer",
+  "target_ref": "origin/collab/host-registration-integration",
+  "base_sha": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "base_tree": "9ce195d936d5798b077f50d1b7e25102318ce9c6",
+  "tested_source_sha": "aa040e8977f6c48d26678dad50e3d4d8bcfb3cc4",
+  "tested_source_tree": "c9a2de8b6ecfcb48dcdfa97421b329f6b7cd0dc0",
+  "started_utc": "2026-11-19T03:31:51Z",
+  "finished_utc": "2026-11-19T03:33:18Z",
+  "runner": {
+    "arch": "arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "sqlite_dependency": "libsqlite3-sys 0.36.0 bundled Unix VFS",
+    "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "wrapper": [
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ]
+  },
+  "cases": [
+    "Same-connection SQLite backup includes a committed WAL draft, passes existing preflight, and leaves source database and WAL bytes unchanged",
+    "Generated local managed session stays active and blocks the update with a Store-issued backup",
+    "Existing file, dangling sidecar, non-private directory, symlink parent and relative paths fail without replacing entries",
+    "Committed eventless external write after backup capture changes data_version and discards the stale stage",
+    "Late final path collision preserves the competing file and discards the owned stage",
+    "Unexpected stage journal rejects the copy and is removed with the stage",
+    "Store 18 to 19 regression verifies old schema rollback and existing host rows and replay integrity"
+  ],
+  "preliminary_failure": {
+    "source_sha": "89f674e0c691a0257b51aeb26afe7331f0f6d657",
+    "command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-j",
+      "4",
+      "-p",
+      "agentbaton-core",
+      "--lib",
+      "update_backup_issuer_tests"
+    ],
+    "exit_code": 101,
+    "finding": "E0505 in the late-collision unit fixture after stage cleanup gained Drop. The assertion now borrows the path.",
+    "log": "logs/preliminary-unit-compile.txt",
+    "log_sha256": "509aee108678ad2a5f141f1dbd38c6d8b3fdc80beaae1981343ba1e4ee41f927"
+  },
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "update_readiness"
+      ],
+      "exit_code": 0,
+      "passed": 11,
+      "failed": 0,
+      "filtered": 0,
+      "log": "logs/update-readiness.txt",
+      "log_sha256": "4d613ecf54f7cc1ad36d7c2d11069f37a16b2cd72f4c4852428a0c7d4d9f41f3"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "update_backup_issuer_tests"
+      ],
+      "exit_code": 0,
+      "passed": 3,
+      "failed": 0,
+      "filtered": 468,
+      "log": "logs/issuer-unit.txt",
+      "log_sha256": "bd37e324c529e175d2830949c15948ce20548bb7dc4fc28f3b8b24fba2a3ff06"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "host_registry_migration"
+      ],
+      "exit_code": 0,
+      "passed": 4,
+      "failed": 0,
+      "filtered": 0,
+      "log": "logs/host-registry-migration.txt",
+      "log_sha256": "0e46b8ddfa6dd39b856e28685e30ef83bc7b08b90d8d3d133df60681b02e3e00"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-j",
+        "4",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "--test",
+        "update_readiness",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log": "logs/clippy.txt",
+      "log_sha256": "21f466bff2cce6585995c2b98b6652327bd83ef55a648338cfca45035e841e9d"
+    },
+    {
+      "command": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--check",
+        "crates/core/src/execution/update_readiness.rs",
+        "crates/core/tests/update_readiness.rs"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/verify_bootstrap_manifest.py"
+      ],
+      "exit_code": 0,
+      "log": "logs/manifest.txt",
+      "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    }
+  ],
+  "source_preview": {
+    "log": "logs/source-preview.txt",
+    "log_sha256": "554e96531f9553a16e23d75816644dbddc07f04b7d637f342a591e53afdd3680"
+  },
+  "not_run": [
+    "Linux execution",
+    "cross-version installer or production release",
+    "real Provider account",
+    "CI"
+  ]
+}

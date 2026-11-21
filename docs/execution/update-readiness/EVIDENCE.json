@@ -1,0 +1,213 @@
+{
+  "requirement": "AB-REL-007",
+  "scope": "Core-only read-only development update preflight, recovery proof and readiness recheck",
+  "base_sha": "ae236688c1727e1a4610c424dd42bdd832f76dab",
+  "tested_source_sha": "882a3dcc950a1ebd3436cc978fa8cbd57c36b091",
+  "verification_started_at_utc": "2026-11-18T20:10:52.839722+00:00",
+  "runner": {
+    "wrapper": [
+      "bash",
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ],
+    "arch": "arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-10-10)",
+    "sqlite_dependency": "libsqlite3-sys 0.36.0 bundled Unix VFS",
+    "environment_log": "logs/environment.txt",
+    "setup": [
+      "PATH=/Users/wander/Documents/code/agentBaton-next/.venv/bin:$PATH",
+      "TMPDIR is a private mktemp directory under BATON_RUNTIME_DIR",
+      "unset AB_GOAL_LIVE_CRASH_RUNTIME"
+    ]
+  },
+  "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+  "fixtures": [
+    "Real SQLite Store, independent private backup/database reopen/restore copies, generated unsigned package bytes",
+    "Generated locally supervised ACP child completing one real fixture turn before confirmed stop and fresh ready assessment",
+    "Actual SQLite filename replacement after holding the original open connection"
+  ],
+  "preserved_preliminary_runs": [
+    {
+      "log": "logs/first.log.gz",
+      "result": "compile failure on SQLite u64 conversion; corrected"
+    },
+    {
+      "log": "logs/second.log.gz",
+      "result": "5 passed and 3 failed due to non-private fixture directory; fixture corrected"
+    },
+    {
+      "log": "logs/pre-pin.log.gz",
+      "result": "8 passed; real path replacement reproduced a false Ready"
+    },
+    {
+      "log": "logs/pin-first-green.log.gz",
+      "source_sha": "634c1945f32a435c84cc66c082d6de6993b0fd04",
+      "result": "9 passed after the VFS pin fix"
+    }
+  ],
+  "checks": [
+    {
+      "label": "targeted",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--test",
+        "update_readiness",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T20:11:15.858149+00:00",
+      "log": "logs/targeted.log.gz",
+      "totals": {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0
+      }
+    },
+    {
+      "label": "durable-regression",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--test",
+        "execution",
+        "--test",
+        "host_registry_migration",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T20:11:18.463351+00:00",
+      "log": "logs/durable-regression.log.gz",
+      "totals": {
+        "passed": 12,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0
+      }
+    },
+    {
+      "label": "session-regression",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "crash_window_persistence",
+        "proven_no_process_started",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T20:11:23.316047+00:00",
+      "log": "logs/session-regression.log.gz",
+      "totals": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 61
+      }
+    },
+    {
+      "label": "background-regression",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--",
+        "background_status::tests",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T20:11:28.358371+00:00",
+      "log": "logs/background-regression.log.gz",
+      "totals": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 455
+      }
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T20:11:29.700547+00:00",
+      "log": "logs/fmt.log.gz"
+    },
+    {
+      "label": "check",
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--test",
+        "update_readiness"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T20:11:31.957294+00:00",
+      "log": "logs/check.log.gz"
+    },
+    {
+      "label": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--test",
+        "update_readiness",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T20:11:37.401049+00:00",
+      "log": "logs/clippy.log.gz"
+    }
+  ],
+  "scope_and_preview": "logs/scope-preview.txt",
+  "not_run": [
+    "native installer, artifact signing, actual app or process switch, or production updater",
+    "normal actor wiring and historical turn side-effect reconciliation",
+    "real Provider or remote executor, actual cross-version candidate update, full Core regression, Linux or CI"
+  ]
+}

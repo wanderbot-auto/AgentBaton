@@ -1,0 +1,432 @@
+{
+  "specification": "specs/requirements.json",
+  "sources": [
+    "docs/05-capabilities.md",
+    "docs/11-engineering-program.md",
+    "docs/15-validation-gates.md",
+    "AGENTS.md"
+  ],
+  "scope": "WP06 and WP07 acceptance layer applicability. Native and real Provider needs are supported by the named per-ID conditions. No actual Provider, external Host, CI, or native results were added.",
+  "requirements": {
+    "AB-CAP-001": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "全局/项目/插件存在同名能力",
+        "when": "查询能力",
+        "then": "保留源记录与胜出规则，不简单去重"
+      },
+      "required_unit": "来源、同名实体及胜出规则。",
+      "required_integration": "实际扫描私有全局、项目和插件三源，查询结果保留所有来源及可解释的有效选择。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CAP-002": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "不同版本配置行为可能不同",
+        "when": "解析有效配置",
+        "then": "记录版本与解析证据，不套通用优先级"
+      },
+      "required_unit": "版本规则及未识别版本拒绝或未知。",
+      "required_integration": "用固定版本规则实际解析同一组配置，并读取绑定的输入、版本、规则及证据。",
+      "required_provider": "用指定实际 Provider 版本核对平台及厂商特有的覆盖规则。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CAP-003": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "发现Skill索引但无加载事件",
+        "when": "展示Skill",
+        "then": "区分可发现/可用/加载证据/执行证据"
+      },
+      "required_unit": "未发现、可用、加载和使用的证据强度分离。",
+      "required_integration": "实际 UI 读取、显示静态发现和真实输入事件，缺失加载记录不得推断使用。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CAP-004": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "独立诊断成功",
+        "when": "展示状态",
+        "then": "不把诊断成功标成原session连接成功"
+      },
+      "required_unit": "来源类型与当前 session 连接证据不能互换。",
+      "required_integration": "私有独立诊断成功后，在无对应 session 事件时核对真实查询与 UI 仍显示原状态。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CAP-005": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "Skill/MCP含命令",
+        "when": "扫描配置",
+        "then": "不执行脚本、不启动server"
+      },
+      "required_unit": "受控只读解析、边界拒绝及禁止命令执行。",
+      "required_integration": "用可观察的无害标记证明真实扫描未启动脚本与 MCP server，并报告未知和不受信任内容。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CAP-006": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "MCP需要启动或联网",
+        "when": "用户执行诊断",
+        "then": "显示范围并只做批准检查"
+      },
+      "required_unit": "诊断范围、许可过期及只列举协议能力。",
+      "required_integration": "获得范围确认后用本地私有 MCP 夹具启动或连接，证明协议检查和枚举，无业务工具调用。",
+      "required_provider": null,
+      "required_native_arm64": "实际 ARM64 App 中确认取消、拒绝和批准范围按决策正确传递。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CAP-007": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "运行中配置被外部修改",
+        "when": "新配置解析",
+        "then": "新旧快照并列，未重载不谎报当前会话已生效"
+      },
+      "required_unit": "新旧快照及生效版本分离。",
+      "required_integration": "运行中改变私有配置并重新解析，实际会话保持原绑定且 UI 列出新旧状态。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CAP-008": {
+      "work_package": "WP06",
+      "source_criterion": {
+        "given": "工具描述或Skill带诱导指令",
+        "when": "读取详情",
+        "then": "只作内容显示，不扩大授权"
+      },
+      "required_unit": "描述和内容与执行许可分离。",
+      "required_integration": "从实际本地能力源读取无害诱导测试文本，UI 只显示，授权与命令记录无新增。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-001": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "用户添加具名连接",
+        "when": "选择托管或原生配置环境",
+        "then": "默认Baton管理隔离配置；高级原生连接只读外部配置，不隐式写回或双向同步"
+      },
+      "required_unit": "管理模式与高级只读外部模式区分。",
+      "required_integration": "通过真实连接生命周期生成托管环境和只读原生引用，观察文件权限和隔离来源。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-002": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "用户提交配置意图",
+        "when": "生成ChangeSet",
+        "then": "展示各Provider实际diff、影响和重载要求"
+      },
+      "required_unit": "ChangeSet 每语言 diff、影响及重载要求。",
+      "required_integration": "实际预览两种受支持的格式/Provider 配置并校验预览与同一输入的变更范围。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-003": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "预览后原文件变化",
+        "when": "应用修改",
+        "then": "比较hash并冲突停止，不覆盖新内容"
+      },
+      "required_unit": "摘要 CAS 与冲突时的退出条件。",
+      "required_integration": "预览之后对私有实际文件进行外部编辑，应用冲突且保留外部字节。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-004": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "原文件含注释/扩展",
+        "when": "编辑受管字段",
+        "then": "保留其他内容或明确拒绝无法安全写入"
+      },
+      "required_unit": "受管字段与未知兼容字段的解析及保留。",
+      "required_integration": "真实写入有注释、扩展或不可保真语法的受管文件，逐字验证保留范围或拒绝。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-005": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "两个文件写入第二个失败",
+        "when": "恢复",
+        "then": "记录每文件状态，不宣称跨文件原子事务"
+      },
+      "required_unit": "部分失败状态与可重试恢复工作项。",
+      "required_integration": "真实双文件变更注入第二个失败，重启读取逐文件记录且不误报原子成功。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-006": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "变更后又有外部编辑",
+        "when": "请求回滚",
+        "then": "仅对匹配版本补偿，不覆盖后来修改"
+      },
+      "required_unit": "补偿只允许同一准确 revision。",
+      "required_integration": "写入后模拟外部编辑，再实际请求回滚，核对保留新内容且报告冲突。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-007": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "目标Provider不支持部分意图",
+        "when": "应用Profile",
+        "then": "必需能力不兼容则阻塞/选择已批准兼容连接；可选降级明确，禁止静默忽略"
+      },
+      "required_unit": "必要、可选和未知能力适配矩阵。",
+      "required_integration": "真实 Profile 应用路径核验必需能力失败/已批准兼容连接与可选降级记录。",
+      "required_provider": "对声称支持的真实 Provider 使用已获准的兼容证据，诊断或 mock 不能代替。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-008": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "配置含秘密",
+        "when": "预览/导出/记录",
+        "then": "使用secret refs和脱敏，不泄露原始值"
+      },
+      "required_unit": "Secret refs 和脱敏规则，包含错误路径。",
+      "required_integration": "用一次性合成秘密经过真实预览、日志和导出，检查其不会进入产物。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-009": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "项目含Skills/MCP/Hooks",
+        "when": "首次导入",
+        "then": "扫描不执行，经检查合并与一次确认后托管"
+      },
+      "required_unit": "首次项目的源扫描和合并、批准状态转换。",
+      "required_integration": "实际导入含 Skill/MCP/Hook 的私有项目，未批准只扫描，确认后才登记托管 revision。",
+      "required_provider": null,
+      "required_native_arm64": "真实 App 执行首次项目配置确认及取消，核对作用范围。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-010": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "项目源变化",
+        "when": "计算新revision",
+        "then": "批准规则内自动处理，新增高风险能力/扩权/不可解冲突才询问"
+      },
+      "required_unit": "批准内自动处理和新增高风险/扩权/冲突分支。",
+      "required_integration": "同一受管项目改变相对源，比较自动、安全阻塞和材料性变化的人审结果。",
+      "required_provider": null,
+      "required_native_arm64": "验证真实 App 仅对要求人工确认的变化弹出确认，并展示差异。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-011": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "已有原生能力配置",
+        "when": "创建托管副本",
+        "then": "重解析相对路径/依赖、记录来源，不复制认证文件或默认双向同步"
+      },
+      "required_unit": "选定导入范围、依赖与秘密引用的判断。",
+      "required_integration": "真实迁移私有合成目录，验证路径重解析，原生认证文件无复制，也无反向写入。",
+      "required_provider": null,
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-012": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "多处原生用户/项目/插件来源",
+        "when": "准备受管环境",
+        "then": "排除未批准来源或报告无法隔离并阻止严格任务，保留组织强制规则"
+      },
+      "required_unit": "未知继承、严格任务拒绝及组织策略保留。",
+      "required_integration": "在私有生成多层配置下启动受管进程，核对被排除能力及不可隔离时的拒绝。",
+      "required_provider": "在有授权的固定 Provider 版本上测量实际隐式配置继承与厂商组织策略。",
+      "required_native_arm64": null,
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "applicable",
+        "native_arm64": "not_applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    },
+    "AB-CFG-013": {
+      "work_package": "WP07",
+      "source_criterion": {
+        "given": "新配置或高风险权限撤销",
+        "when": "应用变化",
+        "then": "一般变更固定旧任务版本；安全撤销停止新副作用并核验，不能假称抹除上下文"
+      },
+      "required_unit": "一般变化固定旧快照与安全撤销分离。",
+      "required_integration": "运行实际私有任务时提交两类变更，校验旧绑定、停止新副作用、受控进程及核验记录。",
+      "required_provider": null,
+      "required_native_arm64": "在实际 App 上复核安全撤销入口和未确认停止的状态显示。",
+      "dimensions": {
+        "unit": "applicable",
+        "integration": "applicable",
+        "provider": "not_applicable",
+        "native_arm64": "applicable",
+        "native_x86_64": "not_applicable",
+        "ci": "applicable"
+      }
+    }
+  }
+}

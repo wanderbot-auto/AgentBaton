@@ -1,0 +1,264 @@
+{
+  "base": "b7f7e3e190fe4fe03b357cdec0958b65e7e13fa9",
+  "tested_source": "1e5b709ad6f50d245616f56f849af149fe970532",
+  "target_ref": "origin/collab/host19-core-readers",
+  "git_trees": {
+    "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28": "1d57be4acc6ec202141552fba3f20cad2f49bbc7",
+    "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09": "32ddbad7616402e02617d0eb35ca394d34542951",
+    "b7f7e3e190fe4fe03b357cdec0958b65e7e13fa9": "73dabc4e3c061046865de770972deeb5be7b524e",
+    "caf445487fd622b3ae71f7a86e0b7ea570332e39": "0d70626ec4532a14e2d9e12a1b8b358124bdf319",
+    "67611e5fe6a00a9d0f9f8028d7550ac66f0df911": "8b67d606a0646ba4ab649a17137887f48372f25c",
+    "1e5b709ad6f50d245616f56f849af149fe970532": "ad8131f7f8ecf55f3f431b4bbe9c4972cd688ae6"
+  },
+  "scope_source_files": {
+    "tests/infrastructure/schema19_integration_source_fixture.py": "5502d29709eb7708cf2dc71d530412fd5c8488a5589a0c57dcc2ab24a2ca4e77",
+    "tests/infrastructure/test_integration_drift_ref_preparation.py": "660e7bcbe95ea95f91b29f79b210b347c7a314cfd1b5f00c24465033fc19fdd5",
+    "tests/infrastructure/test_integration_fixed_script_fixture.py": "87f88698f2ea4e91ec2ff24832efb2e428b535d35f14adb9f69472f45de017d3",
+    "tests/infrastructure/test_integration_ipc_diagnostics.py": "b1c2ac8137270f11f94eba3702736908bfa0b5c92f2550507dd760d979b9fd13",
+    "tests/infrastructure/test_integration_stage_evidence_source.py": "3b6c19d77dfe62daadb3e517717627165a1f8a9128207c3ae0ba1e4d22a876ab",
+    "tests/infrastructure/test_schema19_integration_source_fixture.py": "72cec447d0f3c813bba348bdb0756cb713453f7adff9775d4883cd1fec8ef5f6"
+  },
+  "layers": {
+    "crates/core/tests/integration_ipc.rs": {
+      "reviewed19_sha256": "b46d41dfe615706c6cbb113eee65370a4b08b68ddcc255a875eed34f33973a21",
+      "reviewed19_git_blob": "b30b9d352543955258a8e04400d1a2e423dcb4b3",
+      "restored18_sha256": "58f68b35230b06b2d64f4143fcadeb1d075d2e77c8763c1007e666e738da4199",
+      "predecessor18_git_blob": "8da750f1d2be46e054bb417afdf4527e13c1e981",
+      "old_historical_output_sha256": "90fe84ccdecccddcdb6b8d0530fcbf29dad8d9390c0ac3bfc7200e93a469aabb",
+      "old_intermediate_sha256": {
+        "legacy_schema17_host": "bf89eb10ad51b55578d2455e877d47aab8151a73292639ed77bc558852f1f8b1"
+      }
+    },
+    "crates/core/tests/fixtures/integration_runtime.rs": {
+      "reviewed19_sha256": "54f86df36fd003889f342e2a3ce08418666370d4f89a817f779e362e07752cd4",
+      "reviewed19_git_blob": "6feb73e0a7befd983ed4604d4830354415bed5d1",
+      "restored18_sha256": "bf9a348a6923432c0ecb66d5fefbe1b40aee9d46729eddddcd62e04079d3d504",
+      "predecessor18_git_blob": "5e409662351f341b40ac1100d6de8257f53f3cfd",
+      "old_historical_output_sha256": "149693770c6c6bce56def9b9b8a8fe43f8fc7c0657fb31adef45595b64813e06",
+      "old_intermediate_sha256": {
+        "legacy_before_drift_ref_preparation": "4fa5b264825980fb2cfe150ed94607854541c71577766587072a202ea60ad30e",
+        "legacy_before_fixed_scripts": "f2dc88af2ede9507b01e118200319dd4760750745a1793d864188f8318e61761"
+      }
+    }
+  },
+  "unchanged_old_source_helpers": {
+    "tests/infrastructure/schema18_host_fixture.py": "fc29d7ac446c9b39464b11ae1b2d1ba339784decce9cda3d94d820cd4adcf83d",
+    "tests/infrastructure/integration_drift_ref_preparation_fixture.py": "ee241fbed50667f876351e590736b43c97b4472f353a4825f79cceef7ff7f707",
+    "tests/infrastructure/integration_fixed_script_fixture.py": "b9a474c3bfd661c6e579bd261bab40c961e52618e51f41d4f7d0f45604899992",
+    "tests/infrastructure/fixtures/integration_drift_ref_preparation_inverse.json": "6a13ca55bdd00de07403382fc917082940d43710c565b1a9b5f6547be505a51a"
+  },
+  "old_consumer_byte_comparison": {
+    "tests/infrastructure/test_integration_ipc_diagnostics.py": {
+      "base_sha256": "4fdd3c588142e8e2dfe6de56c38276abb67944dfec7667e3f443ba47ce2d337a",
+      "current_sha256": "b1c2ac8137270f11f94eba3702736908bfa0b5c92f2550507dd760d979b9fd13",
+      "only_fixture_input_wiring": true
+    },
+    "tests/infrastructure/test_integration_stage_evidence_source.py": {
+      "base_sha256": "6f4b198ed0ddce4051d1fa12728f5cc18c611cce0add05a5ed3b81c5b4e2eb92",
+      "current_sha256": "3b6c19d77dfe62daadb3e517717627165a1f8a9128207c3ae0ba1e4d22a876ab",
+      "only_fixture_input_wiring": true
+    },
+    "tests/infrastructure/test_integration_drift_ref_preparation.py": {
+      "base_sha256": "8845aa51cb382edf08c694d3ae45d7b5380a19235135b415a1e015d5b39ed8a7",
+      "current_sha256": "660e7bcbe95ea95f91b29f79b210b347c7a314cfd1b5f00c24465033fc19fdd5",
+      "only_fixture_input_wiring": true
+    },
+    "tests/infrastructure/test_integration_fixed_script_fixture.py": {
+      "base_sha256": "a4d56390ecc0b875e09b5cd88d5fd9d89abe410f8edd6e6ffbe34b7fc200eb29",
+      "current_sha256": "87f88698f2ea4e91ec2ff24832efb2e428b535d35f14adb9f69472f45de017d3",
+      "only_fixture_input_wiring": true
+    }
+  },
+  "first_upstream_failed_run": {
+    "source": "427a9da4097ecb0b33b42836c6672c89d4169d96",
+    "commands": [
+      "env",
+      "PYTHONPATH=tests/infrastructure",
+      "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+      "-m",
+      "unittest",
+      "test_integration_ipc_diagnostics",
+      "test_integration_stage_evidence_source",
+      "test_integration_fixed_script_fixture",
+      "test_integration_drift_ref_preparation"
+    ],
+    "exit": 1,
+    "seconds": 0.167,
+    "log_sha256": "1bdbf1f242626e22ebe86c96b51310e6904e7423da6e8d84b33e1db6beaae263",
+    "machine": "arm64",
+    "env": {
+      "CARGO_BUILD_JOBS": "2",
+      "CARGO_PROFILE_DEV_DEBUG": "0",
+      "RUST_TEST_THREADS": "1"
+    },
+    "rust_counts": []
+  },
+  "baseline_failure_names_verified_passing": [
+    "test_integration_ipc_diagnostics.IntegrationDiagnosticsSourceConstraints.test_ipc_keeps_original_call_and_result_assertion",
+    "test_integration_ipc_diagnostics.IntegrationDiagnosticsSourceConstraints.test_runtime_fixture_only_adds_readonly_observers",
+    "test_integration_stage_evidence_source.IntegrationStageEvidenceSourceTests.test_inverse_rejects_unknown_region_and_missing_fragment",
+    "test_integration_stage_evidence_source.IntegrationStageEvidenceSourceTests.test_whole_fixture_inverse_exact_e874",
+    "test_integration_stage_evidence_source.IntegrationStageEvidenceSourceTests.test_whole_host_inverse_exact_e874",
+    "test_integration_fixed_script_fixture.FixedScriptFixtureInverseTests.test_exact_whole_source_inverse_preserves_all_original_regions",
+    "test_integration_fixed_script_fixture.FixedScriptFixtureInverseTests.test_missing_or_changed_approved_script_anchor_is_not_normalized",
+    "test_integration_fixed_script_fixture.FixedScriptFixtureInverseTests.test_tampered_inverse_cannot_restore_original_digest",
+    "test_integration_fixed_script_fixture.FixedScriptFixtureInverseTests.test_unknown_regions_and_original_budgets_still_fail_whole_source_guard",
+    "test_integration_drift_ref_preparation.DriftPreparationSource.test_finite_step_enums_diagnostic_has_only_closed_clock_fields",
+    "test_integration_drift_ref_preparation.DriftPreparationSource.test_fixed_prepared_chain_and_source_target_proofs_precede_approval_and_start",
+    "test_integration_drift_ref_preparation.DriftPreparationSource.test_live_checks_and_unchanged_completion_tail_keep_all_refusal_assertions",
+    "test_integration_drift_ref_preparation.DriftPreparationSource.test_marker_deadline_cas_exact_confirmation_and_release_never_reset",
+    "test_integration_drift_ref_preparation.DriftPreparationSource.test_old_host_git_gate_positive_withdrawal_and_source_image_whole_bytes_unchanged",
+    "test_integration_drift_ref_preparation.DriftPreparationSource.test_whole_runtime_and_existing_observers_restore_exact_original"
+  ],
+  "runs": {
+    "baseline": {
+      "source": "b7f7e3e190fe4fe03b357cdec0958b65e7e13fa9",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "test_integration_ipc_diagnostics",
+        "test_integration_stage_evidence_source",
+        "test_integration_fixed_script_fixture",
+        "test_integration_drift_ref_preparation"
+      ],
+      "env": {
+        "PYTHONPATH": "tests/infrastructure"
+      },
+      "exit": 1,
+      "seconds": 0.132,
+      "log_sha256": "adf9032ac30b1a8bbe2c45d0c4d483d4bf0c8a1ca849cc2e86c27550e891c100"
+    },
+    "targeted": {
+      "source": "caf445487fd622b3ae71f7a86e0b7ea570332e39",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_integration_ipc_diagnostics",
+        "test_integration_stage_evidence_source",
+        "test_integration_fixed_script_fixture",
+        "test_integration_drift_ref_preparation",
+        "test_schema19_integration_source_fixture"
+      ],
+      "env": {
+        "PYTHONPATH": "tests/infrastructure"
+      },
+      "exit": 0,
+      "seconds": 0.13,
+      "log_sha256": "7c90edd556775101425b5ecfa264b128569c30fec84b1916d2bb7271bd07339e"
+    },
+    "full-infra": {
+      "source": "caf445487fd622b3ae71f7a86e0b7ea570332e39",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 21.116,
+      "log_sha256": "4275015adc8e8979456334d95c55d71abd95bd53d3c8554e00ff21a17afa06a8"
+    },
+    "live-rollback-red": {
+      "source": "67611e5fe6a00a9d0f9f8028d7550ac66f0df911",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_schema19_integration_source_fixture.Schema19IntegrationSourceFixtureTests.test_live_disk_reader_refuses_an_exact_schema18_checkout"
+      ],
+      "env": {
+        "PYTHONPATH": "tests/infrastructure"
+      },
+      "exit": 1,
+      "seconds": 0.053,
+      "log_sha256": "78b541a9a42cb82bfec514b8ad34699ef2fd73b7755c7e70ea284084a65557c6"
+    },
+    "strict-targeted": {
+      "source": "1e5b709ad6f50d245616f56f849af149fe970532",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_integration_ipc_diagnostics",
+        "test_integration_stage_evidence_source",
+        "test_integration_fixed_script_fixture",
+        "test_integration_drift_ref_preparation",
+        "test_schema19_integration_source_fixture"
+      ],
+      "env": {
+        "PYTHONPATH": "tests/infrastructure"
+      },
+      "exit": 0,
+      "seconds": 0.127,
+      "log_sha256": "3d569b7602c7044b6d817ae6221316b8a6d38a03c172ba66dc468467240b687c"
+    },
+    "strict-full-infra": {
+      "source": "1e5b709ad6f50d245616f56f849af149fe970532",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "env": {},
+      "exit": 0,
+      "seconds": 20.873,
+      "log_sha256": "4d4e61384a20773d4957e0752c61e07109fe262f4e64f4fc0585fbc198318b51"
+    }
+  },
+  "counts": {
+    "baseline": {
+      "passed": 17,
+      "failed": 15
+    },
+    "targeted": {
+      "passed": 37,
+      "failed": 0
+    },
+    "full": {
+      "passed": 905,
+      "skipped": 16,
+      "failed": 0
+    },
+    "strict_targeted": {
+      "passed": 38,
+      "failed": 0
+    },
+    "strict_full": {
+      "passed": 906,
+      "skipped": 16,
+      "failed": 0
+    }
+  },
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "python": "3.12.12 (main, Dec  9 2025, 19:05:33) [Clang 21.1.4 ]",
+    "python_executable": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python"
+  },
+  "recorded_utc": "2026-11-18T14:35:34.030047+00:00",
+  "initial_source": "caf445487fd622b3ae71f7a86e0b7ea570332e39",
+  "review_resolution": {
+    "fixed_current_only": true,
+    "rejected_predecessor_disk_paths": [
+      "crates/core/tests/integration_ipc.rs",
+      "crates/core/tests/fixtures/integration_runtime.rs"
+    ],
+    "failed_subtests_at_review_red": 2,
+    "historical_chain_input": "exact restored bytes passed directly to old helper, no predecessor accepted by new API"
+  }
+}

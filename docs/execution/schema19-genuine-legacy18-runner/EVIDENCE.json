@@ -1,0 +1,2280 @@
+{
+  "base": "1060ff834f170de39e51cf14336525f53c2eb475",
+  "tested_head": "53e1fc9fcabd08453579715ea6119fd0cd432117",
+  "tested_tree": "72214cd7de45d85dd628335983bdb00b77393037",
+  "integration_preview": {
+    "target": "7b04514caaf7807b46018547a8b10f2a5e7fc3d6",
+    "tree": "b2cc756289da39dd5d7f6f91b8560779720af2f9"
+  },
+  "old_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "old_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "unchanged_git_blobs": {
+    "Cargo.lock": "b111c362b7ad360d5b4f9f1143e5bac38c5f5d9c",
+    ".github/workflows/product.yml": "704a084884b6bbd421cdc49e2852a159220502bd",
+    "scripts/prepare-schema18-migration-fixture.py": "93317b66e86c33194addcfca6a99379f223036a3",
+    "scripts/generate-schema18-migration-fixture.py": "1496b56b0239be72d33290202fcd93dc05776ca6"
+  },
+  "historical_proof_and_restore_program_sha256": {
+    "PROBE": "7ce4009ce09e97ea64485b8de0edca4ea4796550d81cc5f2d4055f4153a799aa",
+    "RESTORE": "c9369c6176d2f89ce42e9012bae8d92d70775ef42ba030f5c11e7ea4ce944411"
+  },
+  "cargo_default_boundary": {
+    "target_required_features": {
+      "host_registry_actual18_migration": [
+        "actual-schema18-migration-tests"
+      ],
+      "host_registry_fresh18_migration": [
+        "fresh-schema18-migration-tests"
+      ]
+    },
+    "no_default_features": true,
+    "existing_manifest_targets_and_features_exact": true,
+    "target_without_feature_exit": 101,
+    "original_log": {
+      "path": "/private/tmp/ab-collab-oi8j8125/default-feature-refusal.log",
+      "sha256": "c00a27a562f0ee02458ad32afe3d8a7951186ada02c62c89164ec6dfcaa2b88b"
+    }
+  },
+  "first_macos_run": {
+    "exit": 0,
+    "raw_log": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-first.log",
+      "sha256": "e8b2413f31f316a343fc13e6f22ec0114bb19702b02a83c7c37157b7e5615553"
+    },
+    "scope": "real tool verification before moving the fresh-only declarations out of the shared test module"
+  },
+  "macos_arm64": {
+    "exit": 0,
+    "raw_log": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-arm64.bCCANDyf/macos.log",
+      "sha256": "b812ecd7908fd0d943bb235abeeabc79b48d6f510625b54169c00bbd0d3c4fa4"
+    },
+    "environment": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-arm64.bCCANDyf/env.log",
+      "sha256": "42a105aa893b4893635790ea3df4c23f49ad50136d6b12673865acde38b63de7"
+    },
+    "original_archive_inputs_same_hashes": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-arm64.bCCANDyf/archive-before.log",
+      "sha256": "f508378ece66e92090505b89111ec04304896ccc898d48ba63af87943d3430c7"
+    },
+    "archive_after": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-arm64.bCCANDyf/archive-after.log",
+      "sha256": "f508378ece66e92090505b89111ec04304896ccc898d48ba63af87943d3430c7"
+    },
+    "archive_test_count": 2,
+    "archive_controls": {
+      "accepted_build": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+      "accepted_cli": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+      "accepted_daemon": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "cases": [
+        {
+          "case": "manifest",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "manifest",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "mutually_updated_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "mutually_updated_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "restore"
+        }
+      ],
+      "dimension": "accepted_P0_tool_seal_replacement_refusal",
+      "private_root": "/private/tmp/ab19-seal-BzIZSn",
+      "status": "passed",
+      "trusted_interpreter": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+    },
+    "archive_migration": {
+      "accepted_build_sha256": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+      "accepted_cli_sha256": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+      "accepted_daemon_sha256": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "backup_cookie": 1,
+      "backup_rows_preserved": true,
+      "backup_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "dimension": "real_genuine18_normal_Core19_migration_and_frozen18_backup_recovery",
+      "input_cookie": 1,
+      "input_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+      "input_tools_unchanged": true,
+      "migrated_cookie": 3,
+      "not_claimed": [
+        "nonempty Conversation/Factory/integration history",
+        "P2 readers/native/UI/CI",
+        "power-failure durability"
+      ],
+      "old18_program_restore": {
+        "after": {
+          "application_id": 0,
+          "counts": {
+            "approval_proposals": 0,
+            "attempts": 0,
+            "budgets": 0,
+            "command_validation_policies": 0,
+            "command_validation_runs": 0,
+            "command_workspace_fences": 0,
+            "connections": 0,
+            "conversation_budgets": 0,
+            "conversation_dispatches": 0,
+            "conversation_turns": 0,
+            "conversations": 0,
+            "data_validation_policies": 0,
+            "data_validation_runs": 0,
+            "data_workspace_creations": 0,
+            "data_workspace_previews": 0,
+            "data_workspace_receipts": 0,
+            "dispatch_intents": 0,
+            "events": 5,
+            "execution_grants": 0,
+            "factory_attempts": 0,
+            "factory_budget_reservations": 0,
+            "factory_child_goal_runs": 0,
+            "factory_child_plan_heads": 0,
+            "factory_child_plan_revisions": 0,
+            "factory_delegations": 0,
+            "factory_handoffs": 0,
+            "factory_runs": 0,
+            "factory_scoped_handles": 0,
+            "factory_scopes": 0,
+            "factory_task_bindings": 0,
+            "factory_task_lineage": 0,
+            "goal_external_action_journal": 0,
+            "goal_grant_revisions": 0,
+            "goal_graph_acceptances": 0,
+            "goal_graph_candidates": 0,
+            "goal_graph_capabilities": 0,
+            "goal_graph_jobs": 0,
+            "goal_graph_owner_decisions": 0,
+            "goal_graph_validations": 0,
+            "goal_ledgers": 0,
+            "goal_node_evidence": 0,
+            "goal_plan_heads": 0,
+            "goal_plan_proposals": 0,
+            "goal_plan_revisions": 0,
+            "goal_run_nodes": 0,
+            "goal_run_reservations": 0,
+            "goal_runs": 0,
+            "goal_scopes": 0,
+            "idempotency": 4,
+            "integration_attempts": 0,
+            "integration_policies": 0,
+            "integration_ref_fences": 0,
+            "integrations": 0,
+            "managed_workspaces": 0,
+            "projects": 1,
+            "session_runtime_snapshots": 0,
+            "session_turns": 0,
+            "sessions": 0,
+            "sqlite_sequence": 1,
+            "tasks": 3,
+            "validation_policies": 0,
+            "validation_runs": 0,
+            "workspace_leases": 0
+          },
+          "foreign_key_errors": 0,
+          "logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+          "query_only": true,
+          "schema": 18,
+          "schema_cookie": 1,
+          "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+          "sequence": 5
+        },
+        "before": {
+          "application_id": 0,
+          "counts": {
+            "approval_proposals": 0,
+            "attempts": 0,
+            "budgets": 0,
+            "command_validation_policies": 0,
+            "command_validation_runs": 0,
+            "command_workspace_fences": 0,
+            "connections": 0,
+            "conversation_budgets": 0,
+            "conversation_dispatches": 0,
+            "conversation_turns": 0,
+            "conversations": 0,
+            "data_validation_policies": 0,
+            "data_validation_runs": 0,
+            "data_workspace_creations": 0,
+            "data_workspace_previews": 0,
+            "data_workspace_receipts": 0,
+            "dispatch_intents": 0,
+            "events": 5,
+            "execution_grants": 0,
+            "factory_attempts": 0,
+            "factory_budget_reservations": 0,
+            "factory_child_goal_runs": 0,
+            "factory_child_plan_heads": 0,
+            "factory_child_plan_revisions": 0,
+            "factory_delegations": 0,
+            "factory_handoffs": 0,
+            "factory_runs": 0,
+            "factory_scoped_handles": 0,
+            "factory_scopes": 0,
+            "factory_task_bindings": 0,
+            "factory_task_lineage": 0,
+            "goal_external_action_journal": 0,
+            "goal_grant_revisions": 0,
+            "goal_graph_acceptances": 0,
+            "goal_graph_candidates": 0,
+            "goal_graph_capabilities": 0,
+            "goal_graph_jobs": 0,
+            "goal_graph_owner_decisions": 0,
+            "goal_graph_validations": 0,
+            "goal_ledgers": 0,
+            "goal_node_evidence": 0,
+            "goal_plan_heads": 0,
+            "goal_plan_proposals": 0,
+            "goal_plan_revisions": 0,
+            "goal_run_nodes": 0,
+            "goal_run_reservations": 0,
+            "goal_runs": 0,
+            "goal_scopes": 0,
+            "idempotency": 4,
+            "integration_attempts": 0,
+            "integration_policies": 0,
+            "integration_ref_fences": 0,
+            "integrations": 0,
+            "managed_workspaces": 0,
+            "projects": 1,
+            "session_runtime_snapshots": 0,
+            "session_turns": 0,
+            "sessions": 0,
+            "sqlite_sequence": 1,
+            "tasks": 3,
+            "validation_policies": 0,
+            "validation_runs": 0,
+            "workspace_leases": 0
+          },
+          "foreign_key_errors": 0,
+          "logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+          "query_only": true,
+          "schema": 18,
+          "schema_cookie": 1,
+          "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+          "sequence": 5
+        },
+        "cli_exit": 0,
+        "daemon": {
+          "cleanup_errors": [],
+          "daemon_wait_exit": 0,
+          "forced_kill": false,
+          "group_quiescent_before_reaping": true,
+          "identity_gone_after_join": true,
+          "leader_unreaped_until_signalling": true,
+          "owned_identity": {
+            "pgid": 51725,
+            "pid": 51725
+          },
+          "sigterm_sent": true
+        },
+        "observed": {
+          "api_version": 1,
+          "database_schema_version": 18,
+          "sequence": 5
+        },
+        "status": "passed",
+        "task_states": [
+          "cancelled",
+          "draft",
+          "draft"
+        ]
+      },
+      "original_rows_preserved": true,
+      "private_root": "/private/tmp/ab19-a18-4ONAQs",
+      "reopen19_exact": true,
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "status": "passed",
+      "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+      "trusted_controller": {
+        "boundary": "local operator-selected trusted Python; not fixture-supplied or an untrusted executable",
+        "path": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+        "sha256": "6a37ff35c2edec046bd7e5504f4603b93fdbd33166252a324d15b6e41cdd5483"
+      }
+    },
+    "archive_report": {
+      "path": "/private/tmp/ab19-a18-4ONAQs/report.json",
+      "sha256": "057e581016e52e22252751883e4e57ccb43027c6567c8a219c9b7d53bf603f2a"
+    },
+    "archive_control_report": {
+      "path": "/private/tmp/ab19-seal-BzIZSn/report.json",
+      "sha256": "d6730c473b4353b11795fa8ab9908c4727f3e82dc11dba3d24e7dafe9de840d7"
+    },
+    "fresh_test_count": 1,
+    "fresh_report": {
+      "path": "/private/tmp/ab19-f18-YlotXO/report.json",
+      "sha256": "68ac348fdc863eab6805710a03f4425f3b4b557073e4e7a89ae16e29aee50bba"
+    },
+    "fresh": {
+      "in_run_seals": {
+        "archive": {
+          "identity": [
+            "16777234",
+            "71449048",
+            "6707200",
+            "1795040986",
+            "472063411",
+            "1795040986",
+            "472341299",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/build/source.tar",
+          "sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3"
+        },
+        "baton": {
+          "identity": [
+            "16777234",
+            "71454153",
+            "1264680",
+            "1795041088",
+            "285250374",
+            "1795041088",
+            "290066424",
+            "33088",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/build/frozen/baton",
+          "sha256": "ad7c98baecc96d55a154fcd68bf68ed2cab777a10f580778100d8c1857f738ca"
+        },
+        "batond": {
+          "identity": [
+            "16777234",
+            "71454150",
+            "24545560",
+            "1795041088",
+            "278222380",
+            "1795041088",
+            "282319561",
+            "33088",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/build/frozen/batond",
+          "sha256": "30f98331d2e3fe6d2758a6840ac6481c41cce18f2c7fd25a89af7fb5e2baea67"
+        },
+        "build": {
+          "identity": [
+            "16777234",
+            "71454158",
+            "32794",
+            "1795041088",
+            "306703770",
+            "1795041088",
+            "306802978",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/build/frozen/source-build-manifest.json",
+          "sha256": "b62e49cbe79d62186054f600c15df053d10c9246b98b0463fa90a28c16e4cfa3"
+        },
+        "database": {
+          "identity": [
+            "16777234",
+            "71454214",
+            "737280",
+            "1795041089",
+            "665183710",
+            "1795041089",
+            "665183710",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/fixture/actual-schema18.sqlite3",
+          "sha256": "6dfb65218988a2a52f6321079a0be20b7afc0072ca79b4ba37f58b2531781d8c"
+        },
+        "fixture": {
+          "identity": [
+            "16777234",
+            "71454218",
+            "12906",
+            "1795041089",
+            "701520422",
+            "1795041089",
+            "701605796",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/fixture/manifest.json",
+          "sha256": "2ca4421f2a31d93e5e4d2a2d44cd34fc0208fc211d06a367c70a93640bd4d4ef"
+        },
+        "provenance": {
+          "identity": [
+            "16777234",
+            "71454165",
+            "32794",
+            "1795041088",
+            "496103901",
+            "1795041088",
+            "496103901",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/fixture/tool-provenance.json",
+          "sha256": "b62e49cbe79d62186054f600c15df053d10c9246b98b0463fa90a28c16e4cfa3"
+        },
+        "transcript": {
+          "identity": [
+            "16777234",
+            "71454205",
+            "9879",
+            "1795041089",
+            "615249800",
+            "1795041089",
+            "615249800",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-YlotXO/fixture/rpc-private.jsonl",
+          "sha256": "8062195b09c703ba1a92b09eaccc5639814d4b609531a1cf075ee871af202de0"
+        }
+      },
+      "migration": {
+        "accepted_build_sha256": "b62e49cbe79d62186054f600c15df053d10c9246b98b0463fa90a28c16e4cfa3",
+        "accepted_cli_sha256": "ad7c98baecc96d55a154fcd68bf68ed2cab777a10f580778100d8c1857f738ca",
+        "accepted_daemon_sha256": "30f98331d2e3fe6d2758a6840ac6481c41cce18f2c7fd25a89af7fb5e2baea67",
+        "backup_cookie": 1,
+        "backup_rows_preserved": true,
+        "backup_sha256": "a6ce80190054b65d0078f0330945341bd12f516fcd561165dd550452fdb609d7",
+        "dimension": "real_genuine18_normal_Core19_migration_and_frozen18_backup_recovery",
+        "input_cookie": 1,
+        "input_sha256": "6dfb65218988a2a52f6321079a0be20b7afc0072ca79b4ba37f58b2531781d8c",
+        "input_tools_unchanged": true,
+        "migrated_cookie": 3,
+        "not_claimed": [
+          "nonempty Conversation/Factory/integration history",
+          "P2 readers/native/UI/CI",
+          "power-failure durability"
+        ],
+        "old18_program_restore": {
+          "after": {
+            "application_id": 0,
+            "counts": {
+              "approval_proposals": 0,
+              "attempts": 0,
+              "budgets": 0,
+              "command_validation_policies": 0,
+              "command_validation_runs": 0,
+              "command_workspace_fences": 0,
+              "connections": 0,
+              "conversation_budgets": 0,
+              "conversation_dispatches": 0,
+              "conversation_turns": 0,
+              "conversations": 0,
+              "data_validation_policies": 0,
+              "data_validation_runs": 0,
+              "data_workspace_creations": 0,
+              "data_workspace_previews": 0,
+              "data_workspace_receipts": 0,
+              "dispatch_intents": 0,
+              "events": 5,
+              "execution_grants": 0,
+              "factory_attempts": 0,
+              "factory_budget_reservations": 0,
+              "factory_child_goal_runs": 0,
+              "factory_child_plan_heads": 0,
+              "factory_child_plan_revisions": 0,
+              "factory_delegations": 0,
+              "factory_handoffs": 0,
+              "factory_runs": 0,
+              "factory_scoped_handles": 0,
+              "factory_scopes": 0,
+              "factory_task_bindings": 0,
+              "factory_task_lineage": 0,
+              "goal_external_action_journal": 0,
+              "goal_grant_revisions": 0,
+              "goal_graph_acceptances": 0,
+              "goal_graph_candidates": 0,
+              "goal_graph_capabilities": 0,
+              "goal_graph_jobs": 0,
+              "goal_graph_owner_decisions": 0,
+              "goal_graph_validations": 0,
+              "goal_ledgers": 0,
+              "goal_node_evidence": 0,
+              "goal_plan_heads": 0,
+              "goal_plan_proposals": 0,
+              "goal_plan_revisions": 0,
+              "goal_run_nodes": 0,
+              "goal_run_reservations": 0,
+              "goal_runs": 0,
+              "goal_scopes": 0,
+              "idempotency": 4,
+              "integration_attempts": 0,
+              "integration_policies": 0,
+              "integration_ref_fences": 0,
+              "integrations": 0,
+              "managed_workspaces": 0,
+              "projects": 1,
+              "session_runtime_snapshots": 0,
+              "session_turns": 0,
+              "sessions": 0,
+              "sqlite_sequence": 1,
+              "tasks": 3,
+              "validation_policies": 0,
+              "validation_runs": 0,
+              "workspace_leases": 0
+            },
+            "foreign_key_errors": 0,
+            "logical_sha256": "208febc9515f258bbd9fdd5027cf373f630ca151b669f1e1ce620e7aed63a420",
+            "query_only": true,
+            "schema": 18,
+            "schema_cookie": 1,
+            "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+            "sequence": 5
+          },
+          "before": {
+            "application_id": 0,
+            "counts": {
+              "approval_proposals": 0,
+              "attempts": 0,
+              "budgets": 0,
+              "command_validation_policies": 0,
+              "command_validation_runs": 0,
+              "command_workspace_fences": 0,
+              "connections": 0,
+              "conversation_budgets": 0,
+              "conversation_dispatches": 0,
+              "conversation_turns": 0,
+              "conversations": 0,
+              "data_validation_policies": 0,
+              "data_validation_runs": 0,
+              "data_workspace_creations": 0,
+              "data_workspace_previews": 0,
+              "data_workspace_receipts": 0,
+              "dispatch_intents": 0,
+              "events": 5,
+              "execution_grants": 0,
+              "factory_attempts": 0,
+              "factory_budget_reservations": 0,
+              "factory_child_goal_runs": 0,
+              "factory_child_plan_heads": 0,
+              "factory_child_plan_revisions": 0,
+              "factory_delegations": 0,
+              "factory_handoffs": 0,
+              "factory_runs": 0,
+              "factory_scoped_handles": 0,
+              "factory_scopes": 0,
+              "factory_task_bindings": 0,
+              "factory_task_lineage": 0,
+              "goal_external_action_journal": 0,
+              "goal_grant_revisions": 0,
+              "goal_graph_acceptances": 0,
+              "goal_graph_candidates": 0,
+              "goal_graph_capabilities": 0,
+              "goal_graph_jobs": 0,
+              "goal_graph_owner_decisions": 0,
+              "goal_graph_validations": 0,
+              "goal_ledgers": 0,
+              "goal_node_evidence": 0,
+              "goal_plan_heads": 0,
+              "goal_plan_proposals": 0,
+              "goal_plan_revisions": 0,
+              "goal_run_nodes": 0,
+              "goal_run_reservations": 0,
+              "goal_runs": 0,
+              "goal_scopes": 0,
+              "idempotency": 4,
+              "integration_attempts": 0,
+              "integration_policies": 0,
+              "integration_ref_fences": 0,
+              "integrations": 0,
+              "managed_workspaces": 0,
+              "projects": 1,
+              "session_runtime_snapshots": 0,
+              "session_turns": 0,
+              "sessions": 0,
+              "sqlite_sequence": 1,
+              "tasks": 3,
+              "validation_policies": 0,
+              "validation_runs": 0,
+              "workspace_leases": 0
+            },
+            "foreign_key_errors": 0,
+            "logical_sha256": "208febc9515f258bbd9fdd5027cf373f630ca151b669f1e1ce620e7aed63a420",
+            "query_only": true,
+            "schema": 18,
+            "schema_cookie": 1,
+            "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+            "sequence": 5
+          },
+          "cli_exit": 0,
+          "daemon": {
+            "cleanup_errors": [],
+            "daemon_wait_exit": 0,
+            "forced_kill": false,
+            "group_quiescent_before_reaping": true,
+            "identity_gone_after_join": true,
+            "leader_unreaped_until_signalling": true,
+            "owned_identity": {
+              "pgid": 53406,
+              "pid": 53406
+            },
+            "sigterm_sent": true
+          },
+          "observed": {
+            "api_version": 1,
+            "database_schema_version": 18,
+            "sequence": 5
+          },
+          "status": "passed",
+          "task_states": [
+            "cancelled",
+            "draft",
+            "draft"
+          ]
+        },
+        "original_rows_preserved": true,
+        "private_root": "/private/tmp/ab19-f18-YlotXO/migration",
+        "reopen19_exact": true,
+        "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+        "status": "passed",
+        "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+        "trusted_controller": {
+          "boundary": "local operator-selected trusted Python; not fixture-supplied or an untrusted executable",
+          "path": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+          "sha256": "6a37ff35c2edec046bd7e5504f4603b93fdbd33166252a324d15b6e41cdd5483"
+        }
+      },
+      "private_root": "/private/tmp/ab19-f18-YlotXO",
+      "producer_target": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/schema19-genuine-legacy18-runner/target/ab19-f18-YlotXO",
+      "refusals": [
+        {
+          "case": "modified_build",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_build/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_build",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_build/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_daemon/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_daemon/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_cli/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_cli/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_fixture",
+          "exit": 1,
+          "expected_rejection": "accepted18 fixture SHA mismatch",
+          "log_sha256": "ddb8008bb99822dd851184508c1dd657a1fa4e9734359b5835d81ebccd84986b",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_fixture/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_fixture",
+          "exit": 1,
+          "expected_rejection": "accepted18 fixture SHA mismatch",
+          "log_sha256": "ddb8008bb99822dd851184508c1dd657a1fa4e9734359b5835d81ebccd84986b",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_fixture/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_db",
+          "exit": 1,
+          "expected_rejection": "accepted18 database SHA mismatch",
+          "log_sha256": "92d8c8d0ef9ad0db2bbebb5f467343e243c8f7eb517bcbbb0242135b2bfa0a9a",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_db/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_db",
+          "exit": 1,
+          "expected_rejection": "accepted18 database SHA mismatch",
+          "log_sha256": "92d8c8d0ef9ad0db2bbebb5f467343e243c8f7eb517bcbbb0242135b2bfa0a9a",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/modified_db/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "same_bytes_replaced_inode",
+          "exit": 1,
+          "expected_rejection": "accepted18 build identity mismatch",
+          "log_sha256": "c0b7c3760e6d9f96829485e16504f8e63f0f30a2765e4d22f0567c78ba55a591",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/same_bytes_replaced_inode/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "same_bytes_replaced_inode",
+          "exit": 1,
+          "expected_rejection": "accepted18 build identity mismatch",
+          "log_sha256": "c0b7c3760e6d9f96829485e16504f8e63f0f30a2765e4d22f0567c78ba55a591",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/same_bytes_replaced_inode/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "coherent_changed_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/coherent_changed_manifests_and_pair/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "coherent_changed_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-YlotXO/coherent_changed_manifests_and_pair/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        }
+      ],
+      "status": "passed",
+      "verified_provenance": {
+        "independent_readonly_sqlite": {
+          "input": {
+            "schema": 18,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": null,
+            "sha256": "6dfb65218988a2a52f6321079a0be20b7afc0072ca79b4ba37f58b2531781d8c"
+          },
+          "migrated": {
+            "schema": 19,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": 0,
+            "sha256": "f0152c351d2e388764931b4f15289df32677ee0b6dd230226611c94c7979b856"
+          },
+          "restored": {
+            "schema": 18,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": null,
+            "sha256": "a6ce80190054b65d0078f0330945341bd12f516fcd561165dd550452fdb609d7"
+          }
+        },
+        "build_seconds": 101.63985149981454,
+        "builder_sha256": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289",
+        "helper_sha256": {
+          "prepare-schema16-migration-fixture.py": "5e814e979115d15a9696b78d586f63a30c01df3548b323dd99f8f5acbd48713a",
+          "prepare-legacy-migration-fixture.py": "b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90",
+          "native-run.py": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a"
+        },
+        "fixture_generator_sha256": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+        "native_platform": "darwin",
+        "native_architecture": "arm64",
+        "coherent_replacement_verifier_stdout_sha256": "8ec598bb8230530b1b73db3222156cc2e2b3d6d8ade585e6d6e37abd9a2e7578"
+      }
+    }
+  },
+  "linux_first_local_setup_failure": {
+    "exit": 101,
+    "failure": "container UID had no passwd account for Path.home()",
+    "builder_started_compiling": false,
+    "raw_log": {
+      "path": "/private/tmp/ab-collab-oi8j8125/linux-arm64.u4yi1qj6/linux.log",
+      "sha256": "3de219c3dc21599a9cc61455a9f6f5b40f140579566903e0e772cb0dba7e0db7"
+    },
+    "raw_archive": {
+      "path": "/private/tmp/ab-collab-oi8j8125/linux-arm64.u4yi1qj6/schema18-evidence.tar",
+      "sha256": "6dcf8b3569c3fc927b4b526d9b62afe23e872693debf0e36563fed3bec51ae7d"
+    },
+    "builder_log_member": "tmp/ab19-f18-c4FUzB/trusted-build.log",
+    "builder_log_sha256": "4e24d6b47c2c221e3a2a22eb6515ed3754105d234fa788f80452e9905d685e74"
+  },
+  "linux_arm64": {
+    "exit": 0,
+    "raw_log": {
+      "path": "/private/tmp/ab-collab-oi8j8125/linux-arm64.N34lkiDr/linux.log",
+      "sha256": "5db036b21048a20dafa706f6090e69b43a8230c379232b776b43019becd20424"
+    },
+    "raw_archive": {
+      "path": "/private/tmp/ab-collab-oi8j8125/linux-arm64.N34lkiDr/schema18-evidence.tar",
+      "sha256": "ecb61a54e7f554a1f983c8cd2f0ed522139d29456114637d60c3e78fa9e6db2e"
+    },
+    "image": "rust@sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "runtime_network": "none",
+    "frozen_crate_cache": {
+      "path": "/private/tmp/ab-collab-oi8j8125/linux-arm64.N34lkiDr/cache.log",
+      "sha256": "e83e9ffed31b62ac6e6032f737f5c7ae84a018c47093527499f18a3e0c4eb460"
+    },
+    "fresh_test_count": 1,
+    "fresh": {
+      "in_run_seals": {
+        "archive": {
+          "identity": [
+            "62",
+            "1752718",
+            "6707200",
+            "1795040879",
+            "512086009",
+            "1795040879",
+            "514086009",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/build/source.tar",
+          "sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3"
+        },
+        "baton": {
+          "identity": [
+            "62",
+            "1752997",
+            "52451296",
+            "1795040962",
+            "998646006",
+            "1795040963",
+            "55646006",
+            "33088",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/build/frozen/baton",
+          "sha256": "a44c99cee2e538dcb5a972a6c874f806cb135a0df75a89ec3e4e4d6bbcb72756"
+        },
+        "batond": {
+          "identity": [
+            "62",
+            "1752996",
+            "75339488",
+            "1795040962",
+            "891646006",
+            "1795040962",
+            "983646006",
+            "33088",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/build/frozen/batond",
+          "sha256": "908c009685854cae79eca4a1d6c9339c873dab36bee08c30eacbfea1e119730e"
+        },
+        "build": {
+          "identity": [
+            "62",
+            "1752998",
+            "32546",
+            "1795040963",
+            "120646006",
+            "1795040963",
+            "121646006",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/build/frozen/source-build-manifest.json",
+          "sha256": "d2014064dcc82d713d524abbbb6238e7d7aa704ff7347106846883b99c973a1d"
+        },
+        "database": {
+          "identity": [
+            "62",
+            "1753012",
+            "737280",
+            "1795040963",
+            "784646006",
+            "1795040963",
+            "784646006",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/fixture/actual-schema18.sqlite3",
+          "sha256": "c3d49ae55306073e7be2a1ac22de47f5adb5a17779971da4de2506b4969ec794"
+        },
+        "fixture": {
+          "identity": [
+            "62",
+            "1753017",
+            "12869",
+            "1795040963",
+            "860646006",
+            "1795040963",
+            "860646006",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/fixture/manifest.json",
+          "sha256": "be759dcd80bf8d44afd5d4395573a1971f67ed45e8c8f587977b8efca2d6d1f8"
+        },
+        "provenance": {
+          "identity": [
+            "62",
+            "1753001",
+            "32546",
+            "1795040963",
+            "502646006",
+            "1795040963",
+            "502646006",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/fixture/tool-provenance.json",
+          "sha256": "d2014064dcc82d713d524abbbb6238e7d7aa704ff7347106846883b99c973a1d"
+        },
+        "transcript": {
+          "identity": [
+            "62",
+            "1753014",
+            "9942",
+            "1795040963",
+            "693646006",
+            "1795040963",
+            "693646006",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/tmp/ab19-f18-XjBu8I/fixture/rpc-private.jsonl",
+          "sha256": "daf51d7c4ca15f30dc9dfc38d2dfb1288e14e97619060e312c9c9bcf6bc7c756"
+        }
+      },
+      "migration": {
+        "accepted_build_sha256": "d2014064dcc82d713d524abbbb6238e7d7aa704ff7347106846883b99c973a1d",
+        "accepted_cli_sha256": "a44c99cee2e538dcb5a972a6c874f806cb135a0df75a89ec3e4e4d6bbcb72756",
+        "accepted_daemon_sha256": "908c009685854cae79eca4a1d6c9339c873dab36bee08c30eacbfea1e119730e",
+        "backup_cookie": 1,
+        "backup_rows_preserved": true,
+        "backup_sha256": "3310d8c00681f83e91ba133e755eae92722519c1460614f990823ae736910152",
+        "dimension": "real_genuine18_normal_Core19_migration_and_frozen18_backup_recovery",
+        "input_cookie": 1,
+        "input_sha256": "c3d49ae55306073e7be2a1ac22de47f5adb5a17779971da4de2506b4969ec794",
+        "input_tools_unchanged": true,
+        "migrated_cookie": 3,
+        "not_claimed": [
+          "nonempty Conversation/Factory/integration history",
+          "P2 readers/native/UI/CI",
+          "power-failure durability"
+        ],
+        "old18_program_restore": {
+          "after": {
+            "application_id": 0,
+            "counts": {
+              "approval_proposals": 0,
+              "attempts": 0,
+              "budgets": 0,
+              "command_validation_policies": 0,
+              "command_validation_runs": 0,
+              "command_workspace_fences": 0,
+              "connections": 0,
+              "conversation_budgets": 0,
+              "conversation_dispatches": 0,
+              "conversation_turns": 0,
+              "conversations": 0,
+              "data_validation_policies": 0,
+              "data_validation_runs": 0,
+              "data_workspace_creations": 0,
+              "data_workspace_previews": 0,
+              "data_workspace_receipts": 0,
+              "dispatch_intents": 0,
+              "events": 5,
+              "execution_grants": 0,
+              "factory_attempts": 0,
+              "factory_budget_reservations": 0,
+              "factory_child_goal_runs": 0,
+              "factory_child_plan_heads": 0,
+              "factory_child_plan_revisions": 0,
+              "factory_delegations": 0,
+              "factory_handoffs": 0,
+              "factory_runs": 0,
+              "factory_scoped_handles": 0,
+              "factory_scopes": 0,
+              "factory_task_bindings": 0,
+              "factory_task_lineage": 0,
+              "goal_external_action_journal": 0,
+              "goal_grant_revisions": 0,
+              "goal_graph_acceptances": 0,
+              "goal_graph_candidates": 0,
+              "goal_graph_capabilities": 0,
+              "goal_graph_jobs": 0,
+              "goal_graph_owner_decisions": 0,
+              "goal_graph_validations": 0,
+              "goal_ledgers": 0,
+              "goal_node_evidence": 0,
+              "goal_plan_heads": 0,
+              "goal_plan_proposals": 0,
+              "goal_plan_revisions": 0,
+              "goal_run_nodes": 0,
+              "goal_run_reservations": 0,
+              "goal_runs": 0,
+              "goal_scopes": 0,
+              "idempotency": 4,
+              "integration_attempts": 0,
+              "integration_policies": 0,
+              "integration_ref_fences": 0,
+              "integrations": 0,
+              "managed_workspaces": 0,
+              "projects": 1,
+              "session_runtime_snapshots": 0,
+              "session_turns": 0,
+              "sessions": 0,
+              "sqlite_sequence": 1,
+              "tasks": 3,
+              "validation_policies": 0,
+              "validation_runs": 0,
+              "workspace_leases": 0
+            },
+            "foreign_key_errors": 0,
+            "logical_sha256": "63554d3992d223448ce4add3f8faf48fe1267b89d81a015709b1550134abce36",
+            "query_only": true,
+            "schema": 18,
+            "schema_cookie": 1,
+            "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+            "sequence": 5
+          },
+          "before": {
+            "application_id": 0,
+            "counts": {
+              "approval_proposals": 0,
+              "attempts": 0,
+              "budgets": 0,
+              "command_validation_policies": 0,
+              "command_validation_runs": 0,
+              "command_workspace_fences": 0,
+              "connections": 0,
+              "conversation_budgets": 0,
+              "conversation_dispatches": 0,
+              "conversation_turns": 0,
+              "conversations": 0,
+              "data_validation_policies": 0,
+              "data_validation_runs": 0,
+              "data_workspace_creations": 0,
+              "data_workspace_previews": 0,
+              "data_workspace_receipts": 0,
+              "dispatch_intents": 0,
+              "events": 5,
+              "execution_grants": 0,
+              "factory_attempts": 0,
+              "factory_budget_reservations": 0,
+              "factory_child_goal_runs": 0,
+              "factory_child_plan_heads": 0,
+              "factory_child_plan_revisions": 0,
+              "factory_delegations": 0,
+              "factory_handoffs": 0,
+              "factory_runs": 0,
+              "factory_scoped_handles": 0,
+              "factory_scopes": 0,
+              "factory_task_bindings": 0,
+              "factory_task_lineage": 0,
+              "goal_external_action_journal": 0,
+              "goal_grant_revisions": 0,
+              "goal_graph_acceptances": 0,
+              "goal_graph_candidates": 0,
+              "goal_graph_capabilities": 0,
+              "goal_graph_jobs": 0,
+              "goal_graph_owner_decisions": 0,
+              "goal_graph_validations": 0,
+              "goal_ledgers": 0,
+              "goal_node_evidence": 0,
+              "goal_plan_heads": 0,
+              "goal_plan_proposals": 0,
+              "goal_plan_revisions": 0,
+              "goal_run_nodes": 0,
+              "goal_run_reservations": 0,
+              "goal_runs": 0,
+              "goal_scopes": 0,
+              "idempotency": 4,
+              "integration_attempts": 0,
+              "integration_policies": 0,
+              "integration_ref_fences": 0,
+              "integrations": 0,
+              "managed_workspaces": 0,
+              "projects": 1,
+              "session_runtime_snapshots": 0,
+              "session_turns": 0,
+              "sessions": 0,
+              "sqlite_sequence": 1,
+              "tasks": 3,
+              "validation_policies": 0,
+              "validation_runs": 0,
+              "workspace_leases": 0
+            },
+            "foreign_key_errors": 0,
+            "logical_sha256": "63554d3992d223448ce4add3f8faf48fe1267b89d81a015709b1550134abce36",
+            "query_only": true,
+            "schema": 18,
+            "schema_cookie": 1,
+            "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+            "sequence": 5
+          },
+          "cli_exit": 0,
+          "daemon": {
+            "cleanup_errors": [],
+            "daemon_wait_exit": 0,
+            "forced_kill": false,
+            "group_quiescent_before_reaping": true,
+            "identity_gone_after_join": true,
+            "leader_unreaped_until_signalling": true,
+            "owned_identity": {
+              "pgid": 2394,
+              "pid": 2394
+            },
+            "sigterm_sent": true
+          },
+          "observed": {
+            "api_version": 1,
+            "database_schema_version": 18,
+            "sequence": 5
+          },
+          "status": "passed",
+          "task_states": [
+            "cancelled",
+            "draft",
+            "draft"
+          ]
+        },
+        "original_rows_preserved": true,
+        "private_root": "/tmp/ab19-f18-XjBu8I/migration",
+        "reopen19_exact": true,
+        "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+        "status": "passed",
+        "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+        "trusted_controller": {
+          "boundary": "local operator-selected trusted Python; not fixture-supplied or an untrusted executable",
+          "path": "/usr/bin/python3.11",
+          "sha256": "9a070c8a36e16c152dae21b66aeb707f4d21b506c875e9b15edf4387fca7dcf8"
+        }
+      },
+      "private_root": "/tmp/ab19-f18-XjBu8I",
+      "producer_target": "/checkout/target/ab19-f18-XjBu8I",
+      "refusals": [
+        {
+          "case": "modified_build",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_build/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_build",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_build/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_daemon/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_daemon/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_cli/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_cli/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_fixture",
+          "exit": 1,
+          "expected_rejection": "accepted18 fixture SHA mismatch",
+          "log_sha256": "ddb8008bb99822dd851184508c1dd657a1fa4e9734359b5835d81ebccd84986b",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_fixture/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_fixture",
+          "exit": 1,
+          "expected_rejection": "accepted18 fixture SHA mismatch",
+          "log_sha256": "ddb8008bb99822dd851184508c1dd657a1fa4e9734359b5835d81ebccd84986b",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_fixture/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_db",
+          "exit": 1,
+          "expected_rejection": "accepted18 database SHA mismatch",
+          "log_sha256": "92d8c8d0ef9ad0db2bbebb5f467343e243c8f7eb517bcbbb0242135b2bfa0a9a",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_db/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_db",
+          "exit": 1,
+          "expected_rejection": "accepted18 database SHA mismatch",
+          "log_sha256": "92d8c8d0ef9ad0db2bbebb5f467343e243c8f7eb517bcbbb0242135b2bfa0a9a",
+          "private_log": "/tmp/ab19-f18-XjBu8I/modified_db/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "same_bytes_replaced_inode",
+          "exit": 1,
+          "expected_rejection": "accepted18 build identity mismatch",
+          "log_sha256": "c0b7c3760e6d9f96829485e16504f8e63f0f30a2765e4d22f0567c78ba55a591",
+          "private_log": "/tmp/ab19-f18-XjBu8I/same_bytes_replaced_inode/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "same_bytes_replaced_inode",
+          "exit": 1,
+          "expected_rejection": "accepted18 build identity mismatch",
+          "log_sha256": "c0b7c3760e6d9f96829485e16504f8e63f0f30a2765e4d22f0567c78ba55a591",
+          "private_log": "/tmp/ab19-f18-XjBu8I/same_bytes_replaced_inode/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "coherent_changed_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/tmp/ab19-f18-XjBu8I/coherent_changed_manifests_and_pair/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "coherent_changed_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/tmp/ab19-f18-XjBu8I/coherent_changed_manifests_and_pair/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        }
+      ],
+      "status": "passed",
+      "verified_provenance": {
+        "independent_readonly_sqlite": {
+          "input": {
+            "schema": 18,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": null,
+            "sha256": "c3d49ae55306073e7be2a1ac22de47f5adb5a17779971da4de2506b4969ec794"
+          },
+          "migrated": {
+            "schema": 19,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": 0,
+            "sha256": "fc9f8dd1c5583f5830154b9cd829efbb3b84dbcd115e56b09dfaaafe4705cb40"
+          },
+          "restored": {
+            "schema": 18,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": null,
+            "sha256": "3310d8c00681f83e91ba133e755eae92722519c1460614f990823ae736910152"
+          }
+        },
+        "build_seconds": 83.26920691295527,
+        "builder_sha256": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289",
+        "helper_sha256": {
+          "prepare-schema16-migration-fixture.py": "5e814e979115d15a9696b78d586f63a30c01df3548b323dd99f8f5acbd48713a",
+          "prepare-legacy-migration-fixture.py": "b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90",
+          "native-run.py": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a"
+        },
+        "fixture_generator_sha256": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+        "native_platform": "linux",
+        "native_architecture": "aarch64",
+        "coherent_replacement_verifier_stdout_sha256": "8ec598bb8230530b1b73db3222156cc2e2b3d6d8ade585e6d6e37abd9a2e7578"
+      }
+    }
+  },
+  "combined_macos_arm64": {
+    "exit": 0,
+    "target": "7b04514caaf7807b46018547a8b10f2a5e7fc3d6",
+    "tested_head": "7ac30c9a68bc24d45cce5e51dc40b5c608e105d1",
+    "tested_tree": "b2cc756289da39dd5d7f6f91b8560779720af2f9",
+    "checkout": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/source",
+    "environment": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/env.log",
+      "sha256": "60645680db24819931498d854806bf0a8d1636b41d3aae5a9f15c55a7bd35eb3"
+    },
+    "compile_log": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/compile.log",
+      "sha256": "fbbdac4bda338b3b7af4545af78a11317400d3e30a341425926fa6e7fd1a0b41"
+    },
+    "raw_log": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/macos.log",
+      "sha256": "64d93e351a2b0be5f01b3c11f24b248b4c61e17465fa70aa7936a1574f02421d"
+    },
+    "go_signal": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/commence",
+      "sha256": "73dfa903286915016910b1aa8c884769930dbfdb973170a20c5ddc6913112db8"
+    },
+    "archive_test_count": 2,
+    "archive_controls": {
+      "accepted_build": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+      "accepted_cli": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+      "accepted_daemon": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "cases": [
+        {
+          "case": "manifest",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "manifest",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "mutually_updated_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "mutually_updated_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "runtime_empty": true,
+          "stage": "restore"
+        }
+      ],
+      "dimension": "accepted_P0_tool_seal_replacement_refusal",
+      "private_root": "/private/tmp/ab19-seal-boHAHP",
+      "status": "passed",
+      "trusted_interpreter": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12"
+    },
+    "archive_migration": {
+      "accepted_build_sha256": "84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018",
+      "accepted_cli_sha256": "255f2c36405b98d447538e3003bb3245ce5f03cefbf0ad99fc8b7992389baabf",
+      "accepted_daemon_sha256": "4fa7bd284899e17ec18f382838a8944ab720bcfd80a4a1319a80801e740cc538",
+      "backup_cookie": 1,
+      "backup_rows_preserved": true,
+      "backup_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+      "dimension": "real_genuine18_normal_Core19_migration_and_frozen18_backup_recovery",
+      "input_cookie": 1,
+      "input_sha256": "613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1",
+      "input_tools_unchanged": true,
+      "migrated_cookie": 3,
+      "not_claimed": [
+        "nonempty Conversation/Factory/integration history",
+        "P2 readers/native/UI/CI",
+        "power-failure durability"
+      ],
+      "old18_program_restore": {
+        "after": {
+          "application_id": 0,
+          "counts": {
+            "approval_proposals": 0,
+            "attempts": 0,
+            "budgets": 0,
+            "command_validation_policies": 0,
+            "command_validation_runs": 0,
+            "command_workspace_fences": 0,
+            "connections": 0,
+            "conversation_budgets": 0,
+            "conversation_dispatches": 0,
+            "conversation_turns": 0,
+            "conversations": 0,
+            "data_validation_policies": 0,
+            "data_validation_runs": 0,
+            "data_workspace_creations": 0,
+            "data_workspace_previews": 0,
+            "data_workspace_receipts": 0,
+            "dispatch_intents": 0,
+            "events": 5,
+            "execution_grants": 0,
+            "factory_attempts": 0,
+            "factory_budget_reservations": 0,
+            "factory_child_goal_runs": 0,
+            "factory_child_plan_heads": 0,
+            "factory_child_plan_revisions": 0,
+            "factory_delegations": 0,
+            "factory_handoffs": 0,
+            "factory_runs": 0,
+            "factory_scoped_handles": 0,
+            "factory_scopes": 0,
+            "factory_task_bindings": 0,
+            "factory_task_lineage": 0,
+            "goal_external_action_journal": 0,
+            "goal_grant_revisions": 0,
+            "goal_graph_acceptances": 0,
+            "goal_graph_candidates": 0,
+            "goal_graph_capabilities": 0,
+            "goal_graph_jobs": 0,
+            "goal_graph_owner_decisions": 0,
+            "goal_graph_validations": 0,
+            "goal_ledgers": 0,
+            "goal_node_evidence": 0,
+            "goal_plan_heads": 0,
+            "goal_plan_proposals": 0,
+            "goal_plan_revisions": 0,
+            "goal_run_nodes": 0,
+            "goal_run_reservations": 0,
+            "goal_runs": 0,
+            "goal_scopes": 0,
+            "idempotency": 4,
+            "integration_attempts": 0,
+            "integration_policies": 0,
+            "integration_ref_fences": 0,
+            "integrations": 0,
+            "managed_workspaces": 0,
+            "projects": 1,
+            "session_runtime_snapshots": 0,
+            "session_turns": 0,
+            "sessions": 0,
+            "sqlite_sequence": 1,
+            "tasks": 3,
+            "validation_policies": 0,
+            "validation_runs": 0,
+            "workspace_leases": 0
+          },
+          "foreign_key_errors": 0,
+          "logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+          "query_only": true,
+          "schema": 18,
+          "schema_cookie": 1,
+          "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+          "sequence": 5
+        },
+        "before": {
+          "application_id": 0,
+          "counts": {
+            "approval_proposals": 0,
+            "attempts": 0,
+            "budgets": 0,
+            "command_validation_policies": 0,
+            "command_validation_runs": 0,
+            "command_workspace_fences": 0,
+            "connections": 0,
+            "conversation_budgets": 0,
+            "conversation_dispatches": 0,
+            "conversation_turns": 0,
+            "conversations": 0,
+            "data_validation_policies": 0,
+            "data_validation_runs": 0,
+            "data_workspace_creations": 0,
+            "data_workspace_previews": 0,
+            "data_workspace_receipts": 0,
+            "dispatch_intents": 0,
+            "events": 5,
+            "execution_grants": 0,
+            "factory_attempts": 0,
+            "factory_budget_reservations": 0,
+            "factory_child_goal_runs": 0,
+            "factory_child_plan_heads": 0,
+            "factory_child_plan_revisions": 0,
+            "factory_delegations": 0,
+            "factory_handoffs": 0,
+            "factory_runs": 0,
+            "factory_scoped_handles": 0,
+            "factory_scopes": 0,
+            "factory_task_bindings": 0,
+            "factory_task_lineage": 0,
+            "goal_external_action_journal": 0,
+            "goal_grant_revisions": 0,
+            "goal_graph_acceptances": 0,
+            "goal_graph_candidates": 0,
+            "goal_graph_capabilities": 0,
+            "goal_graph_jobs": 0,
+            "goal_graph_owner_decisions": 0,
+            "goal_graph_validations": 0,
+            "goal_ledgers": 0,
+            "goal_node_evidence": 0,
+            "goal_plan_heads": 0,
+            "goal_plan_proposals": 0,
+            "goal_plan_revisions": 0,
+            "goal_run_nodes": 0,
+            "goal_run_reservations": 0,
+            "goal_runs": 0,
+            "goal_scopes": 0,
+            "idempotency": 4,
+            "integration_attempts": 0,
+            "integration_policies": 0,
+            "integration_ref_fences": 0,
+            "integrations": 0,
+            "managed_workspaces": 0,
+            "projects": 1,
+            "session_runtime_snapshots": 0,
+            "session_turns": 0,
+            "sessions": 0,
+            "sqlite_sequence": 1,
+            "tasks": 3,
+            "validation_policies": 0,
+            "validation_runs": 0,
+            "workspace_leases": 0
+          },
+          "foreign_key_errors": 0,
+          "logical_sha256": "18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb",
+          "query_only": true,
+          "schema": 18,
+          "schema_cookie": 1,
+          "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+          "sequence": 5
+        },
+        "cli_exit": 0,
+        "daemon": {
+          "cleanup_errors": [],
+          "daemon_wait_exit": 0,
+          "forced_kill": false,
+          "group_quiescent_before_reaping": true,
+          "identity_gone_after_join": true,
+          "leader_unreaped_until_signalling": true,
+          "owned_identity": {
+            "pgid": 58382,
+            "pid": 58382
+          },
+          "sigterm_sent": true
+        },
+        "observed": {
+          "api_version": 1,
+          "database_schema_version": 18,
+          "sequence": 5
+        },
+        "status": "passed",
+        "task_states": [
+          "cancelled",
+          "draft",
+          "draft"
+        ]
+      },
+      "original_rows_preserved": true,
+      "private_root": "/private/tmp/ab19-a18-EZZlOj",
+      "reopen19_exact": true,
+      "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+      "status": "passed",
+      "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+      "trusted_controller": {
+        "boundary": "local operator-selected trusted Python; not fixture-supplied or an untrusted executable",
+        "path": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+        "sha256": "6a37ff35c2edec046bd7e5504f4603b93fdbd33166252a324d15b6e41cdd5483"
+      }
+    },
+    "archive_before": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/archive-before.log",
+      "sha256": "f508378ece66e92090505b89111ec04304896ccc898d48ba63af87943d3430c7"
+    },
+    "archive_after": {
+      "path": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/archive-after.log",
+      "sha256": "f508378ece66e92090505b89111ec04304896ccc898d48ba63af87943d3430c7"
+    },
+    "archive_report": {
+      "path": "/private/tmp/ab19-a18-EZZlOj/report.json",
+      "sha256": "834ad5a65a5e183ef7681ac2cf032a76bbc1d514578d50afbf0d5f411061cefb"
+    },
+    "archive_control_report": {
+      "path": "/private/tmp/ab19-seal-boHAHP/report.json",
+      "sha256": "caed0855a58c4a5d93ddbe5b2ab60f509ec62c66328732262c0bfca9335475e3"
+    },
+    "fresh_test_count": 1,
+    "fresh_report": {
+      "path": "/private/tmp/ab19-f18-7Hd1rw/report.json",
+      "sha256": "183c59880f95bcc5218d7809030a9aca6e4c2ee4b0ff959061ebfde7c53adb2a"
+    },
+    "fresh": {
+      "in_run_seals": {
+        "archive": {
+          "identity": [
+            "16777234",
+            "71481661",
+            "6707200",
+            "1795041378",
+            "847831294",
+            "1795041378",
+            "848039501",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/build/source.tar",
+          "sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3"
+        },
+        "baton": {
+          "identity": [
+            "16777234",
+            "71483706",
+            "1263448",
+            "1795041464",
+            "134695865",
+            "1795041464",
+            "134988904",
+            "33088",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/build/frozen/baton",
+          "sha256": "82f6c54bfd49be8ae19a9cd66b1c32a4b1a5edc8d33145a564b80c792ca2fc61"
+        },
+        "batond": {
+          "identity": [
+            "16777234",
+            "71483705",
+            "24542840",
+            "1795041464",
+            "129355901",
+            "1795041464",
+            "133637664",
+            "33088",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/build/frozen/batond",
+          "sha256": "d418f8c1a97a430d21f77c0fc52953eee215cd536523dd4582bfb48f10739603"
+        },
+        "build": {
+          "identity": [
+            "16777234",
+            "71483707",
+            "32746",
+            "1795041464",
+            "157701542",
+            "1795041464",
+            "157782541",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/build/frozen/source-build-manifest.json",
+          "sha256": "038103f396747859a3b9c62354ce11a2d9acb6bec4213aa7a0a4acb476bf7433"
+        },
+        "database": {
+          "identity": [
+            "16777234",
+            "71483745",
+            "737280",
+            "1795041465",
+            "648987164",
+            "1795041465",
+            "648987164",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/fixture/actual-schema18.sqlite3",
+          "sha256": "a3d69e4258aec91ad74de0a6e7980293c50b2f774c838eb843fd54e7a81b7fa5"
+        },
+        "fixture": {
+          "identity": [
+            "16777234",
+            "71483749",
+            "12906",
+            "1795041465",
+            "681917982",
+            "1795041465",
+            "681992774",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/fixture/manifest.json",
+          "sha256": "d8b5ba782f2ec58e2b466e024e5e06bba27aec26002dc820f026385a961e2694"
+        },
+        "provenance": {
+          "identity": [
+            "16777234",
+            "71483710",
+            "32746",
+            "1795041464",
+            "344536565",
+            "1795041464",
+            "344536565",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/fixture/tool-provenance.json",
+          "sha256": "038103f396747859a3b9c62354ce11a2d9acb6bec4213aa7a0a4acb476bf7433"
+        },
+        "transcript": {
+          "identity": [
+            "16777234",
+            "71483742",
+            "9886",
+            "1795041465",
+            "609812931",
+            "1795041465",
+            "609812931",
+            "33152",
+            "501",
+            "1"
+          ],
+          "path": "/private/tmp/ab19-f18-7Hd1rw/fixture/rpc-private.jsonl",
+          "sha256": "f2fa4c5e6261f8681c61ba28115d23ec643c04e6d8a2801de837b22efed6bbed"
+        }
+      },
+      "migration": {
+        "accepted_build_sha256": "038103f396747859a3b9c62354ce11a2d9acb6bec4213aa7a0a4acb476bf7433",
+        "accepted_cli_sha256": "82f6c54bfd49be8ae19a9cd66b1c32a4b1a5edc8d33145a564b80c792ca2fc61",
+        "accepted_daemon_sha256": "d418f8c1a97a430d21f77c0fc52953eee215cd536523dd4582bfb48f10739603",
+        "backup_cookie": 1,
+        "backup_rows_preserved": true,
+        "backup_sha256": "1921183124b678047e5b25a4e59d0fe8868967df1c8cf35095b7332b01bc917f",
+        "dimension": "real_genuine18_normal_Core19_migration_and_frozen18_backup_recovery",
+        "input_cookie": 1,
+        "input_sha256": "a3d69e4258aec91ad74de0a6e7980293c50b2f774c838eb843fd54e7a81b7fa5",
+        "input_tools_unchanged": true,
+        "migrated_cookie": 3,
+        "not_claimed": [
+          "nonempty Conversation/Factory/integration history",
+          "P2 readers/native/UI/CI",
+          "power-failure durability"
+        ],
+        "old18_program_restore": {
+          "after": {
+            "application_id": 0,
+            "counts": {
+              "approval_proposals": 0,
+              "attempts": 0,
+              "budgets": 0,
+              "command_validation_policies": 0,
+              "command_validation_runs": 0,
+              "command_workspace_fences": 0,
+              "connections": 0,
+              "conversation_budgets": 0,
+              "conversation_dispatches": 0,
+              "conversation_turns": 0,
+              "conversations": 0,
+              "data_validation_policies": 0,
+              "data_validation_runs": 0,
+              "data_workspace_creations": 0,
+              "data_workspace_previews": 0,
+              "data_workspace_receipts": 0,
+              "dispatch_intents": 0,
+              "events": 5,
+              "execution_grants": 0,
+              "factory_attempts": 0,
+              "factory_budget_reservations": 0,
+              "factory_child_goal_runs": 0,
+              "factory_child_plan_heads": 0,
+              "factory_child_plan_revisions": 0,
+              "factory_delegations": 0,
+              "factory_handoffs": 0,
+              "factory_runs": 0,
+              "factory_scoped_handles": 0,
+              "factory_scopes": 0,
+              "factory_task_bindings": 0,
+              "factory_task_lineage": 0,
+              "goal_external_action_journal": 0,
+              "goal_grant_revisions": 0,
+              "goal_graph_acceptances": 0,
+              "goal_graph_candidates": 0,
+              "goal_graph_capabilities": 0,
+              "goal_graph_jobs": 0,
+              "goal_graph_owner_decisions": 0,
+              "goal_graph_validations": 0,
+              "goal_ledgers": 0,
+              "goal_node_evidence": 0,
+              "goal_plan_heads": 0,
+              "goal_plan_proposals": 0,
+              "goal_plan_revisions": 0,
+              "goal_run_nodes": 0,
+              "goal_run_reservations": 0,
+              "goal_runs": 0,
+              "goal_scopes": 0,
+              "idempotency": 4,
+              "integration_attempts": 0,
+              "integration_policies": 0,
+              "integration_ref_fences": 0,
+              "integrations": 0,
+              "managed_workspaces": 0,
+              "projects": 1,
+              "session_runtime_snapshots": 0,
+              "session_turns": 0,
+              "sessions": 0,
+              "sqlite_sequence": 1,
+              "tasks": 3,
+              "validation_policies": 0,
+              "validation_runs": 0,
+              "workspace_leases": 0
+            },
+            "foreign_key_errors": 0,
+            "logical_sha256": "0b42c2168af263ed29df5306cdc973beaab53c998d149abe25deaab66107278e",
+            "query_only": true,
+            "schema": 18,
+            "schema_cookie": 1,
+            "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+            "sequence": 5
+          },
+          "before": {
+            "application_id": 0,
+            "counts": {
+              "approval_proposals": 0,
+              "attempts": 0,
+              "budgets": 0,
+              "command_validation_policies": 0,
+              "command_validation_runs": 0,
+              "command_workspace_fences": 0,
+              "connections": 0,
+              "conversation_budgets": 0,
+              "conversation_dispatches": 0,
+              "conversation_turns": 0,
+              "conversations": 0,
+              "data_validation_policies": 0,
+              "data_validation_runs": 0,
+              "data_workspace_creations": 0,
+              "data_workspace_previews": 0,
+              "data_workspace_receipts": 0,
+              "dispatch_intents": 0,
+              "events": 5,
+              "execution_grants": 0,
+              "factory_attempts": 0,
+              "factory_budget_reservations": 0,
+              "factory_child_goal_runs": 0,
+              "factory_child_plan_heads": 0,
+              "factory_child_plan_revisions": 0,
+              "factory_delegations": 0,
+              "factory_handoffs": 0,
+              "factory_runs": 0,
+              "factory_scoped_handles": 0,
+              "factory_scopes": 0,
+              "factory_task_bindings": 0,
+              "factory_task_lineage": 0,
+              "goal_external_action_journal": 0,
+              "goal_grant_revisions": 0,
+              "goal_graph_acceptances": 0,
+              "goal_graph_candidates": 0,
+              "goal_graph_capabilities": 0,
+              "goal_graph_jobs": 0,
+              "goal_graph_owner_decisions": 0,
+              "goal_graph_validations": 0,
+              "goal_ledgers": 0,
+              "goal_node_evidence": 0,
+              "goal_plan_heads": 0,
+              "goal_plan_proposals": 0,
+              "goal_plan_revisions": 0,
+              "goal_run_nodes": 0,
+              "goal_run_reservations": 0,
+              "goal_runs": 0,
+              "goal_scopes": 0,
+              "idempotency": 4,
+              "integration_attempts": 0,
+              "integration_policies": 0,
+              "integration_ref_fences": 0,
+              "integrations": 0,
+              "managed_workspaces": 0,
+              "projects": 1,
+              "session_runtime_snapshots": 0,
+              "session_turns": 0,
+              "sessions": 0,
+              "sqlite_sequence": 1,
+              "tasks": 3,
+              "validation_policies": 0,
+              "validation_runs": 0,
+              "workspace_leases": 0
+            },
+            "foreign_key_errors": 0,
+            "logical_sha256": "0b42c2168af263ed29df5306cdc973beaab53c998d149abe25deaab66107278e",
+            "query_only": true,
+            "schema": 18,
+            "schema_cookie": 1,
+            "schema_sha256": "b4935f0948a1ac9b92fd7fecbdc5f33b63e231bd37cc9b4e74c3fb5dda3764b7",
+            "sequence": 5
+          },
+          "cli_exit": 0,
+          "daemon": {
+            "cleanup_errors": [],
+            "daemon_wait_exit": 0,
+            "forced_kill": false,
+            "group_quiescent_before_reaping": true,
+            "identity_gone_after_join": true,
+            "leader_unreaped_until_signalling": true,
+            "owned_identity": {
+              "pgid": 59748,
+              "pid": 59748
+            },
+            "sigterm_sent": true
+          },
+          "observed": {
+            "api_version": 1,
+            "database_schema_version": 18,
+            "sequence": 5
+          },
+          "status": "passed",
+          "task_states": [
+            "cancelled",
+            "draft",
+            "draft"
+          ]
+        },
+        "original_rows_preserved": true,
+        "private_root": "/private/tmp/ab19-f18-7Hd1rw/migration",
+        "reopen19_exact": true,
+        "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+        "status": "passed",
+        "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+        "trusted_controller": {
+          "boundary": "local operator-selected trusted Python; not fixture-supplied or an untrusted executable",
+          "path": "/Users/wander/.local/share/uv/python/cpython-3.12.12-macos-aarch64-none/bin/python3.12",
+          "sha256": "6a37ff35c2edec046bd7e5504f4603b93fdbd33166252a324d15b6e41cdd5483"
+        }
+      },
+      "private_root": "/private/tmp/ab19-f18-7Hd1rw",
+      "producer_target": "/private/tmp/ab-collab-oi8j8125/macos-integrated.kPDFot9Q/target/ab19-f18-7Hd1rw",
+      "refusals": [
+        {
+          "case": "modified_build",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_build/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_build",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_build/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_daemon/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_daemon",
+          "exit": 1,
+          "expected_rejection": "accepted18 batond SHA mismatch",
+          "log_sha256": "5827a7f281e80231e2634f6a637ecc8275f263da24ef9c2b98def36087fcb922",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_daemon/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_cli/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_cli",
+          "exit": 1,
+          "expected_rejection": "accepted18 baton SHA mismatch",
+          "log_sha256": "d60ac1eb72d0f4aae6216bf634366e87d2cfe5ac1370d463737bbf5b527ec059",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_cli/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_fixture",
+          "exit": 1,
+          "expected_rejection": "accepted18 fixture SHA mismatch",
+          "log_sha256": "ddb8008bb99822dd851184508c1dd657a1fa4e9734359b5835d81ebccd84986b",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_fixture/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_fixture",
+          "exit": 1,
+          "expected_rejection": "accepted18 fixture SHA mismatch",
+          "log_sha256": "ddb8008bb99822dd851184508c1dd657a1fa4e9734359b5835d81ebccd84986b",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_fixture/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "modified_db",
+          "exit": 1,
+          "expected_rejection": "accepted18 database SHA mismatch",
+          "log_sha256": "92d8c8d0ef9ad0db2bbebb5f467343e243c8f7eb517bcbbb0242135b2bfa0a9a",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_db/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "modified_db",
+          "exit": 1,
+          "expected_rejection": "accepted18 database SHA mismatch",
+          "log_sha256": "92d8c8d0ef9ad0db2bbebb5f467343e243c8f7eb517bcbbb0242135b2bfa0a9a",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/modified_db/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "same_bytes_replaced_inode",
+          "exit": 1,
+          "expected_rejection": "accepted18 build identity mismatch",
+          "log_sha256": "c0b7c3760e6d9f96829485e16504f8e63f0f30a2765e4d22f0567c78ba55a591",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/same_bytes_replaced_inode/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "same_bytes_replaced_inode",
+          "exit": 1,
+          "expected_rejection": "accepted18 build identity mismatch",
+          "log_sha256": "c0b7c3760e6d9f96829485e16504f8e63f0f30a2765e4d22f0567c78ba55a591",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/same_bytes_replaced_inode/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        },
+        {
+          "case": "coherent_changed_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/coherent_changed_manifests_and_pair/proof.log",
+          "runtime_empty": true,
+          "stage": "proof"
+        },
+        {
+          "case": "coherent_changed_manifests_and_pair",
+          "exit": 1,
+          "expected_rejection": "accepted18 build SHA mismatch",
+          "log_sha256": "3570ec5bee89a51cbd10e1e43eb016c8fd1833d0c8e396b15d8446e96ce43a6d",
+          "private_log": "/private/tmp/ab19-f18-7Hd1rw/coherent_changed_manifests_and_pair/restore.log",
+          "runtime_empty": true,
+          "stage": "restore"
+        }
+      ],
+      "status": "passed",
+      "verified_provenance": {
+        "independent_readonly_sqlite": {
+          "input": {
+            "schema": 18,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": null,
+            "sha256": "a3d69e4258aec91ad74de0a6e7980293c50b2f774c838eb843fd54e7a81b7fa5"
+          },
+          "migrated": {
+            "schema": 19,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": 0,
+            "sha256": "f0f85b01ffc05f3866159dd8ffe41f8d32e781549f64bce92822fee6a7376a7d"
+          },
+          "restored": {
+            "schema": 18,
+            "counts": {
+              "projects": 1,
+              "tasks": 3,
+              "events": 5,
+              "idempotency": 4
+            },
+            "sequence": 5,
+            "host_rows": null,
+            "sha256": "1921183124b678047e5b25a4e59d0fe8868967df1c8cf35095b7332b01bc917f"
+          }
+        },
+        "build_seconds": 85.11204591672868,
+        "builder_sha256": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289",
+        "helper_sha256": {
+          "prepare-schema16-migration-fixture.py": "5e814e979115d15a9696b78d586f63a30c01df3548b323dd99f8f5acbd48713a",
+          "prepare-legacy-migration-fixture.py": "b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90",
+          "native-run.py": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a"
+        },
+        "fixture_generator_sha256": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+        "native_platform": "darwin",
+        "native_architecture": "arm64",
+        "coherent_replacement_verifier_stdout_sha256": "8ec598bb8230530b1b73db3222156cc2e2b3d6d8ade585e6d6e37abd9a2e7578"
+      }
+    }
+  },
+  "hosted_workflow": "not_run"
+}

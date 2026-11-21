@@ -1,0 +1,12 @@
+{
+  "baseline-history": {
+    "path": "target/debug/deps/agentbaton_core-c788a89c7fe269ab",
+    "file": "Mach-O 64-bit executable arm64",
+    "sha256": "a8c9682b6a8c80934f3d222875bceb2477476c9d51bbd8650de270ecab96ecc2"
+  },
+  "baseline-schema18": {
+    "path": "target/debug/deps/conversation_schema18-788c580c8d9c0a4b",
+    "file": "Mach-O 64-bit executable arm64",
+    "sha256": "f259bd8430d31284e624e94c175d506a2ca15b2211cbbcf8afe960975b76f208"
+  }
+}

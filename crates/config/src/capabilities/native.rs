@@ -104,7 +104,17 @@ impl NativeSourceRoot {
             return Err(error(ErrorCode::InvalidPath));
         }
         let root = readonly_dir(rfs::CWD, path)?;
+        Self::from_selected_directory(root)
+    }
+
+    pub(crate) fn from_selected_directory(root: File) -> Result<Self> {
         let metadata = io_error(root.metadata())?;
+        if !metadata.is_dir()
+            || metadata.uid() != rustix::process::geteuid().as_raw()
+            || metadata.mode() & 0o022 != 0
+        {
+            return Err(error(ErrorCode::PermissionDenied));
+        }
         Ok(Self {
             root,
             identity: (metadata.dev(), metadata.ino()),
@@ -209,6 +219,13 @@ impl NativeSourceRoot {
     fn directory(&self, path: &Path) -> Result<File> {
         let (parent, name) = self.parent(path)?;
         readonly_dir(&parent, &name)
+    }
+
+    pub(crate) fn read_instruction_only_skill(
+        &self,
+        relative: &Path,
+    ) -> Result<(InstructionOnlySkillMetadata, String)> {
+        instruction_only::read_instruction_only_at(relative, || self.directory(relative))
     }
 }
 /// Explicit top-level selection; all other source fields are excluded, not

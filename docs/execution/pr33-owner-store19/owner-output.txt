@@ -1,0 +1,70 @@
+ae844ca33406aabd62f44ea73818f9127f211748
+6a55867536d7900bafecc1467590edf5b4eff046
+Darwin arm64
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+cargo 1.91.1 (ea2d97820 2025-10-10)
+Python 3.14.0a7
+d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d  Cargo.lock
+3.12.12 (main, Dec  9 2025, 19:05:33) [Clang 21.1.4 ]
+{'jsonschema': '4.26.0', 'PyYAML': '6.0.3'}
+
+Base live IPC and SQLite probe
+{
+  "api": 1,
+  "ipc_schema": 19,
+  "sqlite_schema": 19,
+  "sqlite_sequence": 8,
+  "counted_tables": 39,
+  "hosts": 0,
+  "pending_error": "Pending Grant authority/sequence/schema changed or absent",
+  "daemon_cleanup": true
+}
+
+Baseline direct Owner controls under Python 3.12
+ERROR: test_real_core_factory_preparation_is_schema18_complete_and_never_finalizes_target (__main__.FactoryPlanningControls.test_real_core_factory_preparation_is_schema18_complete_and_never_finalizes_target)
+FAIL: test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready (__main__.BootstrapPathControls.test_alias_parent_real_core_refuses_raw_alias_but_canonical_bootstrap_is_ready)
+FAIL: test_real_core_grant_contract_binds_independent_approval_and_owner_proposal (__main__.OwnerRunnerControls.test_real_core_grant_contract_binds_independent_approval_and_owner_proposal)
+FAIL: test_real_readonly_sqlite_observation_rejects_authority_change (__main__.OwnerRunnerControls.test_real_readonly_sqlite_observation_rejects_authority_change)
+Ran 47 tests in 9.548s
+FAILED (failures=3, errors=1, skipped=1)
+
+Candidate direct Owner controls under Python 3.12
+Ran 48 tests in 8.212s
+OK (skipped=1)
+
+Finite projection from the real Core controls
+{
+  "factory": {
+    "schema": 19,
+    "sequence": 12,
+    "observed_tables": 40,
+    "host_registrations": 0,
+    "nonzero_evidence_tables": {},
+    "proposal_consumed": false
+  },
+  "grant": {
+    "schema": 19,
+    "sequence": 10,
+    "observed_tables": 40,
+    "host_registrations": 0,
+    "nonzero_evidence_tables": {},
+    "proposal_consumed": true
+  }
+}
+
+Historical inverse and source guards
+Ran 17 tests in 0.777s
+OK
+
+Complete infrastructure
+Ran 1062 tests in 37.562s
+OK (skipped=16)
