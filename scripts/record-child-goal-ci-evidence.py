@@ -205,6 +205,14 @@ def unobserved_diagnostics():
         'graph_provider_identity':None}
 
 def finite_diagnostics(value):
+    if type(value) is dict and type(value.get('version')) is int and value['version'] == 7:
+        require('mcp_late_wait' in value)
+        legacy = {key: item for key, item in value.items() if key != 'mcp_late_wait'}
+        legacy['version'] = 5
+        finite_diagnostics(legacy)
+        require(value['failure_class'] == 'assertion' and value['capture_failure'] == MCP_LATE_WAIT_CAPTURE)
+        mcp_late_wait_diagnostic(value['mcp_late_wait'])
+        return value
     # V5 is failure-only: preserve and validate the complete original v4 first.
     if type(value)is dict and type(value.get('version'))is int and value['version']==5:
         require(set(value)==set(unobserved_diagnostics())|{'owner_ui_state','capture_failure'})
@@ -470,14 +478,100 @@ def capture_failure_observation(substage,error):
     return {'substage':substage,'errno':number,'helper_source':source,'helper_line':line}
 
 
+MCP_LATE_WAIT_CAPTURE = {
+    'substage': 'started_records', 'errno': None, 'helper_source': 'factory_base', 'helper_line': 556,
+}
+MCP_STATES = {
+    'R': 'running', 'S': 'sleeping', 'D': 'uninterruptible', 'I': 'idle',
+    'T': 'stopped', 't': 'tracing', 'Z': 'zombie', 'X': 'dead', 'x': 'dead',
+}
+
+
+def mcp_late_wait_diagnostic(value):
+    require(type(value) is dict and set(value) == {
+        'before_state', 'after_state', 'binding_matches', 'birth_matches',
+        'before_parent_is_controller', 'after_parent_is_controller', 'process_group_match',
+    })
+    for key in ('before_state', 'after_state'):
+        require(type(value[key]) is str and value[key] in MCP_STATES.values())
+    require(value['binding_matches'] is True and value['birth_matches'] is True
+            and type(value['before_parent_is_controller']) is bool
+            and type(value['after_parent_is_controller']) is bool)
+    require(type(value['process_group_match']) is str
+            and value['process_group_match'] in {'match', 'mismatch', 'unobserved'})
+    require(not (value['before_state'] == value['after_state'] == 'zombie'
+                 and not value['before_parent_is_controller'] and not value['after_parent_is_controller']
+                 and value['process_group_match'] == 'match'))
+    return value
+
+
+def mcp_late_wait_observation(capture, error):
+    if capture != MCP_LATE_WAIT_CAPTURE or type(error) is not AssertionError:
+        return None
+    # The child-Goal loader pins the complete factory_base source. Read only
+    # the original assertion's frame and the observation already present there.
+    traceback = error.__traceback__
+    for _ in range(4096):
+        if traceback is None:
+            return None
+        if traceback.tb_next is None:
+            break
+        traceback = traceback.tb_next
+    else:
+        return None
+    frame = traceback.tb_frame
+    expected_path = Path(__file__).absolute().parents[1] / 'apps/desktop/tests/factory-real-ipc.py'
+    if (frame.f_code.co_filename != str(expected_path) or frame.f_code.co_name != 'collect_started_records'
+            or traceback.tb_lineno != MCP_LATE_WAIT_CAPTURE['helper_line']):
+        return None
+
+    local = frame.f_locals
+    observed = local.get('late_observation')
+    old, fixed = local.get('old'), local.get('fixed')
+    if not (type(old) is dict and old and type(fixed) is dict and strict_json_equal(old, fixed)):
+        return None
+    if not (type(observed) is dict and set(observed) == {
+        'stage', 'before_state', 'after_state', 'after_parent_is_controller',
+        'birth_matches', 'pgid_matches', 'pgid_error_type',
+    } and observed['stage'] == 'bound_MCP_late_wait_still_present'):
+        return None
+    before, after = observed['before_state'], observed['after_state']
+    if not all(type(state) is str and state in MCP_STATES for state in (before, after)):
+        return None
+    current = local.get('current')
+    controller = getattr(local.get('reaper'), 'pid', None)
+    if not (type(current) is dict and type(current.get('parent_pid')) is int and current['parent_pid'] > 0
+            and current.get('state') == before and type(controller) is int and controller > 0):
+        return None
+    group = observed['pgid_matches']
+    if not (group is None and type(observed['pgid_error_type']) is str
+            or type(group) is bool and observed['pgid_error_type'] is None):
+        return None
+    try:
+        return mcp_late_wait_diagnostic({
+            'before_state': MCP_STATES[before], 'after_state': MCP_STATES[after],
+            'binding_matches': True, 'birth_matches': observed['birth_matches'],
+            'before_parent_is_controller': current['parent_pid'] == controller,
+            'after_parent_is_controller': observed['after_parent_is_controller'],
+            'process_group_match': 'unobserved' if group is None else 'match' if group else 'mismatch',
+        })
+    except Refused:
+        return None
+
+
 class FiniteRuntimeDiagnosticsV5(FiniteRuntimeDiagnosticsV4):
     """Successful snapshots stay v4; only the actual first capture failure extends it."""
     def capture_failure(self,substage,error):
         try:
             observation=capture_failure_observation(substage,error)
+            try:
+                mcp_late_wait = mcp_late_wait_observation(observation, error)
+            except Exception:
+                mcp_late_wait = None
             with self._lock:
                 if not hasattr(self,'_capture_error'):
                     self._capture_error=error;self._capture_observation=observation
+                    self._mcp_late_wait = mcp_late_wait
         except BaseException:
             # Metadata collection cannot replace the original exception/raise.
             return
@@ -488,7 +582,10 @@ class FiniteRuntimeDiagnosticsV5(FiniteRuntimeDiagnosticsV4):
             capture=getattr(self,'_capture_error',None)
             if capture is None or capture is not getattr(self,'_failure_identity',None):return value
             observation=dict(self._capture_observation)
+            mcp_late_wait = self._mcp_late_wait
         value.update(version=5,capture_failure=observation)
+        if mcp_late_wait is not None:
+            value.update(version=7, mcp_late_wait=dict(mcp_late_wait))
         return value
 
 
@@ -504,7 +601,7 @@ def project(report, candidate, summary, case, exit_code, harness_sha):
         seen.add(check['id']);safe.append({'id':check['id'],'status':'passed'})
     cleanup=report.get('cleanup');require(type(cleanup)is list and len(cleanup)<=256 and type(report.get('cleanup_complete'))is bool)
     diagnostics=finite_diagnostics(report.get('finite_diagnostics'))
-    if diagnostics.get('version')==5:
+    if diagnostics.get('version') in (5, 7):
         require(report['status']=='failed_or_interrupted'and exit_code!=0)
     if diagnostics.get('version') == 6:
         require(report['status'] == 'failed_or_interrupted' and exit_code != 0

@@ -680,6 +680,8 @@ def sha(text):
 
 def reverse_pinned_spans(source, layer, error=AssertionError):
     current, historical, spans = layer
+    if layer is START_FAILURE_LAYERS[PROJECTOR] and sha(source) == MCP_LATE_WAIT_LAYER[0]:
+        source = restore_mcp_late_wait_layer(source, error=error)
     if layer is START_FAILURE_LAYERS[DRIVER]:
         cancel = CANCEL_PROC_FD_LAYERS[DRIVER]
         if sha(source) == cancel[0]:
@@ -697,7 +699,31 @@ def reverse_pinned_spans(source, layer, error=AssertionError):
     return restored
 
 
+MCP_LATE_WAIT_LAYER = ('88da82f3f97601f7a0c71948bec4a4caf562be87c3343d8751b034cb9124d76d',
+ '8d03881dd61db2c398f96a922190c779079d9cfcd9635483ffea185a6acbc741',
+ [(207, 215, '1af18b1a958d003fb0bb2e0c6df966fffccc871cd47afbb5520b1d2f6eba8e2d', ''),
+  (480, 561, 'b2572c4d8b787bd90371f3762114b1d57e880cfb961245c9f2670726f075733e', ''),
+  (566, 570, '1f62170c77eef1f3e4b5c0e7fd0c711cf3d4bdd21f18cee0c86f57eb24fe75e8', ''),
+  (573, 574, 'fc23d2e4f90f0597a3874a17d911dc09f006f7657e8d1393cb07fc611901e05d', ''),
+  (584, 585, 'a4066376fc9423e51427c11fb0aaeba1041515902c8bed240012ae208cab9c31', ''),
+  (586, 588, 'f742f6599a215f1d5030daf56c37abccc270df34213ff27a6a5317294d2a4427', ''),
+  (603,
+   604,
+   'c034942bda716023d50922df058f345e7f52c5396b51b35f95d9ca849aa322fe',
+   "    if diagnostics.get('version')==5:\n")])
+
+
+def restore_mcp_late_wait_layer(source, *, error=AssertionError):
+    if type(source) is not str:
+        raise error('Unknown MCP late-wait projector source')
+    if sha(source) == MCP_LATE_WAIT_LAYER[1]:
+        return source
+    return reverse_pinned_spans(source, MCP_LATE_WAIT_LAYER, error)
+
+
 def without_start_failure_layer(path, source, error):
+    if path == PROJECTOR and sha(source) == MCP_LATE_WAIT_LAYER[0]:
+        source = restore_mcp_late_wait_layer(source, error=error)
     layer = START_FAILURE_LAYERS.get(path)
     digest = sha(source)
     if layer is not None and (digest == layer[0] or path == DRIVER and digest == CANCEL_PROC_FD_LAYERS[DRIVER][0]):
