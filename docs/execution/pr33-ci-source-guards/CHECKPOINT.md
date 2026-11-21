@@ -1,0 +1,7 @@
+# PR #33 exact workflow source guard checkpoint
+
+The exact workflow from A commit `32950beb9c8a297a80d19474c00a2a501180c01e` was tested unchanged with guard commit `7f9191345bf55cafd62c543934f55692d7992fe3`. Private combined commit `2be2089c4ad07b2f3129b459ee6291324894efbc` has tree `a1c2b70b8040b7bdf83be79c2f5305013276cff2`.
+
+The dependency step rejected failure, skipped, cancelled, timeout, neutral, empty and mismatched-case results, along with missing evidence. The actual inline binding accepted the same source on a real local depth-one merge and rejected a same-tree PR head, wrong parents, stale attempt, changed workflow identity, type drift and mismatched artifact authority. Each of the 18 Action uses was verified by owning job, official action, fixed digest and exact inputs. The reviewed split restored the full previous workflow, then passed the existing historical inverses and their original refusal tests.
+
+On Apple Silicon the selected suite passed 90 tests. Full infrastructure passed 1,106 tests with 16 skipped of 1,122 total. Static validation reported two workflows and 18 pinned uses. Workflow files remained byte-identical to A and the private tracked checkout stayed clean. These are local source and receipt results. Hosted scheduling, customer-facing Native behavior, actual migrations and packaging still depend on the real CI run. [Evidence](EVIDENCE.json) · [Replay commands](RUN.md)

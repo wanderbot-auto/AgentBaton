@@ -6,6 +6,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import yaml
+
+from tests.infrastructure.macos_ci_partition_source_fixture import (
+    PARTITION_SHA256, PREFLIGHT_SHA256, assert_action_inventory, digest, restore_partitioned_workflow,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 PREFLIGHT = 'environment-preflight.yml'
 PRODUCT = 'product.yml'
@@ -32,6 +38,19 @@ def expression(source):
 
 
 class WorkflowCredentialIsolationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        directory = ROOT / '.github/workflows'
+        product = (directory / PRODUCT).read_bytes().decode()
+        environment = (directory / PREFLIGHT).read_bytes().decode()
+        restore_partitioned_workflow(product)
+        if digest(environment) != PREFLIGHT_SHA256:
+            raise ValueError('Unknown complete Environment workflow')
+        cls.workflow_pins = assert_action_inventory(
+            yaml.load(product, Loader=yaml.BaseLoader), yaml.load(environment, Loader=yaml.BaseLoader),
+            partitioned=digest(product) == PARTITION_SHA256,
+        )
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -84,7 +103,8 @@ class WorkflowCredentialIsolationTests(unittest.TestCase):
         self.assertGreaterEqual(output['workflow_files'], 2)
         self.assertEqual(output['scope'], 'static_infrastructure_only')
         self.assertFalse(output['remote_ci_executed'])
-        self.assert_admitted(2, 15)
+        self.assertEqual(output['pinned_action_references'], self.workflow_pins)
+        self.assert_admitted(2, self.workflow_pins)
 
     def test_yaml_suffix_narrow_permissions_and_builtin_token(self):
         for token in (expression('github.token'), expression("github['token']")):
@@ -95,9 +115,9 @@ class WorkflowCredentialIsolationTests(unittest.TestCase):
                 )
                 job = RUNNER_JOB.replace('      - run: echo ordinary\n', action)
                 self.write_workflow(job)
-                self.assert_admitted(3, 16)
+                self.assert_admitted(3, self.workflow_pins + 1)
         self.write_workflow(RUNNER_JOB.replace('    steps:', '    permissions: {}\n    steps:'))
-        self.assert_admitted(3, 15)
+        self.assert_admitted(3, self.workflow_pins)
 
     def test_ignores_comments_and_literal_expression_arguments(self):
         job = RUNNER_JOB.replace('      - run: echo ordinary\n', '''\
@@ -107,7 +127,7 @@ class WorkflowCredentialIsolationTests(unittest.TestCase):
           echo "${{ steps.secrets.outputs.result }}"
 ''')
         self.write_workflow('# text mentioning secrets.placeholder and pull_request_target\n' + job)
-        self.assert_admitted(3, 15)
+        self.assert_admitted(3, self.workflow_pins)
 
     def test_explicit_job_and_workflow_permissions(self):
         self.write_workflow(header=HEADER.replace('{contents: read}', '{contents: write}'))
@@ -185,7 +205,7 @@ class WorkflowCredentialIsolationTests(unittest.TestCase):
     def test_aliases_keep_the_resolved_credential_semantics(self):
         job = RUNNER_JOB.replace('    steps:', '    permissions: *token\n    steps:')
         self.write_workflow(job, header=HEADER.replace('permissions:', 'permissions: &token'))
-        self.assert_admitted(3, 15)
+        self.assert_admitted(3, self.workflow_pins)
         self.write_workflow('env: &token {contents: write}\n' + job)
         self.assert_denied('job credentials must stay read-only')
         job = RUNNER_JOB.replace('    steps:', '    env: *credential\n    steps:')

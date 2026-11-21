@@ -8,6 +8,7 @@ import unittest
 
 import yaml
 from tests.infrastructure import test_background_service_native_smoke_source as BG
+from tests.infrastructure.macos_ci_partition_source_fixture import normalize_partitioned_workflow
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE_PRODUCT_SHA256 = '4b7543d61e8846248e1b7474ff6fe15d64068612fadbd44f6fe7585933a3378d'
@@ -43,6 +44,7 @@ def workflow_sha256(text):
 
 
 def restore_workflow_before_fresh18(text):
+    text = normalize_partitioned_workflow(text)
     digest = workflow_sha256(text)
     if digest == BEFORE_FRESH18_SHA256:
         return text
@@ -62,6 +64,7 @@ def restore_workflow_before_fresh18(text):
 
 
 def normalize_fresh18_workflow(text):
+    text = normalize_partitioned_workflow(text)
     if workflow_sha256(text) == FRESH18_WORKFLOW_SHA256:
         return restore_workflow_before_fresh18(text)
     return text
@@ -416,7 +419,8 @@ def verify_only_six_historical_target_changes(text):
 
 class Genuine16WorkflowWiring(unittest.TestCase):
     def setUp(self):
-        self.workflow = yaml.load((ROOT / '.github/workflows/product.yml').read_text(), Loader=yaml.BaseLoader)
+        source = normalize_partitioned_workflow((ROOT / '.github/workflows/product.yml').read_text())
+        self.workflow = yaml.load(source, Loader=yaml.BaseLoader)
 
     def lanes(self):
         lanes = []
@@ -527,7 +531,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
         verify_only_six_historical_target_changes((ROOT / '.github/workflows/product.yml').read_text())
 
     def test_reverse_normalization_does_not_hide_any_other_workflow_change(self):
-        original = (ROOT / '.github/workflows/product.yml').read_text()
+        original = normalize_partitioned_workflow((ROOT / '.github/workflows/product.yml').read_text())
         for old, new in [
             ('timeout-minutes: 60', 'timeout-minutes: 61'),
             ('contents: read', 'contents: write'),
@@ -589,7 +593,7 @@ class Genuine16WorkflowWiring(unittest.TestCase):
 
 class FreshSchema18WorkflowWiring(unittest.TestCase):
     def setUp(self):
-        self.raw = (ROOT / '.github/workflows/product.yml').read_bytes().decode()
+        self.raw = normalize_partitioned_workflow((ROOT / '.github/workflows/product.yml').read_bytes().decode())
 
     def test_shared_required_step_is_after_schema16_and_leaves_all_other_steps_exact(self):
         current = yaml.load(self.raw, Loader=yaml.BaseLoader)
