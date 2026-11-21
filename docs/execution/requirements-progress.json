@@ -6506,35 +6506,41 @@
     {
       "id": "AB-REL-003",
       "work_package": "WP13",
-      "status": "implementing",
+      "status": "accepted",
       "implementation_refs": [
         ".github/workflows/product.yml",
         "scripts/native-macos-smoke.sh",
         "scripts/native-audit-release.sh",
-        "scripts/native-audit-release-bundle.sh"
+        "scripts/native-audit-release-bundle.sh",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "scripts/package-development-macos.sh"
       ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
-        "native_arm64": "not_run",
+        "native_arm64": "passed",
         "native_x86_64": "not_run",
-        "current_local_partial": "The same existing packager now uses the three-role audit against a mounted development DMG. Independent Apple Silicon replay accepted the original package through the unchanged consumer, rejected mixed and missing roles without producing an upload candidate, and detached all three owned mounts."
+        "current_local_partial": "The same existing packager now uses the three-role audit against a mounted development DMG. Independent Apple Silicon replay accepted the original package through the unchanged consumer, rejected mixed and missing roles without producing an upload candidate, and detached all three owned mounts.",
+        "ci": "passed"
       },
       "evidence": [
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
         "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
         "docs/execution/default-bundle-native-audit/EVIDENCE.json",
-        "docs/execution/leader-control/PR33_DEVELOPMENT_PACKAGE_ADMISSION_REVIEW.json"
+        "docs/execution/leader-control/PR33_DEVELOPMENT_PACKAGE_ADMISSION_REVIEW.json",
+        "docs/execution/leader-control/DEFAULT_RELEASE_TEST_CONTROLS_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Real local assembly used pinned compiled development fixtures. Exact hosted packaging and broader native product acceptance are pending."
+        "Default approved artifact and named native test-control checks. Signing and release provenance are separate requirements."
       ],
-      "coverage": "partial",
+      "coverage": "complete",
       "verification_refs": [
         "apps/desktop/src-tauri/tests/test_native_runner.py",
-        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json",
+        "tests/infrastructure/test_native_release_audit.py",
+        "docs/execution/leader-control/DEFAULT_RELEASE_TEST_CONTROLS_MAIN_ACCEPTANCE.json"
       ],
       "verification_applicability": {
         "unit": "applicable",
@@ -6558,6 +6564,13 @@
           "source": "37adc84966e6748fdd942651f3971e9bc6d850fc",
           "feature": "674f0a090e8bb4d415c5b44336c4ff53d6f50dd3",
           "evidence": "docs/execution/leader-control/PR33_DEVELOPMENT_PACKAGE_ADMISSION_REVIEW.json"
+        },
+        {
+          "slice": "default_arm64_development_bundle_test_controls_removed_and_detectable",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "targeted_canaries": 13,
+          "exact_hosted_archive_three_arm64_executables": "passed",
+          "evidence": "docs/execution/leader-control/DEFAULT_RELEASE_TEST_CONTROLS_MAIN_ACCEPTANCE.json"
         }
       ]
     },
@@ -6585,10 +6598,12 @@
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
         "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
-        "docs/execution/development-bundle-provenance/current-pr33/EVIDENCE.json"
+        "docs/execution/development-bundle-provenance/current-pr33/EVIDENCE.json",
+        "docs/execution/leader-control/DEFAULT_RELEASE_TEST_CONTROLS_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Development artifacts are unsigned formally. Desktop strict signature verification failed; launch, Gatekeeper, notarization, final linked and Web attribution, and exact hosted delivery are pending."
+        "Development artifacts are unsigned formally. Desktop strict signature verification failed; launch, Gatekeeper, notarization, final linked and Web attribution, and exact hosted delivery are pending.",
+        "PR30 historical ARM64 package reverified. Desktop executable linker-adhoc, without a bundle resource seal, fails strict app verification. Current PR33 staged ad-hoc signing and mounted verification still await hosted package evidence."
       ],
       "verification_refs": [
         "apps/desktop/src-tauri/tests/test_native_runner.py",
