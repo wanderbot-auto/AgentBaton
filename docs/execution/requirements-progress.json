@@ -6466,24 +6466,27 @@
       ],
       "verification": {
         "unit": "not_run",
-        "integration": "not_run",
+        "integration": "passed",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
-        "current_local_partial": "Actual ARM64 default bundle built locally; the PR 33 hosted desktop lifecycle and native dialog stages were skipped after the Integration IPC failure."
+        "current_local_partial": "Exact main has independently corroborated hosted Apple Silicon WebView and real IPC evidence. PR 33 also passed its hosted Native job, with visual inspection unestablished and its development DMG unpublished.",
+        "full_installed_app_acceptance": "not_run"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
-        "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json"
+        "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
+        "docs/execution/leader-control/NATIVE_DESKTOP_EVIDENCE_REVIEW.json"
       ],
       "limitations": [
-        "Native desktop runtime, visual review, manual installation, and Finder acceptance for the current feature remain separate from build and browser observations."
+        "The actual native automated slices are source-bound. Full installed-app exercise and applicable visual/Finder checks remain unrun."
       ],
       "verification_refs": [
         "apps/desktop/src-tauri/tests/test_native_runner.py",
-        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/DESKTOP_SECURITY_RELEASE_HOST_VERIFICATION_APPLICABILITY.json",
+        "docs/execution/DEVELOPMENT_ACCEPTANCE.md"
       ],
       "coverage": "partial",
       "verification_applicability": {
@@ -6500,6 +6503,18 @@
           "source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
           "evidence": "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json",
           "scope": "ARM64 compile/package evidence and explicit hosted native runtime and visual state."
+        },
+        {
+          "slice": "protected_tree_head_bound_browser_and_native_runtime",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "evidence": "docs/execution/leader-control/NATIVE_DESKTOP_EVIDENCE_REVIEW.json",
+          "scope": "An independent successful Apple Silicon desktop run of the same protected tree establishes real WebView, restricted Tauri IPC, daemon persistence and owned cleanup. Browser job passed separately on the same tree."
+        },
+        {
+          "slice": "pr33_head_bound_native_runtime",
+          "source": "ea63c70e49dc1d37594c0ed5a6798dbda848f0ce",
+          "evidence": "docs/execution/leader-control/NATIVE_DESKTOP_EVIDENCE_REVIEW.json",
+          "scope": "Unmerged candidate. Independent byte validation of actual Apple Silicon Native evidence with real driver and projection in both page orders. No installed-app or visual acceptance."
         }
       ]
     },

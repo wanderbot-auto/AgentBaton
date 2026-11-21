@@ -1,0 +1,50 @@
+{
+  "requirement": "AB-REL-002",
+  "status": "partial",
+  "protected_main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "protected_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+  "prior_review": "docs/execution/leader-control/PR30_ACCEPTANCE.json",
+  "protected_main_tree_witness": {
+    "pr": 30,
+    "hosted_checkout_with_same_tree": "df35231eab29aa2d4a043fd9be60888504507716",
+    "run": 44122458362,
+    "browser_job": {
+      "id": 134177203465,
+      "result": "success",
+      "real_browser_and_core_ipc": "passed"
+    },
+    "native_job": {
+      "id": 134177203395,
+      "result": "success",
+      "architecture": "arm64",
+      "raw_log_sha256": "a578b7229fc2cba4712768711dedeee18ba532e0d79a28841cce534738ab1bdb",
+      "log_line": 5360,
+      "log_result": "PASS actual macOS WebView, product goal form, restricted Tauri IPC, persisted restart and owned cleanup",
+      "archive_id": 14350297050,
+      "archive_sha256": "2cbe023ffba609c1e4af7f9c5990a4ff0a2a19bb74cc4a1cfc2cd8294ac9a2e1",
+      "archive_validation": "GitHub metadata matched the prior independent byte and member review in PR30_ACCEPTANCE.json."
+    }
+  },
+  "unmerged_pr33_witness": {
+    "checkout": "ea63c70e49dc1d37594c0ed5a6798dbda848f0ce",
+    "run": 44896986384,
+    "attempt": 1,
+    "native_job": 136836119503,
+    "native_result": "success",
+    "native_archive_id": 14705759730,
+    "archive_sha256": "3e7ba9052fb9b735ce87f59a81a68223d09dffc2da35c59bd6857d2ef3b1c69b",
+    "archive_crc": "passed",
+    "native_runner_exit": 0,
+    "native_smoke": "passed",
+    "both_integration_page_orders": "driver and projection exit 0",
+    "visual_review": "not_established",
+    "package_job": 136841961279,
+    "package_result": "failed before final read-only mounted verification",
+    "package_uploaded": false
+  },
+  "remaining": [
+    "Install and launch the exact candidate DMG on Apple Silicon under approved OS security policy.",
+    "Verify the applicable native workflows including manual visual and Finder acceptance."
+  ],
+  "acceptance_checklist": "docs/execution/DEVELOPMENT_ACCEPTANCE.md"
+}
