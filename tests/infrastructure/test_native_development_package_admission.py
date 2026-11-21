@@ -24,6 +24,7 @@ SIGNATURE_SUFFIX = b"\nfixture app signature\n"
 SIGNING_STEPS = ["verify-baton", "verify-batond", "sign-app", "verify-stage"]
 MOUNT_STEPS = ["create", "attach"]
 CLEANUP_STEPS = ["info", "detach"]
+TRANSIENT_ERROR = "hdiutil: attach failed - Resource temporarily unavailable"
 
 # Simulate signing and disk images. The package entry and both byte/role audits
 # run as shipped against separately pinned compiled and signed inputs.
@@ -125,15 +126,46 @@ elif tool == "hdiutil":
     elif operation == "attach":
         assert {"-readonly", "-noautoopen", "-nobrowse"} <= set(args)
         volume = args[args.index("-mountpoint") + 1]
+        attempt = report.read_text().splitlines().count("attach")
+        assert args == ["attach", "-readonly", "-noautoopen", "-nobrowse", "-mountpoint", volume, args[-1]]
+        attachment = root / "attach-args.json"
+        if attempt == 1:
+            attachment.write_text(json.dumps(args))
+        else:
+            assert args == json.loads(attachment.read_text())
+        assert not disk.exists()
+        assert Path(volume).is_dir() and not list(Path(volume).iterdir())
+        if case == "transient-no-device" and attempt == 1:
+            sys.exit("hdiutil: attach failed - Resource temporarily unavailable")
         disk.write_text(json.dumps({"image": args[-1], "volume": volume}))
+        if case == "transient-exhausted" or (case.startswith("transient-") and attempt == 1):
+            assert os.environ["LC_ALL"] == "C"
+            sys.exit("hdiutil: attach failed - Resource temporarily unavailable")
+        if case == "unknown-attach-error":
+            sys.exit("hdiutil: attach failed - Permission denied")
+        if case == "transient-then-unknown":
+            print("hdiutil: attach failed - Permission denied", file=sys.stderr)
+            sys.exit(4)
+        if case == "different-status":
+            print("hdiutil: attach failed - Resource temporarily unavailable", file=sys.stderr)
+            sys.exit(8)
+        if case == "mixed-attach-error":
+            sys.exit("hdiutil: attach failed - Resource temporarily unavailable\nUnexpected secondary error")
+        if case == "nul-attach-error":
+            sys.stderr.buffer.write(b"hdiutil: attach failed - Resource temporarily unavailable\x00\n")
+            sys.exit(1)
         if case == "attach-error":
             sys.exit(8)
         if case == "interrupt":
             os.kill(os.getppid(), signal.SIGTERM)
             sys.exit(0)
         shutil.copytree(root / "image-content", volume, dirs_exist_ok=True, symlinks=True)
+        if case == "attach-changes-image":
+            append(Path(args[-1]), b"Unexpected image change")
     elif operation == "info":
         assert args == ["info", "-plist"]
+        if case == "transient-info-error" or (case == "transient-verify-info-error" and not disk.exists()):
+            sys.exit("Simulated attachment inventory failure")
         images = [{"image-path": str(root / "unrelated.dmg"),
                    "system-entities": [{"dev-entry": "/dev/disk19"}]}]
         if disk.exists():
@@ -142,11 +174,21 @@ elif tool == "hdiutil":
                            "system-entities": [{"dev-entry": "/dev/disk7"},
                                                {"dev-entry": "/dev/disk8s1",
                                                 "mount-point": active["volume"]}]})
+            if case == "transient-ambiguous":
+                images.append(images[-1])
+            if case == "transient-invalid-inventory":
+                images[-1].pop("image-path")
+            if case == "transient-foreign-disk":
+                images[0]["system-entities"][0]["dev-entry"] = "/dev/disk7s1"
+            if case == "transient-foreign-mount":
+                images[0]["system-entities"][0]["mount-point"] = active["volume"]
         sys.stdout.buffer.write(plistlib.dumps({"images": images}))
     elif operation == "detach":
         assert args == ["detach", "/dev/disk7"]
-        if case == "detach-error":
+        if case in ("detach-error", "transient-detach-error"):
             sys.exit(9)
+        if case == "transient-detach-remains":
+            sys.exit(0)
         active = json.loads(disk.read_text())
         for entry in Path(active["volume"]).iterdir():
             if entry.is_dir() and not entry.is_symlink():
@@ -154,6 +196,9 @@ elif tool == "hdiutil":
             else:
                 entry.unlink()
         disk.unlink()
+        print('"disk7" ejected.')
+        if case == "transient-image-drift":
+            append(Path(active["image"]), b"Unexpected image change")
     else:
         raise AssertionError(args)
 elif tool == "python3":
@@ -162,13 +207,19 @@ elif tool == "python3":
 
         os.path.ismount = lambda volume: disk.exists()
         os.statvfs = lambda volume: SimpleNamespace(
-            f_flag=0 if case == "writable" else os.ST_RDONLY)
+            f_flag=0 if case in ("writable", "transient-then-writable") else os.ST_RDONLY)
         sys.argv = args
         exec(compile(sys.stdin.read(), "<package volume check>", "exec"))
     else:
         os.execv(sys.executable, [sys.executable, *args])
 elif tool == "file":
     print("Mach-O 64-bit executable arm64")
+elif tool == "sleep":
+    assert args in (["1"], ["2"])
+    record("sleep-" + args[0])
+    if case == "transient-reappeared":
+        attach = json.loads((root / "attach-args.json").read_text())
+        disk.write_text(json.dumps({"image": attach[-1], "volume": attach[-2]}))
 else:
     print(tool, *args)
 """
@@ -203,7 +254,7 @@ class NativeDevelopmentPackageAdmissionTests(unittest.TestCase):
         command.write_text(f"#!{sys.executable}\n" + COMMAND)
         command.chmod(0o700)
         for name in ("git", "uname", "cargo", "hdiutil", "ditto", "python3", "file", "sw_vers",
-                     "rustc", "node", "xcodebuild", "codesign"):
+                     "rustc", "node", "xcodebuild", "codesign", "sleep"):
             (commands / name).symlink_to(command.name)
         self.env = dict(os.environ, PATH=f"{commands}{os.pathsep}{os.environ['PATH']}",
                         PACKAGE_FIXTURE=str(self.root))
@@ -322,6 +373,106 @@ class NativeDevelopmentPackageAdmissionTests(unittest.TestCase):
         result = self.package("attach-error")
         self.assertEqual(result.returncode, 8, result.stdout)
         self.assert_clean_failure(result, "", SIGNING_STEPS + MOUNT_STEPS + CLEANUP_STEPS)
+
+    def test_exact_transient_attach_reconciles_owned_device_and_retries_read_only(self):
+        result = self.package("transient-once")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn(TRANSIENT_ERROR, result.stdout)
+        self.assertEqual(result.stdout.count('"disk7" ejected.'), 2)
+        self.assertIn("Confirmed failed mount cleanup", result.stdout)
+        self.assertEqual(result.stdout.count("PASS no inspected native harness identifiers"), 2)
+        self.assertEqual(self.operations(), SIGNING_STEPS + MOUNT_STEPS + CLEANUP_STEPS
+                         + ["sleep-1", "info", "attach", "verify-volume", "display-volume"] + CLEANUP_STEPS)
+        self.assertEqual({entry.name for entry in self.output.iterdir()},
+                         {DMG, "SHA256SUMS", "build-record.txt", "DEVELOPMENT_ACCEPTANCE.md"})
+        self.assertFalse((self.root / "attached").exists())
+        self.assertEqual(list(self.artifacts.glob(".development.*")), [])
+
+    def test_exact_transient_without_a_device_verifies_absence_without_detaching_foreign_image(self):
+        result = self.package("transient-no-device")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn(TRANSIENT_ERROR, result.stdout)
+        self.assertEqual(self.operations(), SIGNING_STEPS + MOUNT_STEPS
+                         + ["info", "sleep-1", "info", "attach", "verify-volume", "display-volume"] + CLEANUP_STEPS)
+        self.assertEqual(result.stdout.count('"disk7" ejected.'), 1)
+        self.assertFalse((self.root / "attached").exists())
+
+    def test_persistent_transient_fails_after_three_attachments_and_confirmed_cleanup(self):
+        result = self.package("transient-exhausted")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertEqual(result.stdout.count(TRANSIENT_ERROR), 3)
+        self.assertEqual(result.stdout.count('"disk7" ejected.'), 3)
+        recovery = ["attach", "info", "detach"]
+        self.assert_clean_failure(result, "mount retry limit reached",
+                                  SIGNING_STEPS + ["create"] + recovery + ["sleep-1", "info"] + recovery
+                                  + ["sleep-2", "info"] + recovery + ["info"])
+
+    def test_uncertain_cleanup_never_retries_or_removes_owned_image_evidence(self):
+        cases = (
+            ("transient-info-error", ["info"], "inventory failure", True),
+            ("transient-invalid-inventory", ["info"], "Cannot read development image attachments", True),
+            ("transient-ambiguous", ["info"], "Ambiguous development image attachment", True),
+            ("transient-foreign-disk", ["info"], "also listed for another image", True),
+            ("transient-foreign-mount", ["info"], "Unexpected ownership", True),
+            ("transient-detach-error", CLEANUP_STEPS, "cleanup failed", True),
+            ("transient-detach-remains", CLEANUP_STEPS + ["sleep-1", "info"], "still attached", True),
+            ("transient-reappeared", CLEANUP_STEPS + ["sleep-1", "info"], "still attached", True),
+            ("transient-verify-info-error", CLEANUP_STEPS + ["sleep-1", "info"], "inventory failure", False),
+        )
+        for case, cleanup, error, attached in cases:
+            with self.subTest(case=case):
+                result = self.package(case)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(TRANSIENT_ERROR, result.stdout)
+                self.assertIn(error, result.stdout)
+                self.assertIn("Private files remain at", result.stdout)
+                self.assertEqual(self.operations(), SIGNING_STEPS + MOUNT_STEPS + cleanup)
+                self.assertFalse(self.output.exists())
+                self.assertEqual((self.root / "attached").exists(), attached)
+                private, = self.artifacts.glob(".development.*")
+                self.assertTrue((private / "output" / DMG).is_file())
+                self.assertEqual((private / "attach-1.stderr").read_text().strip(), TRANSIENT_ERROR)
+                (self.root / "attached").unlink(missing_ok=True)
+                (self.root / "commands").unlink()
+                shutil.rmtree(self.root / "image-content")
+                shutil.rmtree(private)
+
+    def test_other_errors_or_statuses_keep_stderr_and_do_not_retry(self):
+        cases = (
+            ("unknown-attach-error", 1, "Permission denied"),
+            ("different-status", 8, TRANSIENT_ERROR),
+            ("mixed-attach-error", 1, "Unexpected secondary error"),
+            ("nul-attach-error", 1, TRANSIENT_ERROR),
+        )
+        for case, code, error in cases:
+            with self.subTest(case=case):
+                result = self.package(case)
+                self.assertEqual(result.returncode, code, result.stdout)
+                self.assert_clean_failure(result, error, SIGNING_STEPS + MOUNT_STEPS + CLEANUP_STEPS)
+                (self.root / "commands").unlink()
+                shutil.rmtree(self.root / "image-content")
+        result = self.package("transient-then-unknown")
+        self.assertEqual(result.returncode, 4, result.stdout)
+        self.assertIn(TRANSIENT_ERROR, result.stdout)
+        self.assert_clean_failure(result, "Permission denied", SIGNING_STEPS + MOUNT_STEPS + CLEANUP_STEPS
+                                  + ["sleep-1", "info", "attach"] + CLEANUP_STEPS)
+
+    def test_recovery_and_final_publication_reject_changed_image_bytes(self):
+        cases = (
+            ("transient-image-drift", "bytes changed before mount retry", CLEANUP_STEPS + ["sleep-1", "info"]),
+            ("attach-changes-image", "bytes changed during mount verification",
+             ["verify-volume", "display-volume"] + CLEANUP_STEPS),
+        )
+        for case, error, tail in cases:
+            with self.subTest(case=case):
+                self.assert_clean_failure(self.package(case), error, SIGNING_STEPS + MOUNT_STEPS + tail)
+                (self.root / "commands").unlink()
+                shutil.rmtree(self.root / "image-content")
+
+    def test_recovered_attach_must_still_pass_read_only_and_signing_admission(self):
+        self.assert_clean_failure(self.package("transient-then-writable"), "must be mounted read-only",
+                                  SIGNING_STEPS + MOUNT_STEPS + CLEANUP_STEPS
+                                  + ["sleep-1", "info", "attach"] + CLEANUP_STEPS)
 
     def test_term_after_attach_detaches_the_owned_device(self):
         result = self.package("interrupt")

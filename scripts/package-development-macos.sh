@@ -44,24 +44,51 @@ staged_app="$private/stage/AgentBaton.app"
 mounted_app="$mountpoint/AgentBaton.app"
 bundle_audit=scripts/native-audit-release-bundle.sh
 attach_attempted=false
+retain_private=false
+
+owned_device() {
+  # A failed or interrupted attach can leave a device without a mounted volume.
+  # Only the uniquely matching private image can supply a device to detach.
+  hdiutil info -plist | python3 -c '
+import plistlib, re, sys
+
+images = plistlib.loads(sys.stdin.buffer.read())["images"]
+if type(images) is not list or any(
+    type(image) is not dict or type(image.get("image-path")) is not str or not image["image-path"]
+    for image in images
+):
+    sys.exit("Cannot read development image attachments.")
+matches = [image for image in images if image.get("image-path") == sys.argv[1]]
+if len(matches) > 1:
+    sys.exit("Ambiguous development image attachment.")
+owned = matches[0] if matches else None
+device = None
+for image in images:
+    entities = image.get("system-entities", [])
+    if type(entities) is not list or any(type(entity) is not dict for entity in entities):
+        sys.exit("Cannot read development image devices.")
+    if image is owned:
+        device = entities[0].get("dev-entry") if entities else None
+        if type(device) is not str or not re.fullmatch(r"/dev/disk[0-9]+", device):
+            sys.exit("Cannot identify development image backing device.")
+    for entity in entities:
+        mounted = entity.get("mount-point")
+        if mounted and (mounted == sys.argv[2]) != (image is owned):
+            sys.exit("Unexpected ownership of the development image mountpoint.")
+if device is not None:
+    for image in images:
+        if image is not owned and any(
+            type(entry) is str and re.fullmatch(device + r"(?:s[0-9]+)*", entry)
+            for entry in (entity.get("dev-entry") for entity in image.get("system-entities", []))
+        ):
+            sys.exit("Development image device is also listed for another image.")
+    print(device)
+' "$image" "$mountpoint"
+}
 
 detach_candidate() {
   local device
-  # A failed or interrupted attach can leave a device without a mounted volume.
-  # Match the owned image's private path and detach its backing device.
-  device="$(hdiutil info -plist | python3 -c '
-import plistlib, re, sys
-
-images = [image for image in plistlib.loads(sys.stdin.buffer.read())["images"]
-          if image.get("image-path") == sys.argv[1]]
-if images:
-    if len(images) != 1:
-        sys.exit("Ambiguous development image attachment.")
-    device = images[0]["system-entities"][0]["dev-entry"]
-    if not re.fullmatch(r"/dev/disk[0-9]+", device):
-        sys.exit("Cannot identify development image backing device.")
-    print(device)
-' "$image")" || return
+  device="$(owned_device)" || return
   if [[ -n "$device" ]]; then
     hdiutil detach "$device" || return
   fi
@@ -69,11 +96,66 @@ if images:
   [[ ! -e "$mountpoint" ]] || rmdir "$mountpoint"
 }
 
+clear_failed_attachment() {
+  local delay="$1" device
+  detach_candidate || return
+  if (( delay > 0 )); then
+    sleep "$delay" || return
+  fi
+  device="$(owned_device)" || return
+  if [[ -n "$device" || -e "$mountpoint" || -L "$mountpoint" ]]; then
+    printf 'Development image still attached after failed mount cleanup.\n' >&2
+    return 1
+  fi
+  printf 'Confirmed failed mount cleanup for the private development image.\n' >&2
+}
+
+attach_candidate() {
+  local attempt status stderr delay
+  for attempt in 1 2 3; do
+    stderr="$private/attach-$attempt.stderr"
+    attach_attempted=true
+    if LC_ALL=C hdiutil attach -readonly -noautoopen -nobrowse -mountpoint "$mountpoint" "$image" 2>"$stderr"; then
+      cat "$stderr" >&2
+      return
+    else
+      status=$?
+    fi
+    cat "$stderr" >&2
+    if [[ "$status" != 1 ]] ||
+      ! printf '%s\n' 'hdiutil: attach failed - Resource temporarily unavailable' | cmp -s - "$stderr"; then
+      return "$status"
+    fi
+    delay="$attempt"
+    if [[ "$attempt" == 3 ]]; then
+      delay=0
+    fi
+    if ! clear_failed_attachment "$delay"; then
+      retain_private=true
+      return "$status"
+    fi
+    attach_attempted=false
+    if [[ "$attempt" == 3 ]]; then
+      printf 'Development image mount retry limit reached.\n' >&2
+      return "$status"
+    fi
+    if [[ ! -f "$image" || -L "$image" || "$(file_sha256 "$image")" != "$created_image_sha256" ]]; then
+      printf 'Development image bytes changed before mount retry.\n' >&2
+      return 1
+    fi
+    printf 'Retrying the same read-only development image mount after attempt %s.\n' "$attempt" >&2
+    if ! mkdir "$mountpoint"; then
+      retain_private=true
+      return 1
+    fi
+  done
+}
+
 cleanup() {
   local status=$?
   trap - EXIT
   trap '' HUP INT TERM
-  if "$attach_attempted" && ! detach_candidate; then
+  if "$retain_private" || { "$attach_attempted" && ! detach_candidate; }; then
     printf 'Development image cleanup failed. Private files remain at %s.\n' "$private" >&2
     exit 1
   fi
@@ -124,8 +206,8 @@ done > "$private/shipped-sha256"
 
 ln -s /Applications "$private/stage/Applications"
 hdiutil create -volname AgentBaton -srcfolder "$private/stage" -format UDZO "$image"
-attach_attempted=true
-hdiutil attach -readonly -noautoopen -nobrowse -mountpoint "$mountpoint" "$image"
+created_image_sha256="$(file_sha256 "$image")"
+attach_candidate
 python3 - "$mountpoint" <<'PY'
 import os
 import sys
@@ -150,6 +232,10 @@ detach_candidate
 attach_attempted=false
 
 dmg_sha256="$(file_sha256 "$image")"
+if [[ "$dmg_sha256" != "$created_image_sha256" ]]; then
+  printf 'Development image bytes changed during mount verification.\n' >&2
+  exit 1
+fi
 {
   echo "commit=$commit"
   echo "architecture=$architecture"
