@@ -7359,33 +7359,40 @@
     {
       "id": "AB-COR-001",
       "work_package": "WP02",
-      "status": "implementing",
+      "status": "accepted",
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
-        "crates/core/src/execution.rs"
+        "crates/core/src/execution.rs",
+        "apps/cli/src/main.rs",
+        "apps/daemon/src/main.rs",
+        "apps/desktop/src-tauri/src/lib.rs"
       ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
-        "native_arm64": "not_run",
+        "native_arm64": "passed",
         "native_x86_64": "not_run",
-        "current_local_partial": "Five exact local Core IPC tests passed; single binder, authenticated restart, denial without mutation and bounded frame behavior. Native App and CLI multi-client proof remains separate."
+        "current_local_partial": "Five exact local Core IPC tests passed; single binder, authenticated restart, denial without mutation and bounded frame behavior. Native App and CLI multi-client proof remains separate.",
+        "ci": "passed"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/leader-control/LOCAL_CORE_AUTHORITY_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local Unix daemon and macOS WebView/CLI only. Remote Host authentication and Provider identity have separate criteria."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs",
-        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json",
+        "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+        "docs/execution/leader-control/LOCAL_CORE_AUTHORITY_MAIN_ACCEPTANCE.json"
       ],
-      "coverage": "partial",
+      "coverage": "complete",
       "verification_applicability": {
         "unit": "applicable",
         "integration": "applicable",
@@ -7400,6 +7407,15 @@
           "source": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
           "feature": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
           "evidence": "docs/execution/leader-control/GRAPH_AND_SESSION_RECOVERY_ADMISSION.json"
+        },
+        {
+          "slice": "single_local_write_authority_authenticated_handshake_and_restart",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "local_arm64_integration_passed": 5,
+          "local_arm64_lock_unit_passed": 2,
+          "actual_process_race_and_reconnect": "passed",
+          "hosted_linux_and_arm64_native_same_tree": "passed",
+          "evidence": "docs/execution/leader-control/LOCAL_CORE_AUTHORITY_MAIN_ACCEPTANCE.json"
         }
       ]
     },
