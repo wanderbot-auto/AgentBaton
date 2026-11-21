@@ -39,6 +39,7 @@ pub const API_VERSION: u32 = 1;
 const MAX_FRAME: u64 = 1_048_576;
 const MAX_REPLY_FRAME: u64 = 32 * MAX_FRAME;
 const REPLY_LIMIT_MESSAGE: &str = "Response exceeds local IPC limit; request a smaller batch";
+const WRITE_REPLY_LIMIT_MESSAGE: &str = "Local IPC response exceeds its frame limit";
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Request {
@@ -533,12 +534,25 @@ fn configure_accepted_stream(stream: &UnixStream) -> std::io::Result<()> {
     stream.set_read_timeout(Some(Duration::from_secs(3)))?;
     stream.set_write_timeout(Some(Duration::from_secs(3)))
 }
+
+#[derive(Deserialize)]
+struct RequestHeader {
+    method: String,
+    idempotency_key: Option<String>,
+}
+
 fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
     if configure_accepted_stream(&stream).is_err() {
         return; // Configuration failure closes only this client worker.
     }
+    let mut write_has_key = None;
     let response = match read_frame(&stream, MAX_FRAME) {
         Ok(raw) => {
+            // Keep the original request semantics before handing it to the
+            // actor. A response replaces the result and no longer has them.
+            let header = serde_json::from_str::<RequestHeader>(&raw).ok();
+            let is_write =
+                !is_read_only_method(header.as_ref().map(|request| request.method.as_str()));
             let (reply, receive): (_, Receiver<Value>) = mpsc::sync_channel(1);
             let job = ReadyRequest {
                 raw,
@@ -549,16 +563,44 @@ fn socket_worker(mut stream: UnixStream, requests: SyncSender<ReadyRequest>) {
             if let Err(mpsc::TrySendError::Full(job) | mpsc::TrySendError::Disconnected(job)) =
                 requests.try_send(job)
             {
-                json!({"request_id":response_request_id(&job.raw),"error":CoreError::new("RESOURCE_LIMIT","Local request queue is unavailable"),"revision":0,"warnings":[]})
+                json!({
+                    "request_id": response_request_id(&job.raw),
+                    "error": CoreError::new("RESOURCE_LIMIT", "Local request queue is unavailable"),
+                    "revision": 0,
+                    "warnings": [],
+                })
             } else {
-                receive.recv_timeout(Duration::from_secs(60)).unwrap_or_else(|_|json!({"request_id":null,"error":CoreError::transport(),"revision":0,"warnings":[]}))
+                if is_write {
+                    write_has_key = Some(
+                        header
+                            .and_then(|request| request.idempotency_key)
+                            .is_some_and(|key| !key.is_empty()),
+                    );
+                }
+                receive.recv_timeout(Duration::from_secs(60)).unwrap_or_else(|_| {
+                    json!({"request_id":null,"error":CoreError::transport(),"revision":0,"warnings":[]})
+                })
             }
         }
         Err(error) => json!({"request_id":null,"error":error,"revision":0,"warnings":[]}),
     };
     if let Ok(mut output) = serde_json::to_vec(&response) {
         if output.len() as u64 >= MAX_REPLY_FRAME {
-            output=serde_json::to_vec(&json!({"request_id":response["request_id"],"error":CoreError::new("RESOURCE_LIMIT",REPLY_LIMIT_MESSAGE),"revision":0,"warnings":[]})).unwrap_or_default();
+            let error = if let Some(has_key) = write_has_key {
+                unverified_write_reply(
+                    CoreError::new("RESOURCE_LIMIT", WRITE_REPLY_LIMIT_MESSAGE),
+                    has_key,
+                )
+            } else {
+                CoreError::new("RESOURCE_LIMIT", REPLY_LIMIT_MESSAGE)
+            };
+            output = serde_json::to_vec(&json!({
+                "request_id": response["request_id"],
+                "error": error,
+                "revision": 0,
+                "warnings": [],
+            }))
+            .unwrap_or_default();
         }
         output.push(b'\n');
         let _ = stream.write_all(&output);
@@ -2134,7 +2176,7 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
                 // The daemon can generate this frame after committing a write.
                 // Its request ID identifies the attempt, but the result was lost.
                 if reported.code == "RESOURCE_LIMIT" && reported.message == REPLY_LIMIT_MESSAGE {
-                    reported.message = "Local IPC response exceeds its frame limit".into();
+                    reported.message = WRITE_REPLY_LIMIT_MESSAGE.into();
                     return Err(unverified(reported));
                 }
             }
@@ -2147,6 +2189,63 @@ pub fn call(runtime_dir: &Path, command: Value) -> Result<Value> {
 #[cfg(test)]
 mod frame_tests {
     use super::*;
+
+    #[test]
+    fn actor_reply_wire_limit_accounts_for_delimiter_and_write_outcome() {
+        let request_id = "actor-reply-limit";
+        for (method, frame_size, expected_state) in [
+            ("tasks.create", MAX_REPLY_FRAME, None),
+            ("tasks.create", MAX_REPLY_FRAME + 1, Some("unknown")),
+            ("tasks.list", MAX_REPLY_FRAME + 1, Some("not_started")),
+        ] {
+            let (receiver, mut sender) = UnixStream::pair().unwrap();
+            sender
+                .set_read_timeout(Some(Duration::from_secs(5)))
+                .unwrap();
+            let (requests, ready) = mpsc::sync_channel(1);
+            let worker = std::thread::spawn(move || socket_worker(receiver, requests));
+            let mut request = json!({
+                "api_version": API_VERSION,
+                "request_id": request_id,
+                "token": "fixture",
+                "method": method,
+                "params": {},
+            });
+            if method == "tasks.create" {
+                request["params"] = json!({"goal":"generated task"});
+                request["idempotency_key"] = json!("original-test-key");
+            }
+            writeln!(sender, "{request}").unwrap();
+            let accepted = ready.recv_timeout(Duration::from_secs(5)).unwrap();
+            assert_eq!(
+                serde_json::from_str::<Value>(&accepted.raw).unwrap(),
+                request
+            );
+            let mut response = json!({"request_id": request_id, "result": ""});
+            let framing_bytes = serde_json::to_vec(&response).unwrap().len() + 1;
+            response["result"] = json!("x".repeat(frame_size as usize - framing_bytes));
+            accepted.reply.send(response).unwrap();
+            let received = read_frame(&sender, MAX_REPLY_FRAME).unwrap();
+            worker.join().unwrap();
+            if let Some(state) = expected_state {
+                assert!((received.len() as u64) < MAX_REPLY_FRAME);
+                let reply: Value = serde_json::from_str(&received).unwrap();
+                assert_eq!(reply["request_id"], request_id);
+                assert_eq!(reply["error"]["code"], "RESOURCE_LIMIT");
+                assert_eq!(reply["error"]["side_effect_state"], state);
+                assert_eq!(reply["error"]["retryable"], false);
+                let message = reply["error"]["message"].as_str().unwrap();
+                if state == "unknown" {
+                    assert!(message.contains("original idempotency key"));
+                    assert!(!message.contains("original-test-key"));
+                } else {
+                    assert_eq!(message, REPLY_LIMIT_MESSAGE);
+                }
+            } else {
+                assert_eq!(received.len() as u64, MAX_REPLY_FRAME);
+            }
+        }
+    }
 
     #[test]
     fn full_daemon_queue_reports_correlated_pre_dispatch_rejection() {
