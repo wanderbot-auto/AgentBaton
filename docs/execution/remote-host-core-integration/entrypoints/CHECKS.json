@@ -1,0 +1,17 @@
+{
+  "status": "docs_only_static_checks_passed",
+  "source_start_head": "ac8277ed3bac7a9cb8f086f792a61b1072e5fdab",
+  "verified_product_source": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "recorded_utc": "2026-11-17T19:57:41.780815+00:00",
+  "all13_product14_foundation_hashes_unchanged": true,
+  "all20_audited_files_bound_to_a4_or039": true,
+  "all_own_JSON_parses": true,
+  "no_Cargo_build_test_CI_or_source_write": true,
+  "artifact_sha256": {
+    "entrypoints/CHECKPOINT.md": "b8f844c4df3ffe233b6f11609e4d1ca88497249bfdfca2b4c6ea44658aa6a4a2",
+    "entrypoints/CONTRACT.md": "fa7e7489289a332c1f7b34f5b04038f426a0fdb8623b42462c0e94486bf326a3",
+    "entrypoints/PLAN.md": "879d21f7d3ea3dfa0748a051172c47b99fcfd635bdfcf1b699174b168271099d",
+    "entrypoints/PROPOSED_SCOPE.json": "dc4df973fb7c38904ba84d460f6402316ce28f27ce00ebfe905de33627387a10",
+    "entrypoints/SOURCE_AUDIT.json": "879ba2ff8ab6858c642680449e5d407029222c09be7f9989a4e6ac8f94a3f5e5"
+  }
+}

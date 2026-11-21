@@ -1,0 +1,21 @@
+start=2026-11-19T00:57:53Z
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+v26.7.0
+11.19.0
+Xcode 27.2
+Build version 27B52
+stage=npm_ci utc=2026-11-19T00:57:54Z
+
+added 107 packages in 748ms
+Tauri CLI 2.12.4
+/bin/bash: line 17: rg: command not found
+build_exit=127 utc=2026-11-19T00:57:55Z

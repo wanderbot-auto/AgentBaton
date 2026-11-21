@@ -1,0 +1,80 @@
+{
+  "requirement": "AB-REL-007",
+  "dimension": "actual_fixed_previous_build_restart_on_restored_isolated_store18",
+  "registration_base": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "registration_base_tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+  "prior_rehearsal": {
+    "evidence_commit": "1026b0df118d0931cf531c9f43dd5e520939c14e",
+    "receipt_repository_path": "docs/execution/development-update-rehearsal/receipt.json",
+    "receipt_sha256": "36855f1a0b609daa016b8a7e67bda0f82daae16b0f17370505d805e64d2faef7",
+    "restored_database_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+    "migrated_database_sha256": "fd68b7790b1d4e3de6fa08f33289b6b4121e89494ce426000e68ffa2aad856d5"
+  },
+  "historical_build": {
+    "commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+    "checked_provenance_path_in_git": "docs/execution/schema19-genuine-legacy18-runner/EVIDENCE.json",
+    "source_archive_sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+    "build_manifest_sha256": "038103f396747859a3b9c62354ce11a2d9acb6bec4213aa7a0a4acb476bf7433",
+    "input_files_exact": 244,
+    "tool_sha256": {
+      "baton": "82f6c54bfd49be8ae19a9cd66b1c32a4b1a5edc8d33145a564b80c792ca2fc61",
+      "batond": "d418f8c1a97a430d21f77c0fc52953eee215cd536523dd4582bfb48f10739603"
+    },
+    "mode": "normal offline locked default build, feature list empty",
+    "architecture": "arm64 Mach-O",
+    "historical_runner_evidence_sha256": "bc3acaf5a056eaa475ce96179ed2fa09d32003184c746b7961b003676ffa5d75"
+  },
+  "environment": {
+    "host_os": "macOS",
+    "host_version": "26.6.1",
+    "host_build": "25G76",
+    "architecture": "arm64",
+    "python": "3.14.0a7",
+    "sqlite": "3.49.1",
+    "serial_native_collab": true
+  },
+  "execution": {
+    "controller_exit": 0,
+    "receipt_file": "receipt.json",
+    "receipt_sha256": "0da90ec819999d8b6cd2e354d1e9db914d420717c1f1aadf372529ab40ec348e",
+    "controller_source_sha256": "2e17cec1cef14434399825287569dbd39d7b3b9c3075549b47b0fa5cc3f8e9a5",
+    "controller_stderr_bytes": 0,
+    "private_runtime_raw_files": {
+      "scope": "raw logs, private CLI transcripts, databases and runner source are retained in the original collab task runtime",
+      "runtime_directory_name": "reopen.ay4Mz9",
+      "old_daemon_log_sha256": "183357925a2faf1eaebb3a1cd28819a20e8e6348fb82f133bb3fe6cce594db3b",
+      "future_control_log_sha256": "21b40d638573d128a5b73e1b68ca86f655715cac467f0fb20601dd7fe2d2f792",
+      "cleanup_note_sha256": "fae2825425e7718564c1157b0aad236cb9ec76c3e37d50471ddc963c8d34d631"
+    },
+    "cleanup": {
+      "observed_owned_pids_absent": 2,
+      "ipc_socket_paths_absent": 2,
+      "generated_ipc_token_unlinked_without_reading": true
+    },
+    "private_configuration_directories_still_empty": true
+  },
+  "acceptance": {
+    "apple_silicon_previous_core_and_cli": true,
+    "database_schema": 18,
+    "event_sequence": 5,
+    "project_count": 1,
+    "task_count": 3,
+    "event_count": 5,
+    "known_task_states": [
+      "cancelled",
+      "draft",
+      "draft"
+    ],
+    "all_rows_match_restored_input": true,
+    "historical_input_bytes_preserved": true,
+    "normal_owned_exit": 0,
+    "newer_store_control_exit": 1,
+    "newer_store_control_code": "VERSION_UNSUPPORTED",
+    "installation_authorized": false
+  },
+  "limits": [
+    "Controlled generated Store only. Live user databases, GUI, signed installation, publishing, and real Provider were outside this replay.",
+    "The test proves exact older Core and CLI reopen on the preserved backup. The actor update admission and recovery after machine or power failure were not exercised."
+  ]
+}

@@ -1,0 +1,440 @@
+{
+  "base": "6fe6e7a06826020f72081a8f80dc39f995393c8b",
+  "fmt_diagnostic_lines": {
+    "src/bin/native_smoke.rs": [
+      1165
+    ],
+    "src/approval.rs": [
+      1016
+    ],
+    "src/native_parent.rs": [
+      224,
+      669
+    ]
+  },
+  "native_smoke_fmt_diff_identical": true,
+  "fmt_unmodified_file_sha256": {
+    "apps/desktop/src-tauri/src/approval.rs": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+    "apps/desktop/src-tauri/src/native_parent.rs": "92e3b3a947a5d2131a136b84de07face812f1bafc3b74ec128238c216fdd1caf"
+  },
+  "strict_clippy": [
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval_managed_mcp.rs",
+      "line": 129,
+      "baseline_line": 129,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "367d713dc2d4f51e9e9d213644ad0c63b885dbc0805b7174421a8582e9d4ec1e",
+      "file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429",
+      "baseline_file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval_managed_mcp.rs",
+      "line": 157,
+      "baseline_line": 157,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "8862a8d27a2a583ce8f2ca6a0257dbf8a6783f98af952b2f6efbbe144ae5db05",
+      "file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429",
+      "baseline_file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 772,
+      "baseline_line": 772,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "d88ef3f99eefe968cfac43057eac21df5e62cddb85d921e9dfee886a29867447",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 1965,
+      "baseline_line": 1965,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "1114eeada1adc04eb6d362507d01ebd5f6434e56fe57a57a185178a61e665f30",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 2633,
+      "baseline_line": 2633,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "bc879ad946c7e470b3e7954837cdf96ef9de39162169c70214124b07d39cc5a5",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 2636,
+      "baseline_line": 2636,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "f37000eaa4d3848eefdc986da08f3e96ac7277a996198058d9d257114443b959",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 2820,
+      "baseline_line": 2820,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "655f0d8d49be38dddad45384ae3770a6cf12382598b12c17322b7e38540eb066",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 25,
+      "baseline_line": 25,
+      "code": "clippy::needless_return",
+      "span_sha256": "9c6211ac460b7fe55743469f1c1eb7f1377f973e278df87bfed13c1a97072c4b",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 37,
+      "baseline_line": 37,
+      "code": "clippy::needless_return",
+      "span_sha256": "7e97eb1f8db4c4af6a6289d5da024588f4ec20d9a823d02e21f2456118874b87",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 49,
+      "baseline_line": 49,
+      "code": "clippy::needless_return",
+      "span_sha256": "0ae5a168541a8b01810861bbd4de80841503cf928f4a5d74db23885f1a85b178",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 60,
+      "baseline_line": 60,
+      "code": "clippy::needless_return",
+      "span_sha256": "c5a2fd8a1a6e277bac9324ab04c7df5f125e362bd69c7c949ce43f5fb9d36f8e",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 284,
+      "baseline_line": 284,
+      "code": "clippy::cmp_owned",
+      "span_sha256": "9bd7c3844b3b3975f3d5a86275f4cbb3f7aec32c6c2a1356dd89cdbde1f99c79",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/native_background_service_test/fixture.rs",
+      "line": 413,
+      "baseline_line": 413,
+      "code": "clippy::collapsible_if",
+      "span_sha256": "494206de839c1b2e6c8382c0999dd788273ffc5656fe44e6ec0e7bf6f1e0f084",
+      "file_sha256": "bd5fb736ef6d946048d39873b84721113fc0820ac13b96f60fb2ad80be813e37",
+      "baseline_file_sha256": "bd5fb736ef6d946048d39873b84721113fc0820ac13b96f60fb2ad80be813e37"
+    }
+  ],
+  "advisory_clippy": [
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval_managed_mcp.rs",
+      "line": 129,
+      "baseline_line": 129,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "367d713dc2d4f51e9e9d213644ad0c63b885dbc0805b7174421a8582e9d4ec1e",
+      "file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429",
+      "baseline_file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval_managed_mcp.rs",
+      "line": 157,
+      "baseline_line": 157,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "8862a8d27a2a583ce8f2ca6a0257dbf8a6783f98af952b2f6efbbe144ae5db05",
+      "file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429",
+      "baseline_file_sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 772,
+      "baseline_line": 772,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "d88ef3f99eefe968cfac43057eac21df5e62cddb85d921e9dfee886a29867447",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 1965,
+      "baseline_line": 1965,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "1114eeada1adc04eb6d362507d01ebd5f6434e56fe57a57a185178a61e665f30",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 2633,
+      "baseline_line": 2633,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "bc879ad946c7e470b3e7954837cdf96ef9de39162169c70214124b07d39cc5a5",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 2636,
+      "baseline_line": 2636,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "f37000eaa4d3848eefdc986da08f3e96ac7277a996198058d9d257114443b959",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/approval.rs",
+      "line": 2820,
+      "baseline_line": 2820,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "655f0d8d49be38dddad45384ae3770a6cf12382598b12c17322b7e38540eb066",
+      "file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+      "baseline_file_sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 25,
+      "baseline_line": 25,
+      "code": "clippy::needless_return",
+      "span_sha256": "9c6211ac460b7fe55743469f1c1eb7f1377f973e278df87bfed13c1a97072c4b",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 37,
+      "baseline_line": 37,
+      "code": "clippy::needless_return",
+      "span_sha256": "7e97eb1f8db4c4af6a6289d5da024588f4ec20d9a823d02e21f2456118874b87",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 49,
+      "baseline_line": 49,
+      "code": "clippy::needless_return",
+      "span_sha256": "0ae5a168541a8b01810861bbd4de80841503cf928f4a5d74db23885f1a85b178",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 60,
+      "baseline_line": 60,
+      "code": "clippy::needless_return",
+      "span_sha256": "c5a2fd8a1a6e277bac9324ab04c7df5f125e362bd69c7c949ce43f5fb9d36f8e",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/background_service.rs",
+      "line": 284,
+      "baseline_line": 284,
+      "code": "clippy::cmp_owned",
+      "span_sha256": "9bd7c3844b3b3975f3d5a86275f4cbb3f7aec32c6c2a1356dd89cdbde1f99c79",
+      "file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a",
+      "baseline_file_sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+    },
+    {
+      "target": "agentbaton_desktop",
+      "kind": [
+        "lib"
+      ],
+      "path": "apps/desktop/src-tauri/src/native_background_service_test/fixture.rs",
+      "line": 413,
+      "baseline_line": 413,
+      "code": "clippy::collapsible_if",
+      "span_sha256": "494206de839c1b2e6c8382c0999dd788273ffc5656fe44e6ec0e7bf6f1e0f084",
+      "file_sha256": "bd5fb736ef6d946048d39873b84721113fc0820ac13b96f60fb2ad80be813e37",
+      "baseline_file_sha256": "bd5fb736ef6d946048d39873b84721113fc0820ac13b96f60fb2ad80be813e37"
+    },
+    {
+      "target": "agentbaton-native-smoke",
+      "kind": [
+        "bin"
+      ],
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 63,
+      "baseline_line": 63,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "686c95175f3a156346f5f5bf8d4f627a1f5556b8c710e3b3d799e4189633d661",
+      "file_sha256": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+      "baseline_file_sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa"
+    },
+    {
+      "target": "agentbaton-native-smoke",
+      "kind": [
+        "bin"
+      ],
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 193,
+      "baseline_line": 193,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "0b6b1c3bc3fe31ada3eb51219ab01bf748839ef5f92d1e70fe1958355465308a",
+      "file_sha256": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+      "baseline_file_sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa"
+    },
+    {
+      "target": "agentbaton-native-smoke",
+      "kind": [
+        "bin"
+      ],
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 319,
+      "baseline_line": 319,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "0b6b1c3bc3fe31ada3eb51219ab01bf748839ef5f92d1e70fe1958355465308a",
+      "file_sha256": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+      "baseline_file_sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa"
+    },
+    {
+      "target": "agentbaton-native-smoke",
+      "kind": [
+        "bin"
+      ],
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 441,
+      "baseline_line": 441,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "386b9128c8a8215ca7a28e84fd0ffb66ec9da30c8cba7009bd734b059f8e6020",
+      "file_sha256": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+      "baseline_file_sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa"
+    },
+    {
+      "target": "agentbaton-native-smoke",
+      "kind": [
+        "bin"
+      ],
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 445,
+      "baseline_line": 445,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "d44a36cb7eeacde8d6e5ced3213adabd12ad06f5eb5d14823f77f9b9e4501cf5",
+      "file_sha256": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+      "baseline_file_sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa"
+    },
+    {
+      "target": "agentbaton-native-smoke",
+      "kind": [
+        "bin"
+      ],
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 465,
+      "baseline_line": 465,
+      "code": "clippy::nonminimal_bool",
+      "span_sha256": "01e5c6c869f63ca9c690efd8ca3859985ddd6893f9398e93db6ce8111d49f874",
+      "file_sha256": "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c",
+      "baseline_file_sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa"
+    }
+  ]
+}

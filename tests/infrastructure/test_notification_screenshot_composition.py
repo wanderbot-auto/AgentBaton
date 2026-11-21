@@ -7,12 +7,14 @@ from tests.infrastructure import integration_screenshot_failure_fixture as S
 from tests.infrastructure import notification_screenshot_composition_fixture as C
 from tests.infrastructure import test_integration_driver_preflight_diagnostics as P
 
+from tests.infrastructure.host19_integration_browser_source_fixture import read_historical_driver
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class NotificationScreenshotComposition(unittest.TestCase):
     def variants(self):
-        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        current = read_historical_driver(ROOT)
         composed = C.restore_historical_composition(current)
         notification = C.strip_composed_screenshot_layer(composed)
         root = C.strip_composed_notification_layer(composed)
@@ -32,7 +34,7 @@ class NotificationScreenshotComposition(unittest.TestCase):
             self.assertEqual(strip(original), original)
         self.assertIn("phase = 'notification_probe'", composed)
         self.assertIn("report['active_screenshot']", composed)
-        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        current = read_historical_driver(ROOT)
         self.assertEqual(C.strip_composed_screenshot_layer(current), notification)
         current_root = C.strip_composed_notification_layer(current)
         self.assertEqual(hashlib.sha256(current_root.encode()).hexdigest(), C.CURRENT_WITHOUT_NOTIFICATION_SHA256)
@@ -40,7 +42,7 @@ class NotificationScreenshotComposition(unittest.TestCase):
 
     def test_all_four_variants_still_restore_the_entire_preflight_baseline(self):
         controls = P.ExactOriginalSourceControls()
-        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        current = read_historical_driver(ROOT)
         for text in (*self.variants(), current):
             with self.subTest(source=hashlib.sha256(text.encode()).hexdigest()):
                 restored = controls.restore_driver(text)
@@ -48,7 +50,7 @@ class NotificationScreenshotComposition(unittest.TestCase):
                     '1e34768c2d79314163080300e741ed3a98a9ba64752f0b38152852b15028bd1e')
 
     def test_unknown_or_removed_duplicate_moved_changed_layer_and_original_guards_refuse(self):
-        current = (ROOT / 'apps/desktop/tests/integration-real-ipc.py').read_text()
+        current = read_historical_driver(ROOT)
         for text in (*self.variants(), current):
             changes = [text + '\nUNKNOWN_UNREVIEWED_BYTE = True\n',
                 text.replace('MAX_CHROMIUM_IMAGE = 536870912', 'MAX_CHROMIUM_IMAGE = 1073741824', 1),

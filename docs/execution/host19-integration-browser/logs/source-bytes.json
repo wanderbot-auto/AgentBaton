@@ -1,0 +1,37 @@
+{
+  "base": "cde501db847d1bbfc27a298e16cd772afc1a41e9",
+  "path": "apps/desktop/tests/integration-real-ipc.py",
+  "original_sha256": "0131bee1842f3856507def3f41d4d45f0a9b38511167886461fc96d8a32d37fe",
+  "candidate_sha256": "e5036fd15afa431228a9b11553b0602e144636dda58fecf4fbbbcaac8633f6f3",
+  "restored_equals_git_blob": true,
+  "old_tests": {
+    "tests/infrastructure/test_schema18_source_inverse.py": {
+      "base_sha256": "4484515cc4c3160f6d0ddbc7ca3ceea92932e55f0d6a165389c1257e28037a1b",
+      "candidate_sha256": "cc60951c4fd723115688903940518da073f983cc3d3b6337a169a4aca995f071",
+      "historical_routes": 3
+    },
+    "tests/infrastructure/test_notification_screenshot_composition.py": {
+      "base_sha256": "7f65dbf1a67a123f33f627a19b4aa8c45c71796097cd68e02899799dcc07fa52",
+      "candidate_sha256": "45c1a00ebee78877dccb23c8690cb4f52f52099b2713bf93a4619db8ec2d1739",
+      "historical_routes": 4
+    },
+    "tests/infrastructure/test_integration_screenshot_failure.py": {
+      "base_sha256": "054a38d886877cb0ab96e636e9dabf9a06756d5e330db83321364ad6f346e66c",
+      "candidate_sha256": "d1f8e59edc5ce2f7f31daf059507169d4896e96905d0217c18c84f6a1c668a6a",
+      "historical_routes": 2
+    },
+    "tests/infrastructure/test_integration_driver_preflight_diagnostics.py": {
+      "base_sha256": "19af6adf95f2c9d358d956f2bf54bc52d1aec8a59d1e857611bf0a21082331e0",
+      "candidate_sha256": "24ee9f10c845f00d5904196358b3fc5551deb4ff1a250f3c359b8e115952d3b6",
+      "historical_routes": 6
+    }
+  },
+  "retained_pins": {
+    ".github/workflows/product.yml": "edfffb07b5d5c8ecb3039962f5ad54e77cd187a4afd33f89941564b89603bff4",
+    "scripts/record-integration-browser-ci-evidence.py": "f4cae560fb2dbd3d5105f1433c4a8c4461d134e3fa940c2a099abb789fa5f411",
+    "tests/infrastructure/schema18_source_fixture.py": "731efd2830996d21354a4fe7b9b9fbf08be93ec2e2ec43a73dbe746cfa49253f",
+    "tests/infrastructure/notification_screenshot_composition_fixture.py": "9d9148bf2cde2445d6ddfd5cba6ac0ee9554f7d9f327ca6a1bb30fd7e60b2886",
+    "tests/infrastructure/integration_screenshot_failure_fixture.py": "81c086d75bc7e6a31f9316495c4ea06df9dbe6be81cea09035015d8fac5b8a99",
+    "tests/infrastructure/fixtures/schema18_source_inverse.json": "e6e5b7ab00f0cf919cb6f75e267e4e8ec7e91a55262ff100d66655ca5657e109"
+  }
+}

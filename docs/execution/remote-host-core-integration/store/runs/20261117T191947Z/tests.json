@@ -1,0 +1,28 @@
+{
+  "source_head": "8c6a86c1973c1039014482e585c635425d608a50",
+  "status": "failed_preserved",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "Cargo.toml",
+    "-p",
+    "agentbaton-core",
+    "--lib",
+    "registry::host_registry::tests",
+    "-j",
+    "2",
+    "--",
+    "--nocapture",
+    "--test-threads=2"
+  ],
+  "started_utc": "2026-11-17T19:19:47.744115+00:00",
+  "note": "Core Store tests use explicit private SQLite19 fixtures; product Store19/migration/IPC remain not implemented. No provider/SSH.",
+  "exit_code": 101,
+  "finished_utc": "2026-11-17T19:20:16.350013+00:00",
+  "log_sha256": "4f64addd3ccdd99feb50c8bc845998eb8148612dfeeb78ec8dc5ff7afa3b7818",
+  "log_bytes": 2740,
+  "all_started_child_processes_joined": true
+}

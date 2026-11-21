@@ -1,0 +1,666 @@
+{
+  "base_head": "b8573a221e152c6f47d8590739f031a7bbbd9058",
+  "verified_source_head": "3abac158df43a6eab696da227aab0bbbe1413485",
+  "verified_source_tree": "65898684e031acfb5db94a8fcf85ea041aeac961",
+  "integration_target_observed": "1c9b6b0b2d7a72c73d05a153c5e24cc6470adbfc",
+  "historical_source": {
+    "apps/desktop/tests/factory-child-goal-real-ipc.py": {
+      "current_sha256": "33bc3a72c30e509ae64cfce573743f58aa4406e4632ac42e3354d125f7ac242c",
+      "exact_schema18_sha256": "706c588d4d28d66ab4b5ee47b96df68ffe458a5eb37beacbab51ad2f739b8a1d"
+    },
+    "scripts/record-child-goal-ci-evidence.py": {
+      "current_sha256": "6d11ba710b957c5cc894960211457ba1771767b25603a1584c7c3b2b71ca02bb",
+      "exact_schema18_sha256": "973464fd5deed4a55fbf5ba57cf1c7da10479231fe2ec0b8a21816bc985f91a3"
+    },
+    "tests/infrastructure/test_child_goal_ci_evidence.py": {
+      "current_sha256": "e1578f63960af2cf5ad296b1c5300e763595b484223a088fee8ae78169e6f914",
+      "exact_schema18_sha256": "d610cee32598ede2fb646f76e43efdf6d9da29df8b98b94d06d91443ac1f644d"
+    }
+  },
+  "build": {
+    "source_head": "3abac158df43a6eab696da227aab0bbbe1413485",
+    "source_tree": "65898684e031acfb5db94a8fcf85ea041aeac961",
+    "compiled_core_source_head": "3abac158df43a6eab696da227aab0bbbe1413485",
+    "core_build_exit": 0,
+    "frontend_build_exit": 0,
+    "tracked_source_clean_before_and_after": true,
+    "core_build_log_sha256": "f892a1e7213146e31fb1448796cc1bbc5bf8018794dd966d3cd078ee5f8a758a",
+    "frontend_build_log_sha256": "e525745c14319e9bc1e66e82ba3769271657114b789ce887e63621c07ccebd6d",
+    "candidate_manifest_sha256": "56e17dd1b6ecc0caf71d026aa0583a72a4c08ec5eaadbe268e880aee27baff30",
+    "tools_sha256": {
+      "batond": "94d6b962e6512100f4ee73c363105c6a2825b683d61f7c3b3eb69d915f97ed6a",
+      "baton": "873d1de4147024a36c3d441db756ae6c006d093f931ee37a9d90564b2ee7fae2"
+    },
+    "frontend_assets_sha256": {
+      "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+      "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+      "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c"
+    }
+  },
+  "build_commands": {
+    "linux_arm64": "cargo build --offline --locked --bin baton --bin batond --features agentbaton-core/preview-evidence",
+    "frontend": "npm --prefix apps/desktop run build",
+    "frozen_cargo_registry_and_wheels_log_sha256": "0c86acdba241fbb9ab7f486f33b6069ae343f45945eeef8dc1daee79c8963fe2"
+  },
+  "actual_linux": {
+    "environment": "Local Linux ARM64 Docker, actual procfs, private Unix Core, Chromium, generated ACP and actual Baton MCP",
+    "kernel": "6.12.69-linuxkit",
+    "python": "3.12.3",
+    "playwright": "1.61.0",
+    "chromium": "Chromium 149.0.7827.0",
+    "chromium_sha256": "c1aa0fb5b6c60eb093df69d9e40dd50ab2039d3ccba8836ef21880340a77af64",
+    "cargo_rust_image": "rust@sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "browser_image": "mcr.microsoft.com/playwright/python@sha256:ad879d1a9e49a94f6f8c99f6890f684b909498509c0494502320b70ddab655cf",
+    "loopback_only": true,
+    "docker_network_mode": "none",
+    "primary_runtime": "/private/tmp/ab-collab-ka4u86ii/linux-replay.drio03",
+    "primary_runtime_receipt_sha256": "f847d473536df375a5e226a51d94fd9bb09e9e3dd09d33025a26f07aa6e61277",
+    "arm64_browser_driver_command": "python apps/desktop/tests/factory-child-goal-real-ipc.py --run --case CASE --tools /inputs/tools --manifest /inputs/manifest.json --frontend /inputs/frontend --chromium CHROMIUM --output PRIVATE_OUTPUT",
+    "finite_projector_command": "python scripts/record-child-goal-ci-evidence.py --case CASE --private-dir PRIVATE_OUTPUT --manifest /inputs/manifest.json --exit-code=ORIGINAL_EXIT --output SUMMARY_DIRECTORY",
+    "driver_sha256": "33bc3a72c30e509ae64cfce573743f58aa4406e4632ac42e3354d125f7ac242c",
+    "projector_sha256": "6d11ba710b957c5cc894960211457ba1771767b25603a1584c7c3b2b71ca02bb",
+    "planning_support_sha256": "9c2e0a94b80634650c0f3b5d90d447fe2122f787a8f5b0aca8c37e9f84e484a7",
+    "factory_support_sha256": "e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464",
+    "graph_support_sha256": "550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18",
+    "cases": {
+      "normal": {
+        "driver_exit": 0,
+        "status": "passed",
+        "report_sha256": "8e8d3486a234889e095dc5c0f3dec9c78858217ec79b0180cfef34199f208757",
+        "projector": {
+          "exit": 0,
+          "summary_sha256": "5b7913367714c15a75a090b026a966c73c9ea56e40ac3ed6b7d5e19e3d5e8d60",
+          "status": "passed",
+          "failure_kind": "none"
+        },
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG05",
+          "CG06"
+        ],
+        "schema": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19,
+          "snapshot_reply_sha256": "b333b8e818e98997e82a6ed611cad0c096b60f0413fae292aae65659cd3816e9"
+        },
+        "screenshots": {
+          "01-complete-explicit-execution-policy.png": {
+            "sha256": "9501bb025d04a1a9c226730f401184f4112204e41bcbdf64b5cd01bc992af4de",
+            "bytes": 156051,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "02-exact-saved-raw-reference-before-start.png": {
+            "sha256": "d357381d21c9d531320f0452206b0dd98ab77828f3f71d6cc0c6674d29128a5c",
+            "bytes": 207834,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "03-real-owned-candidate-before-owner.png": {
+            "sha256": "8a1553d1d3fff7c2374da469da0ce7e324491e42f7d43c7ee1bdcd62b5ab6d73",
+            "bytes": 204034,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "04-persisted-final-graph-and-factory.png": {
+            "sha256": "cec858a2598f4db8589781b5ff51ceea8aa6db4e5eb0830ee428b7db0b8a0096",
+            "bytes": 205670,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          }
+        },
+        "cleanup_complete": true,
+        "business": {
+          "confirmed_owned_stop_events": 3,
+          "consumed_shared_attempts": 3,
+          "TaskAccepted": true,
+          "exact_recovered_method": null,
+          "final_child_state": "accepted",
+          "final_factory_state": "completed"
+        },
+        "actual_sqlite_sha256": "481528f664eb7c29fcbe0f6502896ec510293e3142f37bd598649718f70bd0c7",
+        "actual_snapshot_sha256": "b333b8e818e98997e82a6ed611cad0c096b60f0413fae292aae65659cd3816e9",
+        "owned_factory_identities_gone": 4,
+        "owned_graph_identity_gone": true
+      },
+      "lost-start": {
+        "driver_exit": 0,
+        "status": "passed",
+        "report_sha256": "a0f88cdf93ca4c12e3ab483b4beb0158f2ac84b7a56acc2ee42892a14b9683d5",
+        "projector": {
+          "exit": 0,
+          "summary_sha256": "1b0b391e8b43aeae9a8ffde9ce43d5770ba5069eb62994aaebefed31c4725e46",
+          "status": "passed",
+          "failure_kind": "none"
+        },
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG03",
+          "CG05",
+          "CG06"
+        ],
+        "schema": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19,
+          "snapshot_reply_sha256": "7dc68c07e57d7f64b13a37d921530d79dfe8b410ddcc9db50707de1452bd7aee"
+        },
+        "screenshots": {
+          "01-complete-explicit-execution-policy.png": {
+            "sha256": "cdda91680cdbcc1c97deb87fbc18d2a270ce0635adb63b9022cfd278204e289f",
+            "bytes": 155583,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "02-exact-saved-raw-reference-before-start.png": {
+            "sha256": "75134ae447e95e53b336d7e9d3166c27b4385ba54c807002388863427748641b",
+            "bytes": 207721,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "03-real-owned-candidate-before-owner.png": {
+            "sha256": "ed93f9d852ee72f5e097ee8f061ca02b9e94b5c176de2ac2c68f2441d79bb1d7",
+            "bytes": 203757,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "04-persisted-final-graph-and-factory.png": {
+            "sha256": "4586f6cc9c2df55f62a40a3de1311ba9799f9b9776779ae64b0597d4fbb190b6",
+            "bytes": 205417,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          }
+        },
+        "cleanup_complete": true,
+        "business": {
+          "confirmed_owned_stop_events": 3,
+          "consumed_shared_attempts": 3,
+          "TaskAccepted": true,
+          "exact_recovered_method": "factory_child_goals.start",
+          "final_child_state": "accepted",
+          "final_factory_state": "completed"
+        },
+        "actual_sqlite_sha256": "a40369b1aee575efc3800afe94e90bb57e30e01f8c33bb6ad1ebb80ab7e64518",
+        "actual_snapshot_sha256": "7dc68c07e57d7f64b13a37d921530d79dfe8b410ddcc9db50707de1452bd7aee",
+        "owned_factory_identities_gone": 4,
+        "owned_graph_identity_gone": true
+      },
+      "cancel": {
+        "driver_exit": 0,
+        "status": "passed",
+        "report_sha256": "9233f8a07c1ea54e54f3c82b24a37bc12ee877a750ba3e5e585e63681545461d",
+        "projector": {
+          "exit": 0,
+          "summary_sha256": "c00628e20ec54aa058596d7225a6aa9f374b11ef20d9c0a9c550fd974e360df2",
+          "status": "passed",
+          "failure_kind": "none"
+        },
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG04",
+          "CG06"
+        ],
+        "schema": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19,
+          "snapshot_reply_sha256": "45a461b725b9fa8e28b59e932e4b038c85da65adb18460cdf4d7da50ee374f64"
+        },
+        "screenshots": {
+          "01-complete-explicit-execution-policy.png": {
+            "sha256": "fb61f8227a491a06651c0c2fe69f9462bb79e1def3c05e3c056e817f9e475b99",
+            "bytes": 157457,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "02-exact-saved-raw-reference-before-start.png": {
+            "sha256": "8c79fa9e5c9ee133251430afd22a562aa885f0cf618c5ea52c067a27f8b68d77",
+            "bytes": 206491,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "04-persisted-final-graph-and-factory.png": {
+            "sha256": "e76687cfae8262b71817543a8071e1d9f35d4baf98aa735c8c9d21d8bfcd26ca",
+            "bytes": 207306,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          }
+        },
+        "cleanup_complete": true,
+        "business": {
+          "confirmed_owned_stop_events": 2,
+          "consumed_shared_attempts": 2,
+          "TaskAccepted": false,
+          "exact_recovered_method": "factory_child_goals.cancel",
+          "final_child_state": "cancelled",
+          "final_factory_state": "cancelled"
+        },
+        "actual_sqlite_sha256": "9e98caffbdb03501286c43470fa1b8f178fadad22e59bc8ec8b963fb1bdb0afb",
+        "actual_snapshot_sha256": "45a461b725b9fa8e28b59e932e4b038c85da65adb18460cdf4d7da50ee374f64",
+        "owned_factory_identities_gone": 2,
+        "owned_graph_identity_gone": true
+      }
+    },
+    "preflight_controls": {
+      "old": {
+        "driver_exit": 2,
+        "private_report_sha256": "2f887bb80e82515424f8a4ef7993948379ae0fd87452d569585a69c414d2d5f1",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "future": {
+        "driver_exit": 2,
+        "private_report_sha256": "2f887bb80e82515424f8a4ef7993948379ae0fd87452d569585a69c414d2d5f1",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "bool": {
+        "driver_exit": 2,
+        "private_report_sha256": "2f887bb80e82515424f8a4ef7993948379ae0fd87452d569585a69c414d2d5f1",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "float": {
+        "driver_exit": 2,
+        "private_report_sha256": "2f887bb80e82515424f8a4ef7993948379ae0fd87452d569585a69c414d2d5f1",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "string": {
+        "driver_exit": 2,
+        "private_report_sha256": "2f887bb80e82515424f8a4ef7993948379ae0fd87452d569585a69c414d2d5f1",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "wrong-head": {
+        "driver_exit": 2,
+        "private_report_sha256": "aaa0abfe30d6ee1430584923d31a7007c0a9c0f80df8155a797b63dc8836b18a",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "wrong-tree": {
+        "driver_exit": 2,
+        "private_report_sha256": "aaa0abfe30d6ee1430584923d31a7007c0a9c0f80df8155a797b63dc8836b18a",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "mixed-compile": {
+        "driver_exit": 2,
+        "private_report_sha256": "aaa0abfe30d6ee1430584923d31a7007c0a9c0f80df8155a797b63dc8836b18a",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "mixed-ui": {
+        "driver_exit": 2,
+        "private_report_sha256": "aaa0abfe30d6ee1430584923d31a7007c0a9c0f80df8155a797b63dc8836b18a",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "45ece3017c6e62dd048fa29991a72077418781a0747b2e16e652a674ddb5eae4",
+          "status": "failed",
+          "failure_kind": "manifest_invalid"
+        }
+      },
+      "wrong-companion": {
+        "driver_exit": 2,
+        "private_report_sha256": "7d5b57fa1b88d078b4693f76aaebe74eb3e0928e8231643deebb13de59639154",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "30d9848b5a1c4156cb82d993f30de1bc4dc6f9e0b8f33efe931b52b0f145d999",
+          "status": "failed",
+          "failure_kind": "preflight_refused"
+        }
+      },
+      "wrong-assets": {
+        "driver_exit": 2,
+        "private_report_sha256": "84442a8867fab5d507bfac8f6614e2c84085aa02bbddf50ee7aed4e5b34dcc5a",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "30d9848b5a1c4156cb82d993f30de1bc4dc6f9e0b8f33efe931b52b0f145d999",
+          "status": "failed",
+          "failure_kind": "preflight_refused"
+        }
+      }
+    },
+    "projection_controls": {
+      "failed-exit": {
+        "exit": 1,
+        "summary_sha256": "aabd5ad5ddfd987049d4fc7592f27fc68becbaa2575d232ea144cd7ea349cef5",
+        "status": "failed",
+        "failure_kind": "runtime_failed"
+      },
+      "signal-exit": {
+        "exit": 1,
+        "summary_sha256": "c37e3743763baff08008d9b6781e6d8ed86655701f2330b73351bce4f3bfa8c2",
+        "status": "failed",
+        "failure_kind": "runtime_failed"
+      },
+      "unknown-exit": {
+        "exit": 1,
+        "summary_sha256": "f6b3a8c5558ce4ba959d6b2b91cc110417f3f5b8eeabf80bb50bcf0f1a1a5c3b",
+        "status": "failed",
+        "failure_kind": "runtime_failed"
+      },
+      "invalid-exit": {
+        "exit": 1,
+        "summary_sha256": "90533ecf3474dedf2e06b1de16496d6efaef4c9b4dd4bb6eae55a60fdca95cad",
+        "status": "failed",
+        "failure_kind": "runtime_exit_invalid"
+      },
+      "mixed-report": {
+        "exit": 1,
+        "summary_sha256": "f3fbbbd070e04c1764c1149d3c5e31ce8656c3e5a9dd76877399490f703be5c1",
+        "status": "failed",
+        "failure_kind": "report_invalid"
+      },
+      "mixed-ipc": {
+        "exit": 1,
+        "summary_sha256": "f3fbbbd070e04c1764c1149d3c5e31ce8656c3e5a9dd76877399490f703be5c1",
+        "status": "failed",
+        "failure_kind": "report_invalid"
+      },
+      "mixed-database": {
+        "exit": 1,
+        "summary_sha256": "f3fbbbd070e04c1764c1149d3c5e31ce8656c3e5a9dd76877399490f703be5c1",
+        "status": "failed",
+        "failure_kind": "report_invalid"
+      },
+      "browser-unconfirmed": {
+        "exit": 1,
+        "summary_sha256": "f3fbbbd070e04c1764c1149d3c5e31ce8656c3e5a9dd76877399490f703be5c1",
+        "status": "failed",
+        "failure_kind": "report_invalid"
+      }
+    },
+    "teardown_control": {
+      "case": "cancel",
+      "private_runtime": "/private/tmp/ab-collab-ka4u86ii/linux-replay.QlwSIv",
+      "receipt_sha256": "36d9038a4f22ac17a3fadb3fa5cbb21680cc20f0e14a39561e281dda3e1d1c1e",
+      "result": {
+        "driver_exit": 1,
+        "status": "failed_or_interrupted",
+        "report_sha256": "209c0a29768f71af0c63d497a5ab3b87a3c9dc74aa7a68cfead10a721e3bb060",
+        "projector": {
+          "exit": 1,
+          "summary_sha256": "ae3378e92a63edd0a01af4f4c2b3bdf1d5da95dc5619e2ec4e08aa7d73d8c462",
+          "status": "failed",
+          "failure_kind": "runtime_failed"
+        },
+        "checks": [
+          "CG01",
+          "CG02",
+          "CG04",
+          "CG06"
+        ],
+        "schema": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19,
+          "snapshot_reply_sha256": "19b489593b97985e55229df9c18f8dde85b04306c1b534e947ae70d7a1fe47a1"
+        },
+        "screenshots": {
+          "01-complete-explicit-execution-policy.png": {
+            "sha256": "f1a5fcc213bc45c75f5e45a08abafd6b7ba2b22f5604b0751d2b7f5c22774472",
+            "bytes": 156769,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "02-exact-saved-raw-reference-before-start.png": {
+            "sha256": "c00da77c57296b60c22bbd7a9509ba40cc8625b71f4667b848d7ed3d2dcf9b94",
+            "bytes": 208120,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "04-persisted-final-graph-and-factory.png": {
+            "sha256": "1606a06318af3a4f8e01a06cbb11ff756db6838f71180e46ca1a69c63a52a1f9",
+            "bytes": 207622,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          }
+        },
+        "cleanup_complete": false,
+        "failure_stage": "browser_close",
+        "failure_type": "RuntimeError",
+        "failed_fixture_copied_to_private_output": true,
+        "retained_special_file_metadata_sha256": "da0f91f614dd7d4171642e24ca495821166dfee60d6cf3c57c0f5452cd960cda",
+        "retained_special_file_count": 1,
+        "business": {
+          "confirmed_owned_stop_events": 2,
+          "consumed_shared_attempts": 2,
+          "TaskAccepted": false,
+          "exact_recovered_method": "factory_child_goals.cancel",
+          "final_child_state": "cancelled",
+          "final_factory_state": "cancelled"
+        },
+        "actual_sqlite_sha256": "69772faadb0f554d25658f2960f48cb2a1e89f02c433484d808a675567c307e2",
+        "actual_snapshot_sha256": "19b489593b97985e55229df9c18f8dde85b04306c1b534e947ae70d7a1fe47a1",
+        "owned_factory_identities_gone": 2,
+        "owned_graph_identity_gone": true
+      },
+      "method": "Exact driver entry with a one-shot supervisor hook that raises after the real browser closes",
+      "hook_source_sha256": "c5a6139e0331688903689cf834e2ef5aa31fdcdfe359173462f31208245a31de",
+      "replay_source_sha256": "1d431de3a41b41248ba8b6b56a70d9d4514536872f86c89ef33ce6a36f1ddc7d"
+    },
+    "earlier_teardown_controls": [
+      {
+        "private_runtime": "/private/tmp/ab-collab-ka4u86ii/linux-replay.drio03",
+        "checks": [
+          "CG01",
+          "CG02"
+        ],
+        "private_report_sha256": "75efd79eebf5f281283655fefcc1ed55b7358cb5e00f1be40f3f9caa00661e7a",
+        "finite_summary_sha256": "298053968c5de8131509cbc54351d8d8998914053dc9dc9ac107b3cf5f257cc4",
+        "driver_exit": 1,
+        "projector_status": "failed",
+        "actual_failure_stage": "runtime",
+        "owner_binding_entered": false,
+        "failure": "Bound child Goal observation expired",
+        "capture": "retained original output and partial directory copy; supervisor rejected FIFO"
+      },
+      {
+        "private_runtime": "/private/tmp/ab-collab-ka4u86ii/linux-replay.8bWsI7",
+        "checks": [
+          "CG01",
+          "CG02"
+        ],
+        "private_report_sha256": "25a2c93cd4b56cf54b8056c50c5bfa4a4b7bc312c4385d19c1099e90efdd194a",
+        "finite_summary_sha256": "95a6a97a3018dae8b27cccadf8a43caa5a89d51f948c5b9b3dc2cf11015ef201",
+        "driver_exit": 1,
+        "projector_status": "failed",
+        "actual_failure_stage": "runtime",
+        "owner_binding_entered": false,
+        "failure": "Bound child Goal observation expired",
+        "capture": "retained original output, regular fixture files and metadata for special files"
+      },
+      {
+        "private_runtime": "/private/tmp/ab-collab-ka4u86ii/linux-replay.WBdaxj",
+        "checks": [
+          "CG01",
+          "CG02"
+        ],
+        "private_report_sha256": "f67c1d3e9570e2ed279ab8278fd5dcce56cdb22bdcf565b9b9283177d569dfce",
+        "finite_summary_sha256": "e9c0436a1655c56b24a7fad7df3554244c2446d36373deba66f797a3e769ed06",
+        "driver_exit": 1,
+        "projector_status": "failed",
+        "actual_failure_stage": "runtime",
+        "owner_binding_entered": false,
+        "failure": "Execute this exact saved child plan remained disabled",
+        "capture": "retained original output, regular fixture files and metadata for special files"
+      }
+    ]
+  },
+  "verification": {
+    "focused-current": {
+      "command": "python -m unittest discover -s apps/desktop/tests -p test_factory_child_goal_schema19.py -v",
+      "exit": 0,
+      "checks_reported": 7,
+      "log_sha256": "2dc80a0c4c85e2437f1e549fccb109b5b19fc7d9d82f5f5b091579a4ae6f1ee7"
+    },
+    "focused-inverse": {
+      "command": "python -m unittest tests.infrastructure.test_child_goal_ci_evidence tests.infrastructure.test_child_goal_finite_diagnostics tests.infrastructure.test_graph_provider_argv_diagnostics tests.infrastructure.test_child_goal_capture_failure tests.infrastructure.test_child_goal_diagnostics_v4 tests.infrastructure.test_schema18_source_inverse -v",
+      "exit": 0,
+      "checks_reported": 84,
+      "log_sha256": "101f6ecb93253f9dd9931b78bf6450d8f86a28903eb1cade120493dd38cdae4b"
+    },
+    "wrapper-current": {
+      "command": "python apps/desktop/tests/factory-child-goal-real-ipc.py --self-check --output <private-directory>",
+      "exit": 0,
+      "checks_reported": 392,
+      "log_sha256": "f89028757007e4d44160091030b2f9116678a78c3c11e48e886095b220d63f7e"
+    },
+    "wrapper-current-wire": {
+      "command": "python apps/desktop/tests/factory-child-goal-real-ipc.py --wire-recording-self-check --output <private-directory>",
+      "exit": 0,
+      "checks_reported": 14,
+      "log_sha256": "6091df839439803e5f17f26a7452e79a2e2642714b9d2b63acb03db0fd83fd8f"
+    },
+    "planning-source": {
+      "command": "python -m unittest discover -s apps/desktop/tests -p test_factory_child_planning_schema19.py -v",
+      "exit": 0,
+      "checks_reported": 7,
+      "log_sha256": "3d18a3df435b727a8096dd6d9243161b729010ce5e214de4ed680efdd1711829"
+    },
+    "shared-meters": {
+      "command": "python apps/desktop/tests/test_factory_shared_goal_meters.py",
+      "exit": 0,
+      "checks_reported": 18,
+      "log_sha256": "92c1b999d3008558eecdcd11e8ba84a513c36dde8447642dca47865558f9b00f"
+    },
+    "infra": {
+      "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+      "exit": 0,
+      "checks_reported": 1003,
+      "log_sha256": "da37a7be684b59a90af7d24c71a5444f946ea11147e33db6a8452b34c68a1501",
+      "skipped": 16
+    },
+    "root-node": {
+      "command": "npm test",
+      "exit": 0,
+      "checks_reported": 4,
+      "log_sha256": "43cf6dc80d54fcc4791ba05b03d6dda47f6a144f21b8e304e0f77a9b427a9ec4"
+    },
+    "desktop": {
+      "command": "npm --prefix apps/desktop test",
+      "exit": 0,
+      "checks_reported": 1597,
+      "log_sha256": "8b82fa42d634ff1b50510988ec7134841265c48c24d30484069fe51b7725ae3c"
+    },
+    "verify_bootstrap_manifest": {
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit": 0,
+      "checks_reported": null,
+      "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    },
+    "validate_design": {
+      "command": "python scripts/validate_design.py",
+      "exit": 0,
+      "checks_reported": null,
+      "log_sha256": "2e872bde9c0c9fc09bc6ecc19369e119c0aece924367891feaf2902a74f000d9"
+    },
+    "validate_infrastructure": {
+      "command": "python scripts/validate_infrastructure.py",
+      "exit": 0,
+      "checks_reported": null,
+      "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+    },
+    "gate": {
+      "command": "python scripts/check_gate.py --scope preparation",
+      "exit": 0,
+      "checks_reported": null,
+      "log_sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+    },
+    "doctor": {
+      "command": "python scripts/doctor.py --strict",
+      "exit": 0,
+      "checks_reported": null,
+      "log_sha256": "c122b2dd323b2ac1c9078c4a4027151815cf689d09b5919f139926e041f46b84"
+    },
+    "rust-smoke": {
+      "command": "cargo test --offline --locked --manifest-path <exact private archive>/tools/environment-smoke/Cargo.toml",
+      "exit": 0,
+      "checks_reported": 2,
+      "log_sha256": "3f19a6ca8c13253298ae663c4b5469c1c907ffb6f7e2f0a447da406601d2cd27"
+    },
+    "smoke-clippy": {
+      "command": "cargo clippy --offline --locked --manifest-path <exact private archive>/tools/environment-smoke/Cargo.toml --all-targets -- -D warnings",
+      "exit": 0,
+      "checks_reported": null,
+      "log_sha256": "e4dc5fbde37ac274f055ae4750e0cb0edbcd37677e57b45f9da9225f312d5a12"
+    }
+  },
+  "audit_commands": {
+    "claim": "scripts/collab.sh scope",
+    "preview": "scripts/collab.sh preview refs/remotes/origin/collab/host-registration-integration HEAD",
+    "leader_preview": "scripts/collab.sh preview refs/heads/collab/leader-control HEAD"
+  },
+  "hosted_ci": "not_run",
+  "macos_native_browser_equivalence": "not_run",
+  "real_provider_calls": "not_run"
+}

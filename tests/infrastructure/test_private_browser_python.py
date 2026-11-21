@@ -58,7 +58,7 @@ def driver_args(root):
     for name in ('batond','baton','chromium'):
         path=root/name;path.write_bytes(b'synthetic-'+name.encode());path.chmod(0o500)
     frontend=root/'frontend';frontend.mkdir();(frontend/'index.html').write_text('synthetic')
-    candidate=root/'candidate.json';candidate.write_text(json.dumps({'schema':18,'git_head':HEAD,'dirty':False,
+    candidate=root/'candidate.json';candidate.write_text(json.dumps({'schema':19,'git_head':HEAD,'dirty':False,
         'binaries':{name:hashlib.sha256((root/name).read_bytes()).hexdigest()for name in ('batond','baton')}}))
     build=root/'build.json';build.write_text(json.dumps({'source':HEAD,'exit':0,
         'command':['npm','--prefix','apps/desktop','run','build'],'source_head_and_tracked_unchanged':True}))

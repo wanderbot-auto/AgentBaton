@@ -1,0 +1,49 @@
+{
+  "source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+  "recorded_at": "2026-11-17T19:50:16.854620+00:00",
+  "checks": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+        "--",
+        "crates",
+        "apps",
+        "scripts",
+        "tests",
+        ".github",
+        "Cargo.toml",
+        "Cargo.lock"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/collab.sh",
+        "scope"
+      ],
+      "exit_code": 0,
+      "stdout": "Scope OK against merge base a4e03303b54bd5a5544131e95ad39662f8310e29.\n",
+      "stderr": ""
+    }
+  ],
+  "six_source_hashes_and_originals": "passed",
+  "22archives_source_and_gzip_hashes": "passed",
+  "json_parse": "all evidence JSON parsed",
+  "verification": "static docs integrity only;no new build"
+}

@@ -72,6 +72,13 @@ def strip_screenshot_driver_layer(text):
 
 
 def strip_screenshot_projector_layer(text):
+    from tests.infrastructure.host19_browser_ci_projector_source_fixture import (
+        PROJECTOR_CURRENT_SHA256, PROJECTOR_PATH, restore_projector_before_schema19,
+    )
     from tests.infrastructure.schema18_source_fixture import strip_schema18_source
+
+    raw = text.encode()
+    if hashlib.sha256(raw).hexdigest() == PROJECTOR_CURRENT_SHA256:
+        text = restore_projector_before_schema19(PROJECTOR_PATH, raw).decode()
     text=strip_schema18_source('scripts/record-integration-browser-ci-evidence.py',text,legacy=(PROJECTOR_BEFORE_SHA256,),error=ValueError)
     return _strip(text, PROJECTOR_EDITS, PROJECTOR_BEFORE_SHA256, PROJECTOR_AFTER_SHA256, ValueError)

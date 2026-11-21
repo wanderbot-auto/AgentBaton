@@ -1,0 +1,556 @@
+{
+  "base_head": "6c207575c60e55a6e421df7f043daf9941593698",
+  "verified_source_head": "4e67136acc90a273fae03603cb6ad49d536e6a7f",
+  "verified_source_tree": "942a33640cbf205493afa3c542a4c42bd3560250",
+  "historical_driver_sha256": "5c07f3fadcad286dffba98021f5d83c16eb999261d5887c506e830f5b52ca6cb",
+  "build": {
+    "compiled_core_source_head": "4e67136acc90a273fae03603cb6ad49d536e6a7f",
+    "command": "CARGO_PROFILE_DEV_DEBUG=0 CARGO_BUILD_JOBS=2 cargo build --offline --locked --bin batond --bin baton --features agentbaton-core/preview-evidence",
+    "frontend_command": "npm --prefix apps/desktop run build",
+    "frontend_build_host": "macOS ARM64",
+    "frontend_copied_byte_for_byte_into_linux_fixture": true,
+    "rust": "1.91.1",
+    "linux_build_image_arm64": "rust@sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "linux_browser_image_arm64": "mcr.microsoft.com/playwright/python@sha256:ad879d1a9e49a94f6f8c99f6890f684b909498509c0494502320b70ddab655cf",
+    "linux_offline_cargo_packages_verified_against_lock": 87,
+    "linux_playwright_wheel_set_sha256": "64459894a6634ea3e7ac98d86291d8c63dc5d8a5083a997a3ea71ec6c3a19475",
+    "macos_baton_sha256": "57537182d356e52d8f815352436760877411e27fbdf035f881d61d451aeb3e0d"
+  },
+  "macos_actual_unix_ipc_and_sqlite": {
+    "receipt_sha256": "f3d777ef4a5133683c5de14a494dc29ec534550a75255ff2a9e94bb38459f311",
+    "source": "4e67136acc90a273fae03603cb6ad49d536e6a7f",
+    "git_tree": "942a33640cbf205493afa3c542a4c42bd3560250",
+    "arch": "arm64",
+    "macos": "26.6.1",
+    "manifest_sha256": "fd83aac2deff98e277f01107bd1d7d5e73d2bebdaab6aea5a6ad177fe18f106c",
+    "daemon_sha256": "9b3b8c5efc9a05772a465c7f8adc6fd04b449f77d1dac5aa301e413021003878",
+    "snapshot_and_database": {
+      "ipc_api_version": 1,
+      "ipc_database_schema_version": 19,
+      "sqlite_user_version": 19
+    },
+    "cli_refusals": {
+      "old": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "future": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "boolean": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "float": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "string": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "wrong-source": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "wrong-tree": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "mixed-source": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      },
+      "mixed-binary": {
+        "exit": 2,
+        "only_refusal": true,
+        "kind": "BoundaryRefusal"
+      }
+    },
+    "read_only_database_mismatch_refusals": [
+      18,
+      20
+    ],
+    "legacy_refusals_current_fixture": {
+      "manifest": true,
+      "db": true
+    },
+    "owned_daemon_wait_exit": 0,
+    "runtime_removed": true,
+    "native_browser_or_dialog": "not_run"
+  },
+  "local_linux_container": {
+    "receipt_sha256": "c2edc229602a8b66fbf547260c744b61b78ad244b74d3ecef220d0781c6ed9fe",
+    "scope": "Local isolated ARM64 Linux container with real procfs and private Core",
+    "source": "4e67136acc90a273fae03603cb6ad49d536e6a7f",
+    "git_tree": "942a33640cbf205493afa3c542a4c42bd3560250",
+    "uname": "6.12.69-linuxkit",
+    "architecture": "aarch64",
+    "python": "3.12.3",
+    "playwright": "1.61.0",
+    "chromium": "Chromium 149.0.7827.0",
+    "browser_sha256": "c1aa0fb5b6c60eb093df69d9e40dd50ab2039d3ccba8836ef21880340a77af64",
+    "manifest_sha256": "fb80018535f6edecfadab917d8741b0750ab38dfae2198661e3239e3c8ac206b",
+    "daemon_sha256": "283a2d6ed355dc8d5858718a071e36e24fe0606181b918dfa916ea152963526b",
+    "tool_sha256": {
+      "batond": "283a2d6ed355dc8d5858718a071e36e24fe0606181b918dfa916ea152963526b",
+      "baton": "2359701fb7f7956882bfa39c52d68ec4b2ccd062ebe4444ee50a99b2be623fa8"
+    },
+    "allowlisted_commands_sha256": {
+      "printf": "f431071e7304e8448a4565facfc27afefd2578a993da3f1942b3e457d70f8730",
+      "sleep": "a3202123ba517a3c4f08ca25429e3f48eb9dffae9b888a9d353c21451f807f6a"
+    },
+    "driver_sha256": "550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18",
+    "frontend_sha256": {
+      "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c",
+      "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+      "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169"
+    },
+    "network_loopback_only": true,
+    "namespace_interfaces": [
+      "lo",
+      "tunl0",
+      "gre0",
+      "gretap0",
+      "erspan0",
+      "ip_vti0",
+      "ip6_vti0",
+      "sit0",
+      "ip6tnl0",
+      "ip6gre0"
+    ],
+    "private_case_fixtures_removed": true,
+    "cases": {
+      "owner-only": {
+        "exit": 0,
+        "report_sha256": "e1be829fbc5f31be38f38f6125160854e925ae54ba876230288e34a5e1537ee2",
+        "checks": 7,
+        "status": "passed",
+        "images": {
+          "01-work-candidate-before-owner.png": {
+            "sha256": "37364baa1a2bd8196e92966fd951c1282dfe8c2a8617c2816f42192a357c6774",
+            "bytes": 106280,
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            }
+          },
+          "02-summary-candidate-before-final-owner.png": {
+            "sha256": "6260e3fc7a4648ac3cf81efd1f50b4a85dab29e18e973f40d0684b480c7dc2bf",
+            "bytes": 106764,
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            }
+          },
+          "03-task-accepted-four-node-owner-chain.png": {
+            "sha256": "41e3f3c7c1d36205c637b4371878d5b246f22eca05d2f43fb6805a3b215d7cd3",
+            "bytes": 107749,
+            "viewport": {
+              "width": 1488,
+              "height": 1200
+            }
+          }
+        },
+        "schema_evidence": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19
+        },
+        "check_labels": [
+          "exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup",
+          "actual private resource approvals and scope prepared; HTTP has no authority path",
+          "built UI stores exact plan revisions; Graph Owner/finalize/generic HTTP403; no process launched by planning",
+          "real private Owner decisions and declared checks gate dependent Summary and all-required TaskAccepted with canonical fresh projections",
+          "fresh SHA/FD candidates, owned-reaped TaskRequests, durable TaskAccepted event/digest and cumulative bootstrap plus run budgets; terminal task cannot reopen",
+          "actual built UI shows authoritative TaskAccepted complete scoped history; no browser errors or asset/source drift",
+          "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone"
+        ],
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_join": true,
+          "owned_workers_gone": 2
+        }
+      },
+      "integrity": {
+        "exit": 0,
+        "report_sha256": "bd1bb19f1b1bcaf477b7e6f8764f49c774aafd9dbee02bf8e717fce7ce13110c",
+        "checks": 7,
+        "status": "passed",
+        "images": {
+          "01-work-candidate-before-owner.png": {
+            "sha256": "fe55f73a4bdb8440fe5202dfcb7094d6aac0570feddc519d730fc867dc4bb913",
+            "bytes": 127279,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          },
+          "02-summary-candidate-before-final-owner.png": {
+            "sha256": "89957fef073057ef6d1362ef57ddd762068c595165770fc605f79c455766987f",
+            "bytes": 127227,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          },
+          "03-task-accepted-five-node-integrity.png": {
+            "sha256": "185ddfe6b2865a603ead469130a7c55f34036b7c9780d22224ad892f20c19ee1",
+            "bytes": 127345,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          }
+        },
+        "schema_evidence": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19
+        },
+        "check_labels": [
+          "exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup",
+          "actual private resource approvals and scope prepared; HTTP has no authority path",
+          "built UI stores exact plan revisions; Graph Owner/finalize/generic HTTP403; no process launched by planning",
+          "real private Owner decisions and declared checks gate dependent Summary and all-required TaskAccepted with canonical fresh projections",
+          "fresh SHA/FD candidates, owned-reaped TaskRequests, durable TaskAccepted event/digest and cumulative bootstrap plus run budgets; terminal task cannot reopen",
+          "actual built UI shows authoritative TaskAccepted complete scoped history; no browser errors or asset/source drift",
+          "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone"
+        ],
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_join": true,
+          "owned_workers_gone": 3
+        }
+      },
+      "data": {
+        "exit": 0,
+        "report_sha256": "bfa7086707ea1fbbebac46f2cfb50940a27489ca5d82b083dc5bb99b8e3d8255",
+        "checks": 7,
+        "status": "passed",
+        "images": {
+          "01-work-candidate-before-owner.png": {
+            "sha256": "7d7a8bae2e506158a30629f4cb0fdcaaa0e66427e7db2708264a92219ca250ac",
+            "bytes": 128734,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          },
+          "02-summary-candidate-before-final-owner.png": {
+            "sha256": "522b36f3c0d9ad15761c71e8e9c2a8876fb4c9f5368972e15840f42cab4710e4",
+            "bytes": 128705,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          },
+          "03-task-accepted-five-node-data.png": {
+            "sha256": "878ba94980e0e95d6256fa0cce89fd07df8601f8ce69609901fc5d09e29659bd",
+            "bytes": 127161,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          }
+        },
+        "schema_evidence": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19
+        },
+        "check_labels": [
+          "exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup",
+          "actual private resource approvals and scope prepared; HTTP has no authority path",
+          "built UI stores exact plan revisions; Graph Owner/finalize/generic HTTP403; no process launched by planning",
+          "real private Owner decisions and declared checks gate dependent Summary and all-required TaskAccepted with canonical fresh projections",
+          "fresh SHA/FD candidates, owned-reaped TaskRequests, durable TaskAccepted event/digest and cumulative bootstrap plus run budgets; terminal task cannot reopen",
+          "actual built UI shows authoritative TaskAccepted complete scoped history; no browser errors or asset/source drift",
+          "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone"
+        ],
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_join": true,
+          "owned_workers_gone": 3
+        }
+      },
+      "command": {
+        "exit": 0,
+        "report_sha256": "4b7cc27f8fff7344b8c7c59875d2c3a22769dec9fb89a5d8077117e5afb730f3",
+        "checks": 7,
+        "status": "passed",
+        "images": {
+          "01-work-candidate-before-owner.png": {
+            "sha256": "a17ac43f3321df631e179a32e9c9ec0b0c0e2a1ae7dab23bfffe4658e83f2bab",
+            "bytes": 127117,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          },
+          "02-summary-candidate-before-final-owner.png": {
+            "sha256": "85960d00a513472311303cb160abd1154062e94e8e989f227546599c3b88f703",
+            "bytes": 127067,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          },
+          "03-task-accepted-five-node-command.png": {
+            "sha256": "5b9e15cea23db25e97ecf09bda1e2fa981568e4df5ad6a5055cf7de0886d53b6",
+            "bytes": 127354,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          }
+        },
+        "schema_evidence": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19
+        },
+        "check_labels": [
+          "exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup",
+          "actual private resource approvals and scope prepared; HTTP has no authority path",
+          "built UI stores exact plan revisions; Graph Owner/finalize/generic HTTP403; no process launched by planning",
+          "real private Owner decisions and declared checks gate dependent Summary and all-required TaskAccepted with canonical fresh projections",
+          "fresh SHA/FD candidates, owned-reaped TaskRequests, durable TaskAccepted event/digest and cumulative bootstrap plus run budgets; terminal task cannot reopen",
+          "actual built UI shows authoritative TaskAccepted complete scoped history; no browser errors or asset/source drift",
+          "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone"
+        ],
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_join": true,
+          "owned_workers_gone": 3
+        }
+      },
+      "data-range": {
+        "exit": 0,
+        "report_sha256": "39708daf982621195d7a581747b8bf851042bdc0c5999328d347e7932636ac44",
+        "checks": 6,
+        "status": "passed",
+        "images": {
+          "01-five-node-data-range-blocked-before-owner.png": {
+            "sha256": "4a8b26f8984f26c808a70b783cad13631fb3af449e30870efcde7aa07b6a0288",
+            "bytes": 121664,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          }
+        },
+        "schema_evidence": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19
+        },
+        "check_labels": [
+          "exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup",
+          "actual private resource approvals and scope prepared; HTTP has no authority path",
+          "built UI stores exact plan revisions; Graph Owner/finalize/generic HTTP403; no process launched by planning",
+          "real data-range validation failure joins actual worker and blocks Owner/Summary/TaskAccepted without refund/reset",
+          "actual built UI shows failed Validate and pending acceptance; original sources/assets unchanged",
+          "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone"
+        ],
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_join": true,
+          "owned_workers_gone": 2
+        }
+      },
+      "command-timeout": {
+        "exit": 0,
+        "report_sha256": "96d5cdb5be61e69bb0bd33cce22708d653d374aa7fa33c4cf8374ba7a880c2f0",
+        "checks": 6,
+        "status": "passed",
+        "images": {
+          "01-five-node-command-timeout-blocked-before-owner.png": {
+            "sha256": "93f5fc3b11c768eaaced578f50c43c582d3414dde3fdb4dd85af5ccf8ecaa231",
+            "bytes": 121215,
+            "viewport": {
+              "width": 1488,
+              "height": 1400
+            }
+          }
+        },
+        "schema_evidence": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19
+        },
+        "check_labels": [
+          "exact schema 19 candidate, private IPC snapshot and read-only SQLite agree before fixture setup",
+          "actual private resource approvals and scope prepared; HTTP has no authority path",
+          "built UI stores exact plan revisions; Graph Owner/finalize/generic HTTP403; no process launched by planning",
+          "real command-timeout validation failure joins actual worker and blocks Owner/Summary/TaskAccepted without refund/reset",
+          "actual built UI shows failed Validate and pending acceptance; original sources/assets unchanged",
+          "HTTP handlers and serve thread joined without unexpected errors; daemon exit0 and all exact generated worker identities gone"
+        ],
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_join": true,
+          "owned_workers_gone": 2,
+          "original_command_identity_gone_without_cleanup_signal": true
+        }
+      }
+    },
+    "injected_close_controls": {
+      "browser-close": {
+        "exit": 1,
+        "report_sha256": "0d8905dd491e7ccded4d50e9b853d8932e80254505ee86f10d02ee4526545882",
+        "business_reached": true,
+        "cleanup_wait0_and_http_join": true,
+        "owned_daemon": {
+          "wait_exit": 0,
+          "forced_sigkill": false,
+          "proc_identity_gone": true
+        },
+        "owned_acp_workers": {
+          "identities_observed_gone": 2,
+          "matched_real_task_requests": true,
+          "cleanup_signal_sent": false
+        },
+        "http_thread_and_handlers_joined": true
+      },
+      "playwright-exit": {
+        "exit": 1,
+        "report_sha256": "a853091348c2ea1ed700155d49efa63df494b586019a3cdf466afb88c169ef3e",
+        "business_reached": true,
+        "cleanup_wait0_and_http_join": true,
+        "owned_daemon": {
+          "wait_exit": 0,
+          "forced_sigkill": false,
+          "proc_identity_gone": true
+        },
+        "owned_acp_workers": {
+          "identities_observed_gone": 2,
+          "matched_real_task_requests": true,
+          "cleanup_signal_sent": false
+        },
+        "http_thread_and_handlers_joined": true
+      }
+    },
+    "hosted_linux_ci": "not_run",
+    "native_macos": "not_run",
+    "task_owned_docker_containers_removed": true
+  },
+  "verification": {
+    "baseline_focused_legacy_tests_passed": 59,
+    "current_focused_tests_passed": 10,
+    "historical_and_metadata_focused_tests_passed": 64,
+    "historical_original_static_checks_passed": 33,
+    "current_static_only_checks_passed": {
+      "http_boundary": 58,
+      "constructor_and_preflight": 36,
+      "transport": 9,
+      "validator_plans": {
+        "count": 35,
+        "report_sha256": "b2540ad9757034d9d3ab702a2bab1101a2d54cfcd4365ecd746a127a826c5a34",
+        "exit": 0
+      },
+      "generated_provider": {
+        "count": 5,
+        "report_sha256": "aa9533110a292fb864788475415a8f4ca58f926f8fa402fe33cda3d261c866f9",
+        "exit": 0
+      }
+    },
+    "legacy_factory_family_pure_cli": {
+      "factory": "passed",
+      "child_planning": "passed",
+      "child_goal": "passed"
+    },
+    "python_infrastructure": {
+      "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+      "passed": 985,
+      "skipped": 16,
+      "exit": 0
+    },
+    "root_node": {
+      "command": "npm test",
+      "passed": 4,
+      "exit": 0
+    },
+    "desktop": {
+      "command": "npm --prefix apps/desktop test",
+      "files": 114,
+      "passed": 1597,
+      "exit": 0
+    },
+    "preflight": [
+      "verify_bootstrap_manifest",
+      "validate_design",
+      "validate_infrastructure",
+      "check_gate --scope preparation",
+      "doctor --strict"
+    ],
+    "isolated_exact_archive_smoke": {
+      "cargo_test_passed": 2,
+      "strict_all_targets_clippy_exit": 0
+    },
+    "log_sha256": {
+      "initial-legacy": "9d8c67b4f9a7b8ea1d254322c40b217f6f3d4d4f3059828506f1a5abc4f089cb",
+      "historical-initial-count": "79b6ae6b0e21aaefddcdf999ffcc8709e0d534a9075fa4d1f7081105f53284f2",
+      "current-final": "b5f235fdcc6c72b2fb91c3791ffc9823943547b5875333e690385fe76be5da05",
+      "legacy-final": "f5b17ce906c25e133d29680a9d408e77dd8bf3cb2400f1cf719d56f69a37bf71",
+      "graph-self-check": "84d371dd6d9b5f26945a3f3f6453087674448cc8e70b8424bfb6f6e77957ad3c",
+      "graph-driver-self-check": "56e8c39df439e8f6fe7f8db62b82caa24031d89f4a8cb0f63c2c7916edca08c5",
+      "graph-transport-self-check": "74ce07fbd95b8dee809423a5231ec6e6e8e36847dfe0acf17094a1002177b6f7",
+      "graph-validation-self-check": "38e7a1f8b3fa6aa534f7b7cbceeb0ed3a5f5c94a73f48c6593cbeec2f778b4e2",
+      "graph-provider-self-check": "46296e2f1f2c3b7fe4ec5117247ac0bcbd5aa8918ecbb01fb1ba5c5c8cb507bc",
+      "factory-static": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+      "factory-child-planning-static": "71bc7d90499a696e9c3b3bc690158b5fde7043906630d39ce93ae4df76ff6bca",
+      "factory-child-goal-static": "67f2112282c5a4b9ca5665614495c66c1ffc36758bf147517498ef8aa449c496",
+      "infra": "f8639628e6da40ac9dcf5b58c9896ecd3c538dbcc0e2ec29ac7963b2e50bcbd5",
+      "root-node": "b06c92211c3da79cb5254785eebb0af8776ec2706c292e1ec04231823726e329",
+      "desktop": "b8c009aa8bab88e2673ef3fe0813d8eab0d188a3e2c46003d200fb32a2ef10a2",
+      "verify_bootstrap_manifest": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "validate_design": "67cc252d504177e613e3bda481b7a9dd93936d8d4f36031b10dec72ecc9594e5",
+      "validate_infrastructure": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "gate": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146",
+      "doctor": "07794a5f0012266eaa71e1ae3aa2d58ac2f47ee6e1bda96dacd9288bec466292",
+      "rust-smoke": "fdee7eb36d8d28473fb600871d1b9e2ec772872e3779bfe6642c41a64ff94f2d",
+      "smoke-clippy": "cb61170570ac84997f94fc9a8d69e588dfbbfc9c60321079ef8559b818fccdf4",
+      "linux-build": "ee6b47b4fc7bf5dc2cbc31499a2a6ef2ce3ba323b273d77d10c56a0b899e4177",
+      "linux-final-build": "ca0c8c054d42ca5df82e3ae0ac1a738cc953f9a8307abe4593dee9408621e00b",
+      "macos-final-build": "66069a823d2d0f2bf6296dffaedef2bd7156803f3c3aad32bc46a9d2711a0368",
+      "frontend-final": "c82df11a2911bb3dd2190eaec0b3eb4314c73788574acc5f1f83ccabb65dbc05",
+      "final-runtime": "4353037eaeccac1c3b53a2b60ebae682f6785eb4b8e3e3c7f66954f05afc1361",
+      "linux-final-retry": "000903c6d287fbd7e7ad732ce52309e756ba2f74f340ce5da41e089c88837a4f",
+      "frozen-cargo-cache": "b314b21cb6c9919703903374fad97e873e451db3f005e102d7b4ea8dba54eaa7"
+    }
+  },
+  "initial_failures_retained": [
+    "Current schema 19 was refused by the base driver schema 18 guards, as shown by leader baseline.",
+    "Online crates index stalled. The task-owned fetch container was stopped and its log retained. The later build verified offline Cargo.lock archives.",
+    "The first historical static count expected 30. The exact historical source reported 33 and the focused control was corrected.",
+    "Initial build packaging needed the task-private macOS parent directory. Exact built binaries were then copied and pinned.",
+    "Two Linux wrapper interface-enumeration prechecks ended before any Graph cases. Final replay verified Docker network mode none, loopback-only assigned addresses and routes in the active namespace.",
+    "The macOS static command matrix needs Linux /usr/bin/sleep, and the generated provider static fixture tripped the macOS temporary-path alias. The same cases passed on pinned Linux."
+  ],
+  "private_retention": {
+    "runtime_root": "/private/tmp/ab-collab-pcge04ra",
+    "macos": "macos-final",
+    "linux": "graph-linux.5nSpCv",
+    "linux_static": "graph-linux-static.2x6hXs",
+    "logs": "graph-checks"
+  },
+  "hosted_linux_ci": "not_run",
+  "macos_native_owner_ui": "not_run",
+  "old_factory_browser_execution": "not_run"
+}

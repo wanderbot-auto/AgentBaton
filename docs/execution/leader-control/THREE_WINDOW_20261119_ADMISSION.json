@@ -1,0 +1,154 @@
+{
+  "remote_head": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+  "main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "deliveries": {
+    "conversation_schema19_regression": {
+      "tested_source": "9d1d1d99b17982b0acc4b275179e5edff5820821",
+      "stopped_head": "5de1d19b77246ca60062ed1eb37080656e044a3e",
+      "feature_merge": "6d45b417210f892ec7d5f17dd992c05fc903773c",
+      "feature_merge_tree": "9ee32edc01e191adb1e15e256499241b2c41c1a3",
+      "evidence": "docs/execution/conversation-schema19-regression/EVIDENCE.md",
+      "evidence_sha256": "cd620938704ea0eb2686b87852a97ecdad53eef91f357c4d70fb95dedea24de7",
+      "infrastructure": {
+        "total": 963,
+        "passed": 947,
+        "skipped": 16,
+        "failed": 0,
+        "local_log": "/tmp/ab-a-regression-admission.TclXeqdV/infrastructure.log",
+        "sha256": "02a45f90c41e568fdf1b73b507deb274bbbe414838f0ef2c29bf02def2a82d7a"
+      },
+      "review": "Reviewed three Rust test-only source changes, 42 pinned archives and five genuine migrated/backup artifacts, with real user_version and historical tests preserved."
+    },
+    "remote_cache_retention": {
+      "tested_source": "b84c56765883a9c1f3fdf119562793a97a56cb43",
+      "stopped_head": "9b77bae78926499452084376b1fe45bbdf857230",
+      "feature_merge": "cbac72707f7c075b202a63a658b46f4f0a2df9c8",
+      "feature_merge_tree": "29fd2456bfc895b4bd2678efc78738c9489d0b39",
+      "evidence": "docs/execution/remote-cache-retention/EVIDENCE.json",
+      "evidence_sha256": "d50617bccb225b9c9d2f6b60c0012ec7fb43d8113863b89b2b029543dbf294c3",
+      "infrastructure": {
+        "total": 963,
+        "passed": 947,
+        "skipped": 16,
+        "failed": 0,
+        "local_log": "/tmp/ab-b-cache-admission.wvErKtof/infrastructure.log",
+        "sha256": "990ce1a7182fa0f48635c0b788703b4088b60363cfe1e413cb994c5c1d151160"
+      },
+      "review": "Reviewed policy and durable-history boundary; 9 targeted and 56 crate tests, fmt/check/strict Clippy; independently matched 12 logs, the final remote-host subtree, 3 source digests and both locks."
+    },
+    "compatibility_matrix": {
+      "tested_source": "3221f26f03f805b2200f4c832f1ce2b27bb34234",
+      "stopped_head": "7c3aabbe3b909568e341bd7cc32089b9565aa678",
+      "feature_merge": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+      "feature_merge_tree": "a7e2a6668418a1fb8a9cc27a745a7063ece9b5cf",
+      "evidence": "docs/execution/compatibility-matrix/EVIDENCE.json",
+      "evidence_sha256": "988354472214ae7c9a18c4ca83fdf9f2310b464c8b879064966318eef1721cc6",
+      "infrastructure": {
+        "total": 978,
+        "passed": 962,
+        "skipped": 16,
+        "failed": 0,
+        "local_log": "/tmp/ab-c-matrix-admission.ArjjrQAg/infrastructure.log",
+        "sha256": "f295a78c34ca4ccd17bd3aa69d8dfcfcd6f25badd3099fb5393d305452cb7b46"
+      },
+      "review": "Independently reran all 15 focused tests, reproduced JSON/Markdown byte for byte, checked 7 pinned primary records and schema19 snapshot corroboration, and confirmed 13 observations."
+    }
+  },
+  "development_windows": {
+    "A": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "host19-native-integration-owner",
+      "branch": "collab/host19-native-integration-owner",
+      "base": "6d45b417210f892ec7d5f17dd992c05fc903773c",
+      "claim": [
+        "scripts/integration-owner-fixture.py",
+        "scripts/native-owner-dialog-smoke.py",
+        "apps/desktop/src-tauri/src/native_owner_dialog_test/integration_database.rs",
+        "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+        "scripts/record-integration-owner-ci-evidence.py",
+        "tests/infrastructure/test_native_integration_owner_evidence.py",
+        "tests/infrastructure/test_background_service_native_smoke_source.py",
+        "tests/infrastructure/host19_native_integration_owner_source_fixture.py",
+        "tests/infrastructure/test_host19_native_integration_owner_source_fixture.py",
+        "docs/execution/host19-native-integration-owner"
+      ],
+      "claim_sha256": "35805d688d0c30a7d40ddabcdf48c209b37063759ec3961b23df7a359ec74ac4",
+      "thread": "01a1e9df-6dc0-7223-bf07-df0d2bcf6042",
+      "turn": "01a1efd0-1ecc-70c2-ae0e-5d73edfe40ee",
+      "started_utc": "2026-11-18T17:59:16.458Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "title": "窗口 A · Integration 原生 Owner 验收",
+      "contract": "HOST19_NATIVE_INTEGRATION_OWNER_TASK.md",
+      "requirements_started": [],
+      "lead_claim_transfer": {
+        "before": "2c1b34a3d275472d535eea4521f7c24ba3ba09fc6f129f02cfa1a4a3c0c7af41",
+        "after": "31724a524b3f48259d9dcee7ef31939c1bd94e9702b1b9dfa607663ff0aeccb0"
+      }
+    },
+    "B": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "plugin-trust-import",
+      "branch": "collab/plugin-trust-import",
+      "base": "cbac72707f7c075b202a63a658b46f4f0a2df9c8",
+      "claim": [
+        "crates/config/src/capabilities.rs",
+        "crates/config/src/capabilities/plugin_trust.rs",
+        "crates/config/tests/plugin_trust.rs",
+        "docs/execution/plugin-trust-import"
+      ],
+      "claim_sha256": "beb4b25bcaa4ad843b4677b17ec8343c4e06abbcbf484f0cd00a7b1036b72bec",
+      "thread": "01a1eecb-645b-7de1-9d87-eb1afdee751c",
+      "turn": "01a1efd2-1279-7af2-91a9-eb0e9c1e25b4",
+      "started_utc": "2026-11-18T18:01:24.376Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "title": "窗口 B · 插件导入信任等级",
+      "contract": "PLUGIN_TRUST_IMPORT_TASK.md",
+      "requirements_started": [
+        "AB-EXT-003"
+      ]
+    },
+    "C": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "host19-browser-ci-projector",
+      "branch": "collab/host19-browser-ci-projector",
+      "base": "6feaa39ae60ed4094ff9220fc5edb79c895eb627",
+      "claim": [
+        "apps/desktop/tests/integration-real-ipc.py",
+        "scripts/record-integration-browser-ci-evidence.py",
+        "tests/infrastructure/host19_integration_browser_source_fixture.py",
+        "tests/infrastructure/test_host19_integration_browser_schema.py",
+        "tests/infrastructure/test_host19_integration_browser_candidate.py",
+        "tests/infrastructure/test_schema18_source_inverse.py",
+        "tests/infrastructure/integration_screenshot_failure_fixture.py",
+        "tests/infrastructure/test_integration_browser_ci_evidence.py",
+        "tests/infrastructure/test_integration_browser_ci_evidence_runtime.py",
+        "tests/infrastructure/host19_browser_ci_projector_source_fixture.py",
+        "tests/infrastructure/test_host19_browser_ci_projector_source_fixture.py",
+        "docs/execution/host19-browser-ci-projector"
+      ],
+      "claim_sha256": "d9e058450a4053d57e8b26cf4690322cf074da1e6958a4a6bfe307777bc211ba",
+      "thread": "01a1efa9-c805-7e22-a70c-bdcac85f1ea2",
+      "turn": "01a1efd5-26c7-75c1-b305-ab70d6d6b304",
+      "started_utc": "2026-11-18T18:04:46.178Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "title": "窗口 C · Integration 浏览器 CI 证据",
+      "contract": "HOST19_BROWSER_CI_PROJECTOR_TASK.md",
+      "requirements_started": [],
+      "lead_claim_transfer": {
+        "before": "a8b013ed7d4b9e7e6d9777e0fc03c2bd14408617c7657a827c900cd85014a2e7",
+        "after": "bc5a67881ac6842aeb068e8b2e87e6534948c32b621cae7ef29282d193b12a43"
+      }
+    }
+  },
+  "coverage": {
+    "partially_implemented": 109,
+    "without_implementation_evidence": 21,
+    "whole_requirement_accepted": 0,
+    "original_29_started_including_active_assignments": 9,
+    "original_29_awaiting_dispatch": 20
+  },
+  "scope_check": "Task scope passed at handoff. The combined historical scope reports only the pre-existing files temporarily transferred to later tasks; each merge delta was independently checked against the returned reservation. Comparisons before and after each merge showed no unclaimed change."
+}

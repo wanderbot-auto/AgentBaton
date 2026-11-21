@@ -1,0 +1,74 @@
+{
+  "clippy-delivery.log": {
+    "sha256": "71924612ef88070fb824b92435f79f60ce475fb6d641f27f777902ec07d8c3d3",
+    "bytes": 202
+  },
+  "clippy-final.log": {
+    "sha256": "0e0bf947b5558aed654d8cae094a34ed1e79d8847080c5bd8194c68ec055d45b",
+    "bytes": 202
+  },
+  "factory-final.log": {
+    "sha256": "dba08518806793a5000733e23bc6a8e43a1a244faeb8c1064ebfd87954ce6bbc",
+    "bytes": 9650
+  },
+  "fmt-delivery.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "fmt-final.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "integration-auth-final.log": {
+    "sha256": "00949d25727739635778244e186d6c6f2eaef6b135225ecd627f7a82f6b4243e",
+    "bytes": 359
+  },
+  "integration-lease-final.log": {
+    "sha256": "576db90f5bd1372f27d62c13b14c9883e0b8cc70e4d880d24cae527e0d93328c",
+    "bytes": 381
+  },
+  "integration-targets-final.log": {
+    "sha256": "e4e9af25702c7e25a1f080cc689a0cebdbf2cbd30893793191a1ca09d2689b51",
+    "bytes": 498
+  },
+  "legacy-integration-assertion.log": {
+    "sha256": "7de3b3e67a8e59f11670108884f9828af9fe06a31e15a525ed7ad238f01a38fe",
+    "bytes": 3102
+  },
+  "lib-background.log": {
+    "sha256": "255e60e0c3fba3a233f315046018460a7cef112c17cd4558c78b00d1b6bd6d5a",
+    "bytes": 709
+  },
+  "lib-factory-reads.log": {
+    "sha256": "f74a5b3eeb0e82df5cb8947f690abe8f55e2c0b0ccf472faec8b6d521f255b89",
+    "bytes": 11042
+  },
+  "lib-host.log": {
+    "sha256": "1441d5976cdd8140a6eeaa961904674cf00a16d32f9e6b9d80adc075e58df667",
+    "bytes": 6419
+  },
+  "lib-integration-reads.log": {
+    "sha256": "c6e0396f213fbdc5a152bc091724d3ef99c7d68cc82e283841f6282c5b586547",
+    "bytes": 263
+  },
+  "scoped-fmt.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "source-pin-dependencies.log": {
+    "sha256": "1bdbf1f242626e22ebe86c96b51310e6904e7423da6e8d84b33e1db6beaae263",
+    "bytes": 20144
+  },
+  "strict-clippy.log": {
+    "sha256": "5a7b63c49f197c6e26156695d25c163ed8d3d486c059d03c9686a5095e702976",
+    "bytes": 2329
+  },
+  "wire-green.log": {
+    "sha256": "5a194ce6ec05d251a21ae572dbecf3ee168dda10c3f6d5feb4a9e703d72f9d60",
+    "bytes": 1731
+  },
+  "wire-red.log": {
+    "sha256": "9140e2c3306cc1ef0be507fae0731ff51ca943044bbe56b4c6b9540fa90e3631",
+    "bytes": 4830
+  }
+}

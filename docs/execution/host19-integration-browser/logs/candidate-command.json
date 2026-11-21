@@ -1,0 +1,11 @@
+{
+  "head": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+  "argv": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "artifacts/host19-integration-browser/probe-schema.py",
+    "candidate"
+  ],
+  "exit": 0,
+  "seconds": 0.193,
+  "log_sha256": "47f53bc19ec3ba82019858207437953f6b4a007fafe70b48cc34bcb158b7e22f"
+}

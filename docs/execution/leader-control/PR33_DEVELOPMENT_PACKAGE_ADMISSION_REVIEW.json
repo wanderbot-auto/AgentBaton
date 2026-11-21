@@ -1,0 +1,34 @@
+{
+  "requirement": "AB-REL-003",
+  "script_source": "37adc84966e6748fdd942651f3971e9bc6d850fc",
+  "worker_delivery_replayed": "10927ba84c77d9d23ff02ea1c13bf53a0cd57881",
+  "worker_delivery_tree": "3c3a8bce6bb0995c357c72457f3914e29726dc07",
+  "compiled_fixture_source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+  "independent_native_replay": {
+    "machine": "Darwin arm64",
+    "case_results": {
+      "positive": 0,
+      "mixed_daemon": 1,
+      "missing_baton": 1
+    },
+    "owned_images_detached": 3,
+    "negative_upload_candidates": 0,
+    "consumer": "macos_arm64_read_only_dmg_detached",
+    "log_sha256": "fc7277dfee108884dc281dd0a99eb5c8dc56479cf56f773e22b2788553229bad",
+    "development_dmg_sha256": "4e2dc773743723a76baf254f838d3d30a358467ec17fc66dc1afc1b86bbb0fa1",
+    "development_archive_sha256": "07b17179b331034688eebfde15414c1e89e70c5fe76a9c17b8a631f254a36744"
+  },
+  "local_integration": {
+    "base": "ae844ca33406aabd62f44ea73818f9127f211748",
+    "head": "674f0a090e8bb4d415c5b44336c4ff53d6f50dd3",
+    "tree": "60f708ca71ed136fa9f7101854ffe3fa66fb3d0c",
+    "infrastructure": {
+      "total": 1086,
+      "passed": 1070,
+      "skipped": 16,
+      "failed": 0,
+      "log_sha256": "479f86ac596a363e4e259f014b9980b87db031d27dd64b73e38d05c71b254208"
+    }
+  },
+  "scope": "Existing compiled originals were reused for independent local packaging validation. An exact hosted build of the next composition, product-wide native acceptance, signing, and release have not been established."
+}

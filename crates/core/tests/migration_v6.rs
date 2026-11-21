@@ -1,7 +1,13 @@
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::Store;
-use rusqlite::Connection;
+use rusqlite::{Connection, OpenFlags};
+use schema19_legacy_migration::{
+    assert_empty_host19, database_bytes, fixture_logical_snapshot, host19_backup,
+    legacy_predecessor, remove_empty_host19,
+};
 use std::{fs, os::unix::fs::PermissionsExt};
 
 #[test]
@@ -14,6 +20,7 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
         .unwrap();
     drop(store);
     let connection = Connection::open(&database).unwrap();
+    remove_empty_host19(&connection).unwrap();
     pre_factory_schema::remove_empty_current_factory_increment(&connection).unwrap();
     connection
         .execute_batch(
@@ -35,6 +42,7 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
         )
         .unwrap();
     drop(connection);
+    let predecessor = legacy_predecessor(&database, 5);
     let upgraded = Store::open(&database).unwrap();
     assert_eq!(upgraded.get(&task.id).unwrap().spec_revision, 1);
     assert_eq!(upgraded.get(&task.id).unwrap().revision, task.revision);
@@ -48,8 +56,10 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
         connection
             .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
             .unwrap(),
-        18
+        19
     );
+    assert_empty_host19(&connection);
+    let host_backup = host19_backup(&database, &predecessor);
     assert_eq!(
         connection
             .query_row(
@@ -112,7 +122,10 @@ fn v5_validation_upgrade_preserves_task_bytes_and_private_reopenable_backup() {
             .unwrap(),
         0
     );
+    drop(backup);
+    drop(connection);
     drop(Store::open(&database).unwrap());
+    assert!(host19_backup(&database, &predecessor) == host_backup);
     assert_eq!(
         fs::read_dir(directory.path())
             .unwrap()
@@ -135,11 +148,23 @@ fn failed_validation_upgrade_preserves_old_schema_and_unknown_records() {
     let database = directory.path().join("state.sqlite3");
     drop(Store::open(&database).unwrap());
     let connection = Connection::open(&database).unwrap();
+    remove_empty_host19(&connection).unwrap();
     pre_factory_schema::remove_empty_current_factory_increment(&connection).unwrap();
     connection.execute_batch("DROP TRIGGER graph_fence_lease_insert;DROP TRIGGER graph_fence_lease_update;DROP TABLE goal_graph_acceptances;DROP TABLE goal_graph_owner_decisions;DROP TABLE goal_graph_validations;DROP TABLE goal_graph_candidates;DROP TABLE goal_graph_jobs;DROP TABLE goal_graph_capabilities;DROP TABLE goal_run_reservations;DROP TABLE goal_run_nodes;DROP TABLE goal_runs;DROP TABLE data_workspace_receipts;DROP TABLE data_workspace_creations;DROP TABLE data_workspace_previews;DROP TABLE goal_node_evidence;DROP TABLE goal_external_action_journal;DROP TABLE goal_plan_proposals;DROP TABLE goal_plan_revisions;DROP TABLE goal_plan_heads;DROP TABLE goal_scopes;DROP TABLE goal_grant_revisions;DROP TABLE goal_ledgers;DROP TRIGGER command_fence_attempt;DROP TRIGGER command_fence_lease_insert;DROP TRIGGER command_fence_lease_update;DROP TABLE command_workspace_fences;DROP TABLE command_validation_runs;DROP TABLE command_validation_policies;DROP TABLE data_validation_runs;DROP TABLE data_validation_policies;DROP TABLE validation_runs; DROP TABLE validation_policies; CREATE TABLE validation_policies(sentinel TEXT); INSERT INTO validation_policies VALUES('do not delete this record'); PRAGMA user_version=5;").unwrap();
     drop(connection);
-    assert!(Store::open(&database).is_err());
-    let connection = Connection::open(&database).unwrap();
+    // Measure the closed fixture before the read-only snapshot opens WAL sidecars.
+    let before = database_bytes(&database);
+    let predecessor = legacy_predecessor(&database, 5);
+    let error = Store::open(&database)
+        .err()
+        .expect("v5 migration must refuse the conflicting validation policy table");
+    assert_eq!(error.code, "INTERNAL_ERROR");
+    assert_eq!(error.side_effect_state, "unknown");
+    assert!(database_bytes(&database) == before);
+    let connection =
+        Connection::open_with_flags(&database, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    assert!(fixture_logical_snapshot(&connection) == predecessor);
+    host19_backup(&database, &predecessor);
     assert_eq!(
         connection
             .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
@@ -165,4 +190,18 @@ fn failed_validation_upgrade_preserves_old_schema_and_unknown_records() {
             .unwrap(),
         0
     );
+
+    // Change only the conflicting table in a separate SQLite backup.
+    let control_dir = tempfile::tempdir().unwrap();
+    let control = control_dir.path().join("state.sqlite3");
+    connection
+        .backup(rusqlite::MAIN_DB, &control, None)
+        .unwrap();
+    let copy = Connection::open(&control).unwrap();
+    copy.execute_batch("DROP TABLE validation_policies")
+        .unwrap();
+    drop(copy);
+    drop(Store::open(&control).unwrap());
+    let copy = Connection::open_with_flags(&control, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
+    assert_empty_host19(&copy);
 }

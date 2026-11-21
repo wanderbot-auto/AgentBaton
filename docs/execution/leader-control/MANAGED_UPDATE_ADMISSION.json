@@ -1,0 +1,60 @@
+{
+  "main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "feature": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
+  "feature_tree": "27aa79479edac0ca66183ef9e101a8f88c023ff8",
+  "prior_feature": "6c207575c60e55a6e421df7f043daf9941593698",
+  "worker_base": "fb8bab79b091c203be4ec09c110a5a1cfc75de8e",
+  "tested_source": "f2585a98c75ab8ab59c2b300b0a91d7be96b9bc2",
+  "delivery": "a8d09e2422c684e13fc4e7cec21bff01b163c859",
+  "requirement": "AB-PRO-011",
+  "evidence": "docs/execution/managed-provider-update/EVIDENCE.json",
+  "evidence_sha256": "13765a6fdb5c9a4e641589fc732bf7740bdb261085738e177ecc3d7f0f3b7d61",
+  "acceptance": {
+    "independent_focused_rerun": {
+      "platform": "macOS ARM64",
+      "command": "bash scripts/collab.sh run -- cargo test -p agentbaton-providers --locked --offline --test managed_update",
+      "passed": 12,
+      "failed": 0
+    },
+    "combined_infrastructure": {
+      "total": 996,
+      "passed": 980,
+      "skipped": 16,
+      "failed": 0,
+      "log": "/tmp/ab-managed-update-infra.6LK3hsL6",
+      "sha256": "b7af82c81d8d5a1676672b4aa8a5555f347e6799cb66d9dde56141caf9665497"
+    },
+    "bootstrap_manifest_files": 93,
+    "preserved_baseline_and_full_default_run": "Existing installation Python fixtures failed in default baseline and candidate runs; no modified test or probe timeout. Worker full serialized package replay with Python 3.12 passed 96.",
+    "scope": "Local synthesized executables and trusted compatibility inputs; read-only admission and a proposed binding. Registration, launch, real Provider compatibility and Linux remain pending."
+  },
+  "next_worker": {
+    "status": "dispatched_verified_6_2_sol_high",
+    "worktree": "session-recovery-admission",
+    "branch": "collab/session-recovery-admission",
+    "base": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
+    "thread": "01a1eecb-645b-7de1-9d87-eb1afdee751c",
+    "turn": "01a1f00e-a1dd-7d41-9cf3-f5c97b175476",
+    "started_utc": "2026-11-18T19:07:33.246Z",
+    "model": "gpt-6.2-sol",
+    "reasoning": "high",
+    "claim": [
+      "crates/core/src/sessions.rs",
+      "crates/core/tests/session_recovery_admission.rs",
+      "docs/execution/session-recovery-admission"
+    ],
+    "claim_sha256": "d5d8a45c93e0f58b6e81719baf100d9dee6349c170cee0d6797fe9cc5fd680f7",
+    "requirements_started": [
+      "AB-SES-006"
+    ],
+    "acceptance_scope": "Core session recovery preflight against trusted workspace, input revision, provider compatibility and identity; distinguish native recovery, fresh handoff and reconciliation."
+  },
+  "coverage": {
+    "total": 130,
+    "partially_implemented": 118,
+    "whole_requirements_accepted": 0,
+    "not_independently_implemented": 12,
+    "in_development_without_accepted_implementation": 1,
+    "no_verified_start": 11
+  }
+}

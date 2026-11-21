@@ -1,0 +1,38 @@
+{
+  "base": "a6418d94bb9f1725fa3eef6135820197784008fb",
+  "source_head": "84022e3c0980ff8bba2dcc720f8a843291c73788",
+  "files": {
+    "scripts/prepare-schema16-migration-fixture.py": "5e814e979115d15a9696b78d586f63a30c01df3548b323dd99f8f5acbd48713a",
+    "scripts/prepare-legacy-migration-fixture.py": "b69f07713271d07992150db523b9344d9afc7db39cc0d31921ec49e643004b90",
+    "scripts/native-run.py": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a",
+    "scripts/generate-schema16-migration-fixture.py": "8a262559410c3b2dfe3c55a0468e21b5e4026c3d10274881abd5c7019252077e",
+    "scripts/prepare-schema15-migration-fixture.py": "67c2d59e2f8801de56842f6cf8ea58989925d2947d222bbbb93cae8e66ec17e7",
+    "crates/core/src/storage.rs": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+    "crates/core/tests/fixtures/pre_conversation_schema.rs": "ad614f521ae1aee477ebc11ff93c64c2e900dc96101730d73801b3b6e002c5ce",
+    "crates/core/tests/fixtures/pre_integration_schema.rs": "c0545cded330429324047b30f032b4e81ea0b4ed4ed24c1efc15000e041aa990",
+    "crates/core/tests/fixtures/pre_factory_schema.rs": "407a1a9c5a5fdb191aa24c8875eb4ee49416306e0c4c928948cd6f6024003a65",
+    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    ".github/workflows/product.yml": "edfffb07b5d5c8ecb3039962f5ad54e77cd187a4afd33f89941564b89603bff4"
+  },
+  "source": {
+    "scripts/prepare-schema18-migration-fixture.py": {
+      "sha256": "92bfb6825f0fba168ca6652bb78a2a2ea871c57b6aa3e8015002fd3e003fd289",
+      "bytes": 19638
+    },
+    "scripts/generate-schema18-migration-fixture.py": {
+      "sha256": "9e4fafaa50bc4484e4e639610bebdc8b55c7fbb4bed5e1f826a53f66921dd973",
+      "bytes": 22697
+    },
+    "tests/infrastructure/test_schema18_migration_preparation.py": {
+      "sha256": "39f43c6cdf1f381878d0f8c9e3d5b3d7c30b5edfbbccaed0be06b7c681feeb7e",
+      "bytes": 12828
+    },
+    "tests/infrastructure/test_schema19_host_migration_evidence.py": {
+      "sha256": "6ddda8778482da206a23eb106ec7b66b5d70bf43ab29c30d1bfa5682ec9fd34c",
+      "bytes": 13436
+    }
+  },
+  "no_other_source_diff": true
+}

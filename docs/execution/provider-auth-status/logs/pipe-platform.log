@@ -1,0 +1,2 @@
+Darwin F_SETPIPE_SZ False
+Linux F_SETPIPE_SZ True pipe_before 65536 pipe_after 4096

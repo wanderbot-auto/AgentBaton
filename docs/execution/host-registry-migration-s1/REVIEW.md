@@ -1,0 +1,9 @@
+# Source review record
+
+All reviews were read-only; reviewers did not edit code or execute builds/tests.
+
+1. On334a, the fixture reviewer found no issue in its initial assigned transaction/composition review; the current-guard reviewer subsequently found P2: a kind-only decoder could classify an incomplete non-Host event as safe. Full Core Event typed decoding plus exactly eight outer fields and per-field missing/duplicate/unknown regressions fixed that gap. Both reviewers rechecked dd92 and closed it; the earlier review is not represented as complete proof.
+2. Leader independently found P2 in whole-main quick_check: SQLite would resolve/evaluate opaque CHECK/UDF expressions. Pinned SQLite source confirmed partial known-table checking. The fix preserves known schema/FK/CHECK errors without interpreting opaque expressions; a real legacy disk/UDF counter positive/negative control executed successfully. Leader completion audit and both read-only reviewers closed the static finding on dd92.
+3. Actual strict clippy on dd92 found duplicate_mod. Leader reserved exactly task_workspace_binding_tests.rs for the initial module-declaration→canonical-alias change. On ee0279, fixture review confirmed cfg(test) crate-visible reuse, complete old caller suffix and old helpers byte-identical, and positive hash logging without assertion changes. No new P1/P2 was found in that final review. Actual37 tests and strict clippy then passed on the same fixed source.
+
+Independent reviewers: `/root/schema_current_guards`, `/root/schema_inverse_audit`; integration/acceptance authority remains the leader thread. Source/input SHA bindings and original failure evidence are in SOURCE_FINAL, SOURCE_CANONICAL_FIXTURE_FIX, DYNAMIC_RESULTS and LOGS. No full product registration/native/remote acceptance follows from this review.

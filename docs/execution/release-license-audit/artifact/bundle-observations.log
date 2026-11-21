@@ -1,0 +1,49 @@
+4fd00649bf970ec48e74fe999424f4d38a63678b419c0f576e278e727da7a344  ./AgentBaton.app/Contents/Info.plist
+180962ac11c4422f784ca017979bb74e73ee555886b7edf9e3ab755664ba28fd  ./AgentBaton.app/Contents/MacOS/agentbaton-desktop
+1d38b91fb401cfd3ef1486a845df246682f16b44b1b6e6d533e7959b256e8647  ./AgentBaton.app/Contents/MacOS/baton
+a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109  ./AgentBaton.app/Contents/MacOS/batond
+c06b01170670fb61780e9b79b6e4c2a3bb54834649d2eb5ccd2888086fe5fa32  ./AgentBaton.app/Contents/Resources/icon.icns
+lrwxr-xr-x  1 wander  staff  13 Nov 18 01:07 ./Applications -> /Applications
+{
+  "CFBundleDevelopmentRegion" => "English"
+  "CFBundleDisplayName" => "AgentBaton"
+  "CFBundleExecutable" => "agentbaton-desktop"
+  "CFBundleIconFile" => "icon.icns"
+  "CFBundleIdentifier" => "dev.agentbaton"
+  "CFBundleInfoDictionaryVersion" => "6.0"
+  "CFBundleName" => "AgentBaton"
+  "CFBundlePackageType" => "APPL"
+  "CFBundleShortVersionString" => "0.1.0"
+  "CFBundleVersion" => "0.1.0"
+  "CSResourcesFileMapped" => true
+  "LSMinimumSystemVersion" => "10.15"
+  "LSRequiresCarbon" => true
+  "NSHighResolutionCapable" => true
+}
+AgentBaton.app/Contents/MacOS/agentbaton-desktop: Mach-O 64-bit executable arm64
+AgentBaton.app/Contents/MacOS/agentbaton-desktop:
+	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2575.60.5)
+	/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit (compatibility version 1.0.0, current version 621.2.5)
+	/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices (compatibility version 1.0.0, current version 65.0.0)
+	/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 1889.5.3)
+	/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 170.0.0)
+	/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo (compatibility version 1.2.0, current version 1.5.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 3502.1.255)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)
+	/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore (compatibility version 1.2.0, current version 1.11.0)
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 3502.1.255)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+	/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync (compatibility version 1.0.0, current version 3777.4.1)
+	/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices (compatibility version 1.0.0, current version 1226.0.0)
+AgentBaton.app/Contents/MacOS/baton: Mach-O 64-bit executable arm64
+AgentBaton.app/Contents/MacOS/baton:
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)
+AgentBaton.app/Contents/MacOS/batond: Mach-O 64-bit executable arm64
+AgentBaton.app/Contents/MacOS/batond:
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)
+agentbaton-desktop {'@license React': 0, 'react-dom-client.production.js': 0, 'react.production.js': 0, 'scheduler.production.js': 0, '__TAURI_INTERNALS__': 32, 'THIRD_PARTY_NOTICES': 0, 'Copyright (c) Meta Platforms': 0, 'SQLite format 3': 0}
+baton {'@license React': 0, 'react-dom-client.production.js': 0, 'react.production.js': 0, 'scheduler.production.js': 0, '__TAURI_INTERNALS__': 0, 'THIRD_PARTY_NOTICES': 0, 'Copyright (c) Meta Platforms': 0, 'SQLite format 3': 0}
+batond {'@license React': 0, 'react-dom-client.production.js': 0, 'react.production.js': 0, 'scheduler.production.js': 0, '__TAURI_INTERNALS__': 0, 'THIRD_PARTY_NOTICES': 0, 'Copyright (c) Meta Platforms': 0, 'SQLite format 3': 1}

@@ -1,0 +1,58 @@
+   Compiling agentbaton-remote-host v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/crates/remote-host)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.13s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_remote_host-a7ff49045faf7497)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/baton_host_companion-76f01ce78f248ea0)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/foundation.rs (target/debug/deps/foundation-23998c7fcb5419a6)
+
+running 18 tests
+test directory_symlink_absolute_traversal_config_owner_and_unknown_version ... ok
+test identity_authority_fencing_and_cumulative_budget ... ok
+test future_wal_schemas_are_rejected_before_journal_mode_mutation ... ok
+test generated_ssh_identity_effective_configuration_without_connecting ... ok
+test lock_wait_does_not_masquerade_as_clock_rollback ... ok
+test lease_expiry_rollback_replay_and_revocation_are_fail_closed ... ok
+test root_replacement_and_private_journal_permissions_are_rejected ... ok
+test strict_ssh_argv_has_no_shell_injection_and_pins_known_hosts_file ... ok
+test reserved_dispatch_does_not_acquire_a_replacement_grant ... ok
+test maximum_snapshot_fits_one_frame ... ok
+test malformed_events_cannot_forge_confirmed_stop_or_advance_cursor ... ok
+test transport_registration_prevents_cross_host_bytes_and_reconciliation_is_bound ... ok
+test journal_failure_rolls_back_reservation_receipt_and_budget ... ok
+test paged_reconciliation_is_required_and_event_capacity_reserves_completion_space ... ok
+test first_controls_and_worker_completion_survive_reachable_admission_boundary ... ok
+test actual_cancel_waits_for_child_exit_and_offline_intent_survives_controller_reopen ... ok
+test real_child_persistence_duplicates_reopen_and_local_event_replay ... ok
+test all_32_terminal_events_before_wait_preserve_first_controls_and_reopen ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+     Running tests/registration.rs (target/debug/deps/registration-b67e11b9d8c10163)
+
+running 8 tests
+test syntax_is_not_complete_registration_and_opaque_refs_are_not_attempt_ids ... ok
+test registration_module_has_no_io_clock_transport_or_authority_calls ... ok
+test valid_metadata_roundtrip_has_a_fixed_synthetic_input_and_no_authority_projection ... ok
+test legacy_argv_keeps_exact_flags_filesystem_pin_checks_and_does_not_adopt_registration_policy ... ok
+test declared_remote_mappings_are_bounded_unique_and_do_not_resolve_local_paths ... ok
+test version_unknown_authority_fields_and_malformed_types_fail_closed ... ok
+test field_and_payload_byte_limits_are_checked_without_normalizing_input ... ok
+test pure_endpoint_and_path_helpers_preserve_the_legacy_predicates_and_error_order ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests agentbaton_remote_host
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

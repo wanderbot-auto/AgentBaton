@@ -1,0 +1,95 @@
+{
+  "status": "locally_verified_workflow_draft",
+  "base": "9e3add27c37f4022dcd2517ab9d1c9cc8f3e9102",
+  "workflow": {
+    "path": ".github/workflows/product.yml",
+    "previous_sha256": "80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c",
+    "candidate_sha256": "854c9502d344002ff81535d62a002c9af63c96dbb5d01ea167c7724699f39b57"
+  },
+  "local_source_contract": {
+    "preserved_named_steps": 22,
+    "cases": {
+      "PR shallow checkout": 0,
+      "Core gates and finite artifact": 0,
+      "required entry accepts upstream success": 0,
+      "required entry refuses missing": 1,
+      "required entry refuses failure": 1,
+      "required entry refuses cancelled": 1,
+      "required entry refuses skipped": 1,
+      "required entry refuses neutral": 1,
+      "required entry refuses SUCCESS": 1,
+      "required entry refuses missing receipt": 1,
+      "required entry refuses missing independent artifact": 1,
+      "identical release receipt": 0,
+      "reject mismatched event": 1,
+      "reject mismatched repository_id": 1,
+      "reject mismatched workflow_path": 1,
+      "reject mismatched os": 1,
+      "reject mismatched architecture": 1,
+      "reject mismatched workflow_ref": 1,
+      "reject mismatched workflow_sha": 1,
+      "reject mismatched base_ref": 1,
+      "reject mismatched merge_ref": 1,
+      "reject mismatched pr_number": 1,
+      "reject mismatched base": 1,
+      "reject mismatched head": 1,
+      "reject mismatched tree": 1,
+      "reject mismatched checkout": 1,
+      "reject mismatched run_id": 1,
+      "reject mismatched run_attempt": 1,
+      "reject equal but noninteger PR number": 1,
+      "reject independent upload ID mismatch": 1,
+      "reject independent upload digest mismatch": 1,
+      "reject missing receipt artifact ID": 1,
+      "reject short receipt artifact digest": 1,
+      "reject different receipt artifact ID": 1,
+      "reject noncanonical receipt": 1,
+      "reject unpassed Core gate": 1,
+      "reject receipt after Core attempt change": 1,
+      "reject stale success from previous attempt": 1,
+      "reject checkout not pinned to event": 1,
+      "reject wrong Git merge parents": 1,
+      "reject tracked source change": 1,
+      "record exact artifact roles": 0,
+      "reject duplicate artifact identity": 1,
+      "reject missing development digest": 1,
+      "manual dispatch is bound as a separate diagnostic source": 0,
+      "manual dispatch cannot replace a PR source": 1
+    },
+    "passed": 46
+  },
+  "local_command": "bash scripts/collab.sh run -- python3 -B docs/execution/pr33-ci-deadline-partition/verify-local.py",
+  "local_infrastructure": {
+    "command": "bash scripts/collab.sh run -- python3 -B scripts/validate_infrastructure.py",
+    "exit": 0,
+    "workflow_files": 2,
+    "pinned_action_references": 18,
+    "remote_ci_executed": false
+  },
+  "existing_exact_guard_result": {
+    "exit": 1,
+    "tests": 80,
+    "archive": "original-guards.log.gz",
+    "raw_log_sha256": "1de6fe3b2bd332d3d0160d7349a67e5c8835e2027a84da9b84d66ae8df5ab5fb",
+    "archive_sha256": "f2d08d5348557de01a72d0adcc4c7f6f116ccb441bacc78461a923603a8c61b4",
+    "summary": "FAILED (failures=28, errors=16)",
+    "handling": "expected on uncomposed draft; guard owner preserves old assertions with exact candidate validation",
+    "workflow_sha256_at_execution": "4172a3b4588046fbbe05b6ba521affa6303cf6de7008854a63cbe7cd8cf54f6e"
+  },
+  "prior_observations": {
+    "attempt1_job": 136482869813,
+    "attempt2_job": 136778165181,
+    "first_segment_end_s": [
+      3049,
+      2857
+    ],
+    "projected_release_reference_s": 1486,
+    "projection_measured_in_new_graph": false
+  },
+  "not_run": [
+    "hosted workflow",
+    "new graph runner timing",
+    "development artifact build and independent inspection"
+  ],
+  "first_draft_head": "cf609efced9714c238b10893689939c211c72003"
+}

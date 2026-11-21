@@ -1,0 +1,5 @@
+# Independent read-only review
+
+Native reviewer /root/remote_review read fixed6a9dc95eb5f8f35142e40e81c6e64b0ceda60ccc three-path diff, actual A policy and original inverse contexts in two coordinated read-only collab commands. No P1/P2: direct main PRAGMA same connection/transaction, safe quote, A-compatible256/1MiB/N+1/type/FK controls, actual A→B data preservation and exact two-input lock adapter. Dynamic source guard then found its exact-node LF bug; that failed result was retained and fixed, so the review was never represented as a test pass.
+
+Reviewer subsequently read0930cc6fa9f4222d8adca172a13bca79a5354c70 Python diff and full adapter/caller: exact LF layer fixed, raw read_bytes avoids normalization, padding/CRLF/BOM controls, original libc inverse and4d478 pin/assert retained, no Git fallback/broad acceptance; no P1/P2. Rust unchanged from reviewed6a/verified649. All review commands joined, no files edited/build/tests by reviewer. Current actual verification is VERIFIED_SOURCE.json; root acceptance remains separate.

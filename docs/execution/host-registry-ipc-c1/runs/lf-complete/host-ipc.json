@@ -1,0 +1,34 @@
+{
+  "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--lib",
+    "ipc::host_registry_wire::tests",
+    "-j",
+    "2",
+    "--",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "expected_counts": [
+    12
+  ],
+  "started_utc": "2026-11-17T21:27:37.541003+00:00",
+  "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+  "response_budget_includes_LF": true,
+  "exit_code": 0,
+  "actual_counts": [
+    12
+  ],
+  "count_gate": true,
+  "finished_utc": "2026-11-17T21:28:24.622446+00:00",
+  "log_sha256": "bacda4afb21bcc5210357d39629f6271e9729df4bdac00f810ecb7899aedec46",
+  "bytes": 1843,
+  "all_children_joined": true,
+  "status": "passed"
+}

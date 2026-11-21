@@ -42,9 +42,42 @@ PLAN_READ_REUSE_MANIFEST_SHA256='f6975f9150a50e62d298edcfa903992b0f05abe87100864
 PLAN_READ_REUSE_UI_SHA256='ec4297a52530384def5797a914b8a4e519bb264908c2df4e09cb2dea6106d5ba'
 PLAN_READ_REUSE_BASE_UI_SHA256='57a6899da9526ae6289cafe54509fd2da5cae8146ca748a4640f3b042f7d3281'
 
+CONTEXT_SERIALIZATION_MANIFEST_PATH='docs/execution/pr33-child-start-replay/SOURCE_INVERSE.json'
+CONTEXT_SERIALIZATION_MANIFEST_SHA256='28e8686189055a946d3709ba1cb8f130121d025ed11a3620afbaae80cedcc3d8'
+CONTEXT_SERIALIZATION_UI_SHA256='c619626fa843ae4513b89f29ec1e6d6fd78827127b26150fc95f124eecf8c573'
+
+
+def strip_context_serialization_layer(text, manifest_raw=None):
+    """Restore the exact pre-serialization source before applying older inverses."""
+    if type(text) is not str:
+        raise AssertionError('Unknown child Context serialization source')
+    if manifest_raw is None:
+        manifest_raw = (ROOT/CONTEXT_SERIALIZATION_MANIFEST_PATH).read_bytes()
+    if type(manifest_raw) is not bytes or hashlib.sha256(manifest_raw).hexdigest() != CONTEXT_SERIALIZATION_MANIFEST_SHA256:
+        raise AssertionError('Unknown child Context serialization manifest')
+    digest = source_sha(text)
+    if digest in (PLAN_READ_REUSE_UI_SHA256, PLAN_READ_REUSE_BASE_UI_SHA256):
+        return text
+    if digest != CONTEXT_SERIALIZATION_UI_SHA256:
+        raise AssertionError('Unknown child Context serialization whole source')
+    record = json.loads(manifest_raw)
+    if (record['path'] != 'apps/desktop/src/FactoryChildGoals.tsx'
+            or record['candidate_sha256'] != digest
+            or record['base_sha256'] != PLAN_READ_REUSE_UI_SHA256):
+        raise AssertionError('Unknown child Context serialization targets')
+    for edit in record['edits']:
+        if text.count(edit['expected']) != 1:
+            raise AssertionError('Missing or ambiguous child Context serialization anchor')
+        text = text.replace(edit['expected'], edit['replacement'], 1)
+    if source_sha(text) != PLAN_READ_REUSE_UI_SHA256:
+        raise AssertionError('Original planning reuse source changed')
+    return text
+
+
 def strip_plan_read_reuse_outer_layer(text,manifest_raw=None):
     """Remove only exact reviewed read expressions, checking both whole files."""
     if type(text)is not str:raise AssertionError('Unknown planning reuse source')
+    text=strip_context_serialization_layer(text)
     if manifest_raw is None:
         manifest_raw=(ROOT/'docs/execution/child-goal-plan-read-reuse/SOURCE_INVERSE.json').read_bytes()
     if type(manifest_raw)is not bytes or hashlib.sha256(manifest_raw).hexdigest()!=PLAN_READ_REUSE_MANIFEST_SHA256:
@@ -336,8 +369,23 @@ class V4DiagnosticsTests(unittest.TestCase):
         self.assertEqual(safe['owner_ui_state'],P.unobserved_owner_ui_state())
         report['finite_diagnostics']=safe
         self.assertEqual(P.project(report,candidate,summary,'normal',0,'e'*64)['status'],'failed')
+    def test_context_serialization_layer_restores_exact_predecessor_and_rejects_changes(self):
+        path='apps/desktop/src/FactoryChildGoals.tsx'
+        text=(ROOT/path).read_text()
+        manifest=(ROOT/CONTEXT_SERIALIZATION_MANIFEST_PATH).read_bytes()
+        self.assertEqual(source_sha(text),CONTEXT_SERIALIZATION_UI_SHA256)
+        restored=strip_context_serialization_layer(text,manifest)
+        self.assertEqual(source_sha(restored),PLAN_READ_REUSE_UI_SHA256)
+        self.assertEqual(inverse(path,text),inverse(path,restored))
+        for changed in (text+'\n',text.replace('await readContext(', 'await wrongReader(',1),
+                        text.replace('if(!stillCurrent())return null;', 'if(false)return null;',1)):
+            self.assertNotEqual(changed,text)
+            with self.assertRaises(AssertionError):strip_context_serialization_layer(changed,manifest)
+        with self.assertRaises(AssertionError):strip_context_serialization_layer(text,manifest+b'\n')
+
     def test_exact_read_reuse_outer_layer_restores_c675_then_the_original_v4_baseline(self):
         path='apps/desktop/src/FactoryChildGoals.tsx';text=(ROOT/path).read_text()
+        text=strip_context_serialization_layer(text)
         self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),PLAN_READ_REUSE_UI_SHA256)
         parent=strip_plan_read_reuse_outer_layer(text)
         self.assertEqual(hashlib.sha256(parent.encode()).hexdigest(),PLAN_READ_REUSE_BASE_UI_SHA256)

@@ -1,0 +1,321 @@
+{
+  "pull_request": 33,
+  "feature_head": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+  "actual_package_source": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+  "actual_package_source_tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+  "hosted_ui_success": {
+    "job": 135252128513,
+    "conclusion": "success",
+    "completed_utc": "2026-11-19T00:59:26Z",
+    "passed_steps": ["Actual frontend with real Unix IPC and responsive screenshots", "Actual integration frontend with real Core IPC and generated correctness"],
+    "artifact_id": 14486629615,
+    "hosted_archive_sha256": "b51eb4000f97fcad270ed99d4bf323d8f19f4841bdea7e0bf8452165e5470425",
+    "downloaded_archive_sha256_verified": true,
+    "local_artifact": "/tmp/ab-leader-pr33-ui.Fn5ddf/archive.zip",
+    "entries": 248,
+    "png_screenshots": 104,
+    "report_or_summary_passed_status": 20,
+    "provider_execution": "generated_fixtures"
+  },
+  "provenance_tool_preflight": {
+    "delivery": "c4accb5dc0901aa219a31dfe9fbe31cc0c241450",
+    "local_composition": "61e97edb5422c9d8b12d09cc7a22ee3b7b2fb922",
+    "tree": "40953f66ffd3f0d4940395eb55634bf346753ce8",
+    "python_infrastructure": {"total": 1047, "passed": 1031, "skipped": 16, "exit": 0},
+    "python_log": "/tmp/ab-leader-c-provenance-composed.cYzWfI/python.log",
+    "python_log_sha256": "f04b619f3b0295ffd7397fe4eda0e91b3120daad6b2c836229d529fe248ba440",
+    "bootstrap_files": 93,
+    "design_local_links": 384,
+    "workflow_action_pins": 15
+  },
+  "current_package_build": {
+    "window": "C",
+    "turn": "01a1f14d-411b-77b1-bd44-e8203010d3ea",
+    "model": "gpt-6.2-sol",
+    "effort": "high",
+    "platform": "macOS Apple Silicon",
+    "runtime_root": "/private/tmp/ab-collab-0dgnp8ti/ci-14530c62",
+    "release_signing": "explicit_no_sign",
+    "verification_state": "local_locked_build_and_read_only_report_passed",
+    "first_attempt": {
+      "pid": 16284,
+      "exit": 1,
+      "log_sha256": "03ab5ca7ad737a5e83b0b13182bac2004d5d527bc909e5c28e208077c4899ac8",
+      "reason": "npm rejected duplicate user and global config path"
+    },
+    "second_attempt": {
+      "pid": 16418,
+      "exit": 127,
+      "log_sha256": "6295f139327c166020449e89cc1ac18d301c25a7439f59d247931212cffb4dbb",
+      "reason": "Tauri help check tried a tool outside the allowlisted PATH"
+    },
+    "third_attempt": {
+      "session": 14890,
+      "build_pid": 16558,
+      "cargo_pid_at_observation": 16600,
+      "release_sidecars_start_utc": "2026-11-19T00:58:38Z",
+      "tauri_start_utc": "2026-11-19T00:59:38Z",
+      "completed_utc": "2026-11-19T01:01:22Z",
+      "exit": 1,
+      "app_bundle": "built_default_release_no_sign",
+      "single_executable_marker_audit": "passed",
+      "dmg_created_and_checksum_matched": true,
+      "dmg_sha256": "71cae8a5a3e1fe100b24dc5d6455c14f186267ca1ffc6abe25f9cf1803138464",
+      "postflight": {
+        "reason": "Only a blank line in the tracked Tauri Cargo.lock was removed by Cargo invoked through Tauri",
+        "committed_lock_sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+        "rewritten_lock_sha256": "e4fe8dd737f2bd9d4cee31de0bf36e55f213ee5c2a583891f8718aa8ec3748b2",
+        "parsed_toml_identical": true,
+        "package_records": 443
+      },
+      "relative_log": "no-sign-build/build.log",
+      "log_sha256": "30be2372d30e7181b4489c06a654c9d549ce50c9c4b02c76f4c791fe8308e774",
+      "toolchain": {"rustc": "1.91.1", "node": "26.7.0", "npm": "11.19.0", "tauri_cli": "2.12.4", "xcode": "27.2"}
+    },
+    "locked_replay": {
+      "session": 72291,
+      "pid": 20625,
+      "build_started_utc": "2026-11-19T01:03:26Z",
+      "finished_utc": "2026-11-19T01:06:24Z",
+      "tauri_arguments": ["build", "--bundles", "app", "--no-sign", "--", "--locked"],
+      "relative_log": "locked-build/build.log",
+      "log_sha256": "4b61a9d8c38d0d1f015686d6374fa6d37f67a377ccc4112931ff30b97d77782b",
+      "exit": 0,
+      "tracked_source_clean": true,
+      "tauri_lock_sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+      "zip_sha256": "112323195860008afb10912ed6fb92ee4f9e32c5b549eef36ed7a76d44e56649",
+      "dmg_sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498",
+      "provenance_report_sha256": "bdb071600df4c6677408cdc951323591e6050b5d570647422d9bd1d16d466d88",
+      "developer_id_signed": false,
+      "strict_signature_exits": {"desktop": 1, "cli": 0, "daemon": 0},
+      "linked_and_embedded_web_attribution": "unknown"
+    }
+  },
+  "current_bundle_test_entry_review": {
+    "tested_source": "370289977c5789522e9652ea35938eeca33d9faf",
+    "worker_delivery": "c7f27b0eb8283911438b2de8478513e6c63a204d",
+    "independent_local_control_tests_passed": 39,
+    "current_read_only_arm64_bundle_marker_audit_exit": 0,
+    "current_audit_log": "/tmp/ab-leader-b-bundle-source.KZBuDO/current-audit.log",
+    "current_audit_log_sha256": "3a3a3d2719612ce2a65b0a795b1464487ad12a1812ac1162f1d9c89be2716c02",
+    "bundle_unmounted": true
+  },
+  "hosted_rust_failure": {
+    "job": 135252128889,
+    "log": "/tmp/ab-leader-pr33-rust-failure.ydpNaZ/job.log",
+    "log_sha256": "224e27d46c84c1e1b7fcedc6725717e5e715da32536a55c3c150e4591c814895",
+    "workspace_step": "success",
+    "schema14_migration_tests_passed": 7,
+    "first_failed_command": "cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings",
+    "lint": "clippy::needless_bool",
+    "location": "crates/core/src/managed_mcps/diagnostics.rs:1049",
+    "first_exit": 101,
+    "subsequent_rework_archive_exit": 1,
+    "later_test_steps": "skipped",
+    "repair_worker": {
+      "window": "A",
+      "worktree": "artifacts/collab-worktrees/pr33-linux-clippy",
+      "base": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+      "turn": "01a1f159-0dc9-7af2-96d8-79838f4d0b7d",
+      "model": "gpt-6.2-sol",
+      "effort": "high"
+    }
+  },
+  "next_iteration_review": {
+    "c_local_build_evidence_delivery": {
+      "head": "e7471cea0b46bdfd1ae56a5f329d40fa70633752",
+      "preview_tree_on_feature": "4516c5310d0cf844a65c2162adfc54eb2a358c43",
+      "verified_evidence_files": 22,
+      "verified_uncompressed_streams": 4
+    },
+    "b_and_c_local_composition": {
+      "head": "285253787c72a9946526445f906e10901dc23df1",
+      "tree": "6ad6bf116145accf6bba84dcaf52c2ec8cb2e566",
+      "python_total": 1060,
+      "python_passed": 1043,
+      "python_failed": 1,
+      "python_skipped": 16,
+      "python_exit": 1,
+      "python_log_sha256": "40a7292c5b8d626b9b05cd4c813f01c51dfec4a53b284bfccfeb0e6d217ec1d0",
+      "python_log": "/tmp/ab-leader-pr33-bc-review.MlQFj2/python.log",
+      "failed_test": "test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_default_audit_keeps_old_whole_source_and_tests_feature_only_controls",
+      "disposition": "return_to_B_preserve_legacy_source_and_add_separate_bundle_auditor",
+      "b_followup_turn": "01a1f15e-71ac-79a2-b5ce-5e458c0ac61a",
+      "b_added_claim": "scripts/native-audit-release-bundle.sh"
+    },
+    "a_local_linux_check": {
+      "architecture": "aarch64-unknown-linux-gnu",
+      "rustc": "1.100.0",
+      "clippy": "0.1.100",
+      "baseline_lint_reproduced": "clippy::needless_bool",
+      "baseline_log_sha256": "13bee73541dcfcce0f61120750913b1123c3b12be353de162221c9fc34f8bc9f",
+      "strict_clippy_commands_completed": 4,
+      "managed_mcp_tests_passed": 15,
+      "candidate_delivery": "d907345b23aff2bde5579ed2f3141bd50beabe4e",
+      "candidate_tree": "458823c770b0e1f41739fcfb189566c01db4497e",
+      "candidate_raw_log_sha256": "01f05da6278a839f4210b2ec36852f097cc594c16a8aba23b918ad80662f25ec",
+      "candidate_scope_check": "passed"
+    },
+    "revised_a_b_and_c_package_evidence_preflight": {
+      "head": "c1e62ab2f1b8642340311bc59ddf39722a3a048f",
+      "tree": "410f97f4864efa864b29e237f4abbb831e927dd6",
+      "a_delivery": "d907345b23aff2bde5579ed2f3141bd50beabe4e",
+      "b_corrected_delivery": "576ce5fda4a0b1fb24026dbe40c439595606f43e",
+      "c_package_evidence_delivery": "e7471cea0b46bdfd1ae56a5f329d40fa70633752",
+      "legacy_audit_and_guard_byte_exact": true,
+      "unchanged_workflow": true,
+      "python_total": 1061,
+      "python_passed": 1045,
+      "python_skipped": 16,
+      "python_exit": 0,
+      "python_log": "/tmp/ab-leader-pr33-revised-review.8Dza7W/python.log",
+      "python_log_sha256": "6bc9f006103eed15933bb42595af215258a114edfecba8a1d70d4810d6e4ddc2",
+      "actual_arm64_dmg_audit_read_only_exit": 0,
+      "actual_dmg_mount_reaped": true,
+      "actual_arm64_dmg_audit_sha256": "3a3a3d2719612ce2a65b0a795b1464487ad12a1812ac1162f1d9c89be2716c02",
+      "provenance_dmg_source_tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+      "pending_dependency": "C Store19 rework projector revision"
+    },
+    "combined_with_store19_projector": {
+      "head": "9a854bb9b9a7429890959c82f008ccb86d1ab5db",
+      "tree": "f896a9a4fd275fc1499a5137239d3cc272d62227",
+      "previous_composition": "c1e62ab2f1b8642340311bc59ddf39722a3a048f",
+      "store19_projector_source": "2153d11ae79f0573ac3439f6823c1539645f7cbd",
+      "python_total": 1061,
+      "python_passed": 1045,
+      "python_skipped": 16,
+      "python_exit": 0,
+      "python_log": "/tmp/ab-leader-pr33-all-fixes.NwAsBQ/python.log",
+      "python_log_sha256": "1dab340380498ea886504e94437f999e407a8a508f4aed8e4cbb35c530af5ecb",
+      "real_snapshot_projection": "FINITE_PROJECTION_COLLECTED",
+      "projected_case_count": 1,
+      "projection_bytes": 10532,
+      "projection_sha256": "d159c5051027201f4da76a697b945a39fd8677ce6a6353f1707b901ce634301d",
+      "remote_macos_integration_remains_pending_repair": true
+    },
+    "combined_with_formal_store19_evidence": {
+      "head": "ae844ca33406aabd62f44ea73818f9127f211748",
+      "tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+      "previous_tested_composition": "9a854bb9b9a7429890959c82f008ccb86d1ab5db",
+      "projector_delivery": "fdb3777a2e0da5716a827e0bd535ddebe676f3f2",
+      "diff_scope": "docs/execution/pr33-rework-store19",
+      "verified_worker_evidence_hashes": 14,
+      "bootstrap_design_workflow_checks": "passed",
+      "real_retained_snapshot_projection": "FINITE_PROJECTION_COLLECTED",
+      "real_retained_snapshot_projection_sha256": "d159c5051027201f4da76a697b945a39fd8677ce6a6353f1707b901ce634301d",
+      "design_log_sha256": "a5c50fa4c4c872c0965a5ee5cbf77dae062aa3cbc04f902ef823f474e6686b50",
+      "verification_directory": "/tmp/ab-leader-pr33-fixed-evidence.4zEUTt",
+      "next_dependency": "A bounded hosted macOS FIFO evidence"
+    },
+    "rework_archive_failure": {
+      "hosted_artifact_id": 14487249998,
+      "hosted_archive_sha256_verified": "950f45f399fcf1fe5a599cd280ce356aca5a7559ba73ac154bced5054fdd9243",
+      "hosted_projection_sha256": "67e7ef7999000cab743b32b60db9f40229ecd418c32a9628236d05667fb06c56",
+      "hosted_case_count": 1,
+      "hosted_case_code": "INVALID_PRIVATE_EVIDENCE",
+      "local_real_snapshot_schema": 19,
+      "existing_collector_expected_schema": 18,
+      "first_local_rejection": "scripts/record-factory-rework-ci-evidence.py:1226",
+      "local_rejection_location_log_sha256": "a87871b1b6d0051420510ad05164b9c172acbc255b97f3cf22cce4ddbc9f80c7",
+      "in_memory_diagnostic_19": "FINITE_PROJECTION_COLLECTED",
+      "in_memory_diagnostic_log_sha256": "35a9a984568487c71566f422035feb15c5449adbbc303f379065dbf82a426d1c",
+      "additional_scoped_test_paths": [
+        "tests/infrastructure/schema18_source_fixture.py",
+        "tests/infrastructure/test_root_parent_fee_kind_composition.py",
+        "tests/infrastructure/test_factory_rework_attempt_budget.py"
+      ],
+      "worker": {
+        "window": "C",
+        "worktree": "artifacts/collab-worktrees/pr33-rework-store19",
+        "turn": "01a1f161-93ed-76d1-aa9b-ebb896b5a3cf",
+        "model": "gpt-6.2-sol",
+        "effort": "high"
+      }
+    }
+  },
+  "hosted_macos_failure": {
+    "job": 135252128867,
+    "conclusion": "failure",
+    "completed_utc": "2026-11-19T01:25:05Z",
+    "first_failed_step": "Core and native host tests",
+    "first_failing_target": "integration_ipc",
+    "target_passed": 31,
+    "target_failed": 3,
+    "target_seconds": 145.61,
+    "first_exit": 101,
+    "observation_failure": "owned FIFO ready observation expired",
+    "same_location": "crates/core/tests/fixtures/integration_runtime.rs:2837",
+    "failed_scenarios": [
+      "non_descendant_rewrite_during_real_validator_never_reprepares_or_refunds",
+      "owner_cancel_with_actual_descendant_drift_stops_without_reprepare_or_cas",
+      "third_real_descendant_advance_exhausts_rounds_without_fourth_preparation_or_cas"
+    ],
+    "native_desktop_lifecycle_and_packaging_steps": "skipped",
+    "raw_log": "/tmp/ab-leader-pr33-macos-failure.TuAqbH/job.log",
+    "raw_log_sha256": "df7ffa62feabbc3178750a2c0463aa6a431bb18815ebb0e00eb2c64a9f8c7848",
+    "reviewed_hosted_failure_markers": [
+      {"scenario": "non_descendant_rewrite", "host_step_records": 8, "original_validator_marker_visible": false},
+      {"scenario": "owner_cancel_with_actual_descendant_drift", "host_step_records": 0, "original_validator_marker_visible": false},
+      {"scenario": "third_real_descendant_advance", "host_step_records": 30, "first_validator_released": true}
+    ],
+    "prior_pr31_same_location": {
+      "job": 134182133073,
+      "result": "RESOURCE_LIMIT/not_started",
+      "stage": "round3_preparation",
+      "declared_runtime_ms": 2000,
+      "actual_runtime_ms": 2020,
+      "applies_to_pr33": "unestablished"
+    },
+    "local_untouched_baseline": {
+      "source": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+      "macos": "26.6.1",
+      "architecture": "arm64",
+      "rust": "1.100.0",
+      "target": "integration_ipc",
+      "passed": 34,
+      "failed": 0,
+      "seconds": 64.08,
+      "log_sha256": "3207a26c5ca7c1f786efc51c9647b36aae7a1c5ee3b55972ab1dc489a27f08a5"
+    },
+    "downloaded_macos_artifact": {
+      "id": 14488747528,
+      "sha256": "b1808aedd6f668be3152966397d25bbdbc52934e7e7dbef1127057ac6be87f4c",
+      "rework_projection_sha256": "67e7ef7999000cab743b32b60db9f40229ecd418c32a9628236d05667fb06c56",
+      "rework_projection_matches_linux_byte_for_byte": true,
+      "native_projection_sha256": "6a3121cf53339c66e327e23492bb0a4131112e10878a13054bf6439e6a3bb78d",
+      "native_runtime_acceptance": false,
+      "native_visual_review": "not_established"
+    },
+    "worker": {
+      "window": "A",
+      "worktree": "artifacts/collab-worktrees/pr33-macos-integration-fifo",
+      "base": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+      "turn": "01a1f16a-dcfb-7601-88a0-0bc94d040d8e",
+      "model": "gpt-6.2-sol",
+      "effort": "high"
+    }
+  },
+  "next_candidate_exact_local_build": {
+    "source": "d70362ad1fc4b080537163be60cb830849ee4167",
+    "tree": "19aba6e8f208f021bc84573dd8b496d29fce5633",
+    "delivery": "9f7b0f576feb11e4eb409fbedbe0811024faa76a",
+    "staged_evidence_head": "0de102f3796a32eb5e6df86abe5cde0301a9cd99",
+    "staged_evidence_tree": "c5a5e87907ea2aa9954a2755ab93f01efad2f392",
+    "local_archive_path": "artifacts/deliverables/pr33/d70362ad/development.zip",
+    "identity": {
+      "archive_sha256": "2fa14871b9e9e715b25dd1f9bc5fcfbfaf67243e99ae8a25a484f4a187ef25c0",
+      "dmg_sha256": "7e7598774e7bc20bcf7ad0cf6e61d6096a21afadf1fa9543891225e928aa2055",
+      "source_commit": "d70362ad1fc4b080537163be60cb830849ee4167",
+      "source_tree": "19aba6e8f208f021bc84573dd8b496d29fce5633",
+      "target": "aarch64-apple-darwin"
+    },
+    "independent_provenance_sha256": "9abcbb5491400d249e40c3a6cd759b12175f0f3cbd13ed9967785ab6a71033b8",
+    "lockfile_bytes_match_git": true,
+    "independent_desktop_strict_codesign_exit": 1,
+    "independent_bundle_strict_codesign_exit": 1,
+    "strict_signature_error": "code has no resources but signature indicates they must be present",
+    "desktop_verify_log_sha256": "0be7114fa660dce79bd90c1fac9b329f4311a3cefbe93b210bab65936678b14f",
+    "bundle_verify_log_sha256": "015676a2977e1b7acf7e47789e87461703118853189a254779f7ca6590424619",
+    "gui_install_launch_or_formal_release_verified": false
+  }
+}

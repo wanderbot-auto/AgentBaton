@@ -1,0 +1,3 @@
+Journal started at 2026-11-18T13:33:15Z and finished at 2026-11-18T13:35:10Z (Cargo exit 0; see journal.log).
+After the leader corrected the slot timing, empty directories were placed at the four unused log paths. The original batch's existence check skipped all four later checks. The batch exited 1 for those intentional skips; the journal subprocess had already joined successfully.
+The first command may have overlapped A's final run within that interval. The leader confirmed A's full run had joined before B started the resumed batch in logs/resumed/.

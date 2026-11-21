@@ -1,0 +1,112 @@
+{
+  "base_commit": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "base_tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+  "tested_source_commit": "73f729d88369f02f07ea30b6b98e2d674e01521c",
+  "tested_source_tree": "3ca80401c5a43b908a466aa907406d601bccd49f",
+  "hosted_baseline": {
+    "job_id": 135276914618,
+    "platform": "Linux x86_64",
+    "owner_total": 47,
+    "failed": 3,
+    "errors": 1,
+    "raw_log_sha256": "696701e208a60bedbc168c38eb76f1116237fda7f869978b99a4024e7f23b65f"
+  },
+  "local": {
+    "os": "macOS 26.6.1 (25G76)",
+    "arch": "arm64",
+    "rustc": "1.91.1",
+    "cargo": "1.91.1",
+    "python": "3.12.12",
+    "native_serialization": "scripts/collab.sh run --native",
+    "build": "cargo build --offline --locked --bin batond --bin baton",
+    "build_commit": "ae844ca33406aabd62f44ea73818f9127f211748",
+    "tool_checksums_verified_before_and_after": {
+      "batond": "fdf580048fd4f836fcb27cd6478888f0033126475e3f72e900512e4f1c8069f4",
+      "baton": "ad56509e0153168c625f5645e0e03885fa1e911facd3c51b5e2f235669c1f802"
+    },
+    "direct_suite": "python3 apps/desktop/src-tauri/tests/test_native_owner_dialog.py -v",
+    "base": {
+      "total": 47,
+      "passed": 42,
+      "skipped": 1,
+      "failed": 3,
+      "errors": 1,
+      "exit": 1
+    },
+    "base_probe": {
+      "api": 1,
+      "ipc_schema": 19,
+      "sqlite_schema": 19,
+      "sqlite_sequence": 8,
+      "counted_tables": 39,
+      "hosts": 0,
+      "pending_error": "Pending Grant authority/sequence/schema changed or absent",
+      "daemon_cleanup": true
+    },
+    "candidate": {
+      "total": 48,
+      "passed": 47,
+      "skipped": 1,
+      "failed": 0,
+      "errors": 0,
+      "exit": 0
+    },
+    "candidate_actual_core_observations": {
+      "factory": {
+        "schema": 19,
+        "sequence": 12,
+        "observed_tables": 40,
+        "host_registrations": 0,
+        "nonzero_evidence_tables": {},
+        "proposal_consumed": false
+      },
+      "grant": {
+        "schema": 19,
+        "sequence": 10,
+        "observed_tables": 40,
+        "host_registrations": 0,
+        "nonzero_evidence_tables": {},
+        "proposal_consumed": true
+      }
+    }
+  },
+  "historical_runner_sha256_chain": [
+    "c29a8e2e117a88894a1068301f494e4c286c37635e884598ed34af74e3067e84",
+    "293149dafc983d6c1fbc0b797486ce24ae7da380d81560ef8b1c2c078c074a53",
+    "6a5406689896c52aef7d3d478bacf156cd27a8c1a5f0c8d3de552ba07d345d55",
+    "e2ca962c8e5d8af29bc04bb477c6d9d4fc876b7143b33ffafca8a730944fad94"
+  ],
+  "infrastructure": {
+    "historical_inverse_and_source_guard_passed": 17,
+    "total": 1062,
+    "passed": 1046,
+    "skipped": 16,
+    "failed": 0,
+    "static_checks_passed": [
+      "validate_design.py",
+      "validate_infrastructure.py",
+      "verify_bootstrap_manifest.py"
+    ]
+  },
+  "not_executed": [
+    "local Linux replay",
+    "native app / OS owner dialogs",
+    "Factory OS confirmation",
+    "candidate hosted CI"
+  ],
+  "finite_transcript": "owner-output.txt",
+  "finite_transcript_sha256": "04495adbfc9aa35f022fdc9730629ad5f874e6ee579fd7913e2d62feb59cb964",
+  "private_raw_log_sha256": {
+    "base-probe.json": "9759293b37c7c4e1baf8c100babab923af30d6bde289c9a1e49c1b427d2505f7",
+    "baseline.log": "ec2eb87f05939291589fc26a056ce1f2434f52206d725ff7467a9ed5444ab931",
+    "baseline-pair.log": "7c45e79b7122750d9c8ebb97abe8ccafd892f6218882cd9a27179ffe265137ff",
+    "baseline-py312.log": "9ee3709aea041dfa38d6b93be33d4664e2d52d752e9a867b924779cf67abb72c",
+    "candidate.log": "047b4a70e10ad87f6629249ce9fd87d8237e27a8205c1fd8b84a55bfd157dcb8",
+    "final-owner.log": "16c1fc71da35ed94cec1635ff0b30b4b333986f3094f546c51cb35b2726986aa",
+    "final-inverse.log": "d063a6f72e09b7c3c2fdb4610c9283e071d2775aa2e34af41efeff7bde3a54d3",
+    "final-design.log": "777d54ccecc14e45b78b86c8ebaaead06bc3cd56c865f2c2810cd2219e29104f",
+    "final-infrastructure.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+    "final-bootstrap.log": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+    "final-infrastructure-tests.log": "01deb6511f85853ed1710b35d2a284f063d670f69477b38106e64dfc09d750b7"
+  }
+}

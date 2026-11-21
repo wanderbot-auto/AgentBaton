@@ -3,7 +3,7 @@
 use agentbaton_config::runtime::{RuntimePlan, RuntimeProvider};
 use agentbaton_core::{factory::*, goal_plan::BudgetLimits, storage::Store};
 use agentbaton_workspaces::validation::{sha256, ArtifactRequirement};
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, OpenFlags};
 use serde_json::json;
 use std::{
     fs,
@@ -14,6 +14,27 @@ use std::{
 #[cfg(target_os = "linux")]
 #[path = "fixtures/factory_large_data_gate.rs"]
 mod large_data_gate;
+fn assert_current_factory_store(db: &Connection) -> u32 {
+    let schema = db
+        .pragma_query_value(None, "user_version", |row| row.get::<_, u32>(0))
+        .unwrap();
+    assert_eq!(
+        schema, 19,
+        "The current Factory fixture requires exact Store19"
+    );
+    let hosts = db
+        .query_row("SELECT count(*) FROM host_registrations", [], |row| {
+            row.get::<_, i64>(0)
+        })
+        .unwrap();
+    assert_eq!(
+        hosts, 0,
+        "Local Factory fixtures must leave Host registrations empty"
+    );
+    eprintln!("FACTORY_CURRENT_STORE schema={schema} host_registrations={hosts}");
+    schema
+}
+
 struct Fixture {
     _temp: tempfile::TempDir,
     path: PathBuf,
@@ -405,7 +426,7 @@ fn run_mode(mode: &str) {
     let companion_source =
         if mode == "planning" {
             PathBuf::from(std::env::var_os("AGENTBATON_CHILD_PLAN_COMPANION").expect(
-                "Use the explicitly frozen matching schema14 CLI; never borrow old shared13",
+                "Use the explicitly frozen CLI from the current Factory test-tool prebuild",
             ))
         } else {
             target.join("debug/baton")
@@ -1948,10 +1969,9 @@ fn run_data_mode(mode: &str) {
     fs::write(source.join("input.txt"), &before).unwrap();
     let target = PathBuf::from(std::env::var_os("CARGO_TARGET_DIR").unwrap());
     let tools = if mode == "planning" {
-        PathBuf::from(
-            std::env::var_os("AGENTBATON_FACTORY_TEST_TOOLS")
-                .expect("Planning requires explicit matching frozen schema14 daemon and CLI"),
-        )
+        PathBuf::from(std::env::var_os("AGENTBATON_FACTORY_TEST_TOOLS").expect(
+            "Planning requires the explicitly frozen daemon and CLI from the current checkout",
+        ))
     } else {
         std::env::var_os("AGENTBATON_FACTORY_TEST_TOOLS")
             .map(PathBuf::from)
@@ -2013,13 +2033,12 @@ fn run_data_mode(mode: &str) {
             json!({"daemon_id":daemon.0.id()}),
         );
     }
-    assert_eq!(
-        Connection::open(runtime.join("baton.sqlite3"))
-            .unwrap()
-            .pragma_query_value(None, "user_version", |r| r.get::<_, u32>(0))
-            .unwrap(),
-        18,
-        "Current Core18 tests require an exact schema18 daemon"
+    let observed_schema = assert_current_factory_store(
+        &Connection::open_with_flags(
+            runtime.join("baton.sqlite3"),
+            OpenFlags::SQLITE_OPEN_READ_ONLY,
+        )
+        .unwrap(),
     );
     let rpc = |method: &str, params: Value, key: Option<&str>, rev: Option<u64>| -> Value {
         let mut request = json!({"method":method,"params":params});
@@ -2037,6 +2056,9 @@ fn run_data_mode(mode: &str) {
         assert!(response.get("error").is_none(), "{method}: {response}");
         response["result"].clone()
     };
+    let snapshot = rpc("system.snapshot", json!({}), None, None);
+    assert_eq!(snapshot["api_version"], json!(1));
+    assert_eq!(snapshot["database_schema_version"], json!(observed_schema));
     let approve = |p: &Value, key: &str| {
         rpc(
             "approvals.finalize",

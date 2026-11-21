@@ -1,0 +1,23 @@
+{
+  "source_head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+  "command": [
+    "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/infrastructure"
+  ],
+  "started_utc": "2026-11-17T20:49:26.725666+00:00",
+  "expected_total": 897,
+  "Rust_unchanged_from_verified": "649cbab200f613a5e8a66d281da45932adccc7c5",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T20:49:46.924271+00:00",
+  "actual_total": 897,
+  "skipped": 16,
+  "count_gate": true,
+  "log_sha256": "7c5a7b3399e0e283782d681433d4d6b840919b634204ea23b6a18c23399c4955",
+  "log_bytes": 2420,
+  "all_children_joined": true,
+  "status": "passed"
+}

@@ -1,0 +1,564 @@
+{
+  "base": "02f2886285f21cf62ba616c8c1797728191677fe",
+  "target_head": "02f2886285f21cf62ba616c8c1797728191677fe",
+  "target_ref": "origin/collab/host-registration-integration",
+  "tested_source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+  "git_trees": {
+    "02f2886285f21cf62ba616c8c1797728191677fe": "618a78cc2692c3a116fe751150cb73ab3f442ccd",
+    "4f71ddab26d227a8d6b6db192d1ac60148506784": "2918238f8ae4880152b58d8d75babf4305905083",
+    "1f756ce201b8cf10f4b1798053674f4e960ac77d": "7b8e24d44de7a3288bd5ee3a3f780a39c14dea6a",
+    "cf04dc19e0e225d831d8c337c7ecf11e12f307fb": "267b1904a38e3060ada199509eadd422022ade47"
+  },
+  "scope_file_sha256": {
+    "apps/desktop/src-tauri/src/background_policy.rs": "eee262739e3acbf3fe770f5663ba8daa43fb6b7409cf7e9c7564f23ea1f5641c",
+    "apps/desktop/src-tauri/src/lib.rs": "732cdee38bf31f4dbcbe5d4a86f5626ea3010f08a4600f2a47e67ad03be9c204",
+    "tests/infrastructure/host_native_schema19_source_fixture.py": "fe27058e057ac9c5bceefab9ccc197b6141fd5e845a6d3b8a0a3cd2fbb025812",
+    "tests/infrastructure/test_background_service_native_smoke_source.py": "8a30b8246bbba7d508ccda3d6d0efa736a78bfaa1ca9036785c8de2a145e2c2b",
+    "tests/infrastructure/test_host_native_bridge_source_fixture.py": "a85d18febaeac0bab94f89a515393d620fd9f99b7e00e28b7c417f880ae9d91a",
+    "tests/infrastructure/test_host_native_schema19_source_fixture.py": "2740a92561800a7f41567ce9474c29d68506a5f5baef8d404fe9183efeea4ef0"
+  },
+  "old_bridge_helper_sha256": "d72f1827690173814e957f804a5af6d6cf2bff05fb7d9b951a1f9b349b0ed268",
+  "source_historical_layers": {
+    "current_lib_sha256": "732cdee38bf31f4dbcbe5d4a86f5626ea3010f08a4600f2a47e67ad03be9c204",
+    "base_lib_sha256": "338fbef7689416a71ec101aaad3ac5afb91e433c55d5c1c4bf413242108944d5",
+    "historical_lib_sha256": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb"
+  },
+  "unchanged_manifest_and_lock": {
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    "apps/desktop/src-tauri/Cargo.toml": "aa39d0eb4cf8e504556acf515d2734089cdc6dbf84c698bbd63ca6f7a7d2baa2"
+  },
+  "binaries": {
+    "baton": {
+      "compiled_from": "cf04dc19e0e225d831d8c337c7ecf11e12f307fb",
+      "path": "target/release/baton",
+      "copy": "apps/desktop/src-tauri/binaries/baton-aarch64-apple-darwin",
+      "sha256": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+      "file": "target/release/baton: Mach-O 64-bit executable arm64"
+    },
+    "batond": {
+      "compiled_from": "cf04dc19e0e225d831d8c337c7ecf11e12f307fb",
+      "path": "target/release/batond",
+      "copy": "apps/desktop/src-tauri/binaries/batond-aarch64-apple-darwin",
+      "sha256": "f75eca51ec0ab4384e24a42143ac5d455e554bf5be4928428ecb24c39b976d84",
+      "file": "target/release/batond: Mach-O 64-bit executable arm64"
+    },
+    "final_native_test": {
+      "compiled_from": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "path": "target/debug/deps/agentbaton_desktop-bb08e679bd044b53",
+      "sha256": "4dcb713579b5e66abbdce536b0caba45c12c4f3a528e82219cd2fab093d29abd",
+      "file": "target/debug/deps/agentbaton_desktop-bb08e679bd044b53: Mach-O 64-bit executable arm64"
+    },
+    "red_native_test": {
+      "compiled_from": "cf04dc19e0e225d831d8c337c7ecf11e12f307fb",
+      "retained_sha256": "267ac549d6a1d6bf9cdc4dc585eb315b83be465e3a8d15be6ef59f605382f12c"
+    }
+  },
+  "lint_and_fmt_baselines": {
+    "fmt_files": [
+      "apps/desktop/src-tauri/src/approval.rs",
+      "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "apps/desktop/src-tauri/src/native_parent.rs"
+    ],
+    "lint_files_and_counts": {
+      "apps/desktop/src-tauri/src/approval_managed_mcp.rs": 2,
+      "apps/desktop/src-tauri/src/approval.rs": 6,
+      "apps/desktop/src-tauri/src/background_service.rs": 5,
+      "apps/desktop/src-tauri/src/detached_daemon.rs": 1
+    },
+    "files_identical_to_02f_and_C3_pins": {
+      "apps/desktop/src-tauri/src/native_parent.rs": {
+        "git_blob": "24b1a9a95e54aba1fcdafc0ac55b2dcc9c0102ae",
+        "sha256": "92e3b3a947a5d2131a136b84de07face812f1bafc3b74ec128238c216fdd1caf"
+      },
+      "apps/desktop/src-tauri/src/detached_daemon.rs": {
+        "git_blob": "e725cab7fb8846bed8e324188407412ea2d6dd7c",
+        "sha256": "c81597ef9145297be4c7746d3c7394d68e57761b1ca98153538ed9b9bfd0b7fa"
+      },
+      "apps/desktop/src-tauri/src/bin/native_smoke.rs": {
+        "git_blob": "5aa130480635e29602ba7c21aca5c4edb75f7af3",
+        "sha256": "5145fdce52955077dcfd591b712977452dec3cfd09bb4bb06807968e0a1bcdfa"
+      },
+      "apps/desktop/src-tauri/src/approval.rs": {
+        "git_blob": "401a39051a210684563ae6c6e97c345d579d6066",
+        "sha256": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6"
+      },
+      "apps/desktop/src-tauri/src/approval_managed_mcp.rs": {
+        "git_blob": "bd8edc0dcb9ad943a8ee7e65b35f883660f644e8",
+        "sha256": "00e905562548e86eb1b0240bc00a5736920c7706388d5295e88e18105c85d429"
+      },
+      "apps/desktop/src-tauri/src/background_service.rs": {
+        "git_blob": "e17ba8dd145a706cf8e48ff2619775eef54334cc",
+        "sha256": "a832f0dd2e92feddaf417e9ff99d7f543f8e8e6318eb072593212b4458532e7a"
+      }
+    }
+  },
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit",
+    "architecture": "arm64",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)"
+  },
+  "runs": {
+    "approval-green": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "integration_approval::tests::",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.189,
+      "log_sha256": "c94942f5827cbf5b6aa7405f5189a106165f91a13dad53e0d9cb169d3490cb15"
+    },
+    "approval-presentation": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "integration_approval::full_presentation_tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.178,
+      "log_sha256": "54d046c152fb1682701ccfcea3cceb29a8c377c26fb86ae5f8cfbc81abd978e6"
+    },
+    "approval-typed": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "integration_approval::typed_review_tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.395,
+      "log_sha256": "46dff30bf13f3f952013b71496764e7db2929e1d86c76e15e90b0bc9fdd15dfb"
+    },
+    "background-engine-exact": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "background_service::engine::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 1.123,
+      "log_sha256": "825e126cadd96a79800fbe95dd708c609d116856991ae77562396a0ece5a3fa8"
+    },
+    "background-engine-green": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "background_service::tests::",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.209,
+      "log_sha256": "44cbae1a41e9689e64602c3d9070dcbed46b59fe2c95267fa08dd66b640a8a9a"
+    },
+    "background-policy-green": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "background_policy::tests::",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.196,
+      "log_sha256": "c9c12569f04e01e88967a493b8a15b1f0a0664269015f7ba64a77f44f6ff6f8b"
+    },
+    "background-red": {
+      "source": "cf04dc19e0e225d831d8c337c7ecf11e12f307fb",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "background_policy::tests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 101,
+      "seconds": 0.374,
+      "log_sha256": "4cbe152036aee7f6e85b14cf5899479090b084ce9f841bb1ae358a63b7912765"
+    },
+    "clippy-all": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 101,
+      "seconds": 23.804,
+      "log_sha256": "fc4409587ac489c4aca97c5a802534ab301016fcdb832f26a3ed039b75b52fd8"
+    },
+    "fmt-crate": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--",
+        "--check"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 1,
+      "seconds": 0.37,
+      "log_sha256": "24a675d064e1f112deb7e65770a2414911d708e1304d2ea1162c9ab0e09b0145"
+    },
+    "fmt-policy": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--check",
+        "apps/desktop/src-tauri/src/background_policy.rs"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.076,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "handshake-green": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "integration_bridge_tests::",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 3.973,
+      "log_sha256": "749bc05051a9e282d2fc4f6e1ab346a46dde67e4ca2adb1b778eed488fa36209"
+    },
+    "handshake-red": {
+      "source": "cf04dc19e0e225d831d8c337c7ecf11e12f307fb",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "integration_bridge_tests::",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 101,
+      "seconds": 132.908,
+      "log_sha256": "678334e3fd50fe1d9b317df1a913c7c9ae4027104ae4c8e6a237cc69c3d22e03"
+    },
+    "hosts-green": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "hosts::tests::",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.85,
+      "log_sha256": "8867e12f715ee5ac7fc6697cbff081e5aeed08b6f6f7c7f519773429ef0fc8cf"
+    },
+    "infra-full": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure",
+        "-p",
+        "test_*.py"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 23.87,
+      "log_sha256": "27cd1cc86f597dec374bf4f25af0f1e5d40fda837c81330055a6d7bfdafcd673"
+    },
+    "sidecar-build": {
+      "source": "cf04dc19e0e225d831d8c337c7ecf11e12f307fb",
+      "argv": [
+        "cargo",
+        "build",
+        "--offline",
+        "--release",
+        "--locked",
+        "--bin",
+        "batond",
+        "--bin",
+        "baton"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 88.598,
+      "log_sha256": "f81fc06d8e2c644e81c20cb2c2c5ac0a03259c9a64ce3bb32e41c08f44bdaed2"
+    },
+    "sidecar-stage": {
+      "source": "cf04dc19e0e225d831d8c337c7ecf11e12f307fb",
+      "argv": [
+        "bash",
+        "scripts/prepare-desktop-sidecars.sh"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.132,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source-c3": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "apps/desktop/src-tauri/tests/test_hosts_native_source.py"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.038,
+      "log_sha256": "921b60a7fd52e978fbb551cacd29df2d6708879400278e1fcc70fceeb0c6f8e0"
+    },
+    "source-targeted": {
+      "source": "4f71ddab26d227a8d6b6db192d1ac60148506784",
+      "argv": [
+        "env",
+        "PYTHONPATH=tests/infrastructure",
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_host_native_schema19_source_fixture",
+        "test_host_native_bridge_source_fixture",
+        "test_background_service_native_smoke_source"
+      ],
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0"
+      },
+      "exit": 0,
+      "seconds": 0.775,
+      "log_sha256": "ecc5a05db9e2128e808348a925a3b43f5f57347f6cf95fbb7096cba1c2547746"
+    }
+  },
+  "logs": {
+    "approval-green.log": {
+      "sha256": "c94942f5827cbf5b6aa7405f5189a106165f91a13dad53e0d9cb169d3490cb15",
+      "bytes": 587
+    },
+    "approval-presentation.log": {
+      "sha256": "54d046c152fb1682701ccfcea3cceb29a8c377c26fb86ae5f8cfbc81abd978e6",
+      "bytes": 517
+    },
+    "approval-typed.log": {
+      "sha256": "46dff30bf13f3f952013b71496764e7db2929e1d86c76e15e90b0bc9fdd15dfb",
+      "bytes": 1029
+    },
+    "background-engine-exact.log": {
+      "sha256": "825e126cadd96a79800fbe95dd708c609d116856991ae77562396a0ece5a3fa8",
+      "bytes": 2336
+    },
+    "background-engine-green.log": {
+      "sha256": "44cbae1a41e9689e64602c3d9070dcbed46b59fe2c95267fa08dd66b640a8a9a",
+      "bytes": 266
+    },
+    "background-policy-green.log": {
+      "sha256": "c9c12569f04e01e88967a493b8a15b1f0a0664269015f7ba64a77f44f6ff6f8b",
+      "bytes": 935
+    },
+    "background-red.log": {
+      "sha256": "4cbe152036aee7f6e85b14cf5899479090b084ce9f841bb1ae358a63b7912765",
+      "bytes": 2135
+    },
+    "clippy-all.log": {
+      "sha256": "fc4409587ac489c4aca97c5a802534ab301016fcdb832f26a3ed039b75b52fd8",
+      "bytes": 14266
+    },
+    "fmt-crate.log": {
+      "sha256": "24a675d064e1f112deb7e65770a2414911d708e1304d2ea1162c9ab0e09b0145",
+      "bytes": 2652
+    },
+    "fmt-policy.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "handshake-green.log": {
+      "sha256": "749bc05051a9e282d2fc4f6e1ab346a46dde67e4ca2adb1b778eed488fa36209",
+      "bytes": 877
+    },
+    "handshake-red.log": {
+      "sha256": "678334e3fd50fe1d9b317df1a913c7c9ae4027104ae4c8e6a237cc69c3d22e03",
+      "bytes": 10138
+    },
+    "hosts-green.log": {
+      "sha256": "8867e12f715ee5ac7fc6697cbff081e5aeed08b6f6f7c7f519773429ef0fc8cf",
+      "bytes": 1022
+    },
+    "infra-full.log": {
+      "sha256": "27cd1cc86f597dec374bf4f25af0f1e5d40fda837c81330055a6d7bfdafcd673",
+      "bytes": 2684
+    },
+    "sidecar-build.log": {
+      "sha256": "f81fc06d8e2c644e81c20cb2c2c5ac0a03259c9a64ce3bb32e41c08f44bdaed2",
+      "bytes": 2940
+    },
+    "sidecar-stage.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source-c3.log": {
+      "sha256": "921b60a7fd52e978fbb551cacd29df2d6708879400278e1fcc70fceeb0c6f8e0",
+      "bytes": 101
+    },
+    "source-targeted.log": {
+      "sha256": "ecc5a05db9e2128e808348a925a3b43f5f57347f6cf95fbb7096cba1c2547746",
+      "bytes": 4594
+    }
+  },
+  "test_counts": {
+    "tauri_targeted_rust_passed": 48,
+    "source_targeted_passed": 21,
+    "direct_C3_source_passed": 3,
+    "full_infra_passed": 915,
+    "full_infra_old_skips": 16,
+    "red_failed": 4,
+    "red_passed": 6
+  },
+  "processes": "Both native --locked batches and their child processes joined. The tested private Daemon thread joined successfully, unlinked its socket, and the test removed its generated runtime. No App window, login service, remote Provider or CI.",
+  "recorded_utc": "2026-11-18T15:26:16.303006+00:00"
+}

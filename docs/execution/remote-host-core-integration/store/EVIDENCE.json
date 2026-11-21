@@ -1,0 +1,109 @@
+{
+  "task": "RHOST-002",
+  "phase": "RHOST002B",
+  "status": "dormant_Store_locally_reviewed_ready_pending_composition_new_CI",
+  "accepted_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "package_start": "4e48985d68f324d3980a981abd5c7789d0379090",
+  "branch": "collab/remote-host-core-integration",
+  "verified_source_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "delivery_commit": "Containing later docs-only commit; exact head reported after commit. Verify its13 product hashes against VERIFIED_SOURCE.json.",
+  "authority": "artifacts/collab/STORE_TASK.md; eight extra literal paths, no scope expansion",
+  "actual_product_files": [
+    "Cargo.lock",
+    "Cargo.toml",
+    "apps/desktop/src-tauri/Cargo.lock",
+    "crates/core/Cargo.toml",
+    "crates/core/src/host_registry.rs",
+    "crates/core/src/host_registry_tests.rs",
+    "crates/core/src/registry.rs",
+    "crates/core/tests/fixtures/host_registration/README.md",
+    "crates/core/tests/fixtures/host_registration/ddl.sql",
+    "crates/core/tests/fixtures/host_registration/event-payload-v1.json",
+    "crates/core/tests/fixtures/host_registration/payload-v1.json",
+    "crates/core/tests/fixtures/host_registration/receipt-v1.json",
+    "crates/core/tests/fixtures/host_registration/record-v1.json"
+  ],
+  "verified_source_manifest": "VERIFIED_SOURCE.json",
+  "source_composite_sha256": "cc239474bb936843f0714f3bb7468c31e3c90b8d9bb40a4fff03a3832b12f1ab",
+  "current_results": {
+    "fmt": 0,
+    "Core_all_targets_strict_clippy": 0,
+    "targeted_tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "other_lib_tests_filtered": 380
+  },
+  "lock_resolution": {
+    "root": "Passed offline minimal closure, only Host package/Core edge",
+    "desktop": "Original broad resolver artifact retained; unrelated11 edges restored to exact4c. One full offline locked metadata exits0; final lock unchanged. All original pins AND dependency edges preserved.",
+    "evidence": [
+      "locks/EVIDENCE.json",
+      "locks/DESKTOP_MINIMAL.json"
+    ]
+  },
+  "foundation_source": "All14 source hashes remain cb5/prior verified bytes, not retested here",
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cargo_version": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target",
+    "target_resolved": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target"
+  },
+  "test_binary": {
+    "printed_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target/debug/deps/agentbaton_core-3e149a5721946c12",
+    "resolved_path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration/target/debug/deps/agentbaton_core-3e149a5721946c12",
+    "exists": true,
+    "bytes": 32406048,
+    "sha256": "cdb3854d1415079c579feea4085fa8b18949a4026c5d05f055f5f7b0cf6589f2"
+  },
+  "processes": {
+    "executor_sessions_joined": [
+      35379,
+      79293,
+      54910
+    ],
+    "all_commands_returned": true,
+    "new_services_companions": 0,
+    "heavy_slot": "released to root after final successful command"
+  },
+  "independent_review": "Leader reports independent verification of039/ac thirteen source Git blobs, fourteen cb5-frozen files, three original command logs/JSON/21 counts and actual binary; dormant slice locally ready, not main/Store19/IPC acceptance.",
+  "historical_attempts": [
+    {
+      "head": "4c84a654f035c4b0150ce5b714beef638aa31927",
+      "status": "authored_not_tested",
+      "note": "Two locks unresolved then; review2P2. Historical, not current closure status."
+    },
+    {
+      "head": "8c6a86c1973c1039014482e585c635425d608a50",
+      "status": "compile_failed_0_tests",
+      "evidence": "runs/20261117T191947Z/tests.json",
+      "note": "First E0277 FromSql test failure retained."
+    },
+    {
+      "head": "2383a3b4c1ad27dc2f1cd8c90a80260d30e1b6ac",
+      "status": "20_pass_previous_source",
+      "evidence": "runs/20261117T192113Z/tests.json",
+      "note": "Does not close later integer/schema-null P2. Not added to current21 count."
+    },
+    {
+      "head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+      "status": "fmt_clippy21_tests_passed",
+      "evidence": "runs/20261117T192508Z",
+      "note": "Current verification input, product source frozen pending root independent review."
+    }
+  ],
+  "not_run": [
+    "Private19 fixture only; ordinary Store::open18 and schema activation unchanged",
+    "Response-loss test discards method return, not real IPC/network disconnect",
+    "DELETE-journal path collision and deferred-FK commit failure are actual faults; production WAL crash/power-loss I/O not proven",
+    "No full400 Core execution; all-target strict clippy compiled targets,21 actual targeted tests only",
+    "No real SSH/Provider/Linux/native/UI/CI/push"
+  ],
+  "unresolved": [
+    "A dormant migration/reference package and coordinated Store19 activation/current-historical closure",
+    "Core IPC/native/UI registration vertical and full integration acceptance",
+    "real SSH/Linux/Provider/routing/offline execution/data transfer/retention/budget integration"
+  ],
+  "no_push_CI_merge": true
+}

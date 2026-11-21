@@ -1,0 +1,61 @@
+{
+  "requirement": "AB-REL-007",
+  "worker_tested_source": "d38934919cf8b44e7bab44f2123f68d4faf5af89",
+  "worker_delivery": "1026b0df118d0931cf531c9f43dd5e520939c14e",
+  "review_target": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "local_staging_commit": "b349c7ce3a65483541de469de730b13f35d35221",
+  "local_staging_tree": "17b0305f4974d3ed1daad07da1c83f16f7462338",
+  "independent_receipt_sha256": "854ff6658fbbfd4780ce7c6b0f7319504d538fcfe8d6582ffe5d050d39976c28",
+  "focused_tests": {
+    "passed": 15,
+    "log_sha256": "97466d5cd6e86885499a0e06a0821b0855e8f61b03fd98b6e9231203eca8cff8"
+  },
+  "rehearsal": {
+    "candidate": {
+      "arch": "aarch64",
+      "artifact_sha256": "199090d5dbd25a596e18baf6e4e6cb6436e3b4ecf57c02081f4d49a9831c4498",
+      "bundled_daemon_sha256": "0b18add53fc794e6684690a90b74542e487f18409216b2724c8d3d438785a1a1",
+      "channel": "development",
+      "commit": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+      "developer_id_signed": false,
+      "os": "macos",
+      "target_schema": 19,
+      "tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+      "version": "0.1.0"
+    },
+    "source_sequence": 5,
+    "schemas": [
+      18,
+      19,
+      18
+    ],
+    "backup_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+    "restoration_sha256": "2ef73ba584bd368923a5834bb0e84189f414cd43f739bfe0a020fd4777b9a71d",
+    "restoration_bytes_equal": true,
+    "wrong_package_refused_before_launch": true,
+    "all_source_hashes_and_metadata_unchanged": true,
+    "candidate_owned_group_joined": true,
+    "delivery_artifact_hashes_verified": 3
+  },
+  "scope": "An isolated migration and recovery replay with a hash-pinned development artifact and generated historical Store. Old binary relaunch, real active task update admission, app installation, signing and publishing remain unverified. No update authorization was issued.",
+  "historical_core_reopen": {
+    "worker_delivery": "c42805dce612ee7bf62fb8c9a751e60535e7b684",
+    "staged_head": "f88e7d9358c23affd0ed30c340dfbd150c34ecd6",
+    "staged_tree": "0bbce76622e55bc17bfaf4da58d2dd62abfc1885",
+    "receipt_sha256": "0da90ec819999d8b6cd2e354d1e9db914d420717c1f1aadf372529ab40ec348e",
+    "old_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "old_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+    "old_tool_sha256": {
+      "baton": "82f6c54bfd49be8ae19a9cd66b1c32a4b1a5edc8d33145a564b80c792ca2fc61",
+      "batond": "d418f8c1a97a430d21f77c0fc52953eee215cd536523dd4582bfb48f10739603"
+    },
+    "read_only_calls": 4,
+    "report_schema": 18,
+    "event_sequence": 5,
+    "standalone_bytes_preserved": true,
+    "old_owned_exit": 0,
+    "newer_store_control_exit": 1,
+    "newer_store_control_code": "VERSION_UNSUPPORTED",
+    "installation_authorized": false
+  }
+}

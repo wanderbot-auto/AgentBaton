@@ -1,0 +1,29 @@
+{
+  "source_head": "2383a3b4c1ad27dc2f1cd8c90a80260d30e1b6ac",
+  "status": "passed",
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "Cargo.toml",
+    "-p",
+    "agentbaton-core",
+    "--lib",
+    "registry::host_registry::tests",
+    "-j",
+    "2",
+    "--",
+    "--nocapture",
+    "--test-threads=2"
+  ],
+  "started_utc": "2026-11-17T19:21:13.512939+00:00",
+  "previous_failure": "../20261117T191947Z/tests.json",
+  "note": "Explicit private19 SQLite fixture; no product Store19 migration/IPC/native/SSH/Provider acceptance.",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T19:22:35.671246+00:00",
+  "log_sha256": "5ab97c73f78b9926a72f0cbd8c70b49aaeb1509a0953318fb18a3a93cbd150fa",
+  "log_bytes": 2536,
+  "all_started_child_processes_joined": true
+}

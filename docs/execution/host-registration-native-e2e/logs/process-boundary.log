@@ -1,0 +1,14 @@
+Before frozen native run
+2026-11-18T16:40:15Z
+ 1883 /Users/wander/Documents/code/agentBaton-next/target/debug/batond
+ 2356 /Users/wander/Documents/code/agentBaton-next/target/debug/agentbaton-desktop
+After frozen native run
+2026-11-18T16:40:28Z
+ 1883 /Users/wander/Documents/code/agentBaton-next/target/debug/batond
+ 2356 /Users/wander/Documents/code/agentBaton-next/target/debug/agentbaton-desktop
+Task runtime empty after the App and socket runs
+After final native and socket phases
+2026-11-18T16:42:19Z
+ 1883 /Users/wander/Documents/code/agentBaton-next/target/debug/batond
+ 2356 /Users/wander/Documents/code/agentBaton-next/target/debug/agentbaton-desktop
+Task runtime empty after the App and socket runs

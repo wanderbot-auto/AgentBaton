@@ -6,6 +6,24 @@ import re
 import tomllib
 import unittest
 
+from tests.infrastructure.host19_native_smoke_source_fixture import (
+    NATIVE_SMOKE_PATH,
+    restore_native_smoke_before_schema19,
+)
+from tests.infrastructure.host19_native_webview_source_fixture import (
+    NATIVE_WEBVIEW_PATHS,
+    restore_native_runner_before_darwin_cleanup,
+    restore_native_webview_before_schema19,
+)
+from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
+from tests.infrastructure.host_native_schema19_source_fixture import restore_host_native_schema18
+from tests.infrastructure.macos_ci_partition_source_fixture import normalize_partitioned_workflow
+
+from tests.infrastructure.host19_native_integration_owner_source_fixture import (
+    SOURCE_LAYERS as INTEGRATION_OWNER_LAYERS,
+    restore_integration_owner_before_schema19,
+)
+
 ROOT = Path(__file__).resolve().parents[2]
 DESKTOP_DEV_PROFILE_LAYER = '''# This is a separate Cargo workspace. Match the root's runtime-sensitive dev
 # overrides so the helper can reuse dependencies in one checkout-local target.
@@ -42,6 +60,45 @@ def strip_desktop_dev_profile_layer(manifest):
     return manifest.replace(DESKTOP_DEV_PROFILE_LAYER, '', 1)
 
 
+
+# Versioned Host registration dependency layer. These are complete immutable
+# inputs, not a discovered baseline or permission to regenerate historical pins.
+HOST_DESKTOP_LOCK_V1_SHA256 = '439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5'
+PRE_HOST_DESKTOP_LOCK_SHA256 = 'f1ad092cfc6b1317d259831e197e160d100de8c6ef292b075104531276667515'
+HOST_CORE_EDGE_V1 = (
+    'name = "agentbaton-core"\nversion = "0.1.0"\ndependencies = [\n'
+    ' "agentbaton-config",\n "agentbaton-providers",\n'
+    ' "agentbaton-remote-host",\n "agentbaton-workspaces",\n'
+)
+# Exact reviewed node includes its additional adjacent newline in439 bytes.
+HOST_PACKAGE_V1 = (
+    '[[package]]\nname = "agentbaton-remote-host"\nversion = "0.1.0"\n'
+    'dependencies = [\n "libc",\n "rusqlite",\n "serde",\n'
+    ' "serde_json",\n "sha2",\n]\n\n\n'
+)
+
+
+def strip_host_registration_lock_v1(raw):
+    """Exact439 -> exactf1ad, then the caller retains its original libc inverse."""
+    if not isinstance(raw, bytes):
+        raise ValueError('Host lock inverse requires exact bytes')
+    pin = hashlib.sha256(raw).hexdigest()
+    if pin == PRE_HOST_DESKTOP_LOCK_SHA256:
+        return raw
+    if pin != HOST_DESKTOP_LOCK_V1_SHA256:
+        raise ValueError('Unknown complete desktop lock input for Host layer v1')
+    source = raw.decode('utf-8')
+    if source.count(HOST_CORE_EDGE_V1) != 1 or source.count(HOST_PACKAGE_V1) != 1:
+        raise ValueError('Host v1 dependency edge/node must each occur exactly once')
+    parent = source.replace(
+        HOST_CORE_EDGE_V1,
+        HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",\n', '', 1), 1,
+    ).replace(HOST_PACKAGE_V1, '', 1).encode('utf-8')
+    if hashlib.sha256(parent).hexdigest() != PRE_HOST_DESKTOP_LOCK_SHA256:
+        raise ValueError('Host layer did not restore the complete historical parent')
+    return parent
+
+
 BG_STEP_NAME = 'Actual Native background registration IPC in generated private paths'
 # Exact workflow at 4ce910b and the same bytes with the new Native step.
 BASE_WORKFLOW_SHA256 = 'e9e70c5340ca711528e6df6f9c2434104e021068054bf74cb5d3f9efc90984e5'
@@ -62,6 +119,9 @@ BG_STEP = (
 
 def restore_previous_mac_matrix(text):
     """Reverse only the exact Apple Silicon matrix change for historical pins."""
+    from tests.infrastructure.test_schema19_browser_ci_workflow import normalize_workflow
+
+    text = normalize_workflow(text)
     if text.count(CURRENT_MAC_MATRIX) != 1 or PREVIOUS_MAC_MATRIX in text:
         raise ValueError('Expected one Apple Silicon matrix')
     restored = text.replace(CURRENT_MAC_MATRIX, PREVIOUS_MAC_MATRIX, 1)
@@ -243,14 +303,63 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         for name, pin in ORIGINAL_19_TEST_PINS.items():
             self.assertEqual(hashlib.sha256(original_function(source, name).encode()).hexdigest(), pin, name)
 
-        lib = (ROOT/'apps/desktop/src-tauri/src/lib.rs').read_text()
+        raw_lib = (ROOT/'apps/desktop/src-tauri/src/lib.rs').read_bytes()
+        lib = raw_lib.decode('utf-8')
         for name, (command_pin, production_pin) in BRIDGE_COMMAND_PINS.items():
             function = original_function(lib, name)
             self.assertEqual(token_sha(function), command_pin, name)
             self.assertEqual(token_sha(strip_fixture_cfg(function)), production_pin, name)
-        self.assertEqual(restored_parent_bridge_token_sha(lib), PARENT_BRIDGE_TOKEN_SHA256)
+        predecessor = restore_host_native_bridge_v1(restore_host_native_schema18(raw_lib)).decode('utf-8')
+        self.assertEqual(restored_parent_bridge_token_sha(predecessor), PARENT_BRIDGE_TOKEN_SHA256)
         self.assertEqual(hashlib.sha256(original_function(lib, 'ensure_daemon').encode()).hexdigest(),
                          PARENT_ENSURE_DAEMON_SHA256)
+
+    def test_host_lock_v1_restores_exact_parent_before_original_libc_inverse(self):
+        raw = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), HOST_DESKTOP_LOCK_V1_SHA256)
+        parent = strip_host_registration_lock_v1(raw)
+        self.assertEqual(hashlib.sha256(parent).hexdigest(), PRE_HOST_DESKTOP_LOCK_SHA256)
+        self.assertEqual(strip_host_registration_lock_v1(parent), parent)
+        before = tomllib.loads(parent.decode())['package']
+        current = tomllib.loads(raw.decode())['package']
+        self.assertEqual(len(current), len(before) + 1)
+        by_id = {(p['name'], p['version'], p.get('source')): p for p in current}
+        for old in before:
+            expected = dict(old)
+            if old['name'] == 'agentbaton-core':
+                expected['dependencies'] = sorted(old['dependencies'] + ['agentbaton-remote-host'])
+            self.assertEqual(by_id[(old['name'], old['version'], old.get('source'))], expected)
+
+    def test_host_lock_v1_refuses_changed_edges_nodes_versions_checksums_and_unknown_bytes(self):
+        raw = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), HOST_DESKTOP_LOCK_V1_SHA256)
+        source = raw.decode()
+        checksum = re.search(r'checksum = "([0-9a-f]{64})"', source).group(1)
+        changed_checksum = ('0' if checksum[0] != '0' else '1') + checksum[1:]
+        bad = {
+            'missing Core edge': source.replace(HOST_CORE_EDGE_V1, HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",\n', '', 1), 1),
+            'duplicate Core edge': source.replace(HOST_CORE_EDGE_V1, HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",\n', ' "agentbaton-remote-host",\n "agentbaton-remote-host",\n', 1), 1),
+            'changed Core edge': source.replace(HOST_CORE_EDGE_V1, HOST_CORE_EDGE_V1.replace(' "agentbaton-remote-host",', ' "agentbaton-remote-host 0.2.0",'), 1),
+            'missing Host node': source.replace(HOST_PACKAGE_V1, '', 1),
+            'duplicate Host node': source + HOST_PACKAGE_V1,
+            'lock format version': source.replace('version = 4\n', 'version = 3\n', 1),
+            'Host node padding': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1[:-1], 1),
+            'Host version': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1.replace('version = "0.1.0"', 'version = "0.2.0"'), 1),
+            'Host dependency': source.replace(HOST_PACKAGE_V1, HOST_PACKAGE_V1.replace(' "libc",', ' "not-approved",'), 1),
+            'unrelated checksum': source.replace(checksum, changed_checksum, 1),
+            'unrelated resolved edge': source.replace(' "syn 3.0.9",', ' "syn 2.0.119",', 1),
+            'unknown suffix': source + '\n# unreviewed\n',
+            'CRLF normalization': source.replace('\n', '\r\n'),
+            'UTF8 BOM': '\ufeff' + source,
+        }
+        for label, changed in bad.items():
+            self.assertNotEqual(changed, source, label)
+            with self.subTest(label=label), self.assertRaises(ValueError):
+                strip_host_registration_lock_v1(changed.encode())
+        parent = strip_host_registration_lock_v1(raw)
+        for unknown in (b'', b'unknown', parent + b'\n', parent.replace(b'\n', b'\r\n'), b'\xff', source):
+            with self.subTest(unknown=type(unknown).__name__), self.assertRaises(ValueError):
+                strip_host_registration_lock_v1(unknown)
 
     def test_all_parent_harness_guards_lock_and_cargo_source_are_exact(self):
         from tests.infrastructure.schema18_source_fixture import restore
@@ -259,13 +368,21 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         layers = json.loads(inverse)
         for path, pin in UNCHANGED_FILE_PINS.items():
             raw = (ROOT/path).read_bytes()
+            if path in INTEGRATION_OWNER_LAYERS:
+                raw = restore_integration_owner_before_schema19(path, raw)
+            if path == NATIVE_SMOKE_PATH:
+                raw = restore_native_smoke_before_schema19(path, raw)
+            if path in NATIVE_WEBVIEW_PATHS:
+                raw = restore_native_webview_before_schema19(path, raw)
             if path in layers:
                 layer = layers[path]
                 self.assertEqual(hashlib.sha256(raw).hexdigest(), layer['after'], path)
                 raw = restore(raw.decode(), layer['edits'], pin, AssertionError).encode()
             self.assertEqual(hashlib.sha256(raw).hexdigest(), pin, path)
 
-        lock = (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_text()
+        lock = strip_host_registration_lock_v1(
+            (ROOT/'apps/desktop/src-tauri/Cargo.lock').read_bytes()
+        ).decode('utf-8')
         addition = ('name = "agentbaton-desktop"\nversion = "0.1.0"\ndependencies = [\n'
                     ' "agentbaton-core",\n "libc",\n')
         self.assertEqual(lock.count(addition), 1)
@@ -285,6 +402,43 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
             manifest = manifest.replace(addition, '', 1)
         self.assertEqual(hashlib.sha256(manifest.encode()).hexdigest(),
                          '3b6bb5205adb7610d639fb42cb7154c189e04030d8e18ccf71d2c42070bcb028')
+
+    def test_darwin_cleanup_inverse_recovers_only_the_pinned_store19_runner(self):
+        path = 'scripts/native-run.py'
+        raw = (ROOT / path).read_bytes()
+        previous = restore_native_runner_before_darwin_cleanup(raw)
+        self.assertEqual(hashlib.sha256(previous).hexdigest(),
+                         '12ae8dbc28abef5fbdd0031fffbb5d45d9ae78c724242abdf747432cc201e503')
+        self.assertEqual(hashlib.sha256(restore_native_webview_before_schema19(path, raw)).hexdigest(),
+                         UNCHANGED_FILE_PINS[path])
+        with self.assertRaises(ValueError):
+            restore_native_webview_before_schema19(path, previous)
+        anchor = b'# Recheck the original group while its leader is still unreaped.\n'
+        self.assertEqual(raw.count(anchor), 1)
+        for invalid in (previous, raw.replace(anchor, b'', 1), raw + anchor, bytearray(raw)):
+            with self.subTest(source_type=type(invalid).__name__, size=len(invalid)), self.assertRaises(ValueError):
+                restore_native_runner_before_darwin_cleanup(invalid)
+
+    def test_webview_schema19_inverse_refuses_unknown_and_historical_inputs(self):
+        anchor = b'READONLY_SCHEMA_VERSION'
+        for path in NATIVE_WEBVIEW_PATHS:
+            source = (ROOT/path).read_bytes()
+            parent = restore_native_webview_before_schema19(path, source)
+            self.assertIn(anchor, source)
+            variants = {
+                'historical input': parent,
+                'removed anchor': source.replace(anchor, b'', 1),
+                'duplicate anchor': source.replace(anchor, anchor + anchor, 1),
+                'moved anchor': source.replace(anchor, b'', 1) + anchor,
+                'CRLF normalization': source.replace(b'\n', b'\r\n'),
+                'unrelated suffix': source + b'# unknown bytes\n',
+                'non-byte input': source.decode('utf-8'),
+            }
+            for label, changed in variants.items():
+                with self.subTest(path=path, variant=label), self.assertRaises(ValueError):
+                    restore_native_webview_before_schema19(path, changed)
+            with self.assertRaises(ValueError):
+                restore_native_webview_before_schema19('other/path', source)
 
     def test_dev_profile_layer_matches_root_and_refuses_changed_or_repeated_layer(self):
         layer = tomllib.loads(DESKTOP_DEV_PROFILE_LAYER)
@@ -313,7 +467,8 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
                 normalize(composed.replace('contents: read', 'contents: write', 1))
 
     def test_exact_new_mac_step_recovers_entire_parent_workflow(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text();old=strip_background_native_smoke_layer(text)
+        text=normalize_partitioned_workflow((ROOT/'.github/workflows/product.yml').read_text())
+        old=strip_background_native_smoke_layer(text)
         self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),BASE_WORKFLOW_SHA256)
         self.assertEqual(text.count(BG_STEP),1)
         self.assertEqual(restore_previous_mac_matrix(text).replace(BG_STEP,'',1),old)
@@ -328,7 +483,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         self.assertNotIn('timeout-minutes',BG_STEP)
 
     def test_any_unknown_missing_duplicate_moved_budget_or_permission_change_refuses(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text()
+        text=normalize_partitioned_workflow((ROOT/'.github/workflows/product.yml').read_text())
         variants=[text.replace(BG_STEP,'',1),text.replace(BG_STEP,BG_STEP*2,1),
                   BG_STEP+text.replace(BG_STEP,'',1),text+'# unknown\n',text.replace('\n','\r\n'),
                   text.replace('timeout-minutes: 60','timeout-minutes: 61',1),

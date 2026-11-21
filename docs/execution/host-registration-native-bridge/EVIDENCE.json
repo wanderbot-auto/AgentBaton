@@ -1,0 +1,182 @@
+{
+  "status": "local_bridge_verified_inherited_fmt_and_lint_failures_ready_for_leader_review",
+  "base": "80eddd5997072203f3593becef47a2bf09ac9e16",
+  "feature_target": "origin/collab/host-registration-integration",
+  "source_commit": "4cdbce3c565266892f36c7da60fd475ffefdacd2",
+  "source_tree": "851caab50253d7b0b5ceac2911773fd154395882",
+  "source_files": {
+    "apps/desktop/src-tauri/src/hosts.rs": {
+      "bytes": 13993,
+      "sha256": "ae15aabcbacaeab3293a174ef73b459a940c05abaa46d8ad81ecbed043f08f9d",
+      "git_blob": "ef1c3d01f280095fcd08f4f2108e095fa809328a"
+    },
+    "apps/desktop/src-tauri/src/hosts_tests.rs": {
+      "bytes": 19710,
+      "sha256": "952d038a12a15d0f179d744f44efbedf0bc1ddc60b11b323b22aeeab9c877112",
+      "git_blob": "b679ebe2e6946ac18495bc974a5938204b41d3d7"
+    },
+    "apps/desktop/src-tauri/src/lib.rs": {
+      "bytes": 103723,
+      "sha256": "338fbef7689416a71ec101aaad3ac5afb91e433c55d5c1c4bf413242108944d5",
+      "git_blob": "d368e480040af7837290ba964f9e5c231304113f"
+    },
+    "apps/desktop/src-tauri/tests/test_hosts_native_source.py": {
+      "bytes": 2701,
+      "sha256": "8036cb4cdd1305ee6477bb3201e22fc83ff243de2d4334ec4f4927f796e57322",
+      "git_blob": "75904ca038295e1b06de8875102a4ea607c19b3c"
+    }
+  },
+  "environment": {
+    "host": "aarch64-apple-darwin",
+    "macos": "26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-11-10)",
+    "clippy": "0.1.91 (ed61e7d7e2 2025-11-07)",
+    "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-bridge",
+    "runtime": "/private/tmp/ab-collab-1dxf6n87",
+    "command_wrapper": "bash scripts/collab.sh run -- env CARGO_BUILD_JOBS=2",
+    "all_own_children_joined": true
+  },
+  "sidecar_preparation": {
+    "source_commit": "80eddd5997072203f3593becef47a2bf09ac9e16",
+    "commands": [
+      "cargo build --release --locked --bin batond --bin baton",
+      "bash scripts/prepare-desktop-sidecars.sh"
+    ],
+    "exit": 0,
+    "log": "logs/sidecars.log"
+  },
+  "checks_by_log": {
+    "fmt.log.gz": {
+      "command": "cargo fmt --manifest-path apps/desktop/src-tauri/Cargo.toml -- --check",
+      "started_utc": "2026-11-18T14:46:44Z",
+      "finished_utc": "2026-11-18T14:46:45Z",
+      "exit": 1,
+      "raw_sha256": "d4adfd4f192148fc9a5f489c11d8763765ed628c3e8ab6818e7d2cb49bc794d1",
+      "raw_bytes": 2947,
+      "baseline_identical_files": 3
+    },
+    "fmt-host.log": {
+      "command": "rustfmt --edition 2021 --check apps/desktop/src-tauri/src/hosts.rs",
+      "started_utc": "2026-11-18T14:46:56Z",
+      "finished_utc": "2026-11-18T14:46:56Z",
+      "exit": 0
+    },
+    "python-source.log": {
+      "command": "python3 apps/desktop/src-tauri/tests/test_hosts_native_source.py",
+      "started_utc": "2026-11-18T14:46:56Z",
+      "finished_utc": "2026-11-18T14:46:56Z",
+      "exit": 0,
+      "passed": 3
+    },
+    "desktop-test.log": {
+      "command": "cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --lib hosts::tests",
+      "started_utc": "2026-11-18T14:46:56Z",
+      "finished_utc": "2026-11-18T14:49:22Z",
+      "exit": 0,
+      "passed": 8,
+      "test_names": [
+        "hosts::tests::fixed_arguments_and_bounds_are_enforced_before_any_core_dispatch",
+        "hosts::tests::lookup_errors_and_ambiguous_results_never_write_or_acknowledge",
+        "hosts::tests::malformed_write_envelopes_preserve_uncertainty_and_the_intent",
+        "hosts::tests::an_explicit_retry_after_a_successful_lookup_miss_uses_the_exact_original_key_and_body",
+        "hosts::tests::a_lost_successful_write_response_recovers_the_original_receipt_without_resending",
+        "hosts::tests::a_racing_ack_and_replacement_survive_the_original_acknowledgement",
+        "hosts::tests::a_retry_miss_rechecks_the_pending_intent_before_writing",
+        "hosts::tests::authenticated_socket_register_restart_reconcile_read_and_acknowledge"
+      ],
+      "artifact": "target/debug/deps/agentbaton_desktop-c4664b430f2659fb"
+    },
+    "desktop-clippy.log": {
+      "command": "cargo clippy --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --all-targets -- -D warnings",
+      "started_utc": "2026-11-18T14:49:22Z",
+      "finished_utc": "2026-11-18T14:50:04Z",
+      "exit": 101,
+      "baseline_identical_files": 4,
+      "baseline_file_diagnostics": 14,
+      "changed_file_diagnostics": 0
+    }
+  },
+  "artifacts": {
+    "target/debug/deps/agentbaton_desktop-c4664b430f2659fb": {
+      "bytes": 40280256,
+      "sha256": "d2c3c9ee86c7c74a1b7b60e291a7b58756ae037adf6bdf72d98392aed863568d",
+      "architecture": "Mach-O 64-bit executable arm64"
+    },
+    "target/release/batond": {
+      "bytes": 17574656,
+      "sha256": "354a7fd2175d4451f9dde64ee0827a9aa94d1584708c67f59f6eca965a0015a5",
+      "architecture": "Mach-O 64-bit executable arm64",
+      "sidecar_copy": "apps/desktop/src-tauri/binaries/batond-aarch64-apple-darwin"
+    },
+    "target/release/baton": {
+      "bytes": 808240,
+      "sha256": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+      "architecture": "Mach-O 64-bit executable arm64",
+      "sidecar_copy": "apps/desktop/src-tauri/binaries/baton-aarch64-apple-darwin"
+    }
+  },
+  "raw_logs": {
+    "logs/clippy-baseline-files.log": {
+      "bytes": 545,
+      "sha256": "5be454c3f5e193eb36af7095626e13ea8a4b011224bcdc73453b859d9abb61a9"
+    },
+    "logs/desktop-clippy.log": {
+      "bytes": 15425,
+      "sha256": "959e27431163e66116278b593a53b69c7fe29ec58ad756e9cb8540effbd72bea"
+    },
+    "logs/desktop-test.log": {
+      "bytes": 10022,
+      "sha256": "beee75fa63f75a0bc51a2309e8b8b79f84e94d61c342d05557a29178343bc818"
+    },
+    "logs/environment.log": {
+      "bytes": 597,
+      "sha256": "035bcb200098d5cc959565c98c9deeab3d4ff536892c0f765baa39132f00ddba"
+    },
+    "logs/fmt-baseline-files.log": {
+      "bytes": 355,
+      "sha256": "df4736c18ed8492e38fbc6689ec2246ff65bfa45bbaa5a08c7dd5709939dc8ac"
+    },
+    "logs/fmt-host.log": {
+      "bytes": 259,
+      "sha256": "2d6bc44d70f2f7ba89f60afbab630b69054d6b8b8907b15324cd956003a7be15"
+    },
+    "logs/fmt-raw-sha256.log": {
+      "bytes": 126,
+      "sha256": "e60c3c015bd2d0202481adb0bb58e8817d06a5e0fe2cdf2253b0042a21f6a9d6"
+    },
+    "logs/fmt.log.gz": {
+      "bytes": 1175,
+      "sha256": "199c0c9bcc37f7c7c5daba2a498852a6c1b5fd4769c9742baeda6968646f065e"
+    },
+    "logs/python-source.log": {
+      "bytes": 358,
+      "sha256": "7c02a6c7ecbba42325196382eff7f55ae279f56ab06e28677b905018ea601ba6"
+    },
+    "logs/sidecars.log": {
+      "bytes": 3049,
+      "sha256": "a96e59852bc67267351894930ddfc64f4a1dabb984df32a48389aa78a2fd6596"
+    },
+    "logs/source-preflight.log": {
+      "bytes": 853,
+      "sha256": "55ec90b8d3dd4ce3c1292c3875a6c4f899f64475b4ee83c3dc34facedbd89de1"
+    }
+  },
+  "source_scope_exit": 0,
+  "source_diff_check_exit": 0,
+  "source_feature_target_preview_exit": 0,
+  "source_leader_preview": {
+    "target": "1f756ce201b8cf10f4b1798053674f4e960ac77d",
+    "tree": "9c0589119f28c102343dedd263406888ff2c34e5",
+    "exit": 0,
+    "conflict_check_only": true
+  },
+  "leader_source_review": "static review of fixed source, no blocker reported",
+  "verification_notes": [
+    "Same-process test fixtures call the desktop execute layer over a real private authenticated Core Unix socket. Separate source checks and actual Tauri crate compilation cover registration of fixed handlers. An installed App or Webview was not invoked.",
+    "Core generates a request UUID internally for the single authenticated exchange. This bridge validates envelope shape and Host lookup key/receipt correlation, without an equality check against that inaccessible generated UUID.",
+    "A controlled truncation result is returned after an actual registration commit in the lost-reply test. No network/SSH endpoint or real Provider was contacted.",
+    "Exact SHA baseline blobs match every file reported by full crate fmt and strict Clippy. The latter remain red; no lints were suppressed.",
+    "The desktop schema handshake and frontend are separate integration work. No hosted CI ran."
+  ]
+}

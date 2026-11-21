@@ -1,0 +1,117 @@
+{
+  "task": "RHOST-002",
+  "phase": "RHOST002B",
+  "status": "dormant_Store_local_review_ready_entrypoint_docs_proposal",
+  "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "branch": "collab/remote-host-core-integration",
+  "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/remote-host-core-integration",
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64"
+  },
+  "claim": [
+    "docs/execution/remote-host-core-integration"
+  ],
+  "source_manifest": "SOURCE_AUDIT.json",
+  "dependency_contract": "DEPENDENCY_CONTRACT.md",
+  "proposed_scope": "PROPOSED_SCOPE.json",
+  "checks": [
+    {
+      "phase": "historical phase1",
+      "details": "Source_audit / phase1_snapshot retained; see Git4e for original static checks"
+    },
+    {
+      "phase": "current RHOST002B",
+      "details": "store/VERIFIED_SOURCE.json exact039 fmt/strictclippy/21pass and minimal offline locks"
+    }
+  ],
+  "not_run": [
+    "Private19 fixture only; ordinary Store::open18 and schema activation unchanged",
+    "Response-loss test discards method return, not real IPC/network disconnect",
+    "DELETE-journal path collision and deferred-FK commit failure are actual faults; production WAL crash/power-loss I/O not proven",
+    "No full400 Core execution; all-target strict clippy compiled targets,21 actual targeted tests only",
+    "No real SSH/Provider/Linux/native/UI/CI/push"
+  ],
+  "unresolved": [
+    "A dormant migration/reference package and coordinated Store19 activation/current-historical closure",
+    "Core IPC/native/UI registration vertical and full integration acceptance",
+    "real SSH/Linux/Provider/routing/offline execution/data transfer/retention/budget integration"
+  ],
+  "files_written": [
+    "PLAN.md",
+    "DEPENDENCY_CONTRACT.md",
+    "PROPOSED_SCOPE.json",
+    "SOURCE_AUDIT.json",
+    "PROGRESS.md",
+    "CHECKPOINT.md",
+    "EVIDENCE.json",
+    "CORE_REGISTRY_CONTRACT.md",
+    "HOST19_ALIGNMENT.md",
+    "HOST19_ALIGNMENT.json",
+    "REGISTRY_CONTRACT_REVIEW.md"
+  ],
+  "checkpoint_recorded_utc": "2026-11-17T17:51:28.274236+00:00",
+  "actual_start": "Window B verified live precreated branch/worktree/base before audit; no exact earlier wall-clock timestamp was captured and none is invented.",
+  "phase1_snapshot": {
+    "phase": "phase1",
+    "status": "dependency_review",
+    "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "source_manifest": "SOURCE_AUDIT.json"
+  },
+  "registration_evidence": "registration/AFTER.json",
+  "registered_product_scope": [
+    "crates/remote-host/src/registration.rs",
+    "crates/remote-host/tests/registration.rs",
+    "crates/remote-host/src/lib.rs",
+    "crates/remote-host/src/transport.rs"
+  ],
+  "registration_source_hash": "8bcf564ab311bce58cd75a70caba53d2d3795bdab9c3fe5f3d4dee1d135b05fe",
+  "input_sha256": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+  "counts": {
+    "foundation_rust": 18,
+    "registration_pure": 8,
+    "real_subprocess_faults": 16
+  },
+  "product_source_commit": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
+  "frozen_product_paths": [
+    "crates/remote-host/src/registration.rs",
+    "crates/remote-host/tests/registration.rs",
+    "crates/remote-host/src/lib.rs",
+    "crates/remote-host/src/transport.rs"
+  ],
+  "registry_contract": "CORE_REGISTRY_CONTRACT.md",
+  "registry_contract_status": "proposal_only_no_Core_or_schema_implementation",
+  "docs_checks_manifest": "REGISTRY_CONTRACT_CHECKS.json",
+  "layout_evidence": "layout/EVIDENCE.json",
+  "layout_result": "path-only failed101; mirror explicit-exclude passed0; six original members; no dependency resolution/build/network",
+  "additional_proposed_scope": [
+    "Cargo.toml"
+  ],
+  "registry_contract_review": "REGISTRY_CONTRACT_REVIEW.md",
+  "Host19_alignment": "HOST19_ALIGNMENT.json",
+  "fixed_registry_contract": "registry-contract/CONTRACT.json",
+  "docs_execution_head": "cb5bfd1ed856dd6d3d30f190b867692411cee2f7",
+  "delivery_commit": "Containing commit; exact head reported to leader after commit (no self-referential SHA claim)",
+  "independent_docs_review": "Final no P1/P2, read-only; REGISTRY_CONTRACT_REVIEW.md",
+  "processes": "Both metadata subprocess calls joined; no tests/services/companions launched in docs phase; private mirror retained.",
+  "current_store_evidence": "store/EVIDENCE.json",
+  "current_store_verified_head": "039de47012d073a4ac6fde7e7202c22786dd3e53",
+  "current_store_counts": {
+    "fmt": 0,
+    "Core_all_targets_strict_clippy": 0,
+    "targeted_tests": 21,
+    "passed": 21,
+    "failed": 0,
+    "other_lib_tests_filtered": 380
+  },
+  "previous_phase_snapshot": {
+    "head": "4e48985d68f324d3980a981abd5c7789d0379090",
+    "phase": "RHOST002A_docs_contract",
+    "status": "accepted fixed docs contract before eight-literal Store assignment"
+  },
+  "current_additional_product_scope": "artifacts/collab/STORE_TASK.md (eight root-reserved literals); registry entry only, root/native locks minimal",
+  "entrypoint_proposal": "entrypoints/PROPOSED_SCOPE.json",
+  "entrypoint_source_audit": "entrypoints/SOURCE_AUDIT.json",
+  "entrypoint_contract": "entrypoints/CONTRACT.md",
+  "entrypoint_limits": "Docs-only, no new product allocation/implementation/build; main/HEXP559 not assumed."
+}

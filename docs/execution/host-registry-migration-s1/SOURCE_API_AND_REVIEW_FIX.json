@@ -1,0 +1,32 @@
+{
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "predecessor_source": "334a1ac7be88db241a29dde5ad91f826b9109bc4",
+  "source": {
+    "crates/core/src/lib.rs": {
+      "sha256": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb",
+      "bytes": 2515
+    },
+    "crates/core/src/host_registry_migration.rs": {
+      "sha256": "3156fa2270767b202f408896b89b6b397e2f98179fc8e262142173514dab763b",
+      "bytes": 11536
+    },
+    "crates/core/src/host_registry_migration_tests.rs": {
+      "sha256": "dd718543897bd21759290d8c7e3b20e4581eb9559635e387ede75fecd285adac",
+      "bytes": 26528
+    },
+    "crates/core/tests/fixtures/pre_host_schema.rs": {
+      "sha256": "55a054f083d698ba28199b210e6a2e79def42f7ab83f952b43cf621e4c377cb2",
+      "bytes": 7744
+    },
+    "crates/core/tests/fixtures/current19_schema.rs": {
+      "sha256": "7bb919b921531733be630611a60fa14534aac927580e7d5084db09bd5de6bde1",
+      "bytes": 1755
+    }
+  },
+  "changes": [
+    "pinned rusqlite0.38 pragma.rs145 takes Option<&str>:Some(main)",
+    "P2 full a4 Event outer typed validation and closed required8 fields before namespace classification",
+    "missing/duplicated/unknown outer-field negative SQLite cases"
+  ],
+  "next_dynamic_validation": "pending explicit heavy-slot regrant;no next Cargo started"
+}

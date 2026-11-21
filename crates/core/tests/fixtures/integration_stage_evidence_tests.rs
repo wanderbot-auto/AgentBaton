@@ -418,7 +418,7 @@ fn observation_conflicts_are_sticky_and_only_successful_replies_bind() {
 }
 
 #[test]
-fn readonly_collector_projects_only_exact_schema18() {
+fn readonly_collector_projects_only_exact_schema19() {
     use std::os::unix::fs::PermissionsExt;
 
     let (binding, run, attempts, events) = fixture();
@@ -465,15 +465,15 @@ fn readonly_collector_projects_only_exact_schema18() {
         )
         .unwrap();
     }
-    for schema in [17, 18, 19] {
+    for schema in [17, 18, 19, 20] {
         db.pragma_update(None, "user_version", schema).unwrap();
         let original = fs::read(&database).unwrap();
         let observed = collect(&runtime, &binding);
         assert_eq!(fs::read(&database).unwrap(), original);
-        if schema == 18 {
+        if schema == 19 {
             let value = observed.unwrap();
             assert_eq!(value["status"], "collected");
-            assert_eq!(value["schema"], 18);
+            assert_eq!(value["schema"], 19);
             assert_eq!(value["rows"].as_array().unwrap().len(), 1);
             assert_eq!(value["rows"][0]["preparation_io"]["git_calls_attempted"], 4);
             assert_eq!(value["process_stop_proven"], false);

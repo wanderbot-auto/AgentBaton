@@ -1,0 +1,699 @@
+{
+  "audited_source_commit": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "source_sha256": {
+    "AGENTS.md": "214e4acead24f16dd19dc3a3c9ce5947c7435ff231e929bdd99064c4b9519e02",
+    "infra/execution-gate.json": "313c96753ddd8f89d8a69e58428f834596f3059b0d0a41996dc1059ea8170e7e",
+    "docs/execution/launch/APPROVAL.md": "51aee038d99545f3c6899ee0424c7717124464c80e254cb35487569972dedbc8",
+    "codex/MASTER_PROMPT.md": "8a19d82a0cf950050ee136ab95a4114a1a10585b0c8b22dce576dd9688520cf0",
+    "codex/GOAL.md": "7f610248688c9db6cd7a0382c03b1c9c79a85be52ca0b5afbd656c21eb8863b9",
+    "codex/RUNBOOK.md": "b52dc2e35d973c53ebcc0e4ba52495d3e34d7674f1e2ddf803f2489ffa78a816",
+    "docs/parallel-development.md": "50f104f35b980da10682533f05ff4e7355933fb6c6c20f3181307efe80700e92",
+    "docs/execution/OWNER_INBOX.md": "094a77884272d0919bece0654237419f2d226a9245e7d826e0891a8f661f811f",
+    "README.md": "99b965ed0179c256ae1da1cba434230b8438f270d1b07f822805eb411d77202a",
+    "docs/12-decisions.md": "32f5afdde1505796791b0aa9e900a5f7cd51f7cfcbeeda0e1c9b4db41c7101bf",
+    "specs/decisions.json": "b2877fb2494e992764aa75f7b3303a5ee81d20bdb52953af7d040281541fa11a",
+    "specs/requirements.json": "c63d01857ed4fab8ff592b5beb3ac70022cf49548f4b373259c6e2562b156d54",
+    "docs/11-engineering-program.md": "ccd35447a908dd0202ccc77e056bb550ca6347d350f38efc5a21e5a473dce7ac",
+    "docs/10-operations-extension.md": "23f806af516e8d15cb3055db7cf98ed7a63ed7009e85a6527165d98baff99564",
+    "docs/15-validation-gates.md": "40b15e8eff374ef7f0186d013672f5d676b29dc06addd38f15fc37e88553f7ef",
+    "Cargo.toml": "35e047cb3e44d4ef0615e0c1200e5c93be3898f4b8ae26a360d09d1741bd3cc1",
+    "Cargo.lock": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+    "crates/core/Cargo.toml": "f8aa362c7edb71416e6d99165607be6d2dd6698dbf1ef838f90abb5af239c8ec",
+    "crates/core/src/lib.rs": "a6a27b376a1e869fab1f273c61be90b81f98f97ce6c7de9d5242a62490f918ae",
+    "crates/core/src/storage.rs": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+    "crates/core/src/registry.rs": "15c65d4ac80adc7fc5edaabf50da8eeeafc4d2a72d40b2a7d26181e543211858",
+    "crates/core/src/ipc.rs": "f0da1089accc1cc88158240953d01d0ff009645195ead02e7ff1469d7a19e0e2",
+    "crates/core/src/sessions.rs": "4aa8d2b06e59b46058f67fb8f693f64f65b2e1c4d6b73be7aadeccef529aaa9c",
+    "crates/core/src/policy.rs": "e45e0692eec0135a9dd1cbb486b0e917e03bc7c6c4ba3e6598d7f4a8d1bfaa7e",
+    "crates/core/src/runtime_config.rs": "028e97a8cdf6bcc2125a206200a334ab3ba320bc7ec9d4dc39d39d9db8683b19",
+    "crates/core/src/execution.rs": "1778dabe2b172ecf3d791f6bdf70aaa1ffdc2e26ebc90e86bebfad543edb7130",
+    "crates/core/src/workspace_resolution.rs": "e65cf241f76524639b7f0a2ece05315933a7795ee5205d4db09594b4f8b7db76",
+    "crates/core/src/task_workspace_binding.rs": "3feec744998f3de2df9eb1b824c43c163c0296e7fb0dc015bfa843cd62b29908",
+    "crates/core/src/background_status.rs": "c55e3ed8eb2890a907e1b327ab1bc7851e55d1bc7ba2ec9d6e17f59c327ea72b",
+    "crates/core/src/conversations.rs": "b967540939649b11269ba289a4dde23714243b8445e8b08095d011df4087204b",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/src/lib.rs": "401c499aae7f72978cbfd816df50c81c59b3e1c9658f259b04fb4d299b3a5a6c",
+    "crates/remote-host/src/protocol.rs": "cf75bc67caa2435fd484cfb2e9b7ff6506917a098cafb3fe806805fc43b4111e",
+    "crates/remote-host/src/transport.rs": "a4047a4c4a811ed9707124e75ba1679e21ed20071e7ee0c5ed4a7f864c221e78",
+    "crates/remote-host/src/store.rs": "a778611326e3bd01052cc53725eb2eaa6a84dc7a3d4b7c066cc4c5e9acab1668",
+    "apps/desktop/src/App.tsx": "4dba10bcedf797802d9dc906325d3a134233fbfd28e193d0736d950ccd173095",
+    "apps/desktop/src/api.ts": "cd862ff7218b63baaafe3b02e020903a2ae083688d79fd13b365bbd01c1e2683",
+    "apps/desktop/src/session-api.ts": "c7c1f213458682a3ab502ce201a2d83b27cb2747989c0f1eccbe336a3c30d1ec",
+    "apps/desktop/src/TaskIntegration.tsx": "321d1fcf35c970bdf15cea2a1f52a1cf3ce9e0656f47aee96597aaea573a1d93",
+    "apps/desktop/src/background-service-api.ts": "9eea2600832865cb324cf225c131509b85bdba443c32d1cdaf5dd7865bde6496",
+    "apps/desktop/src-tauri/src/lib.rs": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb",
+    "apps/desktop/src-tauri/src/approval.rs": "a5c93bc6213ba6df30cdde02f8e6554642f2e90f4f7b7c3960ae60c6bd3a72a6",
+    "apps/desktop/src-tauri/src/background_policy.rs": "08378e56153b7f79ffc46f1b2c4525a837ea3d83067a2cb81b7404e640d24982",
+    "apps/desktop/src-tauri/capabilities/main.json": "090491e6dce371a7853acf44c4a65c38e2e372ac50df6a5e313a36a5ec8acf9a",
+    "docs/08-security.md": "140f32244459cd720df680acf1acca04dc9c4054ae7ae70175e5dfce02ff3c0d"
+  },
+  "selected_requirements": [
+    {
+      "id": "AB-EXT-001",
+      "title": "\u8fdc\u7a0bHost\u8eab\u4efd\u4e0e\u76ee\u5f55",
+      "status": "specified",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05"
+      ],
+      "acceptance": {
+        "given": "\u6279\u51c6\u8fdc\u7a0b\u6267\u884c",
+        "when": "\u8fde\u63a5Host",
+        "then": "\u660e\u786e\u8eab\u4efd/\u5de5\u4f5c\u533a/\u6743\u9650\uff0c\u975e\u672c\u673a\u8def\u5f84\u76f4\u63a5\u590d\u7528"
+      },
+      "implementation_refs": [],
+      "verification_refs": [],
+      "specification_status": "aligned_to_v0.2"
+    },
+    {
+      "id": "AB-EXT-007",
+      "title": "\u8fdc\u7a0bmacOS/Linux\u6b63\u5f0f\u8303\u56f4",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05"
+      ],
+      "acceptance": {
+        "given": "\u7528\u6237\u6ce8\u518cHost",
+        "when": "\u542f\u7528",
+        "then": "\u9a8c\u8bc1\u8eab\u4efd\u3001\u76ee\u5f55\u3001\u8fde\u63a5\u80fd\u529b\uff1b\u4e0d\u521b\u5efa\u4e91\u8d44\u6e90\u3001\u4e0d\u9ed8\u8ba4Windows"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-EXT-009",
+      "title": "\u8fdc\u7a0b\u65ad\u7ebf\u5bf9\u8d26",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05",
+        "D13"
+      ],
+      "acceptance": {
+        "given": "\u8fdc\u7aef\u53ef\u80fd\u7ee7\u7eed\u8fd0\u884c",
+        "when": "\u65ad\u7ebf\u4e0e\u91cd\u8fde",
+        "then": "\u8fde\u63a5\u72b6\u6001\u4e0d\u5f53\u4efb\u52a1\u5931\u8d25\uff1b\u5148\u5bf9\u8d26\u518d\u7eed\u63a5\uff0c\u4e0d\u91cd\u590d\u6d3e\u53d1\uff0c\u4e0d\u4e22\u53d6\u6d88\u672a\u786e\u8ba4\u72b6\u6001"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    },
+    {
+      "id": "AB-EXT-011",
+      "title": "\u79bb\u7ebf\u6388\u6743\u622a\u6b62",
+      "status": "specified",
+      "specification_status": "aligned_to_v0.2",
+      "work_package": "WP14",
+      "document": "docs/10-operations-extension.md",
+      "decisions": [
+        "D05",
+        "D11"
+      ],
+      "acceptance": {
+        "given": "\u8fdc\u7aef\u4e0e\u63a7\u5236\u7aef\u65ad\u8fde",
+        "when": "\u7ee7\u7eed\u6267\u884c",
+        "then": "\u53ea\u5728\u73b0\u6709\u6709\u671f\u9650\u6388\u6743\u4e0e\u9884\u7b97\u5185\uff0c\u4e0d\u6269\u6743\u6216\u751f\u4ea7\u53d1\u5e03\uff1b\u5230\u671f\u505c\u65b0\u526f\u4f5c\u7528\u5e76\u8bb0\u5f55"
+      },
+      "implementation_refs": [],
+      "verification_refs": []
+    }
+  ],
+  "schema18_review_candidates": [
+    {
+      "path": "crates/core/src/background_status.rs",
+      "line": 42,
+      "excerpt": "        if schema != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/integration_fences.rs",
+      "line": 100,
+      "excerpt": "    if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/integration_budget.rs",
+      "line": 181,
+      "excerpt": "    if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/factory_reads.rs",
+      "line": 1278,
+      "excerpt": "        if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/factory_reads.rs",
+      "line": 2096,
+      "excerpt": "        assert!(readonly.execute_batch(\"PRAGMA user_version=18;\").is_err());",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/conversations.rs",
+      "line": 122,
+      "excerpt": " PRAGMA user_version=18;\";",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/integration_targets.rs",
+      "line": 32,
+      "excerpt": "        if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/storage.rs",
+      "line": 105,
+      "excerpt": "        if version > 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/factory_history_reads.rs",
+      "line": 143,
+      "excerpt": "    if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/integration_reads.rs",
+      "line": 535,
+      "excerpt": "            if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/src/integration_reads.rs",
+      "line": 951,
+      "excerpt": "        if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/tests/fixtures/integration_stage_evidence_tests.rs",
+      "line": 473,
+      "excerpt": "        if schema == 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/tests/fixtures/integration_stage_evidence.rs",
+      "line": 702,
+      "excerpt": "    require(schema == 18)?;",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/tests/fixtures/pre_integration_schema.rs",
+      "line": 57,
+      "excerpt": "    if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/tests/fixtures/pre_conversation_schema.rs",
+      "line": 34,
+      "excerpt": "            tail.split_once(\"PRAGMA user_version=18;\")",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "crates/core/tests/fixtures/pre_conversation_schema.rs",
+      "line": 49,
+      "excerpt": "    if version != 18 {",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/background-service-api.ts",
+      "line": 2,
+      "excerpt": "export interface BackgroundStatus {instance_id:string;started_at:string;api_version:1;database_schema_version:18;sequence:number;owned_provider_workers:boolean;store_recovery:'completed_on_start'}",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/background-service-api.ts",
+      "line": 6,
+      "excerpt": "export function parseBackgroundStatus(value:unknown):BackgroundStatus {const row=closed(value,['instance_id','started_at','api_version','database_schema_version','sequence','owned_provider_workers','store_recovery']);if(!backgroundInstanceId(row.instance_id)||typeof row.started_at!=='string'||!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|\\+00:00)$/.test(row.started_at)||!Number.isFinite(Date.parse(row.started_at))||row.api_version!==1||row.database_schema_version!==18||!Number.isSafeInteg",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/TaskActions.test.tsx",
+      "line": 18,
+      "excerpt": "beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(api.snapshot).mockResolvedValue({tasks:[task,other],sequence:0,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],sequence:0,next_cursor:0,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([{id:'connection',name:'Named Agent'} as never]);vi.mocked(sessionApi.sessionsList).m",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/integration-api.test.ts",
+      "line": 21,
+      "excerpt": " it('accepts actual current schema18 and keeps protocol API1 separate',async()=>{reply({tasks:[],sequence:0,api_version:1,database_schema_version:18});expect((await api.snapshot()).database_schema_version).toBe(18);reply({tasks:[],sequence:0,api_version:17,database_schema_version:18});await expect(api.snapshot()).rejects.toThrow('snapshot contract');});",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/BackgroundService.entry.test.tsx",
+      "line": 16,
+      "excerpt": "it('opens background settings without hiding or changing existing settings',async()=>{vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],next_cursor:1,sequence:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);vi.mocked(backgroundServiceApi.status).mockResolvedVa",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/RecoveryCenter.entry.test.tsx",
+      "line": 19,
+      "excerpt": "beforeEach(()=>{vi.resetAllMocks();localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],next_cursor:1,sequence:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);vi.mocked(backgroundServiceApi.sta",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/TaskIntegration.tsx",
+      "line": 47,
+      "excerpt": "   if(snapshot.database_schema_version!==18||snapshot.api_version!==1||!safeInteger(snapshot.sequence)||snapshot.sequence<saved.sequenceFloor||readTask.id!==p.task.id||readTask.project_id!==p.task.project_id||readTask.spec_revision!==p.task.spec_revision||readTask.revision<p.task.revision||readTask.revision<saved.taskFloor||!Array.isArray(scopeRows)||scopeRows.length>256||scopeRows.some(s=>s.task_id!==readTask.id||s.project_id!==readTask.project_id||s.goal?.task_id!==readTask.id||!safeInteger(s.",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/QuietCanvas.test.tsx",
+      "line": 121,
+      "excerpt": "    const snapshot = { tasks: [draft], sequence: 1, api_version: 1, database_schema_version: 18 };",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/api.ts",
+      "line": 116,
+      "excerpt": "  snapshot: async () => {const value=await request<Snapshot>('system_snapshot');if(value.api_version!==1||value.database_schema_version!==18||!Array.isArray(value.tasks)||!Number.isSafeInteger(value.sequence)||value.sequence<0)throw new Error('Unsupported database schema or snapshot contract');if(value.tasks.some(task=>task.state==='accepted'&&(!taskHasAcceptanceProjection(task)||!Number.isSafeInteger(value.sequence)||task.acceptance_sequence!>value.sequence)))throw new Error('Invalid accepted T",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/BackgroundService.test.tsx",
+      "line": 7,
+      "excerpt": "const status:BackgroundStatus={instance_id:'12345678-1234-1234-1234-123456789abc',started_at:'2026-11-09T12:00:00Z',api_version:1,database_schema_version:18,sequence:1,owned_provider_workers:false,store_recovery:'completed_on_start'};",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/ManagedMcps.entry.test.tsx",
+      "line": 14,
+      "excerpt": "it('exposes MCP management on the actual capabilities page while retaining Connections and Skills',async()=>{const f=managedMcpFixture();vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],next_cursor:1,sequence:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([f.con",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/StandaloneConversations.test.tsx",
+      "line": 21,
+      "excerpt": "beforeEach(()=>{vi.resetAllMocks();vi.mocked(conversationHistoryApi.page).mockResolvedValue({...historyPage([historyEvent(1),{...event,revision:2,sequence:2}],null),snapshot_revision:2,snapshot_sequence:2});localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);state=createConversationUiState();vi.mocked(api.projectsList).mockResolvedValue([project]);vi.mocked(api.workspacesList).mockResolvedValue([workspace]);vi.mocked(sess",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/TaskIntegration.test.tsx",
+      "line": 17,
+      "excerpt": " vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[f.task],sequence:12,api_version:1,database_schema_version:18}));",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/background-service-api.test.ts",
+      "line": 5,
+      "excerpt": "export const statusFixture={instance_id:'12345678-1234-1234-1234-123456789abc',started_at:'2026-11-09T12:00:00Z',api_version:1,database_schema_version:18,sequence:1,owned_provider_workers:false,store_recovery:'completed_on_start'};",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/ManagedSkills.entry.test.tsx",
+      "line": 12,
+      "excerpt": "it('opens actual managed Skill controls from Capabilities while retaining the connection registration form',async()=>{const f=managedSkillFixture();vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:18});vi.mocked(api.events).mockResolvedValue({events:[],next_cursor:1,sequence:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);vi.mocked(sessionApi.connectionsList).mockResolvedV",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/GoalGraphExecution.task-projection.test.ts",
+      "line": 8,
+      "excerpt": "  vi.mocked(invoke).mockResolvedValue({result:{tasks:[task],sequence:21,api_version:1,database_schema_version:18},warnings:[]});expect((await api.snapshot()).tasks).toEqual([task]);expect(taskHasAcceptanceProjection(task)).toBe(true);expect(taskAllowsExecution(task)).toBe(false);expect(invoke).toHaveBeenCalledExactlyOnceWith('system_snapshot',undefined);",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/GoalGraphExecution.task-projection.test.ts",
+      "line": 11,
+      "excerpt": "  vi.mocked(invoke).mockResolvedValue({result:{tasks:[{...task,acceptance_ref:ref}],sequence:21,api_version:1,database_schema_version:18},warnings:[]});await expect(api.snapshot()).rejects.toThrow('Invalid accepted Task projection');",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/GoalGraphExecution.task-projection.test.ts",
+      "line": 14,
+      "excerpt": "  vi.mocked(invoke).mockResolvedValue({result:{tasks:[{...task,acceptance_sequence:sequence}],sequence:21,api_version:1,database_schema_version:18},warnings:[]});await expect(api.snapshot()).rejects.toThrow('Invalid accepted Task projection');",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src/GoalGraphExecution.task-projection.test.ts",
+      "line": 20,
+      "excerpt": "it('rejects an accepted Task receipt from a future snapshot sequence',async()=>{vi.mocked(invoke).mockResolvedValue({result:{tasks:[task],sequence:20,api_version:1,database_schema_version:18},warnings:[]});await expect(api.snapshot()).rejects.toThrow('Invalid accepted Task projection');});",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "line": 2381,
+      "excerpt": "        || response[\"result\"][\"database_schema_version\"].as_u64() != Some(18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "line": 2999,
+      "excerpt": "        let good = json!({\"result\":{\"api_version\":1,\"database_schema_version\":18}});",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "line": 3017,
+      "excerpt": "            require_current_database_schema(&json!({\"result\":{\"database_schema_version\":18}}))",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/background_policy.rs",
+      "line": 42,
+      "excerpt": "        || status[\"database_schema_version\"] != 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/background_policy.rs",
+      "line": 158,
+      "excerpt": "        json!({\"result\":{\"instance_id\":\"d949034a-2109-419c-b3c1-63ebef46e6ac\",\"started_at\":\"2026-11-09T00:00:00Z\",\"api_version\":1,\"database_schema_version\":18,\"sequence\":5,\"owned_provider_workers\":true,\"store_recovery\":\"completed_on_start\"}})",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 123,
+      "excerpt": "        && value[\"schema_version\"].as_u64() == Some(18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 226,
+      "excerpt": "        && value[\"schema_version\"].as_u64() == Some(18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 360,
+      "excerpt": "        && value[\"schema_version\"].as_u64() == Some(18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 497,
+      "excerpt": "        && value[\"schema_version\"].as_u64() == Some(18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 2050,
+      "excerpt": "        json!({\"schema_version\":18,\"run_count\":0,\"node_count\":0,\"reservation_count\":0,\"sequence\":sequence})",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 2298,
+      "excerpt": "        json!({\"schema_version\":18,\"capability_count\":0,\"job_count\":0,\"candidate_count\":0,\"validation_count\":0,\"owner_decision_count\":0,\"acceptance_count\":0,\"sequence\":sequence})",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 2580,
+      "excerpt": "        assert_eq!(before[\"schema_version\"], 18);",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 2689,
+      "excerpt": "        let mut counts = json!({\"schema_version\":18,\"sequence\":sequence});",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 2921,
+      "excerpt": "        json!({\"schema_version\":18,\"sequence\":sequence,\"policies\":0,\"runs\":0,\"attempts\":0,\"ref_fences\":0})",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/bin/native_smoke.rs",
+      "line": 3088,
+      "excerpt": "            assert_eq!(observed[\"schema_version\"], 18);",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/integration_database.rs",
+      "line": 29,
+      "excerpt": "schema=db.execute('PRAGMA user_version').fetchone()[0];assert schema==18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "line": 440,
+      "excerpt": "        && value[\"schema_version\"].as_u64() == Some(18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "line": 1031,
+      "excerpt": "        json!({\"counts\":{\"schema_version\":18,\"sequence\":sequence,\"policies\":policies,\"runs\":0,\"attempts\":0,\"ref_fences\":0},\"proposal_matches\":true,\"proposal_result_matches\":true,\"policy_matches\":true,\"owner_event_matches\":true,\"policy_event_matches\":true,\"owner_event_sequence\":owner,\"policy_event_sequence\":policy})",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_owner_dialog_test/controller.rs",
+      "line": 1060,
+      "excerpt": "            (\"schema_version\", json!(18.0)),",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-macos-smoke.sh",
+      "line": 40,
+      "excerpt": "    assert type(factory_counts['schema_version']) is int and factory_counts['schema_version'] == 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-macos-smoke.sh",
+      "line": 60,
+      "excerpt": "assert type(record['goal_execution_readonly_database']['before']['schema_version']) is int and record['goal_execution_readonly_database']['before']['schema_version'] == 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-macos-smoke.sh",
+      "line": 71,
+      "excerpt": "assert type(record['goal_graph_readonly_database']['before']['schema_version']) is int and record['goal_graph_readonly_database']['before']['schema_version'] == 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "line": 141,
+      "excerpt": "            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "line": 179,
+      "excerpt": "            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "line": 892,
+      "excerpt": "            or proposal['revision'] <= 0 or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "line": 919,
+      "excerpt": "            or value.get('read_only') is not True or not json_exact(value.get('schema_version'), 18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-owner-dialog-smoke.py",
+      "line": 1164,
+      "excerpt": "                or checkpoint['schema_version'] != 18):",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/record-integration-browser-ci-evidence.py",
+      "line": 225,
+      "excerpt": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/record-integration-browser-ci-evidence.py",
+      "line": 257,
+      "excerpt": "            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 18, 'joined': True},",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/record-integration-browser-ci-evidence.py",
+      "line": 503,
+      "excerpt": "            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/prepare-factory-test-tools.py",
+      "line": 53,
+      "excerpt": "        if type(schema) is not int or schema != 18:",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/integration-owner-fixture.py",
+      "line": 225,
+      "excerpt": "                require(type(snapshot['database_schema_version']) is int and snapshot['database_schema_version'] == 18, 'Actual schema18 Core required')",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/integration-owner-fixture.py",
+      "line": 313,
+      "excerpt": "    return {'read_only': True, 'schema_version': 18, 'columns': columns, 'counts': sizes, 'rows': rows,",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/integration-owner-fixture.py",
+      "line": 326,
+      "excerpt": "    if (value['schema_version'] != 18 or response.get('error') is not None or type(response.get('result')) is not dict",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-run.py",
+      "line": 71,
+      "excerpt": "                or counts['schema_version'] != 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-run.py",
+      "line": 111,
+      "excerpt": "                or counts['schema_version'] != 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-run.py",
+      "line": 174,
+      "excerpt": "            or start['schema_version'] != 18 or finish['schema_version'] != 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "scripts/native-run.py",
+      "line": 199,
+      "excerpt": "            or graph_before['schema_version'] != 18 or graph_after['schema_version'] != 18",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_factory_rework_ci_evidence.py",
+      "line": 45,
+      "excerpt": "    conn.executescript('''PRAGMA user_version=18;",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_native_integration_owner_evidence.py",
+      "line": 28,
+      "excerpt": "    before = {'schema_version': 18, 'sequence': 23, 'policies': 0, 'runs': 0, 'attempts': 0, 'ref_fences': 0}",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_native_integration_owner_evidence.py",
+      "line": 313,
+      "excerpt": "                db.execute('PRAGMA user_version=18')",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_native_integration_owner_evidence.py",
+      "line": 324,
+      "excerpt": "            self.assertEqual(value['schema_version'], 18)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_native_integration_owner_evidence.py",
+      "line": 334,
+      "excerpt": "                db.execute('PRAGMA user_version=18'); db.execute('CREATE TABLE unexpected(id INTEGER)')",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_native_integration_owner_evidence.py",
+      "line": 346,
+      "excerpt": "                db.execute('PRAGMA user_version=18')",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_native_integration_owner_evidence.py",
+      "line": 428,
+      "excerpt": "        before={'read_only':True,'schema_version':18,'columns':columns,'counts':{t:len(rows[t]) for t in tables},'rows':rows,'sequence':23}",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_integration_browser_ci_evidence.py",
+      "line": 89,
+      "excerpt": "    write(private / 'schema-probe.json', {'source': HEAD, 'api_version': 1, 'database_schema_version': 18,",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/integration_drift_ref_preparation_fixture.py",
+      "line": 49,
+      "excerpt": "        ('[\"database_schema_version\"],\\n            18', '[\"database_schema_version\"],\\n            17'),",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_schema17_migration_workflow.py",
+      "line": 222,
+      "excerpt": "    (\"type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 18\", \"type(snapshot.get('database_schema_version')) is int and snapshot['database_schema_version'] == 17\"),",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_integration_browser_ci.py",
+      "line": 112,
+      "excerpt": "        self.assertIn(\"snapshot['database_schema_version'] == 18\",source)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_integration_stage_evidence_source.py",
+      "line": 85,
+      "excerpt": "                              ('require(schema == 18)?;', 'require(schema == 17)?;')]:",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_integration_stage_evidence_source.py",
+      "line": 134,
+      "excerpt": "        self.assertIn('require(schema == 18)?;', text)",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/test_integration_stage_evidence_source.py",
+      "line": 137,
+      "excerpt": "        for changed in (text + '// unknown byte\\n', text.replace('schema == 18', 'schema >= 18'),",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/native_acceptance_followup.json",
+      "line": 9,
+      "excerpt": "        \"replacement\": \"            (\\\"schema_version\\\",\\\"PRAGMA user_version=18\\\",18),\\n\"",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/native_acceptance_followup.json",
+      "line": 15,
+      "excerpt": "        \"replacement\": \"            (\\\"schema_version\\\", \\\"PRAGMA user_version=18\\\", 18),\\n\"",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/native_acceptance_followup.json",
+      "line": 21,
+      "excerpt": "        \"replacement\": \"            \\\"PRAGMA user_version=18\\\",\\n\"",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/native_acceptance_followup.json",
+      "line": 33,
+      "excerpt": "        \"replacement\": \"            \\\"PRAGMA user_version=18\\\",\\n\"",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/schema18_source_inverse.json",
+      "line": 199,
+      "excerpt": "        \"expected\": \"    require(host.result('system.snapshot', {})['database_schema_version'] == 18)\\n\",",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/schema18_source_inverse.json",
+      "line": 366,
+      "excerpt": "        \"expected\": \"            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\\n\",",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/schema18_source_inverse.json",
+      "line": 372,
+      "excerpt": "        \"expected\": \"            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 18, 'joined': True},\\n\",",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    },
+    {
+      "path": "tests/infrastructure/fixtures/schema18_source_inverse.json",
+      "line": 384,
+      "excerpt": "        \"expected\": \"            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18\\n\",",
+      "classification": "review_only; historical/frozen18 must not be blanket-rewritten"
+    }
+  ],
+  "command_dimension": "static rg/read/hash only; no Cargo/npm/GUI/CI/network probe run"
+}

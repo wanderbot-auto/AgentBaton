@@ -1,0 +1,90 @@
+{
+  "request": "AB-REL-003/004 exact development package",
+  "evidence_branch_base": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "build": {
+    "source_commit": "d70362ad1fc4b080537163be60cb830849ee4167",
+    "source_tree": "19aba6e8f208f021bc84573dd8b496d29fce5633",
+    "configuration": "default ARM64 release app, CARGO_NET_OFFLINE, npm offline, tauri --no-sign and Cargo --locked",
+    "started_utc": "2026-11-19T02:36:05Z",
+    "completed_utc": "2026-11-19T02:38:51Z",
+    "exit": 0,
+    "runtime": "/private/tmp/ab-collab-0dvd6o1q/pr33-package.SQF5QB",
+    "checkout": "/private/tmp/ab-collab-0dvd6o1q/pr33-package.SQF5QB/source",
+    "application": "/private/tmp/ab-collab-0dvd6o1q/pr33-package.SQF5QB/source/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app",
+    "locked_input_sha256": {
+      "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+      "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+      "apps/desktop/package-lock.json": "58ab2fdd69b78db49a8db12fb22a6fd62846978a6af4d590d741ac303068856d"
+    },
+    "lock_bytes_identical": true,
+    "source_clean_after_build": true,
+    "compiled_originals_sha256": {
+      "agentbaton-desktop": "fa09e4cdeafba5533e7418b133288e1e92445f40b752c99fc663303ef2e14a13",
+      "baton": "96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b",
+      "batond": "626af8bb2ced8799a083da55e83cec96ca329ec77211755ca6a66353ccb4279a"
+    },
+    "environment": {
+      "arch": "arm64",
+      "macos": "26.6.1 (25G76)",
+      "xcode": "27.2 (27B52)",
+      "rustc": "1.91.1",
+      "cargo": "1.91.1",
+      "node": "26.7.0",
+      "npm": "11.19.0",
+      "tauri_cli": "2.12.4",
+      "vite": "8.3.5",
+      "build_python": "3.15.2"
+    }
+  },
+  "artifact": {
+    "directory": "/private/tmp/ab-collab-0dvd6o1q/pr33-package.SQF5QB/source/artifacts/development",
+    "dmg_path": "/private/tmp/ab-collab-0dvd6o1q/pr33-package.SQF5QB/source/artifacts/development/AgentBaton-arm64-d70362ad1fc4b080537163be60cb830849ee4167-development.dmg",
+    "dmg_sha256": "7e7598774e7bc20bcf7ad0cf6e61d6096a21afadf1fa9543891225e928aa2055",
+    "dmg_bytes": 14506898,
+    "archive_path": "/private/tmp/ab-collab-0dvd6o1q/pr33-package.SQF5QB/output/development.zip",
+    "archive_sha256": "2fa14871b9e9e715b25dd1f9bc5fcfbfaf67243e99ae8a25a484f4a187ef25c0",
+    "archive_bytes": 14443720,
+    "archive_member_sha256": {
+      "build-record.txt": "156c62c31e9e3309b4166287002a447f799b6f3af72ab448542398cb9afef2ca",
+      "DEVELOPMENT_ACCEPTANCE.md": "382603f3b6dc556dfb975627ee73cee0f1116f4c46382accc144453d8742e85d",
+      "SHA256SUMS": "8d9094a1f6b3bdb7fa6c46a4b4a2c16400a8f97313995b678545ab554d99c628",
+      "AgentBaton-arm64-d70362ad1fc4b080537163be60cb830849ee4167-development.dmg": "7e7598774e7bc20bcf7ad0cf6e61d6096a21afadf1fa9543891225e928aa2055"
+    }
+  },
+  "verification": {
+    "legacy_single_executable_audit": "passed",
+    "packaging_entry_actual_read_only_image_bundle_audit": "passed",
+    "four_file_provenance_consumer": "macos_arm64_read_only_dmg_detached",
+    "all_three_mounted_sha256s_equal_same_build_originals": true,
+    "task_owned_mounts_remain": false,
+    "app_native_smoke_feature": "disabled",
+    "desktop_loose_macho_strict_codesign_exit": 0,
+    "desktop_bundle_strict_codesign_exit": 1,
+    "desktop_bundle_strict_codesign_detail": "code has no resources but signature indicates they must be present",
+    "verification_only_initial_failure": "Cargo crate feature-name assumption corrected by reading both crate and dependency fingerprints; retained raw failure",
+    "verification_only_final_exit": 0
+  },
+  "not_run": [
+    "GUI and installation acceptance",
+    "older macOS",
+    "candidate hosted CI",
+    "formal signing",
+    "notarization",
+    "upload",
+    "release"
+  ],
+  "raw_build_log_sha256": "2f160518eadf52302a335c19f8d707616b7a0f2921a567942291b6707d10d014",
+  "reproduction_scripts_sha256": {
+    "replay.sh": "cb6eb303622838282c25de42b23adda5ea792b436705d1efca2fd56f1641906c",
+    "verify-result.sh": "0673a7babc9269030c7ea83a8d578c68144115df6092fb2d0669db69510aa02a"
+  },
+  "logs_sha256": {
+    "build-record.txt": "156c62c31e9e3309b4166287002a447f799b6f3af72ab448542398cb9afef2ca",
+    "build.log.gz": "510ba4e8bfeecc7f756139f1b5797136ca457294d723222f188ada67c9459b34",
+    "compiled-sha256": "e53cd4838d380ca3c4cdfd2be8b22439c40e4e470ef847fe1e7f64b193aac72d",
+    "independent-review-initial-failure.txt": "dac6745a916ab81492a607874160839dc09aa680f5cfbf784577730c685a4718",
+    "independent-review.txt": "3e515872c706c41c5b7baffd7df7a071a383942fc63b7efc5d2f43a932f4a644",
+    "locks.sha256": "d3c8e45ab60aa9a973ab66f1643451e15957a463076e3da9f80d59d9be6f09a9",
+    "provenance.json": "9abcbb5491400d249e40c3a6cd759b12175f0f3cbd13ed9967785ab6a71033b8"
+  }
+}

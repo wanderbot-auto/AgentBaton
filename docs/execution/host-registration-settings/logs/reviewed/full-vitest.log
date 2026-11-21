@@ -1,0 +1,23 @@
+Source: 446e40ee82e36c126c80e62f42bd3228ed5caec1
+Started (UTC): 2026-11-18T15:41:59Z
+Command: npm --prefix apps/desktop test
+collab: task runtime /private/tmp/ab-collab-7_n1l9e_
+
+> @agentbaton/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-settings/apps/desktop
+
+
+ Test Files  112 passed (112)
+      Tests  1580 passed (1580)
+   Start at  23:41:59
+   Duration  36.57s (tests 53%, environment 36%, setup 7%, import 3%, transform 1%)
+
+Environment  jsdom was created 112 times · 23.73s total, 36% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+Finished (UTC): 2026-11-18T15:42:36Z
+Exit: 0

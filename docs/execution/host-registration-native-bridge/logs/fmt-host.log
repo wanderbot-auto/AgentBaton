@@ -1,0 +1,6 @@
+Source: 4cdbce3c565266892f36c7da60fd475ffefdacd2
+Started (UTC): 2026-11-18T14:46:56Z
+Command: rustfmt --edition 2021 --check apps/desktop/src-tauri/src/hosts.rs
+collab: task runtime /private/tmp/ab-collab-1dxf6n87
+Finished (UTC): 2026-11-18T14:46:56Z
+Exit: 0

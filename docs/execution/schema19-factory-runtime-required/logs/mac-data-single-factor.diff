@@ -1,0 +1,23 @@
+diff --git a/crates/core/tests/factory_runtime_ipc.rs b/crates/core/tests/factory_runtime_ipc.rs
+index 338f1867..86fbbdf4 100644
+--- a/crates/core/tests/factory_runtime_ipc.rs
++++ b/crates/core/tests/factory_runtime_ipc.rs
+@@ -2033,7 +2033,7 @@ fn run_data_mode(mode: &str) {
+             json!({"daemon_id":daemon.0.id()}),
+         );
+     }
+-    let observed_schema = assert_current_factory_store(
++    assert_current_factory_store(
+         &Connection::open_with_flags(
+             runtime.join("baton.sqlite3"),
+             OpenFlags::SQLITE_OPEN_READ_ONLY,
+@@ -2056,9 +2056,6 @@ fn run_data_mode(mode: &str) {
+         assert!(response.get("error").is_none(), "{method}: {response}");
+         response["result"].clone()
+     };
+-    let snapshot = rpc("system.snapshot", json!({}), None, None);
+-    assert_eq!(snapshot["api_version"], json!(1));
+-    assert_eq!(snapshot["database_schema_version"], json!(observed_schema));
+     let approve = |p: &Value, key: &str| {
+         rpc(
+             "approvals.finalize",

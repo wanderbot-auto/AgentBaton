@@ -1,0 +1,124 @@
+{
+  "requirement": "AB-EXT-006",
+  "audit_target": "97803b16276903ffe4b6945966f21adeaad11eeb",
+  "artifact": {
+    "id": 14350183579,
+    "workflow_run": 44122458362,
+    "macos_job": 134177203395,
+    "job_conclusion": "success",
+    "source_branch_head": "c09e5d5dcc01abf3c9221a7e9e1311c636af700c",
+    "package_build_commit": "df35231eab29aa2d4a043fd9be60888504507716",
+    "channel": "development",
+    "archive_sha256": "cbed165a62710d1d302f3ab28cc3e6e12165d270f9c14ff858d6e93ac00b99e0",
+    "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f"
+  },
+  "local_observation": {
+    "platform": "macOS Apple Silicon",
+    "mount_mode": "read_only",
+    "regular_files": 5,
+    "arm64_executables": 3,
+    "standalone_notice_files": 0,
+    "dmg_unmounted": true,
+    "application_execution": "not_run"
+  },
+  "original_evidence": {
+    "inspection": {
+      "path": "historical-package-df35231e/inspected.txt",
+      "sha256": "7ba2c89408499e1ff07dcacea6c0518587c64dcc67adb08c592009595af869ae"
+    },
+    "mounted_file_list": {
+      "path": "historical-package-df35231e/file-list.txt",
+      "sha256": "3f9b2deccd554dc56d352fcf4a45163b479abf8ad5648ea445f97fcae106fa11"
+    },
+    "artifact_metadata": {
+      "path": "historical-package-df35231e/metadata.json",
+      "sha256": "0de70dfc370e9bebcf37ed9643ff119600fbd1e66dea5f298fb1cba3671ab595"
+    }
+  },
+  "lock_inputs": {
+    "identical": [
+      "apps/desktop/package-lock.json",
+      "crates/remote-host/Cargo.lock",
+      "package-lock.json",
+      "requirements-infra.txt",
+      "tools/environment-smoke/Cargo.lock"
+    ],
+    "different": [
+      {
+        "path": "Cargo.lock",
+        "identical_third_party_package_identities_and_checksums": 87
+      },
+      {
+        "path": "apps/desktop/src-tauri/Cargo.lock",
+        "identical_third_party_package_identities_and_checksums": 437
+      }
+    ],
+    "local_delta": "Both changed Rust locks add the agentbaton-remote-host local package and its dependency from agentbaton-core."
+  },
+  "review_status": "historical_package_observed_current_distribution_and_final_license_pending",
+  "independent_build_graph_review": {
+    "cargo_version": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "target": "aarch64-apple-darwin",
+    "features": [
+      "custom-protocol"
+    ],
+    "graphs": {
+      "current": {
+        "path": "historical-package-df35231e/cargo-graphs-current.log",
+        "sha256": "f35d6321f10d8cd5ce3b1a3c1d3c33f8023bbeff2f4ede5af86c3c3a01b1ae8a",
+        "reachable_from_desktop": {
+          "cssparser": {
+            "normal-no-proc-macro": false,
+            "normal-build": true
+          },
+          "dtoa-short": {
+            "normal-no-proc-macro": false,
+            "normal-build": true
+          },
+          "option-ext": {
+            "normal-no-proc-macro": true,
+            "normal-build": true
+          },
+          "selectors": {
+            "normal-no-proc-macro": false,
+            "normal-build": true
+          }
+        }
+      },
+      "historical": {
+        "path": "historical-package-df35231e/cargo-graphs-historical.log",
+        "sha256": "3b7e009f5c327ef5d214369a36bc244807ddb7e013b395df83516ed85a7069b7",
+        "reachable_from_desktop": {
+          "cssparser": {
+            "normal-no-proc-macro": false,
+            "normal-build": true
+          },
+          "dtoa-short": {
+            "normal-no-proc-macro": false,
+            "normal-build": true
+          },
+          "option-ext": {
+            "normal-no-proc-macro": true,
+            "normal-build": true
+          },
+          "selectors": {
+            "normal-no-proc-macro": false,
+            "normal-build": true
+          }
+        }
+      }
+    },
+    "hosted_release_compile_excerpt": {
+      "path": "historical-package-df35231e/github-release-compile-excerpt.log",
+      "sha256": "35fdf7a23723ef084022d700d2c17dc89b66ff947d7f74f5a64dcbef23a5ac65",
+      "full_log_sha256": "a578b7229fc2cba4712768711dedeee18ba532e0d79a28841cce534738ab1bdb",
+      "expected_packages": [
+        "cssparser v0.37.0",
+        "dtoa-short v0.3.5",
+        "option-ext v0.2.0",
+        "selectors v0.38.0"
+      ]
+    },
+    "linked_binary_attribution": "pending"
+  }
+}

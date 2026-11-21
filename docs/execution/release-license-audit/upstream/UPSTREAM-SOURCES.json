@@ -1,0 +1,406 @@
+[
+  {
+    "group": "objc2-frameworks",
+    "upstream_path": "LICENSE-MIT",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/7b1abfd750a2cacaea71d6a56ecfb83cb7de560b/LICENSE-MIT",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-frameworks",
+    "upstream_path": "LICENSE-APACHE",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/7b1abfd750a2cacaea71d6a56ecfb83cb7de560b/LICENSE-APACHE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-frameworks",
+    "upstream_path": "LICENSE-ZLIB",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/7b1abfd750a2cacaea71d6a56ecfb83cb7de560b/LICENSE-ZLIB",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-core",
+    "upstream_path": "LICENSE-MIT",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/d7d2fa23ceaa5e6096c923b081040e5d81b3b9df/LICENSE-MIT",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-encode",
+    "upstream_path": "LICENSE-MIT",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8d214f5477365ffcbcbb7de058c86ed9a518efb7/LICENSE-MIT",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-encode",
+    "upstream_path": "LICENSE-APACHE",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8d214f5477365ffcbcbb7de058c86ed9a518efb7/LICENSE-APACHE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-encode",
+    "upstream_path": "LICENSE-ZLIB",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8d214f5477365ffcbcbb7de058c86ed9a518efb7/LICENSE-ZLIB",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-block2",
+    "upstream_path": "LICENSE-MIT",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/b4167b582b2f75f9a1be75495c41b765344fd03c/LICENSE-MIT",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-dispatch2",
+    "upstream_path": "LICENSE-MIT",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8852b424193ca41602281b3d7540d7c8ed51e49a/LICENSE-MIT",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-dispatch2",
+    "upstream_path": "LICENSE-APACHE",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8852b424193ca41602281b3d7540d7c8ed51e49a/LICENSE-APACHE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "objc2-dispatch2",
+    "upstream_path": "LICENSE-ZLIB",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8852b424193ca41602281b3d7540d7c8ed51e49a/LICENSE-ZLIB",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "alloc-stdlib",
+    "upstream_path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/0a81fd6928ea3b33c8cd484aa4575d50ffb98012/LICENSE",
+    "curl_exit": 0,
+    "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+    "bytes": 1483,
+    "preserved_path": "files/alloc-stdlib/LICENSE"
+  },
+  {
+    "group": "alloc-stdlib",
+    "upstream_path": "alloc-stdlib/LICENSE",
+    "url": "https://raw.githubusercontent.com/dropbox/rust-alloc-no-stdlib/0a81fd6928ea3b33c8cd484aa4575d50ffb98012/alloc-stdlib/LICENSE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "selectors",
+    "upstream_path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/servo/stylo/572ecba2d1600e7c3d490586692a209faf703baa/LICENSE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "selectors",
+    "upstream_path": "LICENSE-MPL",
+    "url": "https://raw.githubusercontent.com/servo/stylo/572ecba2d1600e7c3d490586692a209faf703baa/LICENSE-MPL",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "selectors",
+    "upstream_path": "selectors/LICENSE",
+    "url": "https://raw.githubusercontent.com/servo/stylo/572ecba2d1600e7c3d490586692a209faf703baa/selectors/LICENSE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "codex",
+    "upstream_path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/openai/codex/970111f6cb62cc02fe36a82ea7d71b37a2889c97/LICENSE",
+    "curl_exit": 0,
+    "sha256": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+    "bytes": 10926,
+    "preserved_path": "files/codex/LICENSE"
+  },
+  {
+    "group": "codex",
+    "upstream_path": "NOTICE",
+    "url": "https://raw.githubusercontent.com/openai/codex/970111f6cb62cc02fe36a82ea7d71b37a2889c97/NOTICE",
+    "curl_exit": 0,
+    "sha256": "9d71575ecfd9a843fc1677b0efb08053c6ba9fd686a0de1a6f5382fd3c220915",
+    "bytes": 242,
+    "preserved_path": "files/codex/NOTICE"
+  },
+  {
+    "group": "codex",
+    "upstream_path": "codex-cli/package.json",
+    "url": "https://raw.githubusercontent.com/openai/codex/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-cli/package.json",
+    "curl_exit": 0,
+    "sha256": "40909fd0a5b9678dc40dca40e19880dea2edf3ef028eafee2ab9ebad516d1dce",
+    "bytes": 616,
+    "preserved_path": "files/codex/codex-cli/package.json"
+  },
+  {
+    "group": "codex-acp",
+    "upstream_path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/codex-acp/6cce03545eaaf5daef849aa9647d4ccfdc22eb41/LICENSE",
+    "curl_exit": 0,
+    "sha256": "72ea310b40e1ee2c4aa61935d22065155c50bfde288b114c9cfd3e1fa34f8049",
+    "bytes": 10760,
+    "preserved_path": "files/codex-acp/LICENSE"
+  },
+  {
+    "group": "codex-acp",
+    "upstream_path": "LICENSE-APACHE",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/codex-acp/6cce03545eaaf5daef849aa9647d4ccfdc22eb41/LICENSE-APACHE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "codex-acp",
+    "upstream_path": "LICENSE-MIT",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/codex-acp/6cce03545eaaf5daef849aa9647d4ccfdc22eb41/LICENSE-MIT",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "codex-acp",
+    "upstream_path": "package.json",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/codex-acp/6cce03545eaaf5daef849aa9647d4ccfdc22eb41/package.json",
+    "curl_exit": 0,
+    "sha256": "36f919ab20d1dbf57a8dcc5be629d6678fb01330db399c0057c14aac7268b09a",
+    "bytes": 4122,
+    "preserved_path": "files/codex-acp/package.json"
+  },
+  {
+    "group": "codex-acp",
+    "upstream_path": "Cargo.toml",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/codex-acp/6cce03545eaaf5daef849aa9647d4ccfdc22eb41/Cargo.toml",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "claude-agent-acp",
+    "upstream_path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/claude-agent-acp/782e463ff418a6093e09cef3f3f5ce813f4ee270/LICENSE",
+    "curl_exit": 0,
+    "sha256": "6ed4f049cce59e05197d585bdf8a39980b45d546d6ea718ee344555f3a867c3a",
+    "bytes": 10783,
+    "preserved_path": "files/claude-agent-acp/LICENSE"
+  },
+  {
+    "group": "claude-agent-acp",
+    "upstream_path": "NOTICE",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/claude-agent-acp/782e463ff418a6093e09cef3f3f5ce813f4ee270/NOTICE",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  },
+  {
+    "group": "claude-agent-acp",
+    "upstream_path": "package.json",
+    "url": "https://raw.githubusercontent.com/agentclientprotocol/claude-agent-acp/782e463ff418a6093e09cef3f3f5ce813f4ee270/package.json",
+    "curl_exit": 0,
+    "sha256": "a90eefc101b1d6b87a797c3ad8aea8128964aa47460bb088aebb2cb4cfb01de5",
+    "bytes": 2418,
+    "preserved_path": "files/claude-agent-acp/package.json"
+  },
+  {
+    "group": "rust-historical",
+    "upstream_path": "LICENSE-MIT",
+    "url": "https://raw.githubusercontent.com/rust-lang/rust/0ef1bc386059596dada8fb65b50425aab2ea637a/LICENSE-MIT",
+    "curl_exit": 0,
+    "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1",
+    "bytes": 1068,
+    "preserved_path": "files/rust-historical/LICENSE-MIT"
+  },
+  {
+    "group": "rust-historical",
+    "upstream_path": "LICENSE-APACHE",
+    "url": "https://raw.githubusercontent.com/rust-lang/rust/0ef1bc386059596dada8fb65b50425aab2ea637a/LICENSE-APACHE",
+    "curl_exit": 0,
+    "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+    "bytes": 9723,
+    "preserved_path": "files/rust-historical/LICENSE-APACHE"
+  },
+  {
+    "group": "rust-historical",
+    "upstream_path": "COPYRIGHT",
+    "url": "https://raw.githubusercontent.com/rust-lang/rust/0ef1bc386059596dada8fb65b50425aab2ea637a/COPYRIGHT",
+    "curl_exit": 0,
+    "sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af",
+    "bytes": 1571,
+    "preserved_path": "files/rust-historical/COPYRIGHT"
+  },
+  {
+    "group": "qoder-cli",
+    "upstream_path": "registry-latest.json",
+    "url": "https://registry.npmjs.org/@qoder-ai%2fqodercli/latest",
+    "curl_exit": 0,
+    "sha256": "45c39e9d48dd05f5685ee0bb8ae54d4a60b06f4947af8c72608e960b562fca99",
+    "bytes": 1977,
+    "preserved_path": null
+  },
+  {
+    "group": "qoder-service",
+    "upstream_path": "terms.html",
+    "url": "https://qoder.com/product-service?lang=en",
+    "curl_exit": 0,
+    "sha256": "cf141ccaebc9940b8974efb4cd05cda172e28c7610c70108166a572fdf73a14f",
+    "bytes": 115998,
+    "preserved_path": null
+  },
+  {
+    "group": "qoder-cli",
+    "upstream_path": "official-install.html",
+    "url": "https://docs.qoder.com/cli/installation",
+    "curl_exit": 0,
+    "sha256": "13926c2a8dd804049dea49e01c1bae5354e6de27163970f66ad6c4454e9bb701",
+    "bytes": 863068,
+    "preserved_path": null
+  },
+  {
+    "group": "claude-agent-sdk",
+    "upstream_path": "official-docs.html",
+    "url": "https://code.claude.com/docs/en/agent-sdk/overview",
+    "curl_exit": 0,
+    "sha256": "edc1decd9cdd3e2dba5c9b4b3a955512b38fdc24357d579822a77290342aff71",
+    "bytes": 240238,
+    "preserved_path": null
+  },
+  {
+    "group": "anthropic",
+    "upstream_path": "legal-center.html",
+    "url": "https://www.anthropic.com/legal",
+    "curl_exit": 0,
+    "sha256": "bbfd2f4dd99168120a1e3fa1093ccd5ac66b38b293541d3747fa8b66672ef9cc",
+    "bytes": 262110,
+    "preserved_path": null
+  },
+  {
+    "group": "openai-service",
+    "upstream_path": "service-terms.html",
+    "url": "https://openai.com/policies/service-terms/",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 403"
+  },
+  {
+    "group": "openai-service",
+    "upstream_path": "api-agreement.html",
+    "url": "https://openai.com/policies/services-agreement/",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 403"
+  },
+  {
+    "group": "openai-service",
+    "upstream_path": "consumer-terms.html",
+    "url": "https://openai.com/policies/terms-of-use/",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 403"
+  },
+  {
+    "group": "sqlite",
+    "upstream_path": "copyright.html",
+    "url": "https://www.sqlite.org/copyright.html",
+    "curl_exit": 0,
+    "sha256": "44ca9f793055c8e32fc65f65a4f5bcf813a33f5bdaaa084067dd617a4ed3cc70",
+    "bytes": 8351,
+    "preserved_path": null
+  },
+  {
+    "group": "mozilla",
+    "upstream_path": "mpl-2-0.html",
+    "url": "https://www.mozilla.org/en-US/MPL/2.0/",
+    "curl_exit": 0,
+    "sha256": "79fefbb5ce750421056e8639e83b055fa97deb02407617d4c0f9d50cfa0cfd32",
+    "bytes": 17329,
+    "preserved_path": null
+  },
+  {
+    "group": "osi",
+    "upstream_path": "open-source-definition.html",
+    "url": "https://opensource.org/osd",
+    "curl_exit": 0,
+    "sha256": "57d574a846e11d1287df11766832caf848992cb81600e45818d8cb20b03e59cc",
+    "bytes": 197717,
+    "preserved_path": null
+  },
+  {
+    "group": "dco",
+    "upstream_path": "origin.html",
+    "url": "https://developercertificate.org/",
+    "curl_exit": 0,
+    "sha256": "c9242de9ab4d43ca1c97d7056f23f8a157eab0f5bb97455088c7bd226d7e21e9",
+    "bytes": 1750,
+    "preserved_path": null
+  },
+  {
+    "group": "claude-agent-sdk",
+    "upstream_path": "registry-lock.json",
+    "url": "https://registry.npmjs.org/@anthropic-ai%2fclaude-agent-sdk/0.3.310",
+    "curl_exit": 0,
+    "sha256": "f2c8e67e24ffe522ae62986fa54cf912b64469b78f1cf6937bc9cb78988b2232",
+    "bytes": 4105,
+    "preserved_path": null
+  },
+  {
+    "group": "objc2-frameworks",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/7b1abfd750a2cacaea71d6a56ecfb83cb7de560b/LICENSE.md",
+    "upstream_path": "LICENSE.md",
+    "curl_exit": 0,
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339,
+    "preserved_path": "files/objc2-frameworks/LICENSE.md"
+  },
+  {
+    "group": "objc2-core",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/d7d2fa23ceaa5e6096c923b081040e5d81b3b9df/LICENSE.md",
+    "upstream_path": "LICENSE.md",
+    "curl_exit": 0,
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339,
+    "preserved_path": "files/objc2-core/LICENSE.md"
+  },
+  {
+    "group": "objc2-encode",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8d214f5477365ffcbcbb7de058c86ed9a518efb7/LICENSE.md",
+    "upstream_path": "LICENSE.md",
+    "curl_exit": 0,
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339,
+    "preserved_path": "files/objc2-encode/LICENSE.md"
+  },
+  {
+    "group": "objc2-block2",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/b4167b582b2f75f9a1be75495c41b765344fd03c/LICENSE.md",
+    "upstream_path": "LICENSE.md",
+    "curl_exit": 0,
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339,
+    "preserved_path": "files/objc2-block2/LICENSE.md"
+  },
+  {
+    "group": "objc2-dispatch2",
+    "url": "https://raw.githubusercontent.com/madsmtm/objc2/8852b424193ca41602281b3d7540d7c8ed51e49a/LICENSE.md",
+    "upstream_path": "LICENSE.md",
+    "curl_exit": 0,
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339,
+    "preserved_path": "files/objc2-dispatch2/LICENSE.md"
+  },
+  {
+    "group": "apache",
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+    "upstream_path": "LICENSE-2.0.txt",
+    "curl_exit": 0,
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358,
+    "preserved_path": "files/apache/LICENSE-2.0.txt"
+  },
+  {
+    "group": "dco",
+    "url": "https://developercertificate.org/DCO.txt",
+    "upstream_path": "DCO-1.1.txt",
+    "curl_exit": 56,
+    "error": "curl: (56) The requested URL returned error: 404"
+  }
+]

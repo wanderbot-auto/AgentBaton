@@ -1,0 +1,72 @@
+{
+  "base_commit": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+  "base_tree": "9ce195d936d5798b077f50d1b7e25102318ce9c6",
+  "tested_source_commit": "6e0e4f775762a224b89be338aedb49f725899647",
+  "tested_source_tree": "f7e4ca48ed33f9440b545a8a23361e134dcd1a77",
+  "platform": "macOS-26.6.1-arm64-arm-64bit",
+  "macos_build": "25G76",
+  "python": "3.12.12",
+  "verification": {
+    "base_direct": {
+      "total": 38,
+      "passed": 36,
+      "failed": 1,
+      "skipped": 1
+    },
+    "candidate_direct": {
+      "total": 39,
+      "passed": 38,
+      "failed": 0,
+      "skipped": 1
+    },
+    "historical_guard_tests_passed": 28,
+    "infrastructure": {
+      "total": 1099,
+      "passed": 1083,
+      "failed": 0,
+      "skipped": 16
+    },
+    "static_checks_passed": [
+      "validate_design.py",
+      "validate_infrastructure.py",
+      "verify_bootstrap_manifest.py"
+    ],
+    "real_syscall_contrast": "logs/real-syscalls.json",
+    "native_and_loader_original_bytes": "logs/source-bytes.json",
+    "self_contained_replay": {
+      "checkout_commit": "2150da0f413f4312b958faddcfbab71d48f534dd",
+      "checkout_tree": "ade45ca4891fca310bc8b350d1d757b42ef9ef88",
+      "clone": "local transport, --no-local --single-branch --depth 8",
+      "unpublished_tracer_commit_absent_before_and_after": true,
+      "unpublished_tracer_commit": "5ecb480bdde47cf48918fa0adf54d734b39bde59",
+      "replay_exit": 0,
+      "modified_tracer_refused_before_comparison": true,
+      "checkout_proof": "logs/clean-checkout-proof.txt",
+      "real_syscall_contrast": "logs/clean-checkout-syscalls.json"
+    }
+  },
+  "sanitized_evidence_sha256": {
+    "clean-checkout-proof.txt": "fb86839f47c9990b9848a5c09fb367bd0ebd7ba9a99b22cd2533e40300d9fa66",
+    "clean-checkout-syscalls.json": "b63eca4e391512f46be4d2f528e98728ad8d3db5a52982b02523e951d08c66d9",
+    "real-syscalls.json": "6dfe3c4a3bce07e9106c0a4255e0a510dad87493ef00da4349f4625a061b4fa7",
+    "source-bytes.json": "8c34f8fb286a6cf20f464745da014a4602755bd1f599c2d8f069adf9b71366a7",
+    "test-summary.txt": "435ecd20530e2d3aeb99ca73289e7b48caa6fb22d337bcde68948c65c9497276"
+  },
+  "private_raw_log_sha256": {
+    "base-direct.log": "209e5700c23192fcc3fb74f6f41887324b61f3dc4ff35187e05b7365cb729e70",
+    "candidate-direct.log": "ad54b8ccabb06f743e5dc6d912a2162d9583fb96eb000cb391dee0f9b11a37e2",
+    "historical-guards.log": "4d87485b9b8d2dc0510f65589e6983718ce956006e91d588cb6688ffe05b54d3",
+    "infrastructure-tests.log": "701bfc9414a415647062b8c68b735059a7f4c43c8a3a56ef5e8381510764cdba",
+    "design.log": "90c26c664057e1501bcb0e49384a90e5e5397229ff04f20e9090996a6e538e90",
+    "infrastructure.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+    "bootstrap.log": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+  },
+  "replay_comparison_sha256": "185e696ba34ca1a798ea524042f39beda5f1906642382efd28b57225b39d97d6",
+  "not_run": [
+    "native GUI",
+    "local Linux replay",
+    "full historical compilation and migration",
+    "hosted CI"
+  ],
+  "local_tracer_sha256": "49ae2025e83fca185d5c6aaba5b706c5f49b54b1bcac008d227f82a34662da82"
+}

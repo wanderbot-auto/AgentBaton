@@ -1,0 +1,158 @@
+{
+  "contract": "agentbaton.child-goal-ci.v1",
+  "case": "normal",
+  "status": "passed",
+  "schema": 19,
+  "source_head": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+  "compiled_core_source_head": "eb2783beb2bee0cff165663b2d0da20f15d69e64",
+  "manifest_sha256": "26be8bbd835ebf64eef373898c466b2f9cb5b25a9c8e90d70b0f830d8671da49",
+  "tools_sha256": {
+    "batond": "c99fbceb590aedcb8072473c77263c64ee8ec19b2c9dbb13d13d4cf04e79cec9",
+    "baton": "40126ac3c42630b84a6f33ba11036cad31d9f941242f304e5beb2f16cf5136ac"
+  },
+  "frontend_asset_count": 3,
+  "frontend_assets_sha256": "d016f20517a5fdb6a6b3322066d2e855ec3a17899fe2107a3053640885e3224a",
+  "git_tree": "6a55867536d7900bafecc1467590edf5b4eff046",
+  "harness_sha256": "06d78e2c4df8af6beb816ae85d9cec37256ea7315263e8fb3038be2439bb6855",
+  "exit_code": 0,
+  "command_state": "returned",
+  "checks": [
+    {
+      "id": "CG01",
+      "status": "passed"
+    },
+    {
+      "id": "CG02",
+      "status": "passed"
+    },
+    {
+      "id": "CG05",
+      "status": "passed"
+    },
+    {
+      "id": "CG06",
+      "status": "passed"
+    }
+  ],
+  "cleanup_complete": true,
+  "cleanup_record_count": 8,
+  "failure_kind": "none",
+  "screenshots_published": false,
+  "private_history_published": false,
+  "finite_diagnostics": {
+    "version": 4,
+    "failure_class": null,
+    "driver_lines": null,
+    "lines_truncated": null,
+    "phase": null,
+    "last_completed_check": "CG06",
+    "core_replies": {
+      "observation": "observed",
+      "captured_count": 204,
+      "truncated": false,
+      "unmapped_error_count": 0,
+      "errors": [
+        {
+          "method": "factory_child_goals.start",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_scopes.propose",
+          "code": "AUTH_REQUIRED",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        },
+        {
+          "method": "factory_runs.get",
+          "code": "NOT_FOUND",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 1
+        },
+        {
+          "method": "factory_child_goals.start",
+          "code": "STALE_REVISION",
+          "retryable": false,
+          "side_effect_state": "not_started",
+          "count": 2
+        }
+      ]
+    },
+    "graph_provider_argv": null,
+    "owner_refresh": {
+      "observation": "observed",
+      "source_epoch": null,
+      "started_ns": 995586389353,
+      "click_finished_ns": 995626187301,
+      "finished_ns": 996166632991,
+      "refresh_completed": null,
+      "full_fresh": null,
+      "loading": null,
+      "pending_kind": "unobserved",
+      "correlation": "temporal_only",
+      "click_causality": "not_established",
+      "reads": [
+        {
+          "method": "factory_child_goals.get",
+          "binding": "scope_task_run",
+          "started_ns": 996015801386,
+          "finished_ns": 996119496249,
+          "reply_class": "result",
+          "error": null
+        }
+      ],
+      "scope_task_only_read_count": 1,
+      "truncated": false
+    },
+    "graph_provider_identity": null,
+    "owner_ui_state": {
+      "source": "renderer_local_untrusted",
+      "authority": "none",
+      "begin": {
+        "observation": "observed",
+        "sampled_ns": 995596936540,
+        "epoch": 5,
+        "fresh": true,
+        "loading": false,
+        "capacity": false,
+        "connected": true,
+        "busy": false,
+        "cancel_reading": false,
+        "disabled": false,
+        "has_view": true,
+        "summary_fresh": true,
+        "parent_ready": true,
+        "parent_refresh_only": false,
+        "pending_kind": "none",
+        "pending_unknown": null,
+        "owner_present": true,
+        "owner_disabled": false
+      },
+      "end": {
+        "observation": "observed",
+        "sampled_ns": 996166574291,
+        "epoch": 6,
+        "fresh": true,
+        "loading": false,
+        "capacity": false,
+        "connected": true,
+        "busy": false,
+        "cancel_reading": false,
+        "disabled": false,
+        "has_view": true,
+        "summary_fresh": true,
+        "parent_ready": true,
+        "parent_refresh_only": false,
+        "pending_kind": "none",
+        "pending_unknown": null,
+        "owner_present": true,
+        "owner_disabled": false
+      }
+    }
+  },
+  "projector_sha256": "6d11ba710b957c5cc894960211457ba1771767b25603a1584c7c3b2b71ca02bb"
+}

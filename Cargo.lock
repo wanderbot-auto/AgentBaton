@@ -23,6 +23,7 @@ version = "0.1.0"
 dependencies = [
  "agentbaton-config",
  "agentbaton-providers",
+ "agentbaton-remote-host",
  "agentbaton-workspaces",
  "fs2",
  "libc",
@@ -45,6 +46,17 @@ dependencies = [
  "serde_json",
  "sha2",
  "tempfile",
+]
+
+[[package]]
+name = "agentbaton-remote-host"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]

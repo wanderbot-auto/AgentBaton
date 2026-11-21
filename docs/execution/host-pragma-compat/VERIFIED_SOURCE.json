@@ -1,0 +1,298 @@
+{
+  "base": "8f8d0a17861920b0577b3754ca972f0329819745",
+  "final_source_head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+  "rust_verified_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+  "python_verified_head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+  "source_sha256": {
+    "crates/core/src/host_registry.rs": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
+    "crates/core/src/host_registry_tests.rs": "b251f6b3f83722bb89b85813a61e9ea7157af63d9deb50c4c2e9244aace87210",
+    "tests/infrastructure/test_background_service_native_smoke_source.py": "1789740886cb10769cf899603ef6a123ffd5a58a3b86767f61ceef7cd18b72cd"
+  },
+  "source_composite_sha256": "a174fb822be318a30e3b9e35ff70337d7f7b042f283f02e4c63c5928c9c10009",
+  "untouched_manifest_lock_sha256": {
+    "Cargo.toml": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278",
+    "Cargo.lock": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+    "crates/core/Cargo.toml": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0",
+    "crates/remote-host/Cargo.toml": "4c6489b437983f5e5e9c6e10e3260f97cbdbff805ac69cf107404bfd60f0d491",
+    "crates/remote-host/Cargo.lock": "a7989aafc7061e620febff92227e83c34ddf6eccb1ed9abc294544bf1dbfed43",
+    "apps/desktop/src-tauri/Cargo.lock": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
+  },
+  "original_assertions_AST_unchanged": true,
+  "other_original_background_methods_AST_unchanged": true,
+  "original_assertion_count": 7,
+  "checks": [
+    {
+      "evidence": "runs/fixed-2/fmt.json",
+      "source_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "started_utc": "2026-11-17T20:43:04.984043+00:00",
+      "expected_rust_counts": null,
+      "note": "Actual dormant A helper+B data methods; not product Store19/native/IPC/remote.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T20:43:06.183136+00:00",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_bytes": 0,
+      "actual_rust_counts": [],
+      "count_gate": true,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/fixed-2/clippy.json",
+      "source_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "-j",
+        "2",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "started_utc": "2026-11-17T20:43:06.183403+00:00",
+      "expected_rust_counts": null,
+      "note": "Actual dormant A helper+B data methods; not product Store19/native/IPC/remote.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T20:43:24.890316+00:00",
+      "log_sha256": "dd78f22e6dd8bcbcd65ac45d935fb064aac2f2bc63c6cbf4941babecbb87be48",
+      "log_bytes": 2336,
+      "actual_rust_counts": [],
+      "count_gate": true,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/fixed-2/host42.json",
+      "source_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "host_registry",
+        "-j",
+        "2",
+        "--",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "started_utc": "2026-11-17T20:43:24.890676+00:00",
+      "expected_rust_counts": [
+        42
+      ],
+      "note": "Actual dormant A helper+B data methods; not product Store19/native/IPC/remote.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T20:44:22.939371+00:00",
+      "log_sha256": "a63a884e5ba9e2d7f5cf397bf57ea6eaa0073bde2a8193f49cfc06514baa3af4",
+      "log_bytes": 26399,
+      "actual_rust_counts": [
+        42
+      ],
+      "count_gate": true,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/fixed-2/original18.json",
+      "source_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "conversation_schema18",
+        "--test",
+        "integration_schema17",
+        "-j",
+        "2",
+        "--",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-17T20:44:22.939591+00:00",
+      "expected_rust_counts": [
+        3,
+        15
+      ],
+      "note": "Actual dormant A helper+B data methods; not product Store19/native/IPC/remote.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T20:45:30.737720+00:00",
+      "log_sha256": "af751f3a8bb6ab5d5b9c87c760f41ebbe400e08fefdf4cec57e331d0fe0a4fc3",
+      "log_bytes": 2286,
+      "actual_rust_counts": [
+        3,
+        15
+      ],
+      "count_gate": true,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/fixed-2/original-caller.json",
+      "source_head": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "task_workspace_binding::tests::controlled_v15_shape_migration_retains_rows_backup_and_refuses_future19",
+        "-j",
+        "2",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "started_utc": "2026-11-17T20:45:30.737962+00:00",
+      "expected_rust_counts": [
+        1
+      ],
+      "note": "Actual dormant A helper+B data methods; not product Store19/native/IPC/remote.",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T20:45:31.009582+00:00",
+      "log_sha256": "9a0e1c9e3d3e3e3be2dd8c3b90fdd914a23e0b7383f98513ed9c8feea82a439f",
+      "log_bytes": 389,
+      "actual_rust_counts": [
+        1
+      ],
+      "count_gate": true,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/fixed-3-python/background.json",
+      "source_head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+      "command": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.infrastructure.test_background_service_native_smoke_source"
+      ],
+      "started_utc": "2026-11-17T20:49:25.974228+00:00",
+      "expected_total": 12,
+      "Rust_unchanged_from_verified": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T20:49:26.725461+00:00",
+      "actual_total": 12,
+      "skipped": 0,
+      "count_gate": true,
+      "log_sha256": "07229642c8b8c7b316348419d1bfda59ae778fdd8d3199d6607910536571a680",
+      "log_bytes": 3029,
+      "all_children_joined": true,
+      "status": "passed"
+    },
+    {
+      "evidence": "runs/fixed-3-python/infrastructure.json",
+      "source_head": "0930cc6fa9f4222d8adca172a13bca79a5354c70",
+      "command": [
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/infrastructure"
+      ],
+      "started_utc": "2026-11-17T20:49:26.725666+00:00",
+      "expected_total": 897,
+      "Rust_unchanged_from_verified": "649cbab200f613a5e8a66d281da45932adccc7c5",
+      "exit_code": 0,
+      "finished_utc": "2026-11-17T20:49:46.924271+00:00",
+      "actual_total": 897,
+      "skipped": 16,
+      "count_gate": true,
+      "log_sha256": "7c5a7b3399e0e283782d681433d4d6b840919b634204ea23b6a18c23399c4955",
+      "log_bytes": 2420,
+      "all_children_joined": true,
+      "status": "passed"
+    }
+  ],
+  "counts": {
+    "distinct_selected_Rust_passed": 61,
+    "Host_migration": 42,
+    "original_conversation": 3,
+    "original_integration": 15,
+    "original_caller": 1,
+    "infrastructure_total": 897,
+    "infrastructure_passed": 881,
+    "infrastructure_failed": 0,
+    "infrastructure_skipped": 16,
+    "background_subset_passed": 12,
+    "background_is_infrastructure_subset_not_added": true
+  },
+  "binaries": [
+    {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/target/debug/deps/agentbaton_core-3e149a5721946c12",
+      "bytes": 32780112,
+      "sha256": "270c1e9c2566533941080512cb9af0b404eb21ed5603b9b819ab532e0c09a2ea"
+    },
+    {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/target/debug/deps/conversation_schema18-1e5841b27b483af3",
+      "bytes": 8487992,
+      "sha256": "11cd158fce9cbd975f5e6c814196a10e3b5a47aa76316ac69bbc16faf6bf56de"
+    },
+    {
+      "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/target/debug/deps/integration_schema17-322ac0b290238bf1",
+      "bytes": 9075128,
+      "sha256": "7e56d4e9ddd5ac8c80a6f7ae731ea0e0dc809b31187c5a083db1309f5899a83a"
+    }
+  ],
+  "environment": {
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "python_runner": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "run_env": {
+      "CARGO_TARGET_DIR": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/target",
+      "BATON_RUNTIME_DIR": "/private/tmp/ab-collab-qh148ssg",
+      "CARGO_BUILD_JOBS": null,
+      "RUST_TEST_THREADS": null,
+      "RUSTFLAGS": null,
+      "CARGO_ENCODED_RUSTFLAGS": null,
+      "RUSTC_WRAPPER": null
+    }
+  },
+  "processes": {
+    "all_sessions_joined": [
+      90882,
+      55530,
+      76469
+    ],
+    "new_services_companions": 0,
+    "heavy_slot": "released after final Python/infrastructure command"
+  },
+  "review": "Native read-only6a Rust and0930 Python diff no P1/P2; no review tests fabricated.",
+  "negative_history": [
+    "base59564 infra1failure/16skips retained",
+    "817 expected red actual1fail compiled (not counted passed)",
+    "6a first inverse12tests/3errors retained",
+    "649 earlier12/897 passes superseded only by later Python current checks, not added again"
+  ],
+  "limits": [
+    "draft parent base not main accepted",
+    "A helper + B methods on actual private SQLite only; ordinary Store18 unchanged",
+    "No product migration backup/startup/recovery19, real actor/UDS/native/SSH/Provider/CI evidence",
+    "Source guard proves exact historical bytes/inverse only, not native behavior",
+    "Only selected61 Rust execution; not full root workspace runtime tests"
+  ],
+  "all_original_global_pin_values_AST_unchanged": true
+}

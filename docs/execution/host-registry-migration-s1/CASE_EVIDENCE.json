@@ -1,0 +1,534 @@
+{
+  "source": "ee0279a31cae1cf9c9ca24044731cc40182f6df6",
+  "log_sha256": "3cee60a22bd3c96af990b4bbf922005e90be4c825052b4a864641fa46f979ca5",
+  "logical_hash_definition": "SHA256 of Debug(Image):main user_version/schema_cookie/application_id/schema objects/full typed rowid+rows plus temp objects/database list;not raw SQLite file bytes",
+  "raw_dimension": "Only explicit DELETE-journal main-file case measured byte equality;new Host WAL/SHM byte equality not claimed",
+  "structured_cases": [
+    {
+      "case": "broken_old_fk",
+      "logical_after_sha256": "f2bd07d378a22af59d13fc189a52918fbb792fcfa8dab1a7f1ad3eabdabe0fc5",
+      "logical_before_sha256": "f2bd07d378a22af59d13fc189a52918fbb792fcfa8dab1a7f1ad3eabdabe0fc5",
+      "logical_equal": true
+    },
+    {
+      "case": "current19_pure_readonly",
+      "logical_after_sha256": "a5490f05f2bc6d9f1958c6291798effd2e56f87878b2c662fa6b3112ebf9bb01",
+      "logical_before_sha256": "a5490f05f2bc6d9f1958c6291798effd2e56f87878b2c662fa6b3112ebf9bb01",
+      "logical_equal": true
+    },
+    {
+      "case": "late_inverse_caller_failure_rolls_back19",
+      "logical_after_sha256": "a5490f05f2bc6d9f1958c6291798effd2e56f87878b2c662fa6b3112ebf9bb01",
+      "logical_before_sha256": "a5490f05f2bc6d9f1958c6291798effd2e56f87878b2c662fa6b3112ebf9bb01",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_ddl",
+      "logical_after_sha256": "55ccc600dd6e36e51f9448e79d2f878a9b0ddd979af13b6f9a4ed70c215e99cb",
+      "logical_before_sha256": "55ccc600dd6e36e51f9448e79d2f878a9b0ddd979af13b6f9a4ed70c215e99cb",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_inverse_ddl",
+      "logical_after_sha256": "55ccc600dd6e36e51f9448e79d2f878a9b0ddd979af13b6f9a4ed70c215e99cb",
+      "logical_before_sha256": "55ccc600dd6e36e51f9448e79d2f878a9b0ddd979af13b6f9a4ed70c215e99cb",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_ddl",
+      "logical_after_sha256": "d4c42001fd9fa6becbf8a28684b5fb3c9e70e69c02844914cca2b023e2d2fe42",
+      "logical_before_sha256": "d4c42001fd9fa6becbf8a28684b5fb3c9e70e69c02844914cca2b023e2d2fe42",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_inverse_ddl",
+      "logical_after_sha256": "d4c42001fd9fa6becbf8a28684b5fb3c9e70e69c02844914cca2b023e2d2fe42",
+      "logical_before_sha256": "d4c42001fd9fa6becbf8a28684b5fb3c9e70e69c02844914cca2b023e2d2fe42",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_ddl",
+      "logical_after_sha256": "552571e243ac3d9537698e3985b85d6e0962308a2961d8190a6562645a242739",
+      "logical_before_sha256": "552571e243ac3d9537698e3985b85d6e0962308a2961d8190a6562645a242739",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_inverse_ddl",
+      "logical_after_sha256": "552571e243ac3d9537698e3985b85d6e0962308a2961d8190a6562645a242739",
+      "logical_before_sha256": "552571e243ac3d9537698e3985b85d6e0962308a2961d8190a6562645a242739",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_ddl",
+      "logical_after_sha256": "5fe771b66a57c4537d9994a517bea5784d0d9a428e36949a1c8fd7fede0c6901",
+      "logical_before_sha256": "5fe771b66a57c4537d9994a517bea5784d0d9a428e36949a1c8fd7fede0c6901",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_inverse_ddl",
+      "logical_after_sha256": "5fe771b66a57c4537d9994a517bea5784d0d9a428e36949a1c8fd7fede0c6901",
+      "logical_before_sha256": "5fe771b66a57c4537d9994a517bea5784d0d9a428e36949a1c8fd7fede0c6901",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_ddl",
+      "logical_after_sha256": "f2de554b4efd841becade1d9df0aaf353bb3e0d769164f4cfb9daad97d94876d",
+      "logical_before_sha256": "f2de554b4efd841becade1d9df0aaf353bb3e0d769164f4cfb9daad97d94876d",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_inverse_ddl",
+      "logical_after_sha256": "f2de554b4efd841becade1d9df0aaf353bb3e0d769164f4cfb9daad97d94876d",
+      "logical_before_sha256": "f2de554b4efd841becade1d9df0aaf353bb3e0d769164f4cfb9daad97d94876d",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_ddl",
+      "logical_after_sha256": "f8b6e231ac46ec22485eb1be5eed927f64c5bc7c7ab7c6685a84adc026e405a2",
+      "logical_before_sha256": "f8b6e231ac46ec22485eb1be5eed927f64c5bc7c7ab7c6685a84adc026e405a2",
+      "logical_equal": true
+    },
+    {
+      "case": "changed_host_inverse_ddl",
+      "logical_after_sha256": "f8b6e231ac46ec22485eb1be5eed927f64c5bc7c7ab7c6685a84adc026e405a2",
+      "logical_before_sha256": "f8b6e231ac46ec22485eb1be5eed927f64c5bc7c7ab7c6685a84adc026e405a2",
+      "logical_equal": true
+    },
+    {
+      "case": "DROP INDEX host_registrations_name_id",
+      "logical_after_sha256": "a8f5fdbad69074ef29828e3c5a40366590720ffcfacc1ab645ff0754ec63d190",
+      "logical_before_sha256": "a8f5fdbad69074ef29828e3c5a40366590720ffcfacc1ab645ff0754ec63d190",
+      "logical_equal": true
+    },
+    {
+      "case": "DROP TABLE host_registrations",
+      "logical_after_sha256": "7205a80344cd2f62b9a8943242886ebdf7386f3ab0c44f95df336e45dcce38f4",
+      "logical_before_sha256": "7205a80344cd2f62b9a8943242886ebdf7386f3ab0c44f95df336e45dcce38f4",
+      "logical_equal": true
+    },
+    {
+      "case": "oversized_event",
+      "logical_after_sha256": "0a12202d44e829522428334364f183a4bf77aac1333a0be2460f1be61252d955",
+      "logical_before_sha256": "0a12202d44e829522428334364f183a4bf77aac1333a0be2460f1be61252d955",
+      "logical_equal": true
+    },
+    {
+      "case": "namespace_row_bound",
+      "logical_after_sha256": "48e293e1c263cb3104016189e68a4542570006332a84274111dd67968409fe2c",
+      "logical_before_sha256": "48e293e1c263cb3104016189e68a4542570006332a84274111dd67968409fe2c",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_sequence_missing",
+      "logical_after_sha256": "b680907c1ff317ec4747159d5fa7a2b85377197dfd4b2158d3ff048ea7cb6c8b",
+      "logical_before_sha256": "b680907c1ff317ec4747159d5fa7a2b85377197dfd4b2158d3ff048ea7cb6c8b",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_sequence_duplicate",
+      "logical_after_sha256": "539f367bb6c640501da1b3f736856cbb893877c08bddecbef5628afd57c163e1",
+      "logical_before_sha256": "539f367bb6c640501da1b3f736856cbb893877c08bddecbef5628afd57c163e1",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_event_id_missing",
+      "logical_after_sha256": "9c6b47b0e53609cfa7d4bf244300688dc3af4083af101a1ae527a3d7530cdb06",
+      "logical_before_sha256": "9c6b47b0e53609cfa7d4bf244300688dc3af4083af101a1ae527a3d7530cdb06",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_event_id_duplicate",
+      "logical_after_sha256": "1b9c7958ad414783875d3f60b715d26d079770a7b1e912ebdd5a61948806cc32",
+      "logical_before_sha256": "1b9c7958ad414783875d3f60b715d26d079770a7b1e912ebdd5a61948806cc32",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_aggregate_id_missing",
+      "logical_after_sha256": "16c0161ffaee97df4a09cffb329d3df7bde0ece22e7371a5084787e0151709d8",
+      "logical_before_sha256": "16c0161ffaee97df4a09cffb329d3df7bde0ece22e7371a5084787e0151709d8",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_aggregate_id_duplicate",
+      "logical_after_sha256": "818f3bb9f612e01234ceffe02ce42e605b8bfdc43bcaff9a6b6f4bc4a48c6b59",
+      "logical_before_sha256": "818f3bb9f612e01234ceffe02ce42e605b8bfdc43bcaff9a6b6f4bc4a48c6b59",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_revision_missing",
+      "logical_after_sha256": "9c1ed870d4f0e2fb306ae18e7ad18838310cd33ef0ca9f7d3193cd0c5fb2264e",
+      "logical_before_sha256": "9c1ed870d4f0e2fb306ae18e7ad18838310cd33ef0ca9f7d3193cd0c5fb2264e",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_revision_duplicate",
+      "logical_after_sha256": "50b482ceaa259f3ac2a104e7863101e1e6760cc46a0c31f7ae5aea46c26be949",
+      "logical_before_sha256": "50b482ceaa259f3ac2a104e7863101e1e6760cc46a0c31f7ae5aea46c26be949",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_kind_missing",
+      "logical_after_sha256": "3ff37f95d2f6d87ece0c45d4a465885471316f301d0c7d009fb4e6a098ff3fec",
+      "logical_before_sha256": "3ff37f95d2f6d87ece0c45d4a465885471316f301d0c7d009fb4e6a098ff3fec",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_kind_duplicate",
+      "logical_after_sha256": "0bf1a42008b1d6e110b121770e8b92867983b1c85da5d514367b87701203c309",
+      "logical_before_sha256": "0bf1a42008b1d6e110b121770e8b92867983b1c85da5d514367b87701203c309",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_occurred_at_missing",
+      "logical_after_sha256": "198fb1db7ea5305b34c52d94ccbb9f7db76d1f639fe58e1448f12b59ba11a425",
+      "logical_before_sha256": "198fb1db7ea5305b34c52d94ccbb9f7db76d1f639fe58e1448f12b59ba11a425",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_occurred_at_duplicate",
+      "logical_after_sha256": "99adf5f645879ef29822071941164d0a1370af4963d951d708a41eb4c354731e",
+      "logical_before_sha256": "99adf5f645879ef29822071941164d0a1370af4963d951d708a41eb4c354731e",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_payload_missing",
+      "logical_after_sha256": "57b56b09f3d47116072f62d5ed9fc565de68215cf769cb181cfd189abdf5994c",
+      "logical_before_sha256": "57b56b09f3d47116072f62d5ed9fc565de68215cf769cb181cfd189abdf5994c",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_payload_duplicate",
+      "logical_after_sha256": "ec21789fc7c718ffc99431ee89227008d3078a59dc4a492231804d511433d1d1",
+      "logical_before_sha256": "ec21789fc7c718ffc99431ee89227008d3078a59dc4a492231804d511433d1d1",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_source_missing",
+      "logical_after_sha256": "eff948aefc1c0242df6d321440dd06065a2604f70142b7f3578ce3deb91368e8",
+      "logical_before_sha256": "eff948aefc1c0242df6d321440dd06065a2604f70142b7f3578ce3deb91368e8",
+      "logical_equal": true
+    },
+    {
+      "case": "event_outer_source_duplicate",
+      "logical_after_sha256": "eb9089f689f0c9f4f72219b76b33b49c384659b7c29e26193ff5e2655f0f5d53",
+      "logical_before_sha256": "eb9089f689f0c9f4f72219b76b33b49c384659b7c29e26193ff5e2655f0f5d53",
+      "logical_equal": true
+    },
+    {
+      "case": "event_unknown_outer",
+      "logical_after_sha256": "d5f40b3b58d941c71f92f9da786d7d8e436fb542088697019b838cedc48fea6a",
+      "logical_before_sha256": "d5f40b3b58d941c71f92f9da786d7d8e436fb542088697019b838cedc48fea6a",
+      "logical_equal": true
+    },
+    {
+      "case": "host.registered",
+      "logical_after_sha256": "c779e9f37de900d59d576a732984cf6a961cf9656e362fe163a87747ea174603",
+      "logical_before_sha256": "c779e9f37de900d59d576a732984cf6a961cf9656e362fe163a87747ea174603",
+      "logical_equal": true
+    },
+    {
+      "case": "host.future.v2",
+      "logical_after_sha256": "ffba228232a012d6f7d6e709a6af8f745d04935c15b01fd3ab4489334d65dd71",
+      "logical_before_sha256": "ffba228232a012d6f7d6e709a6af8f745d04935c15b01fd3ab4489334d65dd71",
+      "logical_equal": true
+    },
+    {
+      "case": "HOST.future",
+      "logical_after_sha256": "1d650b9b07798ca6068869cd0e8716decea2df90e0429a8f472b72dbe9c31792",
+      "logical_before_sha256": "1d650b9b07798ca6068869cd0e8716decea2df90e0429a8f472b72dbe9c31792",
+      "logical_equal": true
+    },
+    {
+      "case": "hosts.registered",
+      "logical_after_sha256": "0a0f7d546d4b0dbc6e843d9328bd14390dddb9fea6301fec2b68fec35af5d526",
+      "logical_before_sha256": "0a0f7d546d4b0dbc6e843d9328bd14390dddb9fea6301fec2b68fec35af5d526",
+      "logical_equal": true
+    },
+    {
+      "case": "host",
+      "logical_after_sha256": "ee34777d06d48eb006345433ac19cb858997618f11d978eef81f873d0677a754",
+      "logical_before_sha256": "ee34777d06d48eb006345433ac19cb858997618f11d978eef81f873d0677a754",
+      "logical_equal": true
+    },
+    {
+      "case": "hosts.register:v1",
+      "logical_after_sha256": "7771f92dc092ae25259b9fdd58b7e5275ba7f1efb389bd6326e3c0aa74173e53",
+      "logical_before_sha256": "7771f92dc092ae25259b9fdd58b7e5275ba7f1efb389bd6326e3c0aa74173e53",
+      "logical_equal": true
+    },
+    {
+      "case": "hosts.register:v2",
+      "logical_after_sha256": "a7ef70d2d8304dfb7ecb1872b40f4818b1638b4fc3fe479127001f5c824b2df0",
+      "logical_before_sha256": "a7ef70d2d8304dfb7ecb1872b40f4818b1638b4fc3fe479127001f5c824b2df0",
+      "logical_equal": true
+    },
+    {
+      "case": "HOSTS.future",
+      "logical_after_sha256": "bf04abee1bd64a1b36e077efcc1bde1ac4d3a9b79e4a8cb033c1ee138ecf569d",
+      "logical_before_sha256": "bf04abee1bd64a1b36e077efcc1bde1ac4d3a9b79e4a8cb033c1ee138ecf569d",
+      "logical_equal": true
+    },
+    {
+      "case": "host.unknown",
+      "logical_after_sha256": "97319c7e4184a4110f94b9242d657b72a56641e15f76ebee109469c04e7ca4ff",
+      "logical_before_sha256": "97319c7e4184a4110f94b9242d657b72a56641e15f76ebee109469c04e7ca4ff",
+      "logical_equal": true
+    },
+    {
+      "case": "malformed_event_classification",
+      "logical_after_sha256": "186093902894f397a88953c2eed6570a015915e35fb609e126c66b43ab099e86",
+      "logical_before_sha256": "186093902894f397a88953c2eed6570a015915e35fb609e126c66b43ab099e86",
+      "logical_equal": true
+    },
+    {
+      "case": "malformed_event_classification",
+      "logical_after_sha256": "15ff98820a53edd95f7f7210ad73f912359f8b181969e53e811b033e980c3ad8",
+      "logical_before_sha256": "15ff98820a53edd95f7f7210ad73f912359f8b181969e53e811b033e980c3ad8",
+      "logical_equal": true
+    },
+    {
+      "case": "malformed_event_classification",
+      "logical_after_sha256": "65ba5509095a72d1f502a64439a72e54c55e3e277f806ce4472b07dd3cb6b46c",
+      "logical_before_sha256": "65ba5509095a72d1f502a64439a72e54c55e3e277f806ce4472b07dd3cb6b46c",
+      "logical_equal": true
+    },
+    {
+      "case": "malformed_event_classification",
+      "logical_after_sha256": "41670290db4841e993076f60581a6237aaaf073cf1d4fd68051319314836ff91",
+      "logical_before_sha256": "41670290db4841e993076f60581a6237aaaf073cf1d4fd68051319314836ff91",
+      "logical_equal": true
+    },
+    {
+      "case": "malformed_event_classification",
+      "logical_after_sha256": "e7b0c0b00c6f4161e81e933fee6c6a35e9fe527ee748a5eb74078477a0916fdc",
+      "logical_before_sha256": "e7b0c0b00c6f4161e81e933fee6c6a35e9fe527ee748a5eb74078477a0916fdc",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE host_future(raw BLOB)",
+      "logical_after_sha256": "d89bd2ba506b13f22a2e5d676748992a2250084b07ebc329868a124f5787f3dc",
+      "logical_before_sha256": "d89bd2ba506b13f22a2e5d676748992a2250084b07ebc329868a124f5787f3dc",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE unrelated_sentinel(raw BLOB)",
+      "logical_after_sha256": "80a51570f5e20ff6e6a2ad96b7b1656fd0b504d7e663ffdd6656326e2fdd1ca4",
+      "logical_before_sha256": "80a51570f5e20ff6e6a2ad96b7b1656fd0b504d7e663ffdd6656326e2fdd1ca4",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE dependent(id TEXT,host TEXT REFERENCES host_registrations(id))",
+      "logical_after_sha256": "17a785d0b98875d79121b80a701b0ba6c7f38cd7baddb0105b248e2288392932",
+      "logical_before_sha256": "17a785d0b98875d79121b80a701b0ba6c7f38cd7baddb0105b248e2288392932",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE INDEX extra_host_index ON host_registrations(name)",
+      "logical_after_sha256": "ed7258d1c0e2486b038dbeb4a3772f1d788feabf057bdee2df56f039ce2090d1",
+      "logical_before_sha256": "ed7258d1c0e2486b038dbeb4a3772f1d788feabf057bdee2df56f039ce2090d1",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE VIEW external_dependency AS SELECT * FROM host_registrations",
+      "logical_after_sha256": "13cb6cd5dceb90f0f79d2b67ed639ad59ed57d05d819dd31fb71ce9b9502993a",
+      "logical_before_sha256": "13cb6cd5dceb90f0f79d2b67ed639ad59ed57d05d819dd31fb71ce9b9502993a",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TRIGGER external_dependency AFTER INSERT ON host_registrations BEGIN SELECT 1; END",
+      "logical_after_sha256": "f58621c54f68fe911cc3870f8323ca85b5355f2e6077b887336983b45207ee58",
+      "logical_before_sha256": "f58621c54f68fe911cc3870f8323ca85b5355f2e6077b887336983b45207ee58",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TEMP VIEW hidden_dependency AS SELECT * FROM main.host_registrations",
+      "logical_after_sha256": "814293ecd35b4c7cc85aed44321cd85d5af279ad188f4c1e81117e8a92e8141b",
+      "logical_before_sha256": "814293ecd35b4c7cc85aed44321cd85d5af279ad188f4c1e81117e8a92e8141b",
+      "logical_equal": true
+    },
+    {
+      "case": "ATTACH DATABASE ':memory:' AS unrecognized",
+      "logical_after_sha256": "53b37dc74e70d99ac542c900b89f776292c793cb461a2b60808cd20f90a27757",
+      "logical_before_sha256": "53b37dc74e70d99ac542c900b89f776292c793cb461a2b60808cd20f90a27757",
+      "logical_equal": true
+    },
+    {
+      "case": "PRAGMA user_version=18",
+      "logical_after_sha256": "d0b772113a04b476d2cb4eb196cb841f7b036eea1e3bc6b58a92c82f6a77b64b",
+      "logical_before_sha256": "d0b772113a04b476d2cb4eb196cb841f7b036eea1e3bc6b58a92c82f6a77b64b",
+      "logical_equal": true
+    },
+    {
+      "case": "PRAGMA user_version=20",
+      "logical_after_sha256": "c3a716ac9ba6c2adf1e8291529cf39b1579de55f8216168ce37c4cdbc8fb7109",
+      "logical_before_sha256": "c3a716ac9ba6c2adf1e8291529cf39b1579de55f8216168ce37c4cdbc8fb7109",
+      "logical_equal": true
+    },
+    {
+      "case": "known_authority_check_still_enforced",
+      "logical_after_sha256": "dce9a5e78e8fc0c1c5654d8dae9d382a4398f1674e815393bca3f99e30315149",
+      "logical_before_sha256": "dce9a5e78e8fc0c1c5654d8dae9d382a4398f1674e815393bca3f99e30315149",
+      "logical_equal": true
+    },
+    {
+      "case": "late_forward_caller_failure",
+      "logical_after_sha256": "5103b573339931aaa72fa648905779fc088972352312b14538c5ef0a5e4e8f20",
+      "logical_before_sha256": "5103b573339931aaa72fa648905779fc088972352312b14538c5ef0a5e4e8f20",
+      "logical_equal": true
+    },
+    {
+      "after_cookie": 91,
+      "after_version": 19,
+      "application_id_equal": true,
+      "before_cookie": 89,
+      "before_version": 18,
+      "case": "forward18_to19_preserves_original_data",
+      "expected_cookie_delta": 2,
+      "hashes_describe": "whole logical images;Host objects/version/cookie intentionally differ",
+      "logical_after_sha256": "2b70a62fe0b985962e94b0f54f8761b9424cfa05058e6017efd70a358e957ab0",
+      "logical_before_sha256": "bdf9db9ee5d3d156760cdae6beb21b689d049d462412d0e466650feaf46dcbf4",
+      "original_ddl_equal": true,
+      "original_rows_equal": true
+    },
+    {
+      "case": "idempotent19_recognition",
+      "logical_after_sha256": "2b70a62fe0b985962e94b0f54f8761b9424cfa05058e6017efd70a358e957ab0",
+      "logical_before_sha256": "2b70a62fe0b985962e94b0f54f8761b9424cfa05058e6017efd70a358e957ab0",
+      "logical_equal": true
+    },
+    {
+      "case": "opaque_product_data_not_fixture_extension",
+      "logical_after_sha256": "2b70a62fe0b985962e94b0f54f8761b9424cfa05058e6017efd70a358e957ab0",
+      "logical_before_sha256": "2b70a62fe0b985962e94b0f54f8761b9424cfa05058e6017efd70a358e957ab0",
+      "logical_equal": true
+    },
+    {
+      "case": "disk_refusal_logical",
+      "logical_after_sha256": "5ab2ef5683087401a3344a24d31b821ca9cf6d5f4607dcabccd2d11dbba66d17",
+      "logical_before_sha256": "5ab2ef5683087401a3344a24d31b821ca9cf6d5f4607dcabccd2d11dbba66d17",
+      "logical_equal": true
+    },
+    {
+      "after_sha256": "7424858be4b643efd6e39c895102a09e6616b89e489299cdcd0eb67914bfdddd",
+      "before_sha256": "7424858be4b643efd6e39c895102a09e6616b89e489299cdcd0eb67914bfdddd",
+      "case": "disk_refusal_raw_main",
+      "journal_mode": "delete",
+      "raw_equal": true,
+      "wal": "not_present_not_tested"
+    },
+    {
+      "case": "opaque_check_not_evaluated",
+      "logical_after_sha256": "082f4b94b5015c5fa93cada3dae55c217a3b4e2613ea6093f25e1a40d810bb2b",
+      "logical_before_sha256": "082f4b94b5015c5fa93cada3dae55c217a3b4e2613ea6093f25e1a40d810bb2b",
+      "logical_equal": true
+    },
+    {
+      "case": "ALTER TABLE tasks ADD COLUMN unreviewed TEXT",
+      "logical_after_sha256": "9953ac14bda819e61d477f262b13d54e9b04d170a7af2a8dff61dfe74a48bba2",
+      "logical_before_sha256": "9953ac14bda819e61d477f262b13d54e9b04d170a7af2a8dff61dfe74a48bba2",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE INDEX unreviewed ON tasks(id)",
+      "logical_after_sha256": "2707a284380e283d3883aff2bb710c3378da7544710f8f92482b4469dc7cecf6",
+      "logical_before_sha256": "2707a284380e283d3883aff2bb710c3378da7544710f8f92482b4469dc7cecf6",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE VIEW unknown_view AS SELECT * FROM events",
+      "logical_after_sha256": "fb647a559d46105041f03badda7810074dee618b8bcb814aea7b154c9cb6e2eb",
+      "logical_before_sha256": "fb647a559d46105041f03badda7810074dee618b8bcb814aea7b154c9cb6e2eb",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TRIGGER unknown_trigger AFTER INSERT ON events BEGIN SELECT 1; END",
+      "logical_after_sha256": "119d5dc7bb66ee32dded723d257bc2e528fb5f4a301094d90fec9d09e58833c2",
+      "logical_before_sha256": "119d5dc7bb66ee32dded723d257bc2e528fb5f4a301094d90fec9d09e58833c2",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE opaque(id TEXT, event INTEGER REFERENCES events(sequence))",
+      "logical_after_sha256": "d22a01472d020e2eebe97d628c3c726dce3be0fa8b5b2d7138765a020f7714cd",
+      "logical_before_sha256": "d22a01472d020e2eebe97d628c3c726dce3be0fa8b5b2d7138765a020f7714cd",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE opaque(id TEXT, generated TEXT GENERATED ALWAYS AS(id) VIRTUAL)",
+      "logical_after_sha256": "dc68cf78e2f304636b0bb99966131a92f363811e065e3c5408e09483c141e1d2",
+      "logical_before_sha256": "dc68cf78e2f304636b0bb99966131a92f363811e065e3c5408e09483c141e1d2",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE opaque(id TEXT);CREATE INDEX opaque_expression ON opaque(lower(id))",
+      "logical_after_sha256": "c4068bed2c0042bc72b0ca4eb5cb1ac924f1bab6fdbdf8c691161360f3806d8e",
+      "logical_before_sha256": "c4068bed2c0042bc72b0ca4eb5cb1ac924f1bab6fdbdf8c691161360f3806d8e",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE opaque(id TEXT);CREATE INDEX opaque_partial ON opaque(id) WHERE id IS NOT NULL",
+      "logical_after_sha256": "b1db9cd5516b1af6984f8b6d01cc356d6d1503b5c3c9a6b111f891ebedf48ea7",
+      "logical_before_sha256": "b1db9cd5516b1af6984f8b6d01cc356d6d1503b5c3c9a6b111f891ebedf48ea7",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE integration_future(id TEXT)",
+      "logical_after_sha256": "44a9283998f5568621bab33be7912e4c99e7d9ff5be498259e56cc7689e717c2",
+      "logical_before_sha256": "44a9283998f5568621bab33be7912e4c99e7d9ff5be498259e56cc7689e717c2",
+      "logical_equal": true
+    },
+    {
+      "case": "CREATE TABLE host_registrations(id TEXT)",
+      "logical_after_sha256": "7d8313c68cc5523528ff33d732f9ef7366f13f7e660c12a8dfa140df7147bc29",
+      "logical_before_sha256": "7d8313c68cc5523528ff33d732f9ef7366f13f7e660c12a8dfa140df7147bc29",
+      "logical_equal": true
+    },
+    {
+      "case": "nonempty19_structural_recognition",
+      "logical_after_sha256": "f75556208f15c6f28440b7f10e67fdb035a57d10b708fdd339da2faf234678aa",
+      "logical_before_sha256": "f75556208f15c6f28440b7f10e67fdb035a57d10b708fdd339da2faf234678aa",
+      "logical_equal": true
+    },
+    {
+      "case": "nonempty_host_never_downgraded",
+      "logical_after_sha256": "f75556208f15c6f28440b7f10e67fdb035a57d10b708fdd339da2faf234678aa",
+      "logical_before_sha256": "f75556208f15c6f28440b7f10e67fdb035a57d10b708fdd339da2faf234678aa",
+      "logical_equal": true
+    },
+    {
+      "case": "old_helpers_refuse19",
+      "logical_after_sha256": "9be08c38b4c29e28a87bb09b319b2c6a2bb2580566a7f4f16d33f26ac278234d",
+      "logical_before_sha256": "9be08c38b4c29e28a87bb09b319b2c6a2bb2580566a7f4f16d33f26ac278234d",
+      "logical_equal": true
+    },
+    {
+      "case": "unsupported_-1",
+      "logical_after_sha256": "6a7a8c1dd38fb6065f575e02b92476a824950ae7e848437239a5bd941b2e806c",
+      "logical_before_sha256": "6a7a8c1dd38fb6065f575e02b92476a824950ae7e848437239a5bd941b2e806c",
+      "logical_equal": true
+    },
+    {
+      "case": "unsupported_0",
+      "logical_after_sha256": "f0a6707303ea29da1388ac1f7ec5cc60816aee554dd4db2bcc3362c91f0be3b7",
+      "logical_before_sha256": "f0a6707303ea29da1388ac1f7ec5cc60816aee554dd4db2bcc3362c91f0be3b7",
+      "logical_equal": true
+    },
+    {
+      "case": "unsupported_17",
+      "logical_after_sha256": "0d5694db67d7db0d3a9513222967d742d2e64f9d4667002557de070d5813693a",
+      "logical_before_sha256": "0d5694db67d7db0d3a9513222967d742d2e64f9d4667002557de070d5813693a",
+      "logical_equal": true
+    },
+    {
+      "case": "unsupported_20",
+      "logical_after_sha256": "21f380c7c850c99e1e87964e0bda8dcf19c279ef0e1394950c0d4fd3540a53ef",
+      "logical_before_sha256": "21f380c7c850c99e1e87964e0bda8dcf19c279ef0e1394950c0d4fd3540a53ef",
+      "logical_equal": true
+    },
+    {
+      "case": "fk_policy_not_silently_enabled",
+      "logical_after_sha256": "d627cc9ac0b67d0f559976743159e79af7728af40d50da8de41dc1e6bde85004",
+      "logical_before_sha256": "d627cc9ac0b67d0f559976743159e79af7728af40d50da8de41dc1e6bde85004",
+      "logical_equal": true
+    }
+  ]
+}

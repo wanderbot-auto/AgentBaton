@@ -1,0 +1,15 @@
+positive exit=0
+negatives exit=0
+original_inputs exit=0
+bootstrap exit=0
+design exit=0
+static_infrastructure exit=0
+targeted exit=0
+full_python exit=0
+node exit=0
+rust_smoke exit=0
+rust_smoke_clippy exit=0
+targeted=15 passed
+full_python=1049 run, 1033 passed, 16 skipped
+node=4 passed
+rust_smoke=2 passed

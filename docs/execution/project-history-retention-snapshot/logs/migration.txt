@@ -1,0 +1,11 @@
+     Running tests/conversation_schema18.rs (target/debug/deps/conversation_schema18-1e5841b27b483af3)
+
+running 6 tests
+test exact18_inverse_refuses_current_store19_without_relabel_or_change ... ok
+test inverse_participates_in_callers_atomic_boundary_without_accepting_nested_outer_call ... ok
+test strict_current19_adapter_refuses_host_rows_and_inconsistent_foreign_keys_without_change ... ok
+test controlled18_migrates_to_current19_with_only_the_host_delta_and_preserves_its_backup ... ok
+test generated17_upgrade_preserves_every_old_row_and_private_backup_then_reopens_without_rewrite ... ok
+test exact18_inverse_refuses_wrong_version_modified_domain_nonempty_or_external_dependency ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.55s

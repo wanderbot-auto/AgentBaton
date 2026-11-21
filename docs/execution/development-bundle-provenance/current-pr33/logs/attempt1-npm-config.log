@@ -1,0 +1,16 @@
+start=2026-11-19T00:56:55Z
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+v26.7.0
+Exit prior to config file resolving
+cause
+double-loading config "/dev/null" as "global", previously loaded as "user"
+build_exit=1 utc=2026-11-19T00:56:58Z

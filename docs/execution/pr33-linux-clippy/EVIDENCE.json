@@ -1,0 +1,61 @@
+{
+  "pr": "https://github.com/wanderbot-auto/AgentBaton/pull/33",
+  "base": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+  "tested_source_blob": "050e513709187b150c2a159940c36dff444cc07e",
+  "hosted_baseline": {
+    "job": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/44432204086/job/135252128889",
+    "sha256_full_uncompressed_log": "224e27d46c84c1e1b7fcedc6725717e5e715da32536a55c3c150e4591c814895",
+    "schema14_tests_passed": 7,
+    "schema14_strict_clippy_exit": 101,
+    "diagnostics_lint": "clippy::needless_bool",
+    "subsequent_factory_archive_script_exit": 1
+  },
+  "linux_container": {
+    "architecture": "aarch64-unknown-linux-gnu",
+    "base_image": "rust:1.91.1-bookworm",
+    "base_image_id": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "rustc": "1.100.0 (0ef1bc386 2026-11-09)",
+    "clippy": "0.1.100 (0ef1bc3860 2026-11-09)",
+    "baseline_strict_clippy_exit": 101,
+    "format": "passed",
+    "strict_clippy_passed": [
+      "schema14 target",
+      "schema15 target",
+      "schema16 target",
+      "workspace all targets"
+    ],
+    "managed_mcp_tests_passed": 15,
+    "managed_mcp_tests_failed": 0,
+    "managed_mcp_tests_ignored": 0,
+    "owned_containers_remaining": 0
+  },
+  "macos_branch": "equivalent source statements and order, compared after indentation normalization",
+  "not_run": [
+    "replacement GitHub Actions candidate on hosted Linux x86_64",
+    "Factory evidence archiving on candidate",
+    "macOS runtime tests",
+    "full workspace test suite and genuine migration fixture replay locally"
+  ],
+  "logs": {
+    "hosted-job-excerpt.log": {
+      "path": "logs/hosted-job-excerpt.log.gz",
+      "sha256_uncompressed": "4ee601897c0d07bba78e73cb3a8ca4fad5dc1301a6e8b1e71b7c234da952b933",
+      "bytes_uncompressed": 5355
+    },
+    "linux-baseline.log": {
+      "path": "logs/linux-baseline.log.gz",
+      "sha256_uncompressed": "13bee73541dcfcce0f61120750913b1123c3b12be353de162221c9fc34f8bc9f",
+      "bytes_uncompressed": 4962
+    },
+    "linux-verify.log": {
+      "path": "logs/linux-verify.log.gz",
+      "sha256_uncompressed": "01f05da6278a839f4210b2ec36852f097cc594c16a8aba23b918ad80662f25ec",
+      "bytes_uncompressed": 7479
+    },
+    "toolchain.log": {
+      "path": "logs/toolchain.log.gz",
+      "sha256_uncompressed": "f5ad8b415cb58f8b1b08b300de3f1c7012a1a5fd65c753209b8250340471e3d1",
+      "bytes_uncompressed": 969
+    }
+  }
+}

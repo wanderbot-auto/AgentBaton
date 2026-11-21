@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 import sys
 import unittest
@@ -25,7 +26,7 @@ P = load('_integration_owner_projection_pure', 'scripts/record-integration-owner
 
 
 def group(phase):
-    before = {'schema_version': 18, 'sequence': 23, 'policies': 0, 'runs': 0, 'attempts': 0, 'ref_fences': 0}
+    before = {'schema_version': 19, 'sequence': 23, 'policies': 0, 'runs': 0, 'attempts': 0, 'ref_fences': 0}
     after = dict(before, policies=1, sequence=25) if phase == 'approve' else dict(before)
     return {'read_only': True, 'phase': phase, 'before': before, 'after': after,
             'proposal_matches': True, 'proposal_result_matches': True, 'policy_matches': True,
@@ -59,13 +60,13 @@ class IntegrationDatabaseContractControls(unittest.TestCase):
             self.assertIsNotNone(N.integration_database_error(value, phase, 23))
         self.assertIsNotNone(N.integration_database_error(group('approve'), 'cancel', 23))
 
-    def test_every_count_is_exact_u64_and_schema17_never_a_bool_float_or_range(self):
+    def test_every_count_is_exact_u64_and_only_integer_schema19_passes(self):
         for checkpoint in ['before', 'after']:
             for field in N.INTEGRATION_CHECKPOINT_FIELDS:
-                for bad in [True, False, 17.0, '17', -1, 1 << 64, None]:
+                for bad in [True, False, 17.0, '17', 19.0, '19', -1, 1 << 64, None]:
                     value = group('approve'); value[checkpoint][field] = bad
                     self.assertIsNotNone(N.integration_database_error(value, 'approve', 23), (checkpoint, field, bad))
-            for schema in [15, 16, 17, 19]:
+            for schema in [15, 16, 17, 18, 20]:
                 value = group('approve'); value[checkpoint]['schema_version'] = schema
                 self.assertIsNotNone(N.integration_database_error(value, 'approve', 23))
             for mode in ['extra', 'missing']:
@@ -215,6 +216,13 @@ class IntegrationFinitePublisherControls(unittest.TestCase):
         self.assertEqual(projected['visual_review'], 'not_established_by_collector')
         self.assertEqual(projected['driver_cleanup'], 'not_established_by_collector')
         self.assertEqual([v['policy_count'] for v in projected['phases']], [0, 1])
+        self.assertEqual(projected['schema'], 19)
+        self.assertEqual([v['schema'] for v in projected['phases']], [19, 19])
+        for old in [18, 20, 19.0, '19', True]:
+            wrong = report('approve')
+            wrong['integration_approval_database']['after']['schema_version'] = old
+            with self.assertRaises(ValueError):
+                P.project(report('cancel'), wrong, 23)
         with self.assertRaises(ValueError):
             P.project(dict(report('cancel'), raw_rpc='PRIVATE_CANARY'), report('approve'), 23)
         for phase in ['cancel', 'approve']:
@@ -275,6 +283,34 @@ F = load('_integration_actual_seed_source_controls', 'scripts/integration-owner-
 
 
 class IntegrationSeedSourceControls(unittest.TestCase):
+    def test_typed_schema_and_companion_database_binding(self):
+        snapshot = {'api_version': 1, 'database_schema_version': 19, 'sequence': 7}
+        F.require_core_snapshot(snapshot)
+        for field, invalid in [('api_version', True), ('api_version', 2), ('sequence', True),
+                               *[('database_schema_version', v) for v in (18, 20, True, 19.0, '19')]]:
+            with self.subTest(field=field, invalid=invalid), self.assertRaisesRegex(ValueError, 'schema19 Core'):
+                F.require_core_snapshot({**snapshot, field: invalid})
+        completed = subprocess.CompletedProcess([], 0, json.dumps({'result': snapshot}).encode(), b'')
+        with mock.patch.object(F.subprocess, 'run', return_value=completed), mock.patch.object(F, 'database', return_value={'sequence': 7}):
+            F.verify_bootstrap_identity(N, Path('/private/tools'), Path('/private/runtime'), {}, snapshot)
+        for wrong in (dict(snapshot, sequence=6), dict(snapshot, database_schema_version=18), dict(snapshot, api_version=True)):
+            altered = subprocess.CompletedProcess([], 0, json.dumps({'result': wrong}).encode(), b'')
+            with mock.patch.object(F.subprocess, 'run', return_value=altered), self.assertRaisesRegex(ValueError, 'snapshots disagree'):
+                F.verify_bootstrap_identity(N, Path('/private/tools'), Path('/private/runtime'), {}, snapshot)
+        with mock.patch.object(F.subprocess, 'run', return_value=completed), mock.patch.object(F, 'database', return_value={'sequence': 8}), self.assertRaisesRegex(ValueError, 'SQLite and Core'):
+            F.verify_bootstrap_identity(N, Path('/private/tools'), Path('/private/runtime'), {}, snapshot)
+
+    def test_mixed_build_directory_and_swapped_roles_refuse_before_bootstrap(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            other = root / 'other'; other.mkdir()
+            self.assertEqual(F.paired_tools(root/'batond', root/'baton'), (root/'batond',root/'baton'))
+            for daemon, companion in [(root/'batond', other/'baton'), (root/'baton', root/'batond')]:
+                with mock.patch.object(F.subprocess, 'Popen', side_effect=AssertionError('no tool may run')), self.assertRaisesRegex(ValueError, 'build pair'):
+                    with F.bootstrap(N, daemon, companion, root/'out'):
+                        self.fail('mixed pair reached fixture')
+            self.assertFalse((root/'out').exists())
+
     def test_generated_resource_bootstrap_cannot_finalize_target_or_unknown_approval(self):
         client = F.ResourceClient(Path('/unexecuted-runtime'), N)
         with mock.patch.object(F.socket, 'socket', side_effect=AssertionError('must refuse before transport')):
@@ -310,28 +346,29 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve(); path = root/'baton.sqlite3'
             with sqlite3.connect(path) as db:
-                db.execute('PRAGMA user_version=18')
+                db.execute('PRAGMA user_version=19')
                 # Inert count/raw reader fixture, not a genuine Core schema.
-                for table in sorted((*H.SCHEMA_TABLES, *N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES)):
+                for table in sorted((*H.SCHEMA_TABLES, *N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES, 'host_registrations')):
                     if table == 'sqlite_sequence': continue
                     db.execute('CREATE TABLE '+table+'(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT)' if table == 'events'
                         else 'CREATE TABLE '+table+'(id TEXT,document TEXT)')
                 db.execute("INSERT INTO projects VALUES('original',?)", ('原source',))
             before = path.read_bytes(); value = F.database(root)
-            self.assertEqual(len(value['counts']), 63)
+            self.assertEqual(len(value['counts']), 64)
+            self.assertEqual(value['counts']['host_registrations'], 0)
             self.assertTrue(all(value['counts'][table] == 0 for table in N.CONVERSATION_TABLES))
             self.assertEqual(value['counts']['projects'], 1)
-            self.assertEqual(value['schema_version'], 18)
+            self.assertEqual(value['schema_version'], 19)
             self.assertTrue(value['read_only']); self.assertEqual(path.read_bytes(), before)
-            for table in N.CONVERSATION_TABLES:
+            for table in (*N.CONVERSATION_TABLES, 'host_registrations'):
                 with sqlite3.connect(path) as db: db.execute('ALTER TABLE '+table+' RENAME TO missing_conversation_domain')
                 with self.assertRaises(ValueError): F.database(root)
                 with sqlite3.connect(path) as db: db.execute('ALTER TABLE missing_conversation_domain RENAME TO '+table)
-            for old in [16,17,19]:
+            for old in [16,17,18,20]:
                 with sqlite3.connect(path) as db: db.execute('PRAGMA user_version='+str(old))
                 with self.assertRaises(ValueError): F.database(root)
             with sqlite3.connect(path) as db:
-                db.execute('PRAGMA user_version=18'); db.execute('CREATE TABLE unexpected(id INTEGER)')
+                db.execute('PRAGMA user_version=19'); db.execute('CREATE TABLE unexpected(id INTEGER)')
             with self.assertRaises(ValueError): F.database(root)
             with sqlite3.connect(path) as db:
                 db.execute('DROP TABLE unexpected'); db.execute('DROP TABLE integration_attempts')
@@ -343,8 +380,8 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root=Path(raw).resolve(); path=root/'baton.sqlite3'
             with sqlite3.connect(path) as db:
-                db.execute('PRAGMA user_version=18')
-                for table in sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES)):
+                db.execute('PRAGMA user_version=19')
+                for table in sorted((*H.SCHEMA_TABLES, *N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES, 'host_registrations')):
                     if table=='sqlite_sequence':continue
                     db.execute('CREATE TABLE '+table+'(sequence INTEGER PRIMARY KEY AUTOINCREMENT,document TEXT)' if table=='events' else 'CREATE TABLE '+table+'(id TEXT,document TEXT)')
                 db.execute("INSERT INTO projects VALUES('oversize',zeroblob(8388609))")
@@ -415,7 +452,7 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         # Inert records only. No Core authority or accepted Task is manufactured.
         from types import SimpleNamespace
         H=load('_integration_receipt_names','scripts/prepare-schema16-migration-fixture.py')
-        tables=sorted((*H.SCHEMA_TABLES,*N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES))
+        tables=sorted((*H.SCHEMA_TABLES, *N.INTEGRATION_TABLES, *N.CONVERSATION_TABLES, 'host_registrations'))
         columns={t:['id','document'] for t in tables}
         columns.update(events=['sequence','document'],approval_proposals=['id','document','result'],
             integration_policies=['id','task_id','spec_revision','goal_scope_id','approval_id','revision','document'])
@@ -425,7 +462,7 @@ class IntegrationSeedSourceControls(unittest.TestCase):
         rows['projects']=[[1,'original-project','原文']]
         rows['approval_proposals']=[[1,p['id'],json.dumps(p),None]]
         rows['events']=[[23,23,json.dumps({'sequence':0,'kind':'old-private-history'})]]
-        before={'read_only':True,'schema_version':18,'columns':columns,'counts':{t:len(rows[t]) for t in tables},'rows':rows,'sequence':23}
+        before={'read_only':True,'schema_version':19,'columns':columns,'counts':{t:len(rows[t]) for t in tables},'rows':rows,'sequence':23}
         policy={'id':p['id'],'approval_id':p['id'],'revision':1,'selection':p['snapshot']['intent'],
             'bindings':p['snapshot']['bindings'],'snapshot_digest':N.digest(p['snapshot']),'revoked':False}
         after=copy.deepcopy(before);after['sequence']=25

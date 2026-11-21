@@ -80,14 +80,15 @@ def seed(root):
     # mkdir(parents=True) applies mode only to the leaf directory. Create this
     # intermediate private boundary explicitly, independently of the CI umask.
     (private / 'driver').mkdir(mode=0o700)
-    manifest = {'schema': 18, 'git_head': HEAD, 'dirty': False, 'binaries': {'batond': 'b'*64, 'baton': 'c'*64}}
+    manifest = {'schema': 19, 'git_head': HEAD, 'dirty': False, 'binaries': {'batond': 'b'*64, 'baton': 'c'*64}}
     build = {'source': HEAD, 'command': ['npm', '--prefix', 'apps/desktop', 'run', 'build'],
         'exit': 0, 'source_head_and_tracked_unchanged': True}
     manifest_raw, build_raw = json.dumps(manifest).encode(), json.dumps(build).encode()
     write(private / 'candidate.json', manifest_raw); write(private / 'frontend-build-record.json', build_raw)
     write(private / 'status.json', {'source': HEAD, 'driver_exit': 0, 'probe_passed': True})
-    write(private / 'schema-probe.json', {'source': HEAD, 'api_version': 1, 'database_schema_version': 18,
-        'daemon_exit': 0, 'joined': True})
+    write(private / 'schema-probe.json', {'source': HEAD, 'api_version': 1, 'database_schema_version': 19,
+        'daemon_exit': 0, 'joined': True, 'manifest_sha256': E.raw_sha(manifest_raw),
+        'build_record_sha256': E.raw_sha(build_raw), 'tools_sha256': manifest['binaries']})
     for case in E.CASES:
         data = report(case, manifest_raw, build_raw)
         write(private / 'driver' / case / 'report.json', data)
@@ -95,6 +96,20 @@ def seed(root):
             write(private / 'driver' / case / (row['name'] + '.png'), IMAGES['mobile' if 'mobile' in row['name'] else 'desktop'])
         write(private / 'driver' / case / 'private' / 'raw-canary.json', {'token': SECRET, 'database': SECRET})
     return private
+
+
+def rebind_build_records(private):
+    # A deliberately invalid manifest/build should reach its semantic guard
+    # even when every report and the probe honestly hash those exact bytes.
+    hashes = {key: E.raw_sha((private / name).read_bytes()) for key, name in (
+        ('manifest_sha256', 'candidate.json'), ('build_record_sha256', 'frontend-build-record.json'))}
+    probe = private / 'schema-probe.json'
+    write(probe, json.loads(probe.read_bytes()) | hashes)
+    for case in E.CASES:
+        path = private / 'driver' / case / 'report.json'
+        value = json.loads(path.read_bytes())
+        value['inputs'].update(hashes)
+        write(path, value)
 
 
 class ProjectionControls(unittest.TestCase):
@@ -108,6 +123,10 @@ class ProjectionControls(unittest.TestCase):
             self.assertEqual(self.project(private, output), 0)
             self.assertEqual({p.name for p in output.iterdir()}, E.PUBLIC_NAMES | {'summary.json'})
             value = json.loads((output/'summary.json').read_text())
+            self.assertEqual(value['actual_schema_probe'],
+                {'api_version': 1, 'database_schema_version': 19, 'daemon_exit': 0, 'joined': True})
+            self.assertIn('Linux', value['dimension'])
+            self.assertIn('Core19 Unix IPC', value['dimension'])
             self.assertEqual(value['checks'], 9); self.assertEqual([v['checks'] for v in value['cases']], [5, 4])
             self.assertEqual([v['terminal']['stages'] for v in value['cases']], [3, 2])
             self.assertEqual([v['terminal']['cas_attempts'] for v in value['cases']], [1, 0])
@@ -163,17 +182,67 @@ class ProjectionControls(unittest.TestCase):
             ('frontend-build-record.json','tracked_clean',False),('frontend-build-record.json','exit',False)]:
             with self.subTest(file=filename,key=key),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();private=seed(root);q=private/filename;value=json.loads(q.read_text());value[key]=bad;write(q,value)
-                binding='manifest_sha256' if filename=='candidate.json' else 'build_record_sha256'
-                for case in E.CASES:
-                    r=private/'driver'/case/'report.json';data=json.loads(r.read_text());data['inputs'][binding]=E.raw_sha(q.read_bytes());write(r,data)
+                rebind_build_records(private)
                 self.assertEqual(self.project(private,root/'public'),1)
 
     def test_real_schema_probe_and_cleanup_are_strictly_typed(self):
-        for key,bad in [('database_schema_version',16),('database_schema_version',17),('database_schema_version',19),('database_schema_version',True),
+        for key,bad in [('database_schema_version',16),('database_schema_version',17),('database_schema_version',18),
+            ('database_schema_version',20),('database_schema_version',True),('database_schema_version',19.0),
+            ('database_schema_version','19'),
             ('api_version',True),('api_version',17),('joined',False),('daemon_exit',False),('daemon_exit',1),('source','f'*40)]:
             with self.subTest(key=key,bad=bad),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();private=seed(root);q=private/'schema-probe.json';v=json.loads(q.read_text());v[key]=bad;write(q,v)
                 self.assertEqual(self.project(private,root/'public'),1)
+
+    def test_candidate_rejects_wrong_schema_even_with_matching_digests(self):
+        for bad in (18, 20, True, False, 19.0, '19'):
+            with self.subTest(schema=bad), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                private = seed(root)
+                candidate = private / 'candidate.json'
+                write(candidate, json.loads(candidate.read_bytes()) | {'schema': bad})
+                rebind_build_records(private)
+                self.assertEqual(self.project(private, root / 'public'), 1)
+                self.assertEqual({p.name for p in (root / 'public').iterdir()}, {'summary.json'})
+
+    def test_clean_same_source_reports_reject_probe_from_another_build(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            other = root / 'other'
+            other.mkdir()
+            private, alternate = seed(root), seed(other)
+            build = alternate / 'frontend-build-record.json'
+            write(build, build.read_bytes() + b'\n')
+            rebind_build_records(alternate)
+            self.assertEqual(self.project(alternate, other / 'public'), 0)
+            write(private / 'schema-probe.json', (alternate / 'schema-probe.json').read_bytes())
+            self.assertEqual(self.project(private, root / 'public'), 1)
+            self.assertEqual({p.name for p in (root / 'public').iterdir()}, {'summary.json'})
+
+    def test_schema_probe_requires_exact_tool_digests_and_all_three_bindings(self):
+        changes = (
+            {'tools_sha256': {'baton': 'b' * 64, 'batond': 'c' * 64}},
+            {'tools_sha256': {'baton': 'c' * 64}},
+            {'manifest_sha256': 'f' * 64}, {'build_record_sha256': 'f' * 64},
+            {'unexpected': SECRET},
+        )
+        for changeset in changes:
+            with self.subTest(variant=changeset), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                private = seed(root)
+                probe = private / 'schema-probe.json'
+                write(probe, json.loads(probe.read_bytes()) | changeset)
+                self.assertEqual(self.project(private, root / 'public'), 1)
+                self.assertNotIn(SECRET, (root / 'public/summary.json').read_text())
+
+    def test_macos_browser_report_cannot_project_as_hosted_linux(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            private = seed(root)
+            report = private / 'driver/normal/report.json'
+            write(report, json.loads(report.read_bytes()) | {'dimension': E.DIMENSION.replace('Linux', 'macOS', 1)})
+            self.assertEqual(self.project(private, root / 'public'), 1)
+            self.assertEqual({p.name for p in (root / 'public').iterdir()}, {'summary.json'})
 
     def test_private_path_mode_symlink_hardlink_and_world_readable_reports_refuse(self):
         for variant in ['root-mode','driver-mode','report-mode','report-symlink','report-hardlink','directory-symlink']:

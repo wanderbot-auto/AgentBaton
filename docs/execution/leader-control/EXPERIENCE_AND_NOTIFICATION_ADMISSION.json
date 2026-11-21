@@ -1,0 +1,143 @@
+{
+  "integration_head": "6c207575c60e55a6e421df7f043daf9941593698",
+  "main": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "deliveries": {
+    "task-experience-proposal": {
+      "tested_source": "da7e3ebaeddeca8dd4be183f7a592d8d61b3eb40",
+      "reviewed_delivery": "b9a8dfca77b0354c99319c5b8d73ecb9f10c30ee",
+      "released_head": "396afed75c21b070dc5302cf14ae5ab59a2e2ea0",
+      "feature_merge": "fb8bab79b091c203be4ec09c110a5a1cfc75de8e",
+      "merge_tree": "e836c3752a9cb85356fbcb587a0b76686388cb1d",
+      "evidence": "docs/execution/task-experience-proposal/EVIDENCE.md",
+      "evidence_sha256": "5d0953cea5d33b4689f2edb82c4305d9f517cb33aa97821fdd24ef0521c43fac",
+      "independent": {
+        "local_ui_tests": 1597,
+        "local_ui_files": 114,
+        "independent_focused_rerun": 17,
+        "build_hashes_verified": 3,
+        "typecheck": true,
+        "scope": "Exact App mount with simulated transport; no persistent approval or actual native launch.",
+        "preexisting_and_earlier_failures": [
+          "Fixed two invalid test matchers; fixed an incomplete link before full infrastructure replay. Original red logs retained."
+        ]
+      },
+      "combined": {
+        "total": 996,
+        "passed": 980,
+        "skipped": 16,
+        "failed": 0,
+        "bootstrap_files": 93,
+        "log": "/tmp/ab-experience-admission.RCEprmdk/infrastructure.log",
+        "sha256": "32a0911cade0333c1cd43d95925e2a9dd8ac91a2bcedb3cf43b63a0c5989aab2"
+      },
+      "claim_transfer_sha256": [
+        "2a450e9e156d3e51f5aa747a039982a6b4eab12e714dab5b6eed1601d4f770a6",
+        "6982a894180171121351bb24c868cecfb6c1be6b2a810ba795a6c7ed0c395ee8"
+      ]
+    },
+    "host19-task-notification-ci": {
+      "tested_source": "aa9de9a96621cdabfad4097572365ae0693fa682",
+      "reviewed_delivery": "dd3a7e4b83c57c2871a95d111e25eba6f163a60b",
+      "released_head": "73c209ead0ac629717533c8ed0009907d76406c3",
+      "feature_merge": "6c207575c60e55a6e421df7f043daf9941593698",
+      "merge_tree": "092b695c44c05c8b4da754189ab0337575a095fa",
+      "evidence": "docs/execution/host19-task-notification-ci/EVIDENCE.md",
+      "evidence_sha256": "f6687a8995f94c42b6629647a4744cbebfedf791d093e4ca4e06f9bf3b538411",
+      "independent": {
+        "independent_tests": [
+          15,
+          32
+        ],
+        "local_actual_case_report_hashes": 3,
+        "original_png_hashes_verified": 16,
+        "actual_schema": 19,
+        "actual_acceptance_and_stop_sources_bound": true,
+        "source": "Apple Silicon Chromium and private Core",
+        "preexisting_and_earlier_failures": [
+          "Four prior notification tests repaired. First local private summary field corrected and both runs preserved."
+        ],
+        "scope": "Linux projector finite refusal of actual macOS inputs; successful hosted Linux and OS notifications pending."
+      },
+      "combined": {
+        "total": 996,
+        "passed": 980,
+        "skipped": 16,
+        "failed": 0,
+        "bootstrap_files": 93,
+        "log": "/tmp/ab-c-notification-admission.mHaB5aao/infrastructure.log",
+        "sha256": "27b7343ee290b3f22c95403c38005adeb3b31477455c728da2d78f7220259cbc"
+      },
+      "claim_transfer_sha256": [
+        "6982a894180171121351bb24c868cecfb6c1be6b2a810ba795a6c7ed0c395ee8",
+        "5faf19c7ac8ba49ff8c1dab051b1e021b21347ce0f959794fdbca1120124e4cd"
+      ]
+    }
+  },
+  "new_workers": {
+    "B": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "managed-provider-update",
+      "branch": "collab/managed-provider-update",
+      "base": "fb8bab79b091c203be4ec09c110a5a1cfc75de8e",
+      "thread": "01a1eecb-645b-7de1-9d87-eb1afdee751c",
+      "turn": "01a1f002-005b-73c3-9b09-cdc2566a2e01",
+      "started_utc": "2026-11-18T18:53:45.465Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "title": "窗口 B · 托管 Provider 更新准入",
+      "contract": "MANAGED_PROVIDER_UPDATE_TASK.md",
+      "claim": [
+        "crates/providers/src/lib.rs",
+        "crates/providers/src/managed_update.rs",
+        "crates/providers/tests/managed_update.rs",
+        "docs/execution/managed-provider-update"
+      ],
+      "claim_sha256": "f77b10aa30baf1b00b542c56d8f4dab5926f941f1761015aec6e9da347bac250",
+      "requirements_started": [
+        "AB-PRO-011"
+      ]
+    },
+    "C": {
+      "status": "dispatched_verified_6_2_sol_high",
+      "worktree": "host19-goal-graph-ci",
+      "branch": "collab/host19-goal-graph-ci",
+      "base": "6c207575c60e55a6e421df7f043daf9941593698",
+      "thread": "01a1efa9-c805-7e22-a70c-bdcac85f1ea2",
+      "turn": "01a1f003-bafd-7772-9123-5394d90ae0e9",
+      "started_utc": "2026-11-18T18:55:38.786Z",
+      "model": "gpt-6.2-sol",
+      "reasoning": "high",
+      "title": "窗口 C · Goal Graph 浏览器 CI",
+      "contract": "HOST19_GOAL_GRAPH_CI_TASK.md",
+      "claim": [
+        "apps/desktop/tests/goal-graph-real-ipc.py",
+        "apps/desktop/tests/test_goal_graph_schema19.py",
+        "tests/infrastructure/test_schema17_integration_metadata.py",
+        "tests/infrastructure/host19_goal_graph_source_fixture.py",
+        "tests/infrastructure/test_host19_goal_graph_source_fixture.py",
+        "docs/execution/host19-goal-graph-ci"
+      ],
+      "claim_sha256": "4b0f6bc36820b0c8c53eabef3eaaf70e7cbd4bbaed227eaef5b9897c1589a580",
+      "requirements_started": []
+    }
+  },
+  "a_prior_linux_and_review": {
+    "source": "9d7751e463f1f3446ad6291bb70b24035ba8fd10",
+    "linux_x64_report_sha256": "6f93e63ec54f935cf3a48d4185fc21c154aa3352dc69fb07db9afe7c35d8131c",
+    "container_receipt_sha256": "9c9259cf95ab24b4f0afa51febdc12be806c259d28a16eaf05bf2724d86079da",
+    "full_run_executed": true,
+    "result_scope": "First actual run returned pass, but cleanup gate held for repair. Preserve the Playwright teardown warning.",
+    "review_action": "Require actual exit zero/no forced kill, browser close, Playwright stop and HTTP join; independent fresh Linux rerun for new source pending.",
+    "repair_source_at_checkpoint": "258c52e653bf069b3a85c02c59ac4477a9d77d9b"
+  },
+  "coverage": {
+    "parts_implemented": 117,
+    "count": 130,
+    "no_implementation_evidence": 13,
+    "in_development_from_not_started": [
+      "AB-PRO-011"
+    ],
+    "without_started_evidence": 12,
+    "whole_accepted": 0
+  }
+}

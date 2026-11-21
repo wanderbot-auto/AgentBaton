@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Actual built React + fixed loopback adapter + real schema18 dataset-copy IPC.
+"""Actual built React + fixed loopback adapter + real schema 19 dataset-copy IPC.
 
 Only generated sibling source/runtime directories are used. Owner confirmation
 is an explicit host fixture OUTSIDE HTTP, never an OS dialog or Renderer grant.
@@ -9,6 +9,7 @@ it does not forge data, terminal states, approval or a copied directory.
 from __future__ import annotations
 
 import argparse
+from contextlib import closing, contextmanager
 import errno
 from functools import partial
 import hashlib
@@ -16,18 +17,22 @@ import http.server
 import json
 import os
 from pathlib import Path
+import platform
 import re
 import socket
 import sqlite3
 import stat
 import subprocess
+import sys
 import tempfile
 import threading
 import time
 import traceback
 import uuid
 
-from playwright.sync_api import expect, sync_playwright
+CURRENT_SCHEMA = 19
+MAX_CANDIDATE_MANIFEST = 2_097_152
+PREVIEW_FEATURE = 'agentbaton-core/preview-evidence'
 
 
 def sha(data):
@@ -59,6 +64,107 @@ def unique_object(pairs):
 
 def integer(value, minimum=0, maximum=9_007_199_254_740_991):
     return type(value) is int and minimum <= value <= maximum
+
+
+def require_current_schema(value, source):
+    if type(value) is not int or value != CURRENT_SCHEMA:
+        raise ValueError(f'Expected integer schema {CURRENT_SCHEMA} from {source}')
+    return value
+
+
+@contextmanager
+def readonly_database(runtime):
+    uri = (runtime / 'baton.sqlite3').as_uri() + '?mode=ro'
+    with closing(sqlite3.connect(uri, uri=True)) as store, store:
+        store.execute('PRAGMA query_only=ON')
+        store.execute('BEGIN')
+        yield store
+
+
+def pinned_tool(path):
+    def identity():
+        info = path.stat(follow_symlinks=False)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid not in (0, os.getuid())
+                or info.st_mode & 0o022 or not os.access(path, os.X_OK)):
+            raise ValueError('Unsafe executable for the private browser fixture')
+        return {'device': info.st_dev, 'inode': info.st_ino, 'bytes': info.st_size,
+                'mode': stat.S_IMODE(info.st_mode), 'uid': info.st_uid,
+                'mtime_ns': info.st_mtime_ns, 'ctime_ns': info.st_ctime_ns}
+
+    before = identity()
+    digest = file_sha(path)
+    if identity() != before:
+        raise ValueError('Private browser fixture executable changed while measuring it')
+    return {'sha256': digest, **before}
+
+
+def candidate_attribution(raw, tools, preview_evidence):
+    if len(raw) > MAX_CANDIDATE_MANIFEST:
+        raise ValueError('Candidate manifest exceeds the fixture limit')
+    manifest = json.loads(raw, object_pairs_hook=unique_object)
+    if type(manifest) is not dict:
+        raise ValueError('Candidate manifest must be an object')
+    schema = require_current_schema(manifest.get('schema'), 'candidate manifest')
+    heads = [manifest[key] for key in ('git_head', 'source_head', 'compiled_core_source_head')
+             if key in manifest]
+    if not heads or not all(type(head) is str and re.fullmatch('[a-f0-9]{40}', head)
+                            and head == heads[0] for head in heads):
+        raise ValueError('Missing or inconsistent candidate source commit')
+    if manifest.get('dirty', False) is not False or manifest.get('tracked_clean', True) is not True:
+        raise ValueError('Candidate manifest did not declare clean source')
+    source = {}
+    for key, width in (('git_tree', 40), ('source_tree_sha256', 64)):
+        if key in manifest:
+            value = manifest[key]
+            if type(value) is not str or not re.fullmatch(f'[a-f0-9]{{{width}}}', value):
+                raise ValueError('Invalid candidate source tree identity')
+            source[key] = value
+    binaries = manifest.get('binaries')
+    for name in ('batond', 'baton'):
+        recorded = binaries.get(name) if type(binaries) is dict else None
+        recorded = recorded.get('sha256') if type(recorded) is dict else recorded
+        if (type(recorded) is not str or not re.fullmatch('[a-f0-9]{64}', recorded)
+                or recorded != tools.get(name, {}).get('sha256')):
+            raise ValueError(f'Candidate {name} does not match the observed executable')
+    features = manifest.get('cargo_features')
+    if 'cargo_features' in manifest and (type(features) is not list
+            or any(type(feature) is not str for feature in features)
+            or preview_evidence and PREVIEW_FEATURE not in features):
+        raise ValueError('Candidate feature declaration does not match the requested evidence mode')
+    return {'manifest_sha256': sha(raw), 'schema': schema, 'git_head': heads[0], 'dirty': False,
+            **source, 'cargo_features_declared': features,
+            'matched_core_tools': ['batond', 'baton'], 'not_final_review_or_ci_acceptance': True}
+
+
+def select_chromium(override, installed):
+    if override is not None:
+        return Path(override).resolve(strict=True), 'explicit'
+    installed = Path(installed)
+    if installed.is_file():
+        return installed.resolve(strict=True), 'playwright_install'
+    return Path('/usr/bin/chromium').resolve(strict=True), 'system_fallback'
+
+
+def repository_attribution(driver):
+    root = driver.parents[3]
+    def git(*args):
+        return subprocess.check_output(['git', *args], cwd=root)
+
+    head, tree = git('rev-parse', 'HEAD', 'HEAD^{tree}').decode().splitlines()
+    tracked = git('show', 'HEAD:apps/desktop/tests/data-workspace-real-ipc.py')
+    return {'git_head': head, 'git_tree': tree,
+            'tracked_clean': not git('status', '--porcelain=v1', '--untracked-files=no'),
+            'harness_matches_tracked_source': tracked == driver.read_bytes()}
+
+
+def finalize_fixture_cleanup(report, daemon_exit, forced, http_thread_joined):
+    report['cleanup'] = {'daemon_exit_code': daemon_exit, 'daemon_forced': forced,
+                         'http_thread_joined': http_thread_joined}
+    if report['status'] == 'passed' and (type(daemon_exit) is not int or daemon_exit != 0
+            or forced is not False or http_thread_joined is not True
+            or report.get('browser_closed') is not True or 'failure' in report):
+        report['status'] = 'failed_or_interrupted'
+        report.setdefault('failure', {'stage': 'cleanup', 'type': 'FixtureProcessNotJoined'})
 
 
 def copy_completion(record):
@@ -331,17 +437,26 @@ def main():
     parser.add_argument('--batond', type=Path, required=True)
     parser.add_argument('--frontend', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--chromium', default='/usr/bin/chromium')
+    parser.add_argument('--chromium', help='Explicit local Chromium, otherwise the installed Playwright browser')
     parser.add_argument('--preview-evidence', action='store_true', help='Explicit private before-scan and before-copy cancellation evidence; requires the nondefault evidence daemon')
     parser.add_argument('--candidate-manifest', type=Path, help='Optional immutable candidate attribution; no build or authority is inferred')
     args = parser.parse_args()
     binary, frontend, output = args.batond.resolve(strict=True), args.frontend.resolve(strict=True), args.output.resolve()
+    tools = {'batond': binary, 'python': Path(sys.executable).resolve(strict=True)}
+    companion = binary.with_name('baton')
+    if companion.exists() or companion.is_symlink():
+        tools['baton'] = companion.resolve(strict=True)
+    identity = {name: pinned_tool(path) for name, path in tools.items()}
     assert (frontend / 'index.html').is_file()
-    output.mkdir(parents=True, exist_ok=False)  # interrupted evidence without report.json is still evidence
-    report = {'status': 'failed_or_interrupted', 'dimension': 'actual built React / Chromium / fixed test-only HTTP / real Unix schema18 daemon / actual generated files',
+    output.mkdir(mode=0o700, parents=True, exist_ok=False)  # interrupted evidence without report.json is still evidence
+    report = {'status': 'failed_or_interrupted', 'dimension': 'built React / Chromium / fixed private HTTP / authenticated Unix IPC / generated files',
               'owner_confirmation': 'host fixture outside HTTP, not a native OS OwnerDialog',
-              'not_claimed': ['macOS', 'native WebView', 'Provider/session/model', 'OS sandbox', 'DLP', 'atomic directory freeze', 'execution grant', 'Task acceptance'],
-              'daemon_sha256': sha(binary.read_bytes()), 'harness_sha256': sha(Path(__file__).read_bytes()),
+              'not_claimed': ['native macOS App', 'native WebView', 'Provider/session/model', 'OS sandbox', 'DLP', 'atomic directory freeze', 'execution grant', 'Task acceptance'],
+              'platform': {'system': platform.system(), 'machine': platform.machine()},
+              'source': repository_attribution(Path(__file__).resolve()),
+              'tools': identity, 'daemon_sha256': identity['batond']['sha256'],
+              'harness_sha256': file_sha(Path(__file__)),
+              'schema_evidence': {'expected': CURRENT_SCHEMA, 'ipc': None, 'readonly_sqlite': None},
               'frontend_assets_sha256': {str(p.relative_to(frontend)): sha(p.read_bytes()) for p in sorted(frontend.rglob('*')) if p.is_file()},
               'checks': [], 'requests': [], 'faults': [], 'observations': {}, 'screenshots': [], 'unrun': [],
               'timing_semantics': {'clock': 'same_python_process_time.monotonic_ns',
@@ -351,15 +466,16 @@ def main():
                                    'ui_click': 'Python click-call boundaries include Playwright actionability waiting; not a DOM event timestamp',
                                    'authority_or_stop_evidence': False}}
     if args.candidate_manifest:
-        manifest_bytes = args.candidate_manifest.resolve(strict=True).read_bytes()
-        manifest = json.loads(manifest_bytes)
-        binary_entry = manifest['binaries']['batond']
-        expected_binary = binary_entry['sha256'] if isinstance(binary_entry, dict) else binary_entry
-        assert type(manifest.get('schema')) is int and manifest['schema'] == 18 and expected_binary == report['daemon_sha256']
-        report['candidate'] = {'manifest_sha256': sha(manifest_bytes), 'status': manifest.get('status'),
-                               'git_head': manifest['git_head'], 'dirty': manifest['dirty'],
-                               'source_tree_sha256': manifest['source_tree_sha256'],
-                               'not_final_review_or_ci_acceptance': True}
+        try:
+            with args.candidate_manifest.resolve(strict=True).open('rb') as stream:
+                manifest_bytes = stream.read(MAX_CANDIDATE_MANIFEST + 1)
+            report['candidate'] = candidate_attribution(manifest_bytes, identity, args.preview_evidence)
+        except (ValueError, OSError) as failure:
+            report['failure'] = {'stage': 'candidate_manifest', 'type': type(failure).__name__}
+            (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
+            raise
+    else:
+        report['candidate'] = None
     report['preview_evidence'] = {'enabled': args.preview_evidence, 'mode': 'gated_before_scan' if args.preview_evidence else 'natural_race',
                                   'mid_read_cancellation_claimed': False, 'private_files_uploaded': False}
     report['copy_evidence'] = {'enabled': args.preview_evidence, 'mode': 'gated_before_copy' if args.preview_evidence else 'natural_race',
@@ -435,12 +551,27 @@ def main():
                     with connection.makefile('rb') as stream:
                         response = stream.readline(8_388_609)
                 assert len(response) <= 8_388_608, 'Bounded fixture response exceeded; not truncated'
-                return json.loads(response)
+                decoded = json.loads(response)
+                assert decoded.get('request_id') == frame['request_id'], 'Unmatched fixture IPC response'
+                return decoded
 
             def result(method, params, key=None, revision=None):
                 response = ipc(method, params, key, revision)
                 assert not response.get('error'), safe({'method': method, 'response': response})
                 return response['result']
+
+            system = result('system.snapshot', {})
+            reported = system.get('database_schema_version')
+            schema_evidence = report['schema_evidence']
+            schema_evidence['ipc'] = {'method': 'system.snapshot', 'api_version': system.get('api_version'),
+                                      'database_schema_version': reported}
+            assert type(system.get('api_version')) is int and system['api_version'] == 1
+            require_current_schema(reported, 'system.snapshot')
+            with readonly_database(runtime) as store:
+                observed = store.execute('PRAGMA user_version').fetchone()[0]
+                schema_evidence['readonly_sqlite'] = observed
+                require_current_schema(observed, 'read-only SQLite')
+            report['dimension'] = f'actual built React / headless Chromium / fixed loopback HTTP / real Unix schema {observed} daemon / generated files'
 
             projects = {name: result('projects.import', {'path': str(folder), 'name': 'Generated data ' + name}, 'import:' + name) for name, folder in folders.items()}
             assert all(project['identity']['kind']['kind'] == 'directory' for project in projects.values())
@@ -450,10 +581,9 @@ def main():
             preview_ids, creation_ids = {}, {}
 
             def database():
-                with sqlite3.connect(f'file:{runtime / "baton.sqlite3"}?mode=ro', uri=True) as store:
-                    store.execute('PRAGMA query_only=ON')
-                    store.execute('BEGIN')
-                    assert store.execute('PRAGMA user_version').fetchone()[0] == 18
+                with readonly_database(runtime) as store:
+                    require_current_schema(store.execute('PRAGMA user_version').fetchone()[0], 'read-only SQLite')
+                    assert store.execute('SELECT count(*) FROM host_registrations').fetchone()[0] == 0
                     assert store.execute('SELECT count(*) FROM factory_child_goal_runs').fetchone()[0] == 0
                     for table in ('integration_policies', 'integrations', 'integration_attempts', 'integration_ref_fences'):
                         assert store.execute('SELECT count(*) FROM '+table).fetchone()[0] == 0
@@ -703,8 +833,14 @@ def main():
             server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), partial(Handler, directory=str(frontend)))
             url = f'http://127.0.0.1:{server.server_port}'
             thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+            from playwright.sync_api import expect, sync_playwright
+
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--disable-dev-shm-usage'])
+                chromium, origin = select_chromium(args.chromium, playwright.chromium.executable_path)
+                report['chromium_selection'] = origin
+                report['tools']['chromium'] = pinned_tool(chromium)
+                browser = playwright.chromium.launch(executable_path=str(chromium), headless=True, args=['--disable-dev-shm-usage'])
+                report['tools']['chromium']['browser_version'] = browser.version
                 context = browser.new_context(viewport={'width': 1488, 'height': 981}, locale='en-US')
                 context.add_init_script("""localStorage.setItem('agentbaton.language','en');window.__TAURI_INTERNALS__={invoke:async(command,args)=>{const response=await fetch('/__test_data_workspace_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command,args})});if(!response.ok)throw Error('Bounded data workspace test adapter refused request');return response.json();}};""")
                 context.route('**/*', lambda route: route.continue_() if route.request.url.startswith(url + '/') else route.abort())
@@ -715,7 +851,7 @@ def main():
                 def screenshot(name):
                     path = output / (name + '.png')
                     page.screenshot(path=str(path))
-                    report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'viewport': page.viewport_size, 'dimension': 'actual Chromium, not OS-native/macOS'})
+                    report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'viewport': page.viewport_size, 'dimension': 'actual headless Chromium'})
 
                 def open_details(details):
                     if not details.evaluate('(element)=>element.open'):
@@ -1014,6 +1150,7 @@ def main():
                 finally:
                     report['observations']['browser_page_errors'] = page_errors
                     browser.close()
+                    report['browser_closed'] = True
         except BaseException as failure:
             report['failure'] = {'type': type(failure).__name__, 'message': safe(failure), 'traceback': safe(traceback.format_exc())}
             raise AssertionError(safe(failure)) from None
@@ -1022,12 +1159,17 @@ def main():
                 server.shutdown(); server.server_close()
             if thread is not None:
                 thread.join(timeout=5)
-            daemon.terminate()
+            if daemon.poll() is None:
+                daemon.terminate()
+            forced = False
             try:
-                daemon.wait(timeout=5)
+                daemon_exit = daemon.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                daemon.kill(); daemon.wait()
+                forced = True
+                daemon.kill()
+                daemon_exit = daemon.wait()
             daemon_log.close()
+            finalize_fixture_cleanup(report, daemon_exit, forced, thread is not None and not thread.is_alive())
             # Defense in depth: authentication bytes never become evidence.
             (output / 'report.json').write_text(safe(json.dumps(report, indent=2)) + '\n')
             print(json.dumps({'status': report['status'], 'checks': len(report['checks']), 'unrun': len(report['unrun']), 'report': str(output / 'report.json')}), flush=True)

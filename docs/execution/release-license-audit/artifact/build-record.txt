@@ -1,0 +1,40 @@
+commit=df35231eab29aa2d4a043fd9be60888504507716
+architecture=arm64
+channel=development; no Developer ID signing or notarization configured
+ProductName:		macOS
+ProductVersion:		15.8.2
+BuildVersion:		24H232
+rustc 1.100.0 (0ef1bc386 2026-11-09)
+binary: rustc
+commit-hash: 0ef1bc386059596dada8fb65b50425aab2ea637a
+commit-date: 2026-11-09
+host: aarch64-apple-darwin
+release: 1.100.0
+LLVM version: 23.1.5
+v24.22.2
+Xcode 16.4
+Build version 16F6
+Signature inspection follows; ad hoc signatures do not establish a trusted publisher.
+Executable=/Users/runner/work/AgentBaton/AgentBaton/apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop
+Identifier=agentbaton_desktop
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20400 size=152728 flags=0x20002(adhoc,linker-signed) hashes=4769+0 location=embedded
+VersionPlatform=1
+VersionMin=720896
+VersionSDK=984320
+Hash type=sha256 size=32
+CandidateCDHash sha256=43037041791d61e3492aa2eb525949994170bb97
+CandidateCDHashFull sha256=43037041791d61e3492aa2eb525949994170bb977e69d92405ddfbe8c9c4d35a
+Hash choices=sha256
+CMSDigest=43037041791d61e3492aa2eb525949994170bb977e69d92405ddfbe8c9c4d35a
+CMSDigestType=2
+Executable Segment base=0
+Executable Segment limit=12517376
+Executable Segment flags=0x1
+Page size=4096
+CDHash=43037041791d61e3492aa2eb525949994170bb97
+Signature=adhoc
+Info.plist=not bound
+TeamIdentifier=not set
+Sealed Resources=none
+Internal requirements=none

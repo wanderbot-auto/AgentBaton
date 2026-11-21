@@ -1,0 +1,17 @@
+collab: task runtime /private/tmp/ab-collab-k990xsov
+46e38016256dfe3ff2646eb546cad5b8179e27ef
+6f8d1604a0403b71976ccc9f99b44d5c92795aff
+2026-11-18T17:30:43Z
+ProductName:		macOS
+ProductVersion:		26.6.1
+BuildVersion:		25G76
+rustc 1.91.1 (ed61e7d7e 2025-11-07)
+binary: rustc
+commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb
+commit-date: 2025-11-07
+host: aarch64-apple-darwin
+release: 1.91.1
+LLVM version: 21.1.2
+rustfmt 1.8.0-stable (ed61e7d7e2 2025-11-07)
+format_exit=0
+test_exit=0

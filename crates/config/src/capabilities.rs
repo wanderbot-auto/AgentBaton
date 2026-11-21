@@ -2,6 +2,7 @@
 //! untrusted data; caller-supplied precedence/evidence never grants authority.
 //! Only trusted adapter/registry code may provide roots, policies and observations.
 pub mod native;
+pub mod plugin_trust;
 
 use super::{
     error, io_error, open_dir_at, sha256, validate_relative, ConfigError, ErrorCode, MAX_BYTES,
@@ -179,6 +180,9 @@ impl SourceRoot {
         Ok(sha256(&self.read(&source.relative_path)?) == source.digest)
     }
     fn read(&self, relative: &Path) -> Result<Vec<u8>> {
+        read_source_bytes(self.open_selected(relative)?)
+    }
+    fn open_selected(&self, relative: &Path) -> Result<File> {
         validate_relative(relative)?;
         let parts: Vec<_> = relative.components().collect();
         let mut parent = io_error(self.root.try_clone())?;
@@ -200,17 +204,16 @@ impl SourceRoot {
         {
             return Err(error(ErrorCode::PermissionDenied));
         }
-        let mut bytes = Vec::new();
-        io_error(
-            File::from(fd)
-                .take((MAX_BYTES + 1) as u64)
-                .read_to_end(&mut bytes),
-        )?;
-        if bytes.len() > MAX_BYTES {
-            return Err(error(ErrorCode::ResourceLimit));
-        }
-        Ok(bytes)
+        Ok(File::from(fd))
     }
+}
+fn read_source_bytes(source: impl Read) -> Result<Vec<u8>> {
+    let mut bytes = Vec::new();
+    io_error(source.take((MAX_BYTES + 1) as u64).read_to_end(&mut bytes))?;
+    if bytes.len() > MAX_BYTES {
+        return Err(error(ErrorCode::ResourceLimit));
+    }
+    Ok(bytes)
 }
 /// Private original bytes are retained unchanged; safe previews expose neither
 /// arbitrary unknown values nor MCP argument/credential values.
@@ -360,7 +363,9 @@ impl CapabilitySnapshot {
                     capability_id: entry.id.clone(),
                     kind: entry.definition.kind(),
                     name: entry.name.clone(),
-                    enabled: entry.enabled,
+                    // The legacy plugin inventory is observable, but enablement
+                    // requires the dedicated source and review checks.
+                    enabled: entry.enabled && source.descriptor.kind != SourceKind::Plugin,
                     winner: true,
                     replaced_by_source: None,
                     definition_digest,
@@ -398,9 +403,19 @@ impl CapabilitySnapshot {
                 unknown_field_names: source.inventory.unknown.keys().cloned().collect(),
             })
             .collect();
-        let digest = sha256(&io_error(serde_json::to_vec(
-            &json!({"schema_version":1,"policy":policy,"sources":summaries,"descriptors":sources.iter().map(|source| &source.descriptor).collect::<Vec<_>>()}),
-        ))?);
+        let mut fingerprint = json!({
+            "schema_version": 1,
+            "policy": policy,
+            "sources": summaries,
+            "descriptors": sources.iter().map(|source| &source.descriptor).collect::<Vec<_>>(),
+        });
+        if sources
+            .iter()
+            .any(|source| source.descriptor.kind == SourceKind::Plugin)
+        {
+            fingerprint["plugin_enablement"] = json!("dedicated_review_required_v1");
+        }
+        let digest = sha256(&io_error(serde_json::to_vec(&fingerprint))?);
         let preview = SnapshotPreview {
             schema_version: 1,
             digest,

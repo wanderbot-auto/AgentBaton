@@ -1,0 +1,280 @@
+{
+  "base": "56746af61789e3e7121e7f43d39b4a5d2b567576",
+  "accepted18": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "reused_preflight_commit": "406be16f56c89495595bf263a307a9d861d8e2a3",
+  "previous207_manifest_sha256": "09a3db3f47418d09232204923eeae661145b57af7146b0c1eba0a74dc47ea544",
+  "previous174_matrix_sha256": "855cbb004a58fa149c2d82224b00b861e09cd3a752ba4555892e45cea23d4320",
+  "old_source_count": 207,
+  "unchanged_count": 198,
+  "changed_context": [
+    {
+      "path": "crates/core/src/task_workspace_binding_tests.rs",
+      "before_sha256": "26bc87dc9a75a6fe05b55ad8d12123507c0c39f30b38e299e9383c8335ff6863",
+      "at567_sha256": "fe93a2b0e3863e872ed4f980ce0f153ce3c217f195e47820e198d72eda190ea7"
+    },
+    {
+      "path": "tests/infrastructure/test_background_service_native_smoke_source.py",
+      "before_sha256": "f2e3a76e54f0b53505fb8f8c9ea7533d17fb71aa453bef740aa5e603137d4d25",
+      "at567_sha256": "1789740886cb10769cf899603ef6a123ffd5a58a3b86767f61ceef7cd18b72cd"
+    },
+    {
+      "path": "Cargo.toml",
+      "before_sha256": "35e047cb3e44d4ef0615e0c1200e5c93be3898f4b8ae26a360d09d1741bd3cc1",
+      "at567_sha256": "c3601a077a2d8e6f7abfd689334f6207638ca28d7ed934f25ebcc0f57f059278"
+    },
+    {
+      "path": "Cargo.lock",
+      "before_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+      "at567_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d"
+    },
+    {
+      "path": "crates/core/Cargo.toml",
+      "before_sha256": "f8aa362c7edb71416e6d99165607be6d2dd6698dbf1ef838f90abb5af239c8ec",
+      "at567_sha256": "343005ba559da64e7c05b2a806361a5842e7839ed0f0c24e9299ed632152bcc0"
+    },
+    {
+      "path": "crates/core/src/lib.rs",
+      "before_sha256": "a6a27b376a1e869fab1f273c61be90b81f98f97ce6c7de9d5242a62490f918ae",
+      "at567_sha256": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb"
+    },
+    {
+      "path": "crates/core/src/registry.rs",
+      "before_sha256": "15c65d4ac80adc7fc5edaabf50da8eeeafc4d2a72d40b2a7d26181e543211858",
+      "at567_sha256": "0c54b75e3ad90c48d0fa91bba6abab3496a8cdaa24ea17ea7bf6414d6ed64ca0"
+    },
+    {
+      "path": "crates/remote-host/src/lib.rs",
+      "before_sha256": "401c499aae7f72978cbfd816df50c81c59b3e1c9658f259b04fb4d299b3a5a6c",
+      "at567_sha256": "1e830c4a5dcb254e6162d50aa93624f185fa941b48757e677e028b11534acf21"
+    },
+    {
+      "path": "crates/remote-host/src/transport.rs",
+      "before_sha256": "a4047a4c4a811ed9707124e75ba1679e21ed20071e7ee0c5ed4a7f864c221e78",
+      "at567_sha256": "233a4d337a15799bfeef20cf570b2fc855e07342cd9b0aac150873dbe4b80912"
+    }
+  ],
+  "changed_semantic_paths": [
+    "crates/core/src/lib.rs",
+    "crates/core/src/task_workspace_binding_tests.rs",
+    "tests/infrastructure/test_background_service_native_smoke_source.py"
+  ],
+  "source_diff": [
+    "M\tCargo.lock",
+    "M\tCargo.toml",
+    "M\tapps/desktop/src-tauri/Cargo.lock",
+    "M\tcrates/core/Cargo.toml",
+    "A\tcrates/core/src/host_registry.rs",
+    "A\tcrates/core/src/host_registry_migration.rs",
+    "A\tcrates/core/src/host_registry_migration_tests.rs",
+    "A\tcrates/core/src/host_registry_tests.rs",
+    "M\tcrates/core/src/lib.rs",
+    "M\tcrates/core/src/registry.rs",
+    "M\tcrates/core/src/task_workspace_binding_tests.rs",
+    "A\tcrates/core/tests/fixtures/current19_schema.rs",
+    "A\tcrates/core/tests/fixtures/host_registration/README.md",
+    "A\tcrates/core/tests/fixtures/host_registration/ddl.sql",
+    "A\tcrates/core/tests/fixtures/host_registration/event-payload-v1.json",
+    "A\tcrates/core/tests/fixtures/host_registration/payload-v1.json",
+    "A\tcrates/core/tests/fixtures/host_registration/receipt-v1.json",
+    "A\tcrates/core/tests/fixtures/host_registration/record-v1.json",
+    "A\tcrates/core/tests/fixtures/pre_host_schema.rs",
+    "M\tcrates/remote-host/src/lib.rs",
+    "A\tcrates/remote-host/src/registration.rs",
+    "M\tcrates/remote-host/src/transport.rs",
+    "A\tcrates/remote-host/tests/registration.rs",
+    "M\ttests/infrastructure/test_background_service_native_smoke_source.py"
+  ],
+  "reviewed_source": {
+    "crates/core/src/storage.rs": {
+      "sha256": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+      "bytes": 35739,
+      "git_blob": "f9e1682c46cca41bbfbd3b0b902d82f33fc5e1e5"
+    },
+    "crates/core/src/integration_store.rs": {
+      "sha256": "16a3dfc1d9c5e06310a8defd74e770352974ffbb06ff24c2ad102cb8fcc170d2",
+      "bytes": 15958,
+      "git_blob": "0e6e4646011f16ec25bdac44c654f8b2335b9d63"
+    },
+    "crates/core/src/conversations.rs": {
+      "sha256": "b967540939649b11269ba289a4dde23714243b8445e8b08095d011df4087204b",
+      "bytes": 61987,
+      "git_blob": "cb02a45ca789055fa8726e2465ee214c412767ac"
+    },
+    "crates/core/src/host_registry.rs": {
+      "sha256": "8c942c738da0e2dfb0e850e8a93951fcacaa2f588bcf86acaaf462425d613844",
+      "bytes": 27001,
+      "git_blob": "32daad629a831314f9baf3ac42d031862246152b"
+    },
+    "crates/core/src/host_registry_tests.rs": {
+      "sha256": "b251f6b3f83722bb89b85813a61e9ea7157af63d9deb50c4c2e9244aace87210",
+      "bytes": 45106,
+      "git_blob": "bc3b22094f1a26294b07caf1c01b824de27c9daf"
+    },
+    "crates/core/src/host_registry_migration.rs": {
+      "sha256": "3f2d0151d4d1ce8ce08670f528dee1ef024a27054ff5f7e3c70bf3bfdf612168",
+      "bytes": 12289,
+      "git_blob": "9d5e3f29975a4a98e6ff11d84f6056c2d55d4faf"
+    },
+    "crates/core/src/host_registry_migration_tests.rs": {
+      "sha256": "308b8578bda1f7eebaac9a2dcc4a7dddf48dbb7a99e3ffc4671e1cc16c9d8149",
+      "bytes": 31904,
+      "git_blob": "297b7cc9e4ba2a868b2f1be3b7e41dcc18299eb5"
+    },
+    "crates/core/tests/fixtures/pre_host_schema.rs": {
+      "sha256": "55a054f083d698ba28199b210e6a2e79def42f7ab83f952b43cf621e4c377cb2",
+      "bytes": 7744,
+      "git_blob": "959b9d8d1eb8b2dd52f3e7629ee85b01254fb3d2"
+    },
+    "crates/core/tests/fixtures/current19_schema.rs": {
+      "sha256": "7bb919b921531733be630611a60fa14534aac927580e7d5084db09bd5de6bde1",
+      "bytes": 1755,
+      "git_blob": "f69fd3bca261408860de44d3fc9d5d6b1555dc49"
+    },
+    "crates/core/tests/fixtures/pre_factory_schema.rs": {
+      "sha256": "407a1a9c5a5fdb191aa24c8875eb4ee49416306e0c4c928948cd6f6024003a65",
+      "bytes": 13430,
+      "git_blob": "5df8c4fbffd81cf067819c86c82e0b20c0bf5577"
+    },
+    "crates/core/src/ipc.rs": {
+      "sha256": "f0da1089accc1cc88158240953d01d0ff009645195ead02e7ff1469d7a19e0e2",
+      "bytes": 200105,
+      "git_blob": "95c1603e1da2c3e65d63694924b93ebb15b76d8e"
+    },
+    "crates/core/src/background_status.rs": {
+      "sha256": "c55e3ed8eb2890a907e1b327ab1bc7851e55d1bc7ba2ec9d6e17f59c327ea72b",
+      "bytes": 4328,
+      "git_blob": "928ba631f59fa626013eefce84ba63514f7bbb6b"
+    },
+    "crates/core/src/factory_reads.rs": {
+      "sha256": "c9086af23ddf4d8524eadd1810d300e23b4a3ed7fdf5415b5167ec31ec282b41",
+      "bytes": 113566,
+      "git_blob": "7ed35fa308b7c81dd6661e1ca9f65699c42fe297"
+    },
+    "crates/core/src/factory_history_reads.rs": {
+      "sha256": "594433e706a6a59ba114b3dda25eff9a301f6ad9faeb9759c6fc718c09939fe9",
+      "bytes": 13095,
+      "git_blob": "15b7254bf7f06ac3aa31dbe3eca4594de9acc628"
+    },
+    "crates/core/src/integration_reads.rs": {
+      "sha256": "4d2f9fb5eaf86dbde7ebe403ce252d64f5dc25a8e4bb150565fecd891a860778",
+      "bytes": 53190,
+      "git_blob": "36a19f48015d2f90c634fd627328e271217a0c5d"
+    },
+    "crates/core/src/integration_budget.rs": {
+      "sha256": "2ccc16044179ac83290f8d89c9660390031338df35f46d0fcf322775694d6cde",
+      "bytes": 10487,
+      "git_blob": "b17465f47a4f470d2123e89b6d6c75944e71da13"
+    },
+    "crates/core/src/integration_fences.rs": {
+      "sha256": "e174419cedbdc28583f5de6067369543da76c2c21d291745afabe38e7bb61a7f",
+      "bytes": 19441,
+      "git_blob": "47e190dac394f065b9034e0a535eb8826f96da1a"
+    },
+    "crates/core/src/integration_targets.rs": {
+      "sha256": "00939c904e3cde37e56dad0df2dd40de0b593631e55bd2d84add446985ebc34a",
+      "bytes": 19171,
+      "git_blob": "efa2b5a9809567f5916e7a7c3bbb9b4def2f928a"
+    },
+    "apps/desktop/src-tauri/src/lib.rs": {
+      "sha256": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb",
+      "bytes": 103452,
+      "git_blob": "cdb711f433b061d7bd7bdf84b09e316df4098553"
+    },
+    "apps/desktop/src-tauri/src/background_policy.rs": {
+      "sha256": "08378e56153b7f79ffc46f1b2c4525a837ea3d83067a2cb81b7404e640d24982",
+      "bytes": 8621,
+      "git_blob": "4a6654375494cc46e8ee357654c20cba1aaedfae"
+    },
+    "apps/desktop/src/api.ts": {
+      "sha256": "cd862ff7218b63baaafe3b02e020903a2ae083688d79fd13b365bbd01c1e2683",
+      "bytes": 7148,
+      "git_blob": "48b263a21c704c3f4bf742a71ae9c3decff512b5"
+    },
+    "apps/desktop/src/background-service-api.ts": {
+      "sha256": "9eea2600832865cb324cf225c131509b85bdba443c32d1cdaf5dd7865bde6496",
+      "bytes": 1933,
+      "git_blob": "c754ebe8517fe9efe6b1fd68dd6047dcf0a66b51"
+    },
+    "scripts/native-run.py": {
+      "sha256": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a",
+      "bytes": 22745,
+      "git_blob": "7dfbf1aa52dea57c2ec2f8c97531e388b246daea"
+    },
+    "scripts/native-macos-smoke.sh": {
+      "sha256": "79841c8b178ed3a68a6a62d13ccc81581e43798be3c1c29a00bf161a8b3dfefd",
+      "bytes": 5895,
+      "git_blob": "af97fe2815f95e1288a75b6a00108c090caaa6ab"
+    },
+    "scripts/native-linux-smoke.py": {
+      "sha256": "ee7babae743d205b9b08634f0d576f98c72e5e8018e27b4c7dca1e9d3b6c8e0b",
+      "bytes": 3743,
+      "git_blob": "1bdf64ee0a5fe5a372d86173901002c236a0c1ff"
+    },
+    "tests/infrastructure/test_background_service_native_smoke_source.py": {
+      "sha256": "1789740886cb10769cf899603ef6a123ffd5a58a3b86767f61ceef7cd18b72cd",
+      "bytes": 31591,
+      "git_blob": "4525e9163d09c60d8e9d005adf7a0c4236af7d31"
+    },
+    "tests/infrastructure/fixtures/native_acceptance_followup.json": {
+      "sha256": "4c676e3f72912687d30844afcee5653c9420106ffe43d7cf33babb09b19d1f0a",
+      "bytes": 5437,
+      "git_blob": "e2aa22322355582381fc59ef087820999a77f251"
+    },
+    "tests/infrastructure/schema18_source_fixture.py": {
+      "sha256": "731efd2830996d21354a4fe7b9b9fbf08be93ec2e2ec43a73dbe746cfa49253f",
+      "bytes": 2379,
+      "git_blob": "06d4067810113a7754b91c129ef7d43193527347"
+    },
+    "tests/infrastructure/schema18_host_fixture.py": {
+      "sha256": "fc29d7ac446c9b39464b11ae1b2d1ba339784decce9cda3d94d820cd4adcf83d",
+      "bytes": 565,
+      "git_blob": "3de0d93ac3802ec4508dbbd984dd02a4f650c282"
+    },
+    "tests/infrastructure/fixtures/schema18_source_inverse.json": {
+      "sha256": "e6e5b7ab00f0cf919cb6f75e267e4e8ec7e91a55262ff100d66655ca5657e109",
+      "bytes": 26587,
+      "git_blob": "627ba4ca318ef9c1002ea7e134893ef72f0e16f6"
+    },
+    "apps/desktop/src-tauri/Cargo.lock": {
+      "sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+      "bytes": 113080,
+      "git_blob": "3ed3fcfb776343bb1580e748f37a0a57ce7641a5"
+    }
+  },
+  "C1": {
+    "status": "fixed candidate read only; final tests/delivery/admission pending",
+    "commit": "49348b2291da5c22fa994db9c452dfd2331d079a",
+    "paths": {
+      "crates/core/src/ipc.rs": {
+        "sha256": "97ef8e947fb05b6d3e75dcac5d6bab000bebfacc081ff2991b0894741f8b908f",
+        "bytes": 200495
+      },
+      "crates/core/src/host_registry_ipc.rs": {
+        "sha256": "6fea146d6df10c050e07a6f9391e57a2e9e97bad5e48c829d6657a955581afa4",
+        "bytes": 5399
+      },
+      "crates/core/src/host_registry_ipc_tests.rs": {
+        "sha256": "a4a3f02b266b25244b8a2d2758723177314a374036d0fca15339b20d926be902",
+        "bytes": 20517
+      }
+    },
+    "source_access": "git show fixed object only; no B dirty tree read",
+    "reported_validation": "leader reports same-source16+fmt/clippy passed; final fullinfra/archive/delivery pending; no raw test artifacts independently consumed in this task"
+  },
+  "coordination_task": {
+    "path": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/leader-control/docs/execution/leader-control/HOST_IPC_C1_TASK.md",
+    "sha256": "36445bebc144a93defeceb59b965c0fa3955f9449a5a5bdfd414964d84494a86",
+    "provenance": "leader-supplied policy snapshot, not delivered C1 source"
+  },
+  "analysis_failure": {
+    "exit_code": 1,
+    "observed": "AssertionError at generator line11; expected changed semantic count2 was incorrect",
+    "corrected": "actual matrix overlap3, context delta9; no artifact was generated on failed attempt; not a product test or weakened assertion"
+  },
+  "analysis_navigation_failure": {
+    "exit_code": 2,
+    "command": "rg startup/lock against ipc.rs plus guessed runtime.rs and bin/batond.rs",
+    "observed": "two guessed source paths do not exist; ipc.rs read succeeded",
+    "resolution": "narrow ipc.rs609-630 confirmed Daemon::bind and lock-before-Store. No product runtime/test executed."
+  }
+}

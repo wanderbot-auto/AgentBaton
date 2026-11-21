@@ -1,0 +1,12 @@
+{
+  "schema": 19,
+  "git_head": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "source_head": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "compiled_core_source_head": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "dirty": false,
+  "tracked_clean": true,
+  "binaries": {
+    "batond": "355fc7d88894b475a391e11d5cba70ad1ab6a21a3011872b20b50a4b79a53f58",
+    "baton": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c"
+  }
+}

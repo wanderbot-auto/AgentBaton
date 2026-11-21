@@ -1,0 +1,154 @@
+{
+  "status": "python_infrastructure_verified_ready_for_leader_evidence_review",
+  "base": "8aa4483d7028f9e9cb65a709bf2659f5e6715efd",
+  "feature_candidate_target": "origin/collab/host-native-bridge-candidate",
+  "source_commit": "119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9",
+  "source_tree": "ad9d6b424b82a8d4a9708bfd993570b90c747a00",
+  "source_files": {
+    "tests/infrastructure/host_native_bridge_source_fixture.py": {
+      "bytes": 1829,
+      "sha256": "d72f1827690173814e957f804a5af6d6cf2bff05fb7d9b951a1f9b349b0ed268",
+      "git_blob": "0b2f4ba9750c0455bfd9a9f5b00383bf933c6102",
+      "commit": "119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9"
+    },
+    "tests/infrastructure/test_background_service_native_smoke_source.py": {
+      "bytes": 31817,
+      "sha256": "eb81469cab5bde752272651736fa9d8b056f89e75614701405f3e06f0a1360cb",
+      "git_blob": "8808d2530ee3365adbefc809a5aa7790661851fc",
+      "commit": "119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9"
+    },
+    "tests/infrastructure/test_host_native_bridge_source_fixture.py": {
+      "bytes": 4402,
+      "sha256": "bd1fd8ac27c31d62f9e2c6b3fd48f555c745c80c8beed8c6f2ae5368834f42c2",
+      "git_blob": "f3ba0d3a3ec8c6b3188e67ce3798638aedf73b9e",
+      "commit": "119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9"
+    }
+  },
+  "source_inverse": {
+    "path": "apps/desktop/src-tauri/src/lib.rs",
+    "candidate": {
+      "bytes": 103723,
+      "sha256": "338fbef7689416a71ec101aaad3ac5afb91e433c55d5c1c4bf413242108944d5",
+      "git_blob": "d368e480040af7837290ba964f9e5c231304113f",
+      "commit": "8aa4483d7028f9e9cb65a709bf2659f5e6715efd"
+    },
+    "restored_predecessor": {
+      "bytes": 103452,
+      "sha256": "6650edec5c8b8ac3fcdf5ff03813eafe40b5847609fc008cedbf185c96102cdb",
+      "git_blob": "cdb711f433b061d7bd7bdf84b09e316df4098553",
+      "commit": "1f756ce201b8cf10f4b1798053674f4e960ac77d"
+    },
+    "git_blob_byte_equal": true,
+    "removed_lines": 8,
+    "original_whole_bridge_token_sha256": "b5dcc8f034fc0f8f73b8b5d74cffd772f94b2ce4b81eda2c671240696641cb2d",
+    "current_ensure_daemon_sha256": "e9708f857866f23dd41f988124b85216b50a1ed432690b2adacfd4f175e30a2b",
+    "historical_test_source_pins_checked": 19,
+    "original_background_test_module_byte_equal_after_removing_adapter": true
+  },
+  "leader_baseline_full": {
+    "source": "8aa4483d7028f9e9cb65a709bf2659f5e6715efd",
+    "discovered": 922,
+    "passed": 905,
+    "failed": 1,
+    "skipped": 16,
+    "bytes": 3771,
+    "sha256": "0593c9f344c6e1c275d762bdb29ed9cb9d7d6b1c25373c8c094471cd30c3cc6f"
+  },
+  "checks_by_log": {
+    "baseline-red.log": {
+      "source": "8aa4483d7028f9e9cb65a709bf2659f5e6715efd",
+      "command": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python -m unittest -v tests.infrastructure.test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_complete_production_inverse_and_all_nineteen_original_tests",
+      "started_utc": "2026-11-18T14:58:25Z",
+      "finished_utc": "2026-11-18T14:58:26Z",
+      "discovered": 1,
+      "passed": 0,
+      "failed": 1,
+      "skipped": 0,
+      "exit": 1
+    },
+    "targeted.log": {
+      "source": "119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9",
+      "command": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python -m unittest -v tests.infrastructure.test_host_native_bridge_source_fixture tests.infrastructure.test_background_service_native_smoke_source",
+      "started_utc": "2026-11-18T15:01:52Z",
+      "finished_utc": "2026-11-18T15:01:53Z",
+      "discovered": 17,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "exit": 0
+    },
+    "c3-source.log": {
+      "source": "119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9",
+      "command": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python apps/desktop/src-tauri/tests/test_hosts_native_source.py",
+      "started_utc": "2026-11-18T15:01:53Z",
+      "finished_utc": "2026-11-18T15:01:53Z",
+      "discovered": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "exit": 0
+    },
+    "full-infra.log.gz": {
+      "source": "119d3b20dcf2c9ff24bd6fb0b6641447ccd3eae9",
+      "command": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python -m unittest discover -s tests/infrastructure -p test_\\*.py -v",
+      "started_utc": "2026-11-18T15:01:53Z",
+      "finished_utc": "2026-11-18T15:02:15Z",
+      "discovered": 927,
+      "passed": 911,
+      "failed": 0,
+      "skipped": 16,
+      "exit": 0,
+      "uncompressed": {
+        "bytes": 185173,
+        "sha256": "54375e9f2db34e445a216db319044004565b199ad4da1f33c93c20f77718e6cb"
+      }
+    }
+  },
+  "git_byte_proof_exit": 0,
+  "source_scope_exit": 0,
+  "source_diff_check_exit": 0,
+  "source_feature_candidate_preview_exit": 0,
+  "raw_logs": {
+    "logs/baseline-red.log": {
+      "bytes": 1837,
+      "sha256": "65676dfdda120fef91f6e9f6b3939336d46175b3778404d8eef0bb2ff9b96f42"
+    },
+    "logs/c3-source.log": {
+      "bytes": 412,
+      "sha256": "b456c123f73796240d17c1dfa7d72b9c3e9ac46e9d06447063244001a24c1593"
+    },
+    "logs/environment.log": {
+      "bytes": 284,
+      "sha256": "0d6e5d29739989c1988d83ff11be3e3cbd26424aa8d192d0d82e69ac2695134f"
+    },
+    "logs/full-infra.log.gz": {
+      "bytes": 28641,
+      "sha256": "f6f4c35ce76f619778512d4667f00b3911022a46a498904aad7f909c7bc72cc6"
+    },
+    "logs/git-byte-proof.log": {
+      "bytes": 781,
+      "sha256": "996bcfbd17547d308a5ea0efe810150ddcbdb14b1214c03a494b5fe545a84936"
+    },
+    "logs/leader-baseline-full.log": {
+      "bytes": 3771,
+      "sha256": "0593c9f344c6e1c275d762bdb29ed9cb9d7d6b1c25373c8c094471cd30c3cc6f"
+    },
+    "logs/source-preflight.log": {
+      "bytes": 444,
+      "sha256": "f12b0712c514de4c784994d92ed572d13edaa88e00af5dfcdccde643cf03cabb"
+    },
+    "logs/targeted.log": {
+      "bytes": 4537,
+      "sha256": "b9caaa984f18cd77137f0113d96be2a037a0f8d45859a29164fe9902bc671b35"
+    }
+  },
+  "environment": {
+    "worktree": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-native-bridge-source-inverse",
+    "venv_python": "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+    "wrapper": "bash scripts/collab.sh run -- env PYTHONDONTWRITEBYTECODE=1",
+    "runtime": "/private/tmp/ab-collab-gd4zvmnx",
+    "all_own_children_joined": true
+  },
+  "leader_source_review": "static review passed on 119d3b20 with independent Git byte and negative controls",
+  "verification_scope": "Python source and infrastructure checks; no Rust, native runtime or hosted CI execution in this task"
+}

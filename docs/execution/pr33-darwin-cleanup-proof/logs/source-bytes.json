@@ -1,0 +1,26 @@
+{
+  "current_runner_sha256": "aa8930e9aeefb72811c599e7d8ee6e781fee53c8bf9f8b428173e387ca17eca8",
+  "current_inverse_sha256": "681cdc51c8c72b8da42d55d17e21f47bd0e7f675bab604524a77347b26224329",
+  "historical_inverse_entries_byte_identical": true,
+  "restored_runner_stages": [
+    {
+      "git_commit": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "path": "scripts/native-run.py",
+      "sha256": "12ae8dbc28abef5fbdd0031fffbb5d45d9ae78c724242abdf747432cc201e503",
+      "bytes_match": true
+    },
+    {
+      "git_commit": "ae844ca33406aabd62f44ea73818f9127f211748",
+      "path": "scripts/native-run.py",
+      "sha256": "205d76e38721760744bd4d889e34ab3d2cf436ebc94583fee40fa17029ffac0a",
+      "bytes_match": true
+    }
+  ],
+  "restored_shell": {
+    "git_commit": "ae844ca33406aabd62f44ea73818f9127f211748",
+    "path": "scripts/native-macos-smoke.sh",
+    "sha256": "79841c8b178ed3a68a6a62d13ccc81581e43798be3c1c29a00bf161a8b3dfefd",
+    "bytes_match": true
+  },
+  "loader_returned_exact_original_runner": true
+}

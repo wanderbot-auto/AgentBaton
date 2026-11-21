@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-3e149a5721946c12)
+
+running 2 tests
+test ipc::conversation_wire_tests::conversation_create_is_taskless_and_closed ... ok
+test ipc::conversation_wire_tests::conversation_message_requires_exact_identity_and_closed_payload ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 432 filtered out; finished in 0.00s
+

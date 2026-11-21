@@ -1,0 +1,22 @@
+{
+  "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+  "command": [
+    "cargo",
+    "fmt",
+    "--all",
+    "--",
+    "--check"
+  ],
+  "expected_counts": null,
+  "started_utc": "2026-11-17T21:27:29.294072+00:00",
+  "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+  "response_budget_includes_LF": true,
+  "exit_code": 0,
+  "actual_counts": [],
+  "count_gate": true,
+  "finished_utc": "2026-11-17T21:27:30.381505+00:00",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "bytes": 0,
+  "all_children_joined": true,
+  "status": "passed"
+}

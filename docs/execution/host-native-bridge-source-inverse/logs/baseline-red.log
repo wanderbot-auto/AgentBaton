@@ -1,0 +1,23 @@
+Source: 8aa4483d7028f9e9cb65a709bf2659f5e6715efd
+Started (UTC): 2026-11-18T14:58:25Z
+Command: /Users/wander/Documents/code/agentBaton-next/.venv/bin/python -m unittest -v tests.infrastructure.test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_complete_production_inverse_and_all_nineteen_original_tests
+collab: task runtime /private/tmp/ab-collab-gd4zvmnx
+test_complete_production_inverse_and_all_nineteen_original_tests (tests.infrastructure.test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_complete_production_inverse_and_all_nineteen_original_tests) ... FAIL
+
+======================================================================
+FAIL: test_complete_production_inverse_and_all_nineteen_original_tests (tests.infrastructure.test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_complete_production_inverse_and_all_nineteen_original_tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-native-bridge-source-inverse/tests/infrastructure/test_background_service_native_smoke_source.py", line 290, in test_complete_production_inverse_and_all_nineteen_original_tests
+    self.assertEqual(restored_parent_bridge_token_sha(lib), PARENT_BRIDGE_TOKEN_SHA256)
+AssertionError: '715668045d351fce14e6773b411c0a4fcf935735d5051a5d74870cfbc11de523' != 'b5dcc8f034fc0f8f73b8b5d74cffd772f94b2ce4b81eda2c671240696641cb2d'
+- 715668045d351fce14e6773b411c0a4fcf935735d5051a5d74870cfbc11de523
++ b5dcc8f034fc0f8f73b8b5d74cffd772f94b2ce4b81eda2c671240696641cb2d
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.526s
+
+FAILED (failures=1)
+Finished (UTC): 2026-11-18T14:58:26Z
+Exit: 1

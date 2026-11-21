@@ -4,6 +4,7 @@ import { initialLanguage, messages, type Language } from './i18n';
 import { canvasMessages } from './canvas-i18n';
 import { Projects } from './Projects';
 import { TaskCodeWorkspace } from './TaskCodeWorkspace';
+import { TaskExperienceProposal } from './TaskExperienceProposal';
 import { Connections } from './Connections';
 import { ManagedSkills } from './ManagedSkills';
 import { ManagedMcps } from './ManagedMcps';
@@ -11,8 +12,10 @@ import { BackgroundService } from './BackgroundService';
 import {RecoveryCenter,RecoveryBanner,useRecoveryCenter} from './RecoveryCenter';
 import { ManagedSessions, sessionEventText } from './ManagedSessions';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
+import { sessionMessages } from './session-i18n';
 import { ContextDialog } from './ContextDialog';
 import { BackgroundServiceSettings } from './BackgroundServiceSettings';
+import { Hosts, useHostRegistrationSession } from './Hosts';
 import { ArtifactValidation } from './ArtifactValidation';
 import { DataContractValidation } from './DataContractValidation';
 import { CommandValidation } from './CommandValidation';
@@ -37,6 +40,27 @@ const activeStates = new Set(['queued', 'running', 'starting', 'ready']);
 const attentionStates = new Set(['outcome_unknown', 'unknown', 'cancel_requested', 'failed', 'awaiting_approval']);
 const finishedStates = new Set(['accepted', 'cancelled', 'failed', 'execution_succeeded', 'validation_passed']);
 
+const recordedSessionStates: readonly ManagedSession['state'][] = [
+  'starting', 'ready', 'running', 'cancel_requested', 'stopped', 'outcome_unknown', 'failed',
+];
+const recordedTurnLabels = {
+  idle: 'idle', pending: 'queuedMessage', running: 'running', cancel_requested: 'cancel_requested',
+  completed: 'completed', ended: 'ended', failed: 'failed', outcome_unknown: 'outcome_unknown',
+} as const satisfies Record<string, keyof typeof sessionMessages.en>;
+
+function recordedSessionState(session: ManagedSession, language: Language) {
+  const t = sessionMessages[language];
+  const process = recordedSessionStates.includes(session.state) ? t[session.state] : `${t.unknown}: ${session.state}`;
+  const turn = session.turn_state;
+  if (!turn) return process;
+  if (turn === 'cancelled') return `${process} · ${language === 'zh' ? '本轮已取消' : 'Turn cancelled'}`;
+  if (turn === 'interrupted') return `${process} · ${language === 'zh' ? '本轮已中断' : 'Turn interrupted'}`;
+  const turnLabel = Object.hasOwn(recordedTurnLabels, turn)
+    ? t[recordedTurnLabels[turn as keyof typeof recordedTurnLabels]]
+    : `${t.unknown}: ${turn}`;
+  return `${process} · ${turnLabel}`;
+}
+
 export function App() {
   const [language, setLanguage] = useState<Language>(initialLanguage);
   const t = messages[language], c = canvasMessages[language];
@@ -53,6 +77,7 @@ export function App() {
   }, []);
   const [dialog, setDialog] = useState<Dialog>(null);
   const recovery=useRecoveryCenter(dialog==='settings');
+  const hostRegistration = useHostRegistrationSession();
   const [taskIntent,setTaskIntent] = useState<{taskId:string;projectId:string|undefined;action:TaskAction;key:string}|null>(null);
   const [detailsTaskId,setDetailsTaskId]=useState<string>();
   const [filter, setFilter] = useState<Filter>('all');
@@ -338,9 +363,12 @@ export function App() {
             <p role="status">{recoveryLabels.received}</p>
             <button type="button" onClick={() => void markMessageSeen(receipt)}>{recoveryLabels.acknowledge}</button>
           </article>
-        ))}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => {setTaskIntent(null);setDialog('execution');}}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {stateText(session.state)}{session.turn_state ? ` · ${session.turn_state}` : ''}</p>)}<TaskActions task={selected} language={language} busy={busy} sendBusy={sendBusy} connected={status==='connected'} canSend={!!readySession} recipient={readySession?`${selectedConnection?.name??readySession.connection_id} · ${readySession.id}`:undefined} multipleSessions={readySessions.length>1} uncertain={uncertainTaskSend} receiptReviewHint={recoveredForTask.length ? recoveryLabels.review : undefined} onNavigate={navigateTask} onSend={task=>void sendTaskText(task,task.goal)} /><TaskPlanSummary key={selected.id} task={selected} language={language} connected={status === 'connected'} /><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{eventPager}{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
+        ))}</div>{!selectedSessions.length && <div className="thread-note"><p>{selected.state === 'draft' ? t.noExecution : t.noAttempt}</p><button onClick={() => {setTaskIntent(null);setDialog('execution');}}>{c.configure}</button></div>}{selectedSessions.map(session => <p className="session-observation" key={session.id}>{c.sessionState}: {recordedSessionState(session, language)}</p>)}<TaskActions task={selected} language={language} busy={busy} sendBusy={sendBusy} connected={status==='connected'} canSend={!!readySession} recipient={readySession?`${selectedConnection?.name??readySession.connection_id} · ${readySession.id}`:undefined} multipleSessions={readySessions.length>1} uncertain={uncertainTaskSend} receiptReviewHint={recoveredForTask.length ? recoveryLabels.review : undefined} onNavigate={navigateTask} onSend={task=>void sendTaskText(task,task.goal)} /><TaskPlanSummary key={selected.id} task={selected} language={language} connected={status === 'connected'} /><details className="observable-events"><summary>{c.eventDetails}</summary><EventList events={taskEvents} title={t.evidence} empty={t.noEvents} /></details>{eventPager}{earliestCursor > 0 && <p className="hint">{t.moreEvents}</p>}</>}
         {tab === 'artifacts' && <><ArtifactValidation key={selected.id} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /><DataContractValidation key={`data-${selected.id}`} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /><CommandValidation key={`command-${selected.id}`} task={selected} sessions={sessions} language={language} connected={status === 'connected'} /></>}
-        {(tab === 'details'||detailsTaskId===selected.id) && <div className="task-details" hidden={tab!=='details'}><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || !['draft','running','outcome_unknown'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><TaskCodeWorkspace key={`code-workspace-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><GoalPlanning key={`goal-${selected.id}`} navigation={intentTask?.id===selected.id&&taskIntent?.action!=='workspace'?{target:taskIntent!.action==='review'?'execution':'plan',requestId:taskIntent!.key}:undefined} task={selected} language={language} connected={status === 'connected'} /><TaskIntegration key={`integration-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><FactoryRuntime key={`factory-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /></div>}
+        {(tab === 'details'||detailsTaskId===selected.id) && <div className="task-details" hidden={tab!=='details'}><dl><dt>{t.taskId}</dt><dd>{selected.id}</dd><dt>{t.project}</dt><dd>{projectName(selected.project_id)}</dd><dt>{t.revision}</dt><dd>{selected.revision}</dd><dt>{t.updated}</dt><dd>{selected.updated_at}</dd></dl><p>{c.retained}</p><button onClick={() => void cancelTask(selected)} disabled={busy || status !== 'connected' || !['draft','running','outcome_unknown'].includes(selected.state)}>{t.cancel}</button><p className="hint">{t.cancelHelp}</p><TaskCodeWorkspace key={`code-workspace-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><GoalPlanning key={`goal-${selected.id}`} navigation={intentTask?.id===selected.id&&taskIntent?.action!=='workspace'?{target:taskIntent!.action==='review'?'execution':'plan',requestId:taskIntent!.key}:undefined} task={selected} language={language} connected={status === 'connected'} /><TaskIntegration key={`integration-${selected.id}`} task={selected} language={language} connected={status === 'connected'} /><FactoryRuntime key={`factory-${selected.id}`} task={selected} language={language} connected={status === 'connected'} />
+          {tab === 'details' && status !== 'disconnected' && <TaskExperienceProposal task={selected} language={language}
+            project={projects.find(project => project.id === selected.project_id)} selectedProjectId={projectId} />}
+        </div>}
       </div></section>}
       {view === 'capabilities' && <><div className="page-heading"><h1>{t.capabilities}</h1></div><Connections language={language} connected={status === 'connected'} compact /><ManagedSkills language={language} connected={status === 'connected'} /><ManagedMcps language={language} connected={status === 'connected'} /></>}
       {view === 'history' && <><div className="page-heading"><h1>{t.history}</h1></div><EventList events={events} title={t.evidence} empty={t.noEvents} focusedEventId={focusedEventId} focusRequest={focusedEventRequest} />{eventPager}{earliestCursor > 0 && <><p>{events.length >= 500 ? t.windowLimit : t.moreEvents}</p><button onClick={() => void loadEarlier()} disabled={busy || status !== 'connected'}>{t.earlier}</button></>}</>}
@@ -352,7 +380,7 @@ export function App() {
       {dialog === 'projects' && <Projects projects={projects} selectedId={projectId} onSelect={id => { setProjectId(id); createKey.current = null; }} refresh={refresh} connected={status === 'connected'} language={language} />}
       {dialog === 'standalone' && <StandaloneConversations language={language} connected={status==='connected'} onBusy={setBusy} onConvert={(summary,sourceProject)=>{setConversionProject(sourceProject==='local'?'':sourceProject);setConversionSummary(summary);createKey.current=null;setDialog('conversion');}} />}
       {dialog === 'execution' && (taskIntent?.action==='workspace'&&!intentTask?<p>{taskActionsMessages[language].missing}</p>:<ManagedSessions sharedSendBusy={sendBusy||messageRecoveryUnavailable} onSendBusyChange={changeSendBusy} uncertainSessions={uncertainSessions} onUncertain={id=>setUncertainSessions(current=>new Set([...current,id]))} key={taskIntent?.action==='workspace'?taskIntent.taskId:'execution'} initialTaskId={taskIntent?.action==='workspace'?intentTask?.id:selected?.id} language={language} connected={status === 'connected'} projects={projects} tasks={taskIntent?.action==='workspace'&&intentTask?[intentTask]:tasks} projectId={taskIntent?.action==='workspace'?intentTask?.project_id??'':selected?.project_id ?? projectId} onProjectChange={id => { setProjectId(id); createKey.current = null; }} refreshTasks={refresh} />)}
-      {dialog === 'settings' && <><RecoveryCenter language={language} controller={recovery} /><BackgroundService language={language} connected={status === 'connected'} /><dl className="settings-list"><dt>{c.appearance}</dt><dd>{c.light}</dd><dt>{c.readOnly}</dt><dd>{c.retained}</dd></dl><details className="settings-connection"><summary>{c.connectedHelp}</summary><p>{t[status]}</p></details><BackgroundServiceSettings language={language} /></>}
+      {dialog === 'settings' && <><RecoveryCenter language={language} controller={recovery} /><BackgroundService language={language} connected={status === 'connected'} /><dl className="settings-list"><dt>{c.appearance}</dt><dd>{c.light}</dd><dt>{c.readOnly}</dt><dd>{c.retained}</dd></dl><Hosts language={language} daemonConnected={status === 'connected'} session={hostRegistration} /><details className="settings-connection"><summary>{c.connectedHelp}</summary><p>{t[status]}</p></details><BackgroundServiceSettings language={language} /></>}
       {dialog === 'search' && <><label className="sr-only" htmlFor="task-search">{c.searchTasks}</label><input id="task-search" value={query} onChange={event => setQuery(event.target.value)} placeholder={c.searchPlaceholder} data-dialog-autofocus /><ul className="search-results">{tasks.filter(task => task.goal.toLocaleLowerCase().includes(query.toLocaleLowerCase())).map(task => <li key={task.id}><button onClick={() => openTask(task.id)}><Icon name="task" /><span>{task.goal}</span><span className="task-state">{stateText(task.state)}</span></button></li>)}</ul>{!tasks.some(task => task.goal.toLocaleLowerCase().includes(query.toLocaleLowerCase())) && <p>{c.noMatches}</p>}</>}
       {dialog === 'conversion' && <>{error && <div className="error" role="alert"><strong>{t.error}</strong><p>{error}</p></div>}<p>{c.convertHelp}</p><label htmlFor="conversion-summary">{c.summary}</label><textarea id="conversion-summary" rows={5} value={conversionSummary} maxLength={8192} onChange={event => { setConversionSummary(event.target.value); createKey.current = null; }} /><div className="dialog-actions"><button onClick={() => setDialog(null)}>{c.close}</button><button className="primary" disabled={busy || status !== 'connected' || !conversionSummary.trim()} onClick={() => void createTask(undefined, conversionSummary, conversionProject)}>{c.createDraft}</button></div></>}
     </ContextDialog>}

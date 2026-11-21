@@ -1,0 +1,3 @@
+observed_schema=19 baseline_expected=18
+baseline ('invalid_or_pending', ['INVALID_PRIVATE_EVIDENCE'], ['project_db:1226', 'case:1345'])
+in_memory_schema_trial ('collected_post_shutdown', ['FINITE_PROJECTION_COLLECTED'], [])

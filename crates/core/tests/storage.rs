@@ -1,5 +1,8 @@
+#[path = "fixtures/schema19_legacy_migration.rs"]
+pub mod schema19_legacy_migration;
 use agentbaton_core::storage::{Store, TaskState};
 use rusqlite::Connection;
+use schema19_legacy_migration::{assert_future20_refused, database_bytes};
 use serde_json::json;
 
 #[test]
@@ -73,16 +76,21 @@ fn future_and_unknown_database_are_not_modified() {
     let dir = tempfile::tempdir().unwrap();
     let db = dir.path().join("store.db");
     let conn = Connection::open(&db).unwrap();
-    conn.execute_batch("PRAGMA user_version=19; CREATE TABLE sentinel(value TEXT);")
+    conn.execute_batch("PRAGMA user_version=20; CREATE TABLE sentinel(value TEXT);")
         .unwrap();
     drop(conn);
-    let before = std::fs::read(&db).unwrap();
-    assert_eq!(Store::open(&db).err().unwrap().code, "VERSION_UNSUPPORTED");
-    assert_eq!(std::fs::read(&db).unwrap(), before);
+    assert_future20_refused(&db);
     let conn = Connection::open(&db).unwrap();
     conn.execute_batch("PRAGMA user_version=0").unwrap();
     drop(conn);
-    assert_eq!(Store::open(&db).err().unwrap().code, "VERSION_UNSUPPORTED");
+    let before = database_bytes(&db);
+    let error = Store::open(&db).err().unwrap();
+    assert_eq!(error.code, "VERSION_UNSUPPORTED");
+    assert_eq!(
+        error.message,
+        "Unrecognized database; refusing an in-place migration"
+    );
+    assert!(database_bytes(&db) == before);
 }
 #[test]
 fn active_cancel_never_claims_executor_stopped() {

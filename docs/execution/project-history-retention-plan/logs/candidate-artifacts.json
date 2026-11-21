@@ -1,0 +1,33 @@
+{
+  "source": "c7e672cd2d92edfa232656c0cab1328aff86565f",
+  "artifacts": {
+    "targeted": {
+      "path": "target/debug/deps/history_retention-19f0dbb04cdb6c66",
+      "file": "Mach-O 64-bit executable arm64",
+      "sha256": "037960b062ed7156553ecb7774b6f2d02bd5913479502a3e4c91a534d45c49ba"
+    },
+    "old-history": {
+      "path": "target/debug/deps/agentbaton_core-c788a89c7fe269ab",
+      "file": "Mach-O 64-bit executable arm64",
+      "sha256": "96d537e4b58fdb6f00235353fc88db21fe97cedbfb43073b53ac8cf2b26dfb9d"
+    },
+    "old-schema18": {
+      "path": "target/debug/deps/conversation_schema18-788c580c8d9c0a4b",
+      "file": "Mach-O 64-bit executable arm64",
+      "sha256": "8aa3554e07184f137b5efe870d6a5a4802a9a9dd106eeccbdf593fe90a6973ca"
+    }
+  },
+  "rustc": [
+    "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+    "binary: rustc",
+    "commit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb",
+    "commit-date: 2025-11-07",
+    "host: aarch64-apple-darwin",
+    "release: 1.91.1",
+    "LLVM version: 21.1.2"
+  ],
+  "macos": "26.6.1",
+  "original_history_sha256": "e20529638c59b1068d17011e75623f6d3a47bdfa5246cb64afddd7672750618b",
+  "candidate_history_sha256": "3235655289501bcbe4caebde5dd07579658fca5d080cac00f68fb1fe892c7f04",
+  "lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d"
+}

@@ -1,0 +1,44 @@
+......F.................................................................................................................................................................................................................................................................................................................................................................................................................................................................Finite integration browser projection refused
+Finite integration browser projection refused
+...................................................................................................................................................Finite integration browser projection refused
+..............................................................Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+.Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+..Integration Native evidence projection refused
+.Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+Integration Native evidence projection refused
+...........................................................ssssssssssssssss..............................................Finite task notification projection refused
+.........................................................................................................
+======================================================================
+FAIL: test_all_parent_harness_guards_lock_and_cargo_source_are_exact (test_background_service_native_smoke_source.NativeBackgroundSourceBoundaries.test_all_parent_harness_guards_lock_and_cargo_source_are_exact)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-integration/tests/infrastructure/test_background_service_native_smoke_source.py", line 273, in test_all_parent_harness_guards_lock_and_cargo_source_are_exact
+    self.assertEqual(hashlib.sha256(parent_lock.encode()).hexdigest(),
+AssertionError: 'a7571e2c6caab0746b9dee9e25cc2b6ca08d1b5eb1f15479e4a7cc55c8d833b0' != '4d47820152c17d63b61829fa7d83d2fbbdb4c9cbbfdbd03168207f0e442e068d'
+- a7571e2c6caab0746b9dee9e25cc2b6ca08d1b5eb1f15479e4a7cc55c8d833b0
++ 4d47820152c17d63b61829fa7d83d2fbbdb4c9cbbfdbd03168207f0e442e068d
+
+
+----------------------------------------------------------------------
+Ran 895 tests in 23.509s
+
+FAILED (failures=1, skipped=16)
+{"status": "failed_or_interrupted", "dimension": "Linux/browser/generatedACP/private_test_host_not_OS"}
+{"status": "passed", "dimension": "Linux/browser/generatedACP/private_test_host_not_OS"}

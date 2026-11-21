@@ -1,0 +1,165 @@
+{
+  "requirement": "AB-SES-006",
+  "scope": "read-only managed-session recovery admission and targeted Core regressions",
+  "base_sha": "315902e2c7c9e0c6dbaad8a22a5285009630d8ff",
+  "tested_source_sha": "ff13dd587b8b69001700245f7d2edd28d8ad0d31",
+  "verification_started_at_utc": "2026-11-18T19:19:14.482067+00:00",
+  "runner": {
+    "wrapper": [
+      "bash",
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ],
+    "arch": "arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-10-10)",
+    "python": "3.12.12",
+    "environment_log": "logs/environment.txt",
+    "setup": [
+      "PATH=/Users/wander/Documents/code/agentBaton-next/.venv/bin:$PATH",
+      "TMPDIR is a private mktemp directory under BATON_RUNTIME_DIR",
+      "unset AB_GOAL_LIVE_CRASH_RUNTIME"
+    ]
+  },
+  "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+  "fixtures": "Real Store and Supervisor with private SQLite and Git, a generated ACP child, and synthetic trusted identity and compatibility records",
+  "checks": [
+    {
+      "label": "targeted",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--test",
+        "session_recovery_admission",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:19:50.771835+00:00",
+      "log": "logs/targeted.log.gz",
+      "totals": {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 0
+      }
+    },
+    {
+      "label": "sessions-ipc",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--test",
+        "sessions_ipc",
+        "--",
+        "binary_drift_unknown",
+        "crash_window_persistence",
+        "proven_no_process_started",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:20:06.500474+00:00",
+      "log": "logs/sessions-ipc.log.gz",
+      "totals": {
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 60
+      }
+    },
+    {
+      "label": "sessions-unit",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--",
+        "sessions::tests",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:20:47.860001+00:00",
+      "log": "logs/sessions-unit.log.gz",
+      "totals": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "measured": 0,
+        "filtered": 455
+      }
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:20:49.040980+00:00",
+      "log": "logs/fmt.log.gz"
+    },
+    {
+      "label": "check",
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--test",
+        "session_recovery_admission"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:20:53.347277+00:00",
+      "log": "logs/check.log.gz"
+    },
+    {
+      "label": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "agentbaton-core",
+        "--locked",
+        "--offline",
+        "--lib",
+        "--test",
+        "session_recovery_admission",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:21:03.678933+00:00",
+      "log": "logs/clippy.log.gz"
+    }
+  ],
+  "scope_and_preview": "logs/scope-preview.txt",
+  "not_run": [
+    "native session load or real Provider",
+    "production identity verification and persistent compatibility capture",
+    "full Core regression",
+    "Linux, native desktop and CI"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 19,
+  "git_head": "3d19a89f10756966da9f494f928d6962ad63b20b",
+  "git_tree": "6a8262289ce3100878dc49ec15e10a04b954ecbe",
+  "dirty": false,
+  "cargo_features": [
+    "agentbaton-core/preview-evidence"
+  ],
+  "binaries": {
+    "batond": "0687bcc8a9c0281418babe70ded82f83571b2d68936182aaf6bad52a336d38e7",
+    "baton": "88478b9d15dfd71cc3bb51158979391efe01e49430b27d8f2f71159cc0c80f25"
+  }
+}

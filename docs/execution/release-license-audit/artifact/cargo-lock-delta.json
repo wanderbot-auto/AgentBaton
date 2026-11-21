@@ -1,0 +1,96 @@
+{
+  "Cargo.lock": {
+    "old_count": 93,
+    "new_count": 94,
+    "historical_only": [],
+    "current_only": [
+      [
+        "agentbaton-remote-host",
+        "0.1.0",
+        null
+      ]
+    ],
+    "changed_dependencies": [
+      {
+        "name": "agentbaton-core",
+        "version": "0.1.0",
+        "historical": [
+          "agentbaton-config",
+          "agentbaton-providers",
+          "agentbaton-workspaces",
+          "fs2",
+          "libc",
+          "rusqlite",
+          "rustix",
+          "serde",
+          "serde_json",
+          "sha2",
+          "tempfile",
+          "time",
+          "uuid"
+        ],
+        "current": [
+          "agentbaton-config",
+          "agentbaton-providers",
+          "agentbaton-remote-host",
+          "agentbaton-workspaces",
+          "fs2",
+          "libc",
+          "rusqlite",
+          "rustix",
+          "serde",
+          "serde_json",
+          "sha2",
+          "tempfile",
+          "time",
+          "uuid"
+        ]
+      }
+    ]
+  },
+  "apps/desktop/src-tauri/Cargo.lock": {
+    "old_count": 442,
+    "new_count": 443,
+    "historical_only": [],
+    "current_only": [
+      [
+        "agentbaton-remote-host",
+        "0.1.0",
+        null
+      ]
+    ],
+    "changed_dependencies": [
+      {
+        "name": "agentbaton-core",
+        "version": "0.1.0",
+        "historical": [
+          "agentbaton-config",
+          "agentbaton-providers",
+          "agentbaton-workspaces",
+          "fs2",
+          "rusqlite",
+          "rustix",
+          "serde",
+          "serde_json",
+          "sha2",
+          "time",
+          "uuid"
+        ],
+        "current": [
+          "agentbaton-config",
+          "agentbaton-providers",
+          "agentbaton-remote-host",
+          "agentbaton-workspaces",
+          "fs2",
+          "rusqlite",
+          "rustix",
+          "serde",
+          "serde_json",
+          "sha2",
+          "time",
+          "uuid"
+        ]
+      }
+    ]
+  }
+}

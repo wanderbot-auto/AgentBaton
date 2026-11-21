@@ -1,0 +1,702 @@
+{
+  "base": "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28",
+  "target_ref": "origin/collab/host-registration-integration",
+  "target_head": "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28",
+  "tested_head": "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09",
+  "git_tree": "32ddbad7616402e02617d0eb35ca394d34542951",
+  "scope": "10 exact Rust files plus own documents, after written grants",
+  "environment": {
+    "machine": "arm64",
+    "platform": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+    "git": "git version 2.54.0 (Apple Git-157)",
+    "python": "Python 3.14.0a7",
+    "kernel": "25.6.0"
+  },
+  "amendment_receipts": [
+    {
+      "at": "2026-11-18T14:15:01.255160+00:00",
+      "scope": "crates/core/src/factory_history_reads_tests.rs",
+      "base": "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28",
+      "grant": "only two current-factory-history tests at 392 and 480, exact19 positive and exact old15/16/17/18 and future20 negative controls. Keep all rows/events/counters/ownership assertions, no original historical helper inverse changes.",
+      "reason": "Both current positive fixtures open ordinary Store and assert stale18. Direct consequence of six reader gates, no source/DDL reduction.",
+      "before": "1a124c4054aa1c102c12da1dde87119bfe177ae8f2708a905610ce8aabc4f58a",
+      "after": "af4da593fc467cc6f1f5b540aff9752bd763aebfbc552b27624292f0af15940f"
+    },
+    {
+      "at": "2026-11-18T14:16:36.584088+00:00",
+      "target": "host19-core-readers",
+      "fixed_base": "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28",
+      "paths": [
+        "crates/core/tests/integration_ipc.rs",
+        "crates/core/tests/fixtures/integration_runtime.rs"
+      ],
+      "literal grant": [
+        "integration_ipc.rs::Server::image at 64 exact ordinary schema18 positive to19",
+        "fixtures/integration_runtime.rs::readonly at 768 exact ordinary schema18 positive to19"
+      ],
+      "reason": "Both open private current daemon Store, not historic fixtures; independently confirmed 19 versus18 failure in actual_owner_targets_are_bounded_direct_refs_without_durable_or_source_changes",
+      "verification": "Retain first failed log; on fixed source execute the originally failing exact filter and scoped validation, no PR29 workload or budget changes. No other fixture/pin edits.",
+      "claim_before": "af4da593fc467cc6f1f5b540aff9752bd763aebfbc552b27624292f0af15940f",
+      "claim_after": "d30d119d119685610485132fb698b34c8e004cfc7d0d9f33211fca2dfdcc97b9"
+    }
+  ],
+  "source_digests": {
+    "crates/core/src/background_status.rs": "957330d62e98f5246b7a86f3a9b7b105cf976b51e22abcfa1b84af8eeb7e99d7",
+    "crates/core/src/factory_history_reads.rs": "dfa7a18e0b205ca4b978130178f6c2b7e442448ea42e543238935dcc7b3eb557",
+    "crates/core/src/factory_history_reads_tests.rs": "9d10b7a932e6712402a8c0ba145af76b7369f72f19e1a18f040f5537549c3b39",
+    "crates/core/src/factory_reads.rs": "ba3c21e15ea8ada351384b20007943091fde12f774b9bf420ae8b4a9dbd78219",
+    "crates/core/src/integration_fences.rs": "e57c29bd7bcc24f8780e5f002523520c3ef1daa834a8c0b5fd483156400c4a6d",
+    "crates/core/src/integration_reads.rs": "6356d353c042cf308503be8680e58b21e26ba25e80ea5b5232e0afc981e08077",
+    "crates/core/src/integration_targets.rs": "aeb9877b42eab653abb19db44dbd7bf00736758309c7287babb72c2b20f2dbac",
+    "crates/core/tests/fixtures/integration_runtime.rs": "54f86df36fd003889f342e2a3ce08418666370d4f89a817f779e362e07752cd4",
+    "crates/core/tests/host_registration_real_ipc.rs": "0615dfeea15e39c245a76ab78458517010e35c76080de75e0e4f184096ce10e0",
+    "crates/core/tests/integration_ipc.rs": "b46d41dfe615706c6cbb113eee65370a4b08b68ddcc255a875eed34f33973a21"
+  },
+  "fixture": {
+    "host_registration_payload_sha256": "4a7cba703c7db8252649273ddfeca6764efe51526ee3fe4a9eeb625eb891c3d5",
+    "git": "generated local initial commit, ordinary managed worktree, source ref preserved",
+    "database": "private temporary SQLite created by normal Daemon::bind",
+    "live_version_mismatches": [
+      18,
+      20
+    ]
+  },
+  "runs": {
+    "clippy-delivery": {
+      "source": "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09",
+      "commands": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 0.858,
+      "log_sha256": "71924612ef88070fb824b92435f79f60ce475fb6d641f27f777902ec07d8c3d3",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": []
+    },
+    "clippy-final": {
+      "source": "f87296a801800d6de59451e564c27df13cb73dac",
+      "commands": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 5.609,
+      "log_sha256": "0e0bf947b5558aed654d8cae094a34ed1e79d8847080c5bd8194c68ec055d45b",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": []
+    },
+    "factory-final": {
+      "source": "f87296a801800d6de59451e564c27df13cb73dac",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "factory::reads::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 105.4,
+      "log_sha256": "dba08518806793a5000733e23bc6a8e43a1a244faeb8c1064ebfd87954ce6bbc",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 59,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "fmt-delivery": {
+      "source": "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09",
+      "commands": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--check",
+        "crates/core/src/background_status.rs",
+        "crates/core/src/integration_fences.rs",
+        "crates/core/src/integration_targets.rs",
+        "crates/core/src/integration_reads.rs",
+        "crates/core/src/factory_history_reads.rs",
+        "crates/core/src/factory_history_reads_tests.rs",
+        "crates/core/src/factory_reads.rs",
+        "crates/core/tests/host_registration_real_ipc.rs",
+        "crates/core/tests/integration_ipc.rs",
+        "crates/core/tests/fixtures/integration_runtime.rs"
+      ],
+      "exit": 0,
+      "seconds": 0.111,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": []
+    },
+    "fmt-final": {
+      "source": "f87296a801800d6de59451e564c27df13cb73dac",
+      "commands": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--check",
+        "crates/core/src/background_status.rs",
+        "crates/core/src/integration_fences.rs",
+        "crates/core/src/integration_targets.rs",
+        "crates/core/src/integration_reads.rs",
+        "crates/core/src/factory_history_reads.rs",
+        "crates/core/src/factory_history_reads_tests.rs",
+        "crates/core/src/factory_reads.rs",
+        "crates/core/tests/host_registration_real_ipc.rs"
+      ],
+      "exit": 0,
+      "seconds": 0.095,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": []
+    },
+    "integration-auth-final": {
+      "source": "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "unmanaged_targets_and_forged_start_parameters_cannot_create_integration_authority",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.25,
+      "log_sha256": "00949d25727739635778244e186d6c6f2eaef6b135225ecd627f7a82f6b4243e",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "integration-lease-final": {
+      "source": "f87296a801800d6de59451e564c27df13cb73dac",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "existing_schema_lease_expiry_column_is_projected_and_rechecked",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.186,
+      "log_sha256": "576db90f5bd1372f27d62c13b14c9883e0b8cc70e4d880d24cae527e0d93328c",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "integration-targets-final": {
+      "source": "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "actual_owner_targets_are_bounded_direct_refs_without_durable_or_source_changes",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 5.957,
+      "log_sha256": "e4e9af25702c7e25a1f080cc689a0cebdbf2cbd30893793191a1ca09d2689b51",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "legacy-integration-assertion": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "integration_ipc",
+        "actual_owner_targets_are_bounded_direct_refs_without_durable_or_source_changes",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 10.54,
+      "log_sha256": "7de3b3e67a8e59f11670108884f9828af9fe06a31e15a525ed7ad238f01a38fe",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 0,
+          "failed": 1,
+          "ignored": 0
+        }
+      ]
+    },
+    "lib-background": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "background",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 81.886,
+      "log_sha256": "255e60e0c3fba3a233f315046018460a7cef112c17cd4558c78b00d1b6bd6d5a",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "lib-factory-reads": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "factory::reads::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 73.934,
+      "log_sha256": "f74a5b3eeb0e82df5cb8947f690abe8f55e2c0b0ccf472faec8b6d521f255b89",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 57,
+          "failed": 2,
+          "ignored": 0
+        }
+      ]
+    },
+    "lib-host": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "host_registry",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 7.554,
+      "log_sha256": "1441d5976cdd8140a6eeaa961904674cf00a16d32f9e6b9d80adc075e58df667",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 55,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "lib-integration-reads": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--lib",
+        "integration::reads::tests",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 0.19,
+      "log_sha256": "c6e0396f213fbdc5a152bc091724d3ef99c7d68cc82e283841f6282c5b586547",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "scoped-fmt": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "rustfmt",
+        "--edition",
+        "2021",
+        "--config",
+        "skip_children=true",
+        "--check",
+        "crates/core/src/background_status.rs",
+        "crates/core/src/integration_fences.rs",
+        "crates/core/src/integration_targets.rs",
+        "crates/core/src/integration_reads.rs",
+        "crates/core/src/factory_history_reads.rs",
+        "crates/core/src/factory_reads.rs",
+        "crates/core/tests/host_registration_real_ipc.rs"
+      ],
+      "exit": 0,
+      "seconds": 0.117,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": []
+    },
+    "source-pin-dependencies": {
+      "source": "427a9da4097ecb0b33b42836c6672c89d4169d96",
+      "commands": [
+        "env",
+        "PYTHONPATH=tests/infrastructure",
+        "/Users/wander/Documents/code/agentBaton-next/.venv/bin/python",
+        "-m",
+        "unittest",
+        "test_integration_ipc_diagnostics",
+        "test_integration_stage_evidence_source",
+        "test_integration_fixed_script_fixture",
+        "test_integration_drift_ref_preparation"
+      ],
+      "exit": 1,
+      "seconds": 0.167,
+      "log_sha256": "1bdbf1f242626e22ebe86c96b51310e6904e7423da6e8d84b33e1db6beaae263",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": []
+    },
+    "strict-clippy": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--all-targets",
+        "--features",
+        "actual-schema18-migration-tests",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 17.68,
+      "log_sha256": "5a7b63c49f197c6e26156695d25c163ed8d3d486c059d03c9686a5095e702976",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": []
+    },
+    "wire-green": {
+      "source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "host_registration_real_ipc",
+        "--test",
+        "project_ipc",
+        "--test",
+        "ipc",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "seconds": 30.437,
+      "log_sha256": "5a194ce6ec05d251a21ae572dbecf3ee168dda10c3f6d5feb4a9e703d72f9d60",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    "wire-red": {
+      "source": "5cd64202b2f47cd48ffddab7aee7a57b934b4282",
+      "commands": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "agentbaton-core",
+        "--test",
+        "host_registration_real_ipc",
+        "--",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "seconds": 83.451,
+      "log_sha256": "9140e2c3306cc1ef0be507fae0731ff51ca943044bbe56b4c6b9540fa90e3631",
+      "machine": "arm64",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_PROFILE_DEV_DEBUG": "0",
+        "RUST_TEST_THREADS": "1"
+      },
+      "rust_counts": [
+        {
+          "passed": 0,
+          "failed": 3,
+          "ignored": 0
+        }
+      ]
+    }
+  },
+  "compiled_tests": {
+    "target/debug/deps/host_registration_real_ipc-5c4d41059a9b1a73": {
+      "executed_source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "sha256": "d72ee8acf627a3531e41649401f5f5366cbe5ff8c731c472be4b2b5f0e57c67d",
+      "file": "target/debug/deps/host_registration_real_ipc-5c4d41059a9b1a73: Mach-O 64-bit executable arm64"
+    },
+    "target/debug/deps/ipc-85bec660cb692670": {
+      "executed_source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "sha256": "43d0a0f3d6681aaff7fa0a3625a0551f5d9edabad104236eb6430aff5e466453",
+      "file": "target/debug/deps/ipc-85bec660cb692670: Mach-O 64-bit executable arm64"
+    },
+    "target/debug/deps/project_ipc-c9431e7030f518f3": {
+      "executed_source": "26e69d53fdccf31ce27690887b3c156addf94d4d",
+      "sha256": "5001c77cb198bef769582e771093faf3156d2f869ef08ea7837bb2eb4416b525",
+      "file": "target/debug/deps/project_ipc-c9431e7030f518f3: Mach-O 64-bit executable arm64"
+    },
+    "target/debug/deps/agentbaton_core-c788a89c7fe269ab": {
+      "executed_source": "f87296a801800d6de59451e564c27df13cb73dac",
+      "sha256": "bbb32e8db715ef7ef3f2dcec645bb8bfc88539207d3beebaac8b3cc52c913291",
+      "file": "target/debug/deps/agentbaton_core-c788a89c7fe269ab: Mach-O 64-bit executable arm64"
+    },
+    "target/debug/deps/integration_ipc-0069df37e8a368bd": {
+      "executed_source": "56c56e9efda3b7bd7d38d559e8ffb1e9bde2ff09",
+      "sha256": "3a537f68ad5d5f880e80c5c2fe593a6e6a3606fb851caab7d95e1e11f8a1495d",
+      "file": "target/debug/deps/integration_ipc-0069df37e8a368bd: Mach-O 64-bit executable arm64"
+    }
+  },
+  "distinct_rust_passed": 131,
+  "thread_joins_and_socket_removals": 4,
+  "legacy_source_pin_causal_427a": {
+    "base": "a076fc734cffa3f4d90cf5ce45eaf55a2b1c3c28",
+    "source": "427a9da4097ecb0b33b42836c6672c89d4169d96",
+    "dimension": "old exact source pins accept committed predecessor and refuse the two-byte current assertion change",
+    "files": [
+      {
+        "path": "crates/core/tests/integration_ipc.rs",
+        "base_sha256": "58f68b35230b06b2d64f4143fcadeb1d075d2e77c8763c1007e666e738da4199",
+        "current_sha256": "b46d41dfe615706c6cbb113eee65370a4b08b68ddcc255a875eed34f33973a21",
+        "base_old_inverse_output_sha256": "90fe84ccdecccddcdb6b8d0530fcbf29dad8d9390c0ac3bfc7200e93a469aabb",
+        "current_old_inverse_rejection": "exact current schema18 host reader required"
+      },
+      {
+        "path": "crates/core/tests/fixtures/integration_runtime.rs",
+        "base_sha256": "bf9a348a6923432c0ecb66d5fefbe1b40aee9d46729eddddcd62e04079d3d504",
+        "current_sha256": "63153a57111adbb0666d8d181e1c5f46014df45bbc57ff98f6c64760686ff8a6",
+        "base_old_inverse_output_sha256": "149693770c6c6bce56def9b9b8a8fe43f8fc7c0657fb31adef45595b64813e06",
+        "current_old_inverse_rejection": "Unknown drift fixture source"
+      }
+    ]
+  },
+  "legacy_source_pin_final_exact_candidate": [
+    {
+      "path": "crates/core/tests/integration_ipc.rs",
+      "base_sha256": "58f68b35230b06b2d64f4143fcadeb1d075d2e77c8763c1007e666e738da4199",
+      "source_sha256": "b46d41dfe615706c6cbb113eee65370a4b08b68ddcc255a875eed34f33973a21",
+      "exact_old_restored_sha256": "90fe84ccdecccddcdb6b8d0530fcbf29dad8d9390c0ac3bfc7200e93a469aabb",
+      "old_inverse_rejection": "exact current schema18 host reader required"
+    },
+    {
+      "path": "crates/core/tests/fixtures/integration_runtime.rs",
+      "base_sha256": "bf9a348a6923432c0ecb66d5fefbe1b40aee9d46729eddddcd62e04079d3d504",
+      "source_sha256": "54f86df36fd003889f342e2a3ce08418666370d4f89a817f779e362e07752cd4",
+      "exact_old_restored_sha256": "149693770c6c6bce56def9b9b8a8fe43f8fc7c0657fb31adef45595b64813e06",
+      "old_inverse_rejection": "Unknown drift fixture source"
+    }
+  ],
+  "open_dependencies": [
+    "Source-only exact inverse layer for two Integration files. Prior 427a run: 17 passed/15 failed.",
+    "Unclaimed Factory runtime IPC current18 and other old historical fixture consumers."
+  ],
+  "claimed_validation_exclusions": [
+    "full Core or Integration runtime suite",
+    "previous PR29 performance workloads",
+    "current standalone daemon or CLI release binary",
+    "native Tauri or desktop",
+    "CI",
+    "Provider, remote network and user login services"
+  ],
+  "recorded_utc": "2026-11-18T14:22:58.005048+00:00"
+}

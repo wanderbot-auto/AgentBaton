@@ -1,0 +1,529 @@
+{
+  "base_and_build_source": "3d19a89f10756966da9f494f928d6962ad63b20b",
+  "validated_driver_source": "ed26a5f3da080d6bc602a1b785e7102c05b263f6",
+  "source_sha256": {
+    "apps/desktop/tests/data-workspace-real-ipc.py": "78a829f80426980706a8214688f922821a2d592a9636bf8e9f5465da8a352bf1",
+    "apps/desktop/tests/test_data_workspace_schema19.py": "b204715368dcc91864eae312d905ac5dca1bea4d08b3598d1216f4c1fd44d355"
+  },
+  "target_preview": {
+    "target": "9e897d6f6bf0b823e187930fbb84f897be51b89e",
+    "source": "ed26a5f3da080d6bc602a1b785e7102c05b263f6",
+    "tree": "d8bd8bf1978b674beaf2ae6d1dfbc1e3c5f94b61",
+    "no_conflicts": true,
+    "tested_files_and_build_inputs_match": true
+  },
+  "browser_platform": "Apple Silicon macOS 26.6.1 (25G76), browser evidence only",
+  "playwright": "1.62.0",
+  "chromium_revision": 1234,
+  "browser_exit_codes": {
+    "current-audited": 0,
+    "manifest-audited": 0
+  },
+  "browser_runs": {
+    "current-audited": {
+      "status": "passed",
+      "schema_evidence": {
+        "expected": 19,
+        "ipc": {
+          "method": "system.snapshot",
+          "api_version": 1,
+          "database_schema_version": 19
+        },
+        "readonly_sqlite": 19
+      },
+      "source": {
+        "git_head": "ed26a5f3da080d6bc602a1b785e7102c05b263f6",
+        "git_tree": "4f1a872ce1c3f90db50d3bf62ed02edce20b3eff",
+        "tracked_clean": true,
+        "harness_matches_tracked_source": true
+      },
+      "tools": {
+        "batond": {
+          "sha256": "0687bcc8a9c0281418babe70ded82f83571b2d68936182aaf6bad52a336d38e7",
+          "device": 16777234,
+          "inode": 68762202,
+          "bytes": 25072472,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1795025779662454820,
+          "ctime_ns": 1795025779671892295
+        },
+        "python": {
+          "sha256": "6a37ff35c2edec046bd7e5504f4603b93fdbd33166252a324d15b6e41cdd5483",
+          "device": 16777234,
+          "inode": 23206187,
+          "bytes": 49968,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1783393437808296737,
+          "ctime_ns": 1783393437808534318
+        },
+        "baton": {
+          "sha256": "88478b9d15dfd71cc3bb51158979391efe01e49430b27d8f2f71159cc0c80f25",
+          "device": 16777234,
+          "inode": 68762195,
+          "bytes": 1291336,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1795025779609988065,
+          "ctime_ns": 1795025779620971071
+        },
+        "chromium": {
+          "sha256": "a596b1cfc6353e987fcec8d71a23a28cd6a9e7a6b4e20b908e4c4fcffe51158e",
+          "device": 16777234,
+          "inode": 68860202,
+          "bytes": 52112,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1795026150516722857,
+          "ctime_ns": 1795026151654795497,
+          "browser_version": "151.0.7922.34"
+        }
+      },
+      "frontend_assets_sha256": {
+        "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+        "assets/index-Q47YZ8uE.js": "b59f625846822412101c94cd389316f3180002167dd3ceefdfe4defd650cee16",
+        "index.html": "79f813e44000effb31bd7bca00146b246fb39be7c022b3faa1f01e3befb42f90"
+      },
+      "candidate": null,
+      "checks": [
+        {
+          "name": "real UI relative selection and bounded preview show actual hashes/bytes with no copy or source writes",
+          "status": "passed",
+          "preview_id": "6a78d9a3-60fc-46a1-99c9-58fb0ee00ace"
+        },
+        {
+          "name": "HTTP refuses Renderer approval, finalize, generic IPC, execution and arbitrary source/foreign references",
+          "status": "passed"
+        },
+        {
+          "name": "outside-HTTP owner fixture produces actual ready copy, exact inputs bytes/registry identity and unchanged source mtime",
+          "status": "passed"
+        },
+        {
+          "name": "exact-key preview/owner replay and UI readonly history refresh do not create another copy or journal entry",
+          "status": "passed"
+        },
+        {
+          "name": "preview terminal fact retained with no copy; actual dropped-response reconciliation is reported only if exercised",
+          "status": "passed",
+          "requested_through_ui": true,
+          "terminal": "cancelled"
+        },
+        {
+          "name": "actual copy request and persisted completion are reconciled without replay/deletion or inferred legacy join",
+          "status": "passed",
+          "requested_through_ui": true,
+          "terminal": "cancelled",
+          "owned_copy_worker_join_observed": true
+        },
+        {
+          "name": "real invalid-hash preview and post-observation source drift cannot authorize a ready resnapshot or new copy",
+          "status": "passed"
+        },
+        {
+          "name": "private-runtime benign source is rejected before preview persistence; generated sources unchanged and no session/execution occurred",
+          "status": "passed"
+        }
+      ],
+      "cleanup": {
+        "daemon_exit_code": 0,
+        "daemon_forced": false,
+        "http_thread_joined": true
+      },
+      "browser_closed": true,
+      "report": "logs/current-audited/report.json.gz",
+      "no_unrun_cases": true,
+      "preview_cancellation": {
+        "cancel_requested_sequence": 12,
+        "finished_sequence": 13,
+        "terminal_revision": 3,
+        "worker_join_evidence": "preview_finished after thread.join in the pinned Core producer",
+        "stage": "gated_before_scan",
+        "mid_read_cancellation_claimed": false,
+        "OS_process_reap_claimed": false
+      },
+      "copy_cancellation": {
+        "stage": "gated_before_copy",
+        "finished_sequence": 20,
+        "terminal_revision": 3,
+        "worker_joined": true,
+        "original_copy_finished_matched": true,
+        "mid_copy_cancellation_claimed": false,
+        "partial_copy_claimed": false,
+        "OS_process_reap_claimed": false
+      }
+    },
+    "manifest-audited": {
+      "status": "passed",
+      "schema_evidence": {
+        "expected": 19,
+        "ipc": {
+          "method": "system.snapshot",
+          "api_version": 1,
+          "database_schema_version": 19
+        },
+        "readonly_sqlite": 19
+      },
+      "source": {
+        "git_head": "ed26a5f3da080d6bc602a1b785e7102c05b263f6",
+        "git_tree": "4f1a872ce1c3f90db50d3bf62ed02edce20b3eff",
+        "tracked_clean": true,
+        "harness_matches_tracked_source": true
+      },
+      "tools": {
+        "batond": {
+          "sha256": "0687bcc8a9c0281418babe70ded82f83571b2d68936182aaf6bad52a336d38e7",
+          "device": 16777234,
+          "inode": 68762202,
+          "bytes": 25072472,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1795025779662454820,
+          "ctime_ns": 1795025779671892295
+        },
+        "python": {
+          "sha256": "6a37ff35c2edec046bd7e5504f4603b93fdbd33166252a324d15b6e41cdd5483",
+          "device": 16777234,
+          "inode": 23206187,
+          "bytes": 49968,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1783393437808296737,
+          "ctime_ns": 1783393437808534318
+        },
+        "baton": {
+          "sha256": "88478b9d15dfd71cc3bb51158979391efe01e49430b27d8f2f71159cc0c80f25",
+          "device": 16777234,
+          "inode": 68762195,
+          "bytes": 1291336,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1795025779609988065,
+          "ctime_ns": 1795025779620971071
+        },
+        "chromium": {
+          "sha256": "a596b1cfc6353e987fcec8d71a23a28cd6a9e7a6b4e20b908e4c4fcffe51158e",
+          "device": 16777234,
+          "inode": 68860202,
+          "bytes": 52112,
+          "mode": 493,
+          "uid": 501,
+          "mtime_ns": 1795026150516722857,
+          "ctime_ns": 1795026151654795497,
+          "browser_version": "151.0.7922.34"
+        }
+      },
+      "frontend_assets_sha256": {
+        "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+        "assets/index-Q47YZ8uE.js": "b59f625846822412101c94cd389316f3180002167dd3ceefdfe4defd650cee16",
+        "index.html": "79f813e44000effb31bd7bca00146b246fb39be7c022b3faa1f01e3befb42f90"
+      },
+      "candidate": {
+        "manifest_sha256": "9cfc8c94b2b3f26369c8555d6fea58b02b077ab17fdae3825c4da52655303d7b",
+        "schema": 19,
+        "git_head": "3d19a89f10756966da9f494f928d6962ad63b20b",
+        "dirty": false,
+        "git_tree": "6a8262289ce3100878dc49ec15e10a04b954ecbe",
+        "cargo_features_declared": [
+          "agentbaton-core/preview-evidence"
+        ],
+        "matched_core_tools": [
+          "batond",
+          "baton"
+        ],
+        "not_final_review_or_ci_acceptance": true
+      },
+      "checks": [
+        {
+          "name": "real UI relative selection and bounded preview show actual hashes/bytes with no copy or source writes",
+          "status": "passed",
+          "preview_id": "9267b34d-0b5d-40a2-a031-16cc386acf1d"
+        },
+        {
+          "name": "HTTP refuses Renderer approval, finalize, generic IPC, execution and arbitrary source/foreign references",
+          "status": "passed"
+        },
+        {
+          "name": "outside-HTTP owner fixture produces actual ready copy, exact inputs bytes/registry identity and unchanged source mtime",
+          "status": "passed"
+        },
+        {
+          "name": "exact-key preview/owner replay and UI readonly history refresh do not create another copy or journal entry",
+          "status": "passed"
+        },
+        {
+          "name": "preview terminal fact retained with no copy; actual dropped-response reconciliation is reported only if exercised",
+          "status": "passed",
+          "requested_through_ui": true,
+          "terminal": "cancelled"
+        },
+        {
+          "name": "actual copy request and persisted completion are reconciled without replay/deletion or inferred legacy join",
+          "status": "passed",
+          "requested_through_ui": true,
+          "terminal": "cancelled",
+          "owned_copy_worker_join_observed": true
+        },
+        {
+          "name": "real invalid-hash preview and post-observation source drift cannot authorize a ready resnapshot or new copy",
+          "status": "passed"
+        },
+        {
+          "name": "private-runtime benign source is rejected before preview persistence; generated sources unchanged and no session/execution occurred",
+          "status": "passed"
+        }
+      ],
+      "cleanup": {
+        "daemon_exit_code": 0,
+        "daemon_forced": false,
+        "http_thread_joined": true
+      },
+      "browser_closed": true,
+      "report": "logs/manifest-audited/report.json.gz",
+      "no_unrun_cases": true,
+      "preview_cancellation": {
+        "cancel_requested_sequence": 12,
+        "finished_sequence": 13,
+        "terminal_revision": 3,
+        "worker_join_evidence": "preview_finished after thread.join in the pinned Core producer",
+        "stage": "gated_before_scan",
+        "mid_read_cancellation_claimed": false,
+        "OS_process_reap_claimed": false
+      },
+      "copy_cancellation": {
+        "stage": "gated_before_copy",
+        "finished_sequence": 20,
+        "terminal_revision": 3,
+        "worker_joined": true,
+        "original_copy_finished_matched": true,
+        "mid_copy_cancellation_claimed": false,
+        "partial_copy_claimed": false,
+        "OS_process_reap_claimed": false
+      }
+    }
+  },
+  "rejected_actual_manifest_invocations": {
+    "schema18": {
+      "exit_code": 1,
+      "report": "logs/audited-refused-schema18/report.json.gz"
+    },
+    "schema20": {
+      "exit_code": 1,
+      "report": "logs/audited-refused-schema20/report.json.gz"
+    },
+    "bool": {
+      "exit_code": 1,
+      "report": "logs/audited-refused-bool/report.json.gz"
+    },
+    "mixed-tools": {
+      "exit_code": 1,
+      "report": "logs/audited-refused-mixed-tools/report.json.gz"
+    }
+  },
+  "baseline_original_browser": {
+    "exit_code": 1,
+    "failure": "schema18 only guard in database()",
+    "report_archive_member": "original-red/report.json"
+  },
+  "regression": {
+    "data_python": {
+      "exit_code": 0,
+      "ran": 82,
+      "log": "logs/data-tests-audited.log.gz"
+    },
+    "infrastructure_python": {
+      "exit_code": 0,
+      "ran": 978,
+      "skipped": 16,
+      "log": "logs/infrastructure-tests-audited.log.gz"
+    },
+    "desktop_full": {
+      "exit_code": 1,
+      "ran": 171,
+      "failures": 3,
+      "errors": 1,
+      "log": "logs/desktop-tests-audited.log.gz"
+    },
+    "matching_baseline_notifications": {
+      "exit_code": 1,
+      "ran": 13,
+      "failures": 3,
+      "errors": 1,
+      "test_names": [
+        "test_existing_read_allowlist_is_exact_and_rejects_any_write_or_unknown_method",
+        "test_original_authority_boundary_runtime_timeouts_permissions_and_evidence_functions_unchanged",
+        "test_real_projection_and_multiple_mapped_event_references_required",
+        "test_remove_only_optional_probe_statements_restores_entire_original_run_case_ast"
+      ],
+      "log": "logs/notifications-tests-base.log.gz"
+    }
+  },
+  "commands": {
+    "build": "CARGO_NET_OFFLINE=true CARGO_PROFILE_DEV_DEBUG=0 cargo build --locked --offline --bin batond --bin baton --features agentbaton-core/preview-evidence",
+    "frontend": [
+      "npm --prefix apps/desktop ci --offline --no-audit --no-fund",
+      "npm --prefix apps/desktop run build"
+    ],
+    "browser_prefix": "bash scripts/collab.sh run -- env PYTHONDONTWRITEBYTECODE=1 PLAYWRIGHT_BROWSERS_PATH=<task browser directory> (with TMPDIR set to the task BATON_RUNTIME_DIR)",
+    "current": ".venv/bin/python apps/desktop/tests/data-workspace-real-ipc.py --preview-evidence --batond target/debug/batond --frontend apps/desktop/dist --output <current-audited>",
+    "manifest_extra_flags": [
+      "--candidate-manifest",
+      "docs/execution/host19-data-workspace-ci/logs/actual-build-candidate.json"
+    ],
+    "data_tests": ".venv/bin/python -m unittest discover -s apps/desktop/tests -p test_data*.py -v",
+    "infrastructure_tests": "existing repo CPython 3.12 venv with PyYAML 6.0.3 -m unittest discover -s tests/infrastructure -p test_*.py -v"
+  },
+  "unverified": [
+    "hosted Linux UI job",
+    "native macOS WebView or OwnerDialog",
+    "paid Provider/session execution",
+    "shared CI manifest and other consumer adaptations"
+  ],
+  "review": "Independent integration review accepted at f853be6b352ca050ff870de36709d3a594b1229b. All 9 focused schema and cleanup tests passed the independent rerun. The 4 Notification/Integration failures reproduced from both the fixed baseline and the current composition.",
+  "artifact_sha256": {
+    "logs/actual-build-candidate.json": "9cfc8c94b2b3f26369c8555d6fea58b02b077ab17fdae3825c4da52655303d7b",
+    "logs/actual-runs.log.gz": "8f1a6c6b628e3d9ce98006a07c8360c8efcc76906bd15aabac3fec8d4eea62c0",
+    "logs/audited-refused-bool/report.json.gz": "a4f6de6157066009e753c27301a7a903b323aa2e7342cc03cb0c17e1efdbefc0",
+    "logs/audited-refused-bool.log.gz": "64a0aaea373e1bd35c6c2adbef637c79876fc8f920d4bfcb871a85c22935bcfc",
+    "logs/audited-refused-mixed-tools/report.json.gz": "a4f6de6157066009e753c27301a7a903b323aa2e7342cc03cb0c17e1efdbefc0",
+    "logs/audited-refused-mixed-tools.log.gz": "2674967374a8b6d82b5c59657cf5963c313144cc19dcafe4c60d520f01b95ae2",
+    "logs/audited-refused-schema18/report.json.gz": "a4f6de6157066009e753c27301a7a903b323aa2e7342cc03cb0c17e1efdbefc0",
+    "logs/audited-refused-schema18.log.gz": "64a0aaea373e1bd35c6c2adbef637c79876fc8f920d4bfcb871a85c22935bcfc",
+    "logs/audited-refused-schema20/report.json.gz": "a4f6de6157066009e753c27301a7a903b323aa2e7342cc03cb0c17e1efdbefc0",
+    "logs/audited-refused-schema20.log.gz": "64a0aaea373e1bd35c6c2adbef637c79876fc8f920d4bfcb871a85c22935bcfc",
+    "logs/audited-validation.log.gz": "00bb7e87a730e8ae01ff59a317de9d865732d88391b2ad6b30fe392b887887c1",
+    "logs/browser-install-offline.log.gz": "0812bc49011bcc21261a1c4a0d302f797974f27fe6655b90df114824f512fa94",
+    "logs/browser-install.log.gz": "a23e4b21a96310b3e42010583a0e0655cf80171467507730c8ba669ed3bac13d",
+    "logs/build.log.gz": "37dbc79a084517cdfaf19f01aae59b440e3c651da5034ead1ea54a84331baaaa",
+    "logs/chromium-install.log.gz": "148ac8420ba5584fa4e4d309fa64e876e60fef3484e5014d6d9052448c038273",
+    "logs/current-audited/01-real-selected-file-preview.png": "9b5ad1bd370eb82132707641f6c36128c4cde4b78c789afa363d7393e289a4f9",
+    "logs/current-audited/02-real-ready-data-copy.png": "b1949b9e8c07e3032a7318d40f5b90c32ddc7dd06a98aeec5e1457606ea4a4e9",
+    "logs/current-audited/03-real-ready-mobile.png": "bf96e4411c7045633e4300f419872c37944ae74e2f277fedf950288968e620c6",
+    "logs/current-audited/04-real-cancel-response-lost.png": "97e8665234a2caa0464da245738ba2f6892cbde727f355057a426964442efcb6",
+    "logs/current-audited/05-real-copy-terminal-observation.png": "cf22e07e8c43beeeccfe2f4ae50d1f4f1ee1d0a48bc859e43ecbaa2fdb5679b9",
+    "logs/current-audited/06-real-historical-failure-and-drift.png": "4c74c33288ef9bbf2988650feec8f3b70e133080f18f3eb3a7e7cfd64fc7f175",
+    "logs/current-audited/daemon.log.gz": "62a1dff334f68ce674b1ffb3b295a8e3b0c3879d4f0111a9eb47557033b8b7f2",
+    "logs/current-audited/report.json.gz": "9cb981d61b506d0f02048e424edf6db6964e7e07688baecb7edefdd982add228",
+    "logs/current-audited.log.gz": "079e3e619e6b168ee62b54d735622097f652748f8eda75032cafca74447d830e",
+    "logs/current-final.log.gz": "3240dc2ace4ab43f0a054597a343929049a810e4132294a815264895b161747e",
+    "logs/current-matched.log.gz": "2347831a89c8f2bbd03b04a82296be4d93213a02dc316ea04fc00bc5382dff6a",
+    "logs/current.log.gz": "5a7ce926be0aa37db9b4afe7285ff4cd98225fc30f44a311eed41d587f789c4f",
+    "logs/data-tests-audited.log.gz": "5860ef3f2beba3ae5f2d3ffb6a052bf484a6a760a84f3fe0f6dc30a57c7530d1",
+    "logs/data-tests-development.log.gz": "c57514ab3744279fa662314b80c5e0789a80d242e08ab2bc61fb128751dc485d",
+    "logs/data-tests-final.log.gz": "752229fce252e57200302cc19cee87b3d4887b94e18465e7be7e99679b4f8da9",
+    "logs/desktop-tests-audited.log.gz": "ac3cfb9ff7af6c1f7fa171b8cc6831b85e51fbdd8b6ce442f717b4a8b8b786c7",
+    "logs/desktop-tests-final.log.gz": "6719f588bfe3fcde8c142dd085b3e214c017c7dc4ced67ef8f3ba2c429254db9",
+    "logs/desktop-tests.log.gz": "2b0f85e83c4a7ce336657eb16f845daf8216a1d1aa4a1fb0e44c47a665ce1f19",
+    "logs/earlier-browser-runs.tar.gz": "fdbaecade096acf950373cbf70e39ffc71f882f567d635d663cb3eb583f0638c",
+    "logs/final-clean-validation.log.gz": "7384983b447c512bf82775f6cb7a05efb5df29e89613425d07eb63897cc28774",
+    "logs/final-validation.log.gz": "8fb030208d4093ae060c31acb1397f3d34a4180310280864b312d8f6b25c7234",
+    "logs/infrastructure-tests-audited.log.gz": "a51963b7f89eae0a7a3ecb8d5e25e711bdbea942f8a8d7f3ffeb07014920aece",
+    "logs/infrastructure-tests-final.log.gz": "b8c9265421413fd343e267ac36c072257e8c3ffb321343618ca30b998cba98ed",
+    "logs/infrastructure-tests.log.gz": "21c5da1684758903b5e94882394eca17c52b826b4e06f13a07bc7df84d4fda99",
+    "logs/manifest-audited/01-real-selected-file-preview.png": "f9dd0d207b9b0da4b1afdf1776661fd4fa83f6dc9eba5f724752df33a9cd6a19",
+    "logs/manifest-audited/02-real-ready-data-copy.png": "fb68c8575b7e2eabf3cf5d99b079599aa99490c64bec5c8894853abb0d2a6eed",
+    "logs/manifest-audited/03-real-ready-mobile.png": "429a4936dc773f7050101c4e2f422c58945adcfc5dd16cfa9c2e68e82ffcfb37",
+    "logs/manifest-audited/04-real-cancel-response-lost.png": "92999cdd287c35e68e1816007a7e203089fdaf21031a20f34ee124921b1408b3",
+    "logs/manifest-audited/05-real-copy-terminal-observation.png": "d97bfdd0f63901f6d24d6918bf7182c0781a1fe7ef6f216cef17e2db1badbc48",
+    "logs/manifest-audited/06-real-historical-failure-and-drift.png": "1d1dbb727b790dbc31fa377f9312f0046cf6df09e6f1c487089a9f04790f118c",
+    "logs/manifest-audited/daemon.log.gz": "60a08ce2871d114e13867792fd29d5ec7eb5817062b1c3a9b2cf911b52189f07",
+    "logs/manifest-audited/report.json.gz": "2c1eea0eb3a031330fa79941609129ff230fa7910e723353f5299f3fbbe2b708",
+    "logs/manifest-audited.log.gz": "f493507a6cdbaf72596802270fe0b5554521e41defe02297e413fe45cb054f3d",
+    "logs/manifest-final.log.gz": "ccb6eb5c8edff45c7b6093db54c818f2d887a967195bebec12c6457645b0558e",
+    "logs/manifest-matched.log.gz": "d1fb288d3bfc3f03a0624c94a4410f9ce3cbf16847ed8c00eaa59cd0d150e092",
+    "logs/manifest.log.gz": "5a7ce926be0aa37db9b4afe7285ff4cd98225fc30f44a311eed41d587f789c4f",
+    "logs/notifications-tests-base.log.gz": "5de77b542e2a36beb5ede7b12ab14a7352a7b4214d0e1b37eaba98d8b89794cb",
+    "logs/original-red.log.gz": "c8af8b17c00645579f865e1dde86ac3ddb22f6fece281fe38209552ed9d7210e",
+    "logs/refused-bool.log.gz": "e9c0efd5724fa859d8003b82b6f2686845ae4a436c3b368a1f958a4adec858c2",
+    "logs/refused-mixed-tools.log.gz": "96698c1cdd00faede877efc7732c418f2c8059f8446255f357a3175e526e022c",
+    "logs/refused-schema18.log.gz": "e9c0efd5724fa859d8003b82b6f2686845ae4a436c3b368a1f958a4adec858c2",
+    "logs/refused-schema20.log.gz": "e9c0efd5724fa859d8003b82b6f2686845ae4a436c3b368a1f958a4adec858c2",
+    "logs/source-preview.log.gz": "fb3f766466e30467c3290ed507337f9b02da94ac07ad79d16dc5151f633b1f42"
+  },
+  "uncompressed_sha256": {
+    "earlier-browser-runs.tar.gz::original-red/daemon.log": "15f869800865ce619e6b2b773046d66a1f91dc7df427470364ffc79346c2f7b7",
+    "earlier-browser-runs.tar.gz::original-red/failure-current-ui.png": "c96c327c65415f0b6e651f4abea751a672f86273674040d7bfcd055f289fdc09",
+    "earlier-browser-runs.tar.gz::original-red/report.json": "db8d8feedd49e4c6c5ebe3cd4f10ae88db095c72142772de03de7720a8cafd63",
+    "earlier-browser-runs.tar.gz::current-matched/01-real-selected-file-preview.png": "febb0a4b54d43d9800cde13da683ab4b82fe090beaad9a6884b9088d403e1d96",
+    "earlier-browser-runs.tar.gz::current-matched/02-real-ready-data-copy.png": "2c733e4227f4965b80e6b9f99c825f3563018bdd1fe9e0def67fb809ba808c6f",
+    "earlier-browser-runs.tar.gz::current-matched/03-real-ready-mobile.png": "a608368d9614171698fe893ceb1fc04d768e2a61514c12db5b3781ee6a306bf1",
+    "earlier-browser-runs.tar.gz::current-matched/04-real-cancel-response-lost.png": "008eddf0c53bef905185fb85173580180946d0aab3ab7623405bca07d9f89620",
+    "earlier-browser-runs.tar.gz::current-matched/05-real-copy-terminal-observation.png": "ce43f4088997237e1645831c712d5da3a00e0a64bff6b6985543fd9f1080444e",
+    "earlier-browser-runs.tar.gz::current-matched/06-real-historical-failure-and-drift.png": "a32289d1f8068f0a417ed1dbdb9def425a852687a5871c3979c5e28b3ef946dd",
+    "earlier-browser-runs.tar.gz::current-matched/daemon.log": "9d9931be4d15bda8818b08620e0ebace14883b0f9a4e88013ac83bc30f20b9fb",
+    "earlier-browser-runs.tar.gz::current-matched/report.json": "0508de07ac76f99d67501b7383dc4f1d7d88862c984272e138b7881909a628c2",
+    "earlier-browser-runs.tar.gz::manifest-matched/01-real-selected-file-preview.png": "269749f68168b444e556e1bae55879452e7fca92f4fa140d7dfffd7cb253f887",
+    "earlier-browser-runs.tar.gz::manifest-matched/02-real-ready-data-copy.png": "b8cfd30a247c5d1d6a3bae9de5fbfc2f8d9170e8e2f6abe58d9d9817324c7b8a",
+    "earlier-browser-runs.tar.gz::manifest-matched/03-real-ready-mobile.png": "f98802f84c84f08753c5f3733a93132487c006da8f007fc5836799f7af2ef0b1",
+    "earlier-browser-runs.tar.gz::manifest-matched/04-real-cancel-response-lost.png": "7257de7a3496e8672780d716ce49eee5e321b5e2082f06391bd71b8e01c5389f",
+    "earlier-browser-runs.tar.gz::manifest-matched/05-real-copy-terminal-observation.png": "a827d55439e0c34c327241930aba7131416cabefb8c61251f8b987ddf3523bd5",
+    "earlier-browser-runs.tar.gz::manifest-matched/06-real-historical-failure-and-drift.png": "2ef5377c622f13ac72b59ca98410eb81e03eed169182e2ae8d013529c6116858",
+    "earlier-browser-runs.tar.gz::manifest-matched/daemon.log": "f3cd13e3e1f35b6f31947db4eef031e39d73991b9533362df7d75ba1f59e147c",
+    "earlier-browser-runs.tar.gz::manifest-matched/report.json": "2e73da3dbff33e802c36cf885733c42506eca2c941c98082bf491ac9eb0c86da",
+    "earlier-browser-runs.tar.gz::current-final/01-real-selected-file-preview.png": "8a7799e6a4a73e3328f0f111834160495641b9fb41060ce81f3ad80b2ce57c14",
+    "earlier-browser-runs.tar.gz::current-final/02-real-ready-data-copy.png": "8e5018f490c40e9d354eb98c6961c25c461d8b3520e89cd4e1afb68962a1e2c0",
+    "earlier-browser-runs.tar.gz::current-final/03-real-ready-mobile.png": "f06b99ed1adae0613e816253ca605cae14f36929fd09de1c0dd730c1f66859b7",
+    "earlier-browser-runs.tar.gz::current-final/04-real-cancel-response-lost.png": "f90ad60ea4d907e9e735abdffe06a6c8bd105c1c6d319428f85587bb0f93a604",
+    "earlier-browser-runs.tar.gz::current-final/05-real-copy-terminal-observation.png": "3dd677f651ac0c375aa233a0f463263e3d6352ce946b592b752b28dbb1c15409",
+    "earlier-browser-runs.tar.gz::current-final/06-real-historical-failure-and-drift.png": "b100cd805650b0cd4ad4633a4e91f1cc05782903f9fe1e9460264c7dd4ef3ef8",
+    "earlier-browser-runs.tar.gz::current-final/daemon.log": "5fa3d690f217fefb7bcf0210caf4deb3eef30ff70e03a6ed94a5232517e04856",
+    "earlier-browser-runs.tar.gz::current-final/report.json": "a96629c254f4cd519dfcaaa0f4ef9868570f3275ae7b2b55cb7ebd6cd7cf1e10",
+    "earlier-browser-runs.tar.gz::manifest-final/01-real-selected-file-preview.png": "da96915e1570c944e6df131a1086c5b8155e0be82146e77c5a336483214f7c5c",
+    "earlier-browser-runs.tar.gz::manifest-final/02-real-ready-data-copy.png": "7d497648585aa4051df1e8221d3daa8341b693b6db6e6fb859f3ce15c93a4710",
+    "earlier-browser-runs.tar.gz::manifest-final/03-real-ready-mobile.png": "ea44d4c36a5ca60a144441951d144c29c86df1412febe7d653618bd431dee0d8",
+    "earlier-browser-runs.tar.gz::manifest-final/04-real-cancel-response-lost.png": "47068172efe21447f4ac31ca99a67c6c860961449a2dc8deaa20663a461cfcde",
+    "earlier-browser-runs.tar.gz::manifest-final/05-real-copy-terminal-observation.png": "7133ac821fc061123e4466a67adcbea0979c3b46881dfacd4a41d3083e81b9d8",
+    "earlier-browser-runs.tar.gz::manifest-final/06-real-historical-failure-and-drift.png": "03f82cc5a19d61de6368c58ef88808871c23e3dcfb6f397c39d59641a31fc176",
+    "earlier-browser-runs.tar.gz::manifest-final/daemon.log": "efe3a2cc9b7310c0da2fb835166005b075ef1c043969aae88d07506ff0082de3",
+    "earlier-browser-runs.tar.gz::manifest-final/report.json": "4bc6c713c43339f26ce2fe2302371734ddaa4e0e59050b48f6f42f689a4a13b3",
+    "earlier-browser-runs.tar.gz::refused-schema18/report.json": "dbceeda92b4dd977a626509c55de537bd5994b367e33ad54fe86c8f4bf6f2d7d",
+    "earlier-browser-runs.tar.gz::refused-schema20/report.json": "dbceeda92b4dd977a626509c55de537bd5994b367e33ad54fe86c8f4bf6f2d7d",
+    "earlier-browser-runs.tar.gz::refused-bool/report.json": "dbceeda92b4dd977a626509c55de537bd5994b367e33ad54fe86c8f4bf6f2d7d",
+    "earlier-browser-runs.tar.gz::refused-mixed-tools/report.json": "dbceeda92b4dd977a626509c55de537bd5994b367e33ad54fe86c8f4bf6f2d7d",
+    "logs/actual-runs.log.gz": "4b8c1066adae1ee855219ffdafeec2590000fd7cc0ec0c7b4581e029d8e3849e",
+    "logs/audited-refused-bool/report.json.gz": "b589571ca76f39c490b25ef1b7497381a90ed3f77d0232b3c14e38d178bf8136",
+    "logs/audited-refused-bool.log.gz": "a7b26ac6ef429d8cd830bbf18382ff342c761d82a70d272c96358efa5960ee34",
+    "logs/audited-refused-mixed-tools/report.json.gz": "b589571ca76f39c490b25ef1b7497381a90ed3f77d0232b3c14e38d178bf8136",
+    "logs/audited-refused-mixed-tools.log.gz": "58c9e31e5cfc17d93c52033d64d292ad15294ec0c1b2332ac82c50d9c0919064",
+    "logs/audited-refused-schema18/report.json.gz": "b589571ca76f39c490b25ef1b7497381a90ed3f77d0232b3c14e38d178bf8136",
+    "logs/audited-refused-schema18.log.gz": "a7b26ac6ef429d8cd830bbf18382ff342c761d82a70d272c96358efa5960ee34",
+    "logs/audited-refused-schema20/report.json.gz": "b589571ca76f39c490b25ef1b7497381a90ed3f77d0232b3c14e38d178bf8136",
+    "logs/audited-refused-schema20.log.gz": "a7b26ac6ef429d8cd830bbf18382ff342c761d82a70d272c96358efa5960ee34",
+    "logs/audited-validation.log.gz": "a298f39b9e0b167509da785bb6a3fe4c069555ce70b9fd350070971069dcaa52",
+    "logs/browser-install-offline.log.gz": "ce5a15c6714743b65df0ed8680dde7dd602453b392428ecea2a92417798c9472",
+    "logs/browser-install.log.gz": "aee20722dba9e8563ea980349b522b07885ccd14c59008e88f1e575644916f34",
+    "logs/build.log.gz": "7fdd22a4ad51ef7a2c3781e49ad23215fbd8a9233483a142104fe1b2cfb46f82",
+    "logs/chromium-install.log.gz": "7813c5d49914b75c384ddbc98c4ce74ee596167b5280efce8c16bfd8473b6d53",
+    "logs/current-audited/daemon.log.gz": "c479ff6e793c385611b06606c277253e6bbee49cc4f3fa9c377ec40a7132c9d4",
+    "logs/current-audited/report.json.gz": "8d69181e25de258ef611c8cc067d0f9222cb236b50da161bb505b7736a58e857",
+    "logs/current-audited.log.gz": "6394f686df084beb3e823e8d6bd42d5bfad6a0554c57684352e8f9a80d73bdbc",
+    "logs/current-final.log.gz": "373a885f956db707510261438d8b90deedb37502e409cd306730fa9594c2b2a2",
+    "logs/current-matched.log.gz": "4427839708f385db34bfacf118aac12195e26c8a01c0ffde8ff56dc9a4fc8aa9",
+    "logs/current.log.gz": "1bd92645b65f3ff7ef29bd5be6845af16e6a9117d916efb58f8c2d2246ecfbcf",
+    "logs/data-tests-audited.log.gz": "936e5559b970953574fd5e5987d53ab9c3c211675ec706b30d0568bc1f37e291",
+    "logs/data-tests-development.log.gz": "7efc607e0458538380878d5f4589cd7216a26f119feaca8314f64b3863272848",
+    "logs/data-tests-final.log.gz": "4ca144ec992c02f5de7ac1b350b6742414f27d1ac5f81e5b63e7b1de71610943",
+    "logs/desktop-tests-audited.log.gz": "4542326ef950d1c4d678243b4466f2f52d13c9e1003f723e064cf832fcf9406d",
+    "logs/desktop-tests-final.log.gz": "4b9d735ae386c4a8ae6c18f00759b33237ae35cdaf9418f90d8195b60d04df70",
+    "logs/desktop-tests.log.gz": "d9e3cb0d7b01f8171cfbf80731f97af4b606c9cd2b9b6d32bd8753c8b8e3d86f",
+    "logs/final-clean-validation.log.gz": "af4b2bb78316ad9c65434c69f37b5947789e42b81258dc7c50c9a8c3c71af6b4",
+    "logs/final-validation.log.gz": "29a27d7de798d47ab89fa595fa6f54f7df82503f0670a42d76094ba0e6b82fec",
+    "logs/infrastructure-tests-audited.log.gz": "95b03e203777056006f77490714abfad31e730fe5e1fad36a6bb75909bd30e98",
+    "logs/infrastructure-tests-final.log.gz": "c93ad53941bc0ee0365a9bd877c18f467e6a59d0b0b5f67aa46bb7eb70d4a061",
+    "logs/infrastructure-tests.log.gz": "bac708374df91f9f394b8e682e2d5cb5c7db754a12ada78d26c0724acb9723ff",
+    "logs/manifest-audited/daemon.log.gz": "6e161ccf534d4476885603131742d27d051bb968cef98e2c1fb3b983020b6344",
+    "logs/manifest-audited/report.json.gz": "4813cd1c93d8a6d30f427fc20e58d87f81c210dc1f1472301d6937912265c1db",
+    "logs/manifest-audited.log.gz": "029df3e44293547ffb41e25e6f0a83baaa0fa998359cd4feac07fe309479f526",
+    "logs/manifest-final.log.gz": "3f852ecc7690a1f3e112431919f7114c5ee26d227c040e553d8e5993a880a3ca",
+    "logs/manifest-matched.log.gz": "932e4a823d8c1b472370762e825b6fbed00a01b2636ce92b3e3aadd4df1282e2",
+    "logs/manifest.log.gz": "1bd92645b65f3ff7ef29bd5be6845af16e6a9117d916efb58f8c2d2246ecfbcf",
+    "logs/notifications-tests-base.log.gz": "0294ae2ecd6c1844acc44fb5ff6d20140ac389e1636bec9c1c4f90c81154179b",
+    "logs/original-red.log.gz": "f55ac7ea5c4e3793019c5baeeaf6d48f92ccf9b0edc031d244194ef705fc1396",
+    "logs/refused-bool.log.gz": "e2c0723f331bf087eb0eca9fbfe40f5b55a9c91acb219c692d76f481a588a738",
+    "logs/refused-mixed-tools.log.gz": "2ea5a4ccff9c2c19cdeb20240a97e10ef01de23b39e92e99231d78300b5b6b68",
+    "logs/refused-schema18.log.gz": "e2c0723f331bf087eb0eca9fbfe40f5b55a9c91acb219c692d76f481a588a738",
+    "logs/refused-schema20.log.gz": "e2c0723f331bf087eb0eca9fbfe40f5b55a9c91acb219c692d76f481a588a738",
+    "logs/source-preview.log.gz": "fc8629adfa4388f010dcde73096afbfa3671f29013ad66c57f1a07cc5b8bce36"
+  }
+}

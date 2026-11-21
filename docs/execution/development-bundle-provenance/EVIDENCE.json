@@ -1,0 +1,118 @@
+{
+  "requirements": [
+    "AB-REL-004",
+    "AB-EXT-006"
+  ],
+  "scope": "arm64_development_bundle_read_only_provenance",
+  "base": "01019c140cd04c88c9be9252edd9caf5b924063f",
+  "base_tree": "8f68704e961a0cf2a1cf53e5eee15c25e37ffc35",
+  "tested_code": "459f2ae0c4c6b4e6fc8bdd84291eaa09b07e0513",
+  "tested_code_tree": "abe704a569ea869a6ab7415b26aceed9107f050d",
+  "environment": {
+    "machine": "arm64",
+    "macos": "26.6.1",
+    "python": "3.14.0a7",
+    "clang": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
+    "node": "v26.7.0",
+    "vite": "8.3.5"
+  },
+  "historical_bundle": {
+    "artifact_id": 14350183579,
+    "run_id": 44122458362,
+    "job_id": 134177203395,
+    "archive_sha256": "cbed165a62710d1d302f3ab28cc3e6e12165d270f9c14ff858d6e93ac00b99e0",
+    "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f",
+    "source_commit": "df35231eab29aa2d4a043fd9be60888504507716",
+    "source_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+    "target": "aarch64-apple-darwin",
+    "files_match_prior_independent_audit": true,
+    "verified_static_link_attribution": "unknown",
+    "verified_embedded_web_attribution": "unknown",
+    "codesign_strict_exit": {
+      "desktop": 1,
+      "cli": 0,
+      "daemon": 0
+    },
+    "desktop_codesign_strict_result": "code has no resources but signature indicates they must be present"
+  },
+  "actual_isolated_fixture": {
+    "fixture_commit": "1d1c35dc7301e0811d0126ce41fa861aaeca4585",
+    "fixture_tree": "e0d4bac964ce9d4c816407c5cffa8504cf5d6c8b",
+    "archive_sha256": "6512eef12475345c2a0d9919ba14f1b41cc8599f78c4d7c5b85d9377f699f5e8",
+    "dmg_sha256": "54f02ddc37f889f97103e46988bd424f4bdf14ad4901bab34b78ddda3fbc508b",
+    "external_receipt_sha256": "ba951fe5587a90ca6942fd552485a8fb82a79c7a06ec3df3e289be7201456b4e",
+    "arch": "arm64",
+    "provenance": "generated_clang_and_vite_inputs",
+    "linker_receipt_sha256": "6682e60eb567d4e309ccb390880396552ecb1fe49c6949921ef63a0f965ac6ac",
+    "web_module_receipt_sha256": "d40bb2412745a131f94012bb70691b46a145448d9754fed06f418b4ad2b4febb",
+    "embedded_asset_sha256": "76a67f3aa924a49ff7b8b3b0337332a995e5ced573f875b23537c4fff1b21752",
+    "embedded_exact_offset": 16384,
+    "carrier_sha256": "b782379282da96517bdedffda0231ac904c1600ef37cd1776b8cac60915f6183",
+    "observed_modules": 2,
+    "source_scope": "fixture only; private archives and linked file remain in task runtime"
+  },
+  "validation": {
+    "targeted_tests_passed": 13,
+    "native_negative_fixtures": [
+      {
+        "case": "corrupt",
+        "exit": 1,
+        "report_bytes": 0,
+        "reason": "archive SHA-256 mismatch"
+      },
+      {
+        "case": "mixed_commit",
+        "exit": 1,
+        "report_bytes": 0,
+        "reason": "build record commit mismatch"
+      },
+      {
+        "case": "reused_receipt",
+        "exit": 1,
+        "report_bytes": 0,
+        "reason": "receipt package identity mismatch"
+      },
+      {
+        "case": "wrong_arch",
+        "exit": 1,
+        "report_bytes": 0,
+        "reason": "expected a thin ARM64 Mach-O executable"
+      }
+    ],
+    "commands": [
+      "python3 -m unittest discover -s tests/infrastructure -p test_record_development_bundle_provenance.py -v",
+      "python3 scripts/record-development-bundle-provenance.py --archive <pinned archive> --expected-archive-sha256 <trusted SHA-256> --expected-commit <build Git SHA>",
+      "bash docs/execution/development-bundle-provenance/replay-receipts.sh <private fixture directory> <locked Vite install>",
+      "bash docs/execution/development-bundle-provenance/replay-native-negatives.sh <fixture> <history archive> <private output>",
+      "codesign --verify --strict <actual historical executable>",
+      "git diff --check; scripts/collab.sh scope"
+    ]
+  },
+  "pending": [
+    "Full product rebuild with trusted per-asset and per-linker receipts",
+    "Verified archive-bound tests, notarization, publisher trust and Gatekeeper installation",
+    "Final license attribution and Owner approval"
+  ],
+  "evidence_sha256": {
+    "CHECKPOINT.md": "9deaaaf56a792157cf0b6ba40fdfd7a6b6ec248eaa15deef8d3c4a4b55b88f0e",
+    "PLAN.md": "e92a63070e6ec928bf4372e3fb2b67fe1e00df68efc69e72caf12493809c57d5",
+    "PROGRESS.md": "4484062219e55ac02b076b3a1f000aac7db47fea9e0ff72d44f4b6419b47d763",
+    "REPRODUCE.md": "8a4d973b2aa46f2ae5f0ddc5fb9165e5edfc19a5d8ebb328539d5b65dafded77",
+    "observations/code.txt": "a575123d04278b8b6255735a40c7d79d511e6f205cbb391141fc39d7dcb95de1",
+    "observations/detach.log": "7a042615bf3722a3771413c5ae0834a1153311a88abad4deef4d8ad80a5c7273",
+    "observations/fixture/desktop.map": "6682e60eb567d4e309ccb390880396552ecb1fe49c6949921ef63a0f965ac6ac",
+    "observations/fixture/dmg-build.log": "5ff82d2c75a3f6ccc8cfd787a4071c901338b4ac931328b93b7f6c3cd705c123",
+    "observations/fixture/fixture-digests.json": "8df9a41c3a59189f94037b94ae8f91a5639014cc8d65c3d593570cf44c85423b",
+    "observations/fixture/fixture-web.js": "76a67f3aa924a49ff7b8b3b0337332a995e5ced573f875b23537c4fff1b21752",
+    "observations/fixture/receipt.json": "ba951fe5587a90ca6942fd552485a8fb82a79c7a06ec3df3e289be7201456b4e",
+    "observations/fixture/vite.log": "3106ed961183a89b8d19bda40de76f088f3a11e80d699edd0abefd9858f47d42",
+    "observations/fixture/web-record.json": "d40bb2412745a131f94012bb70691b46a145448d9754fed06f418b4ad2b4febb",
+    "observations/fixture-report.json": "740be77626ceba16c42ad4d4e5f55f6277c7da24570b135917382a9bf0e9956b",
+    "observations/historical-report.json": "4810360bfe04799ab607b252b9b62783a349c458a4595726611889918078aa80",
+    "observations/native-negatives.log": "9478c1e00f852ee1540c65c7755f3a7afb08f135084b9b413cc9e9b01089f2a5",
+    "observations/signature-checks.log": "21517c93dcdee98c112ff631d5e18b1c1dc017120eba86acebd566555a1a0374",
+    "observations/targeted.log": "cfe7bec6c2bc29d7c5742c0de1ebf4e5f4172ec01a11504ab755b4d30e1df0e2",
+    "replay-native-negatives.sh": "d281fcf04040592437ad57b9c2cb433ce361b0e8d13885366393a604780d960f",
+    "replay-receipts.sh": "0332438fdf61ffaeb5b8c601291accb657d5dd845aa2f61b1f10f0868993c086"
+  }
+}

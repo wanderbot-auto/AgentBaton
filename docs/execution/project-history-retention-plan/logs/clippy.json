@@ -1,0 +1,23 @@
+{
+  "source": "c7e672cd2d92edfa232656c0cab1328aff86565f",
+  "command": [
+    "cargo",
+    "clippy",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--test",
+    "history_retention",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit": 0,
+  "seconds": 12.605,
+  "log_sha256": "66f43142d3b031674cad36d2ec6ce4775723ba4492580bd8b9857dfb4b79c46e",
+  "env": {
+    "CARGO_BUILD_JOBS": "3",
+    "CARGO_PROFILE_DEV_DEBUG": "0"
+  }
+}

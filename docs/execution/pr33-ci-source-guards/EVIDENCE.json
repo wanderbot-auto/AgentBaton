@@ -1,0 +1,82 @@
+{
+  "integration_base": "9e3add27c37f4022dcd2517ab9d1c9cc8f3e9102",
+  "guard_base": "7c269ebf1d122a8b02541da894d0655b88b6756c",
+  "frozen_candidate": {
+    "commit": "32950beb9c8a297a80d19474c00a2a501180c01e",
+    "tree": "7ad0888e659a8a24323f81957413dd173d316609"
+  },
+  "tested_guard_source": {
+    "commit": "7f9191345bf55cafd62c543934f55692d7992fe3",
+    "tree": "b5d7fba659e6dbd30ef91120271083fa15958f04"
+  },
+  "private_combination": {
+    "commit": "2be2089c4ad07b2f3129b459ee6291324894efbc",
+    "tree": "a1c2b70b8040b7bdf83be79c2f5305013276cff2",
+    "parents": [
+      "32950beb9c8a297a80d19474c00a2a501180c01e",
+      "7f9191345bf55cafd62c543934f55692d7992fe3"
+    ],
+    "tracked_clean": true,
+    "workflows_identical_to_frozen_candidate": true
+  },
+  "workflow_sha256": {
+    "product.yml": {
+      "frozen_candidate_sha256": "854c9502d344002ff81535d62a002c9af63c96dbb5d01ea167c7724699f39b57",
+      "previous_sha256": "80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c"
+    },
+    "environment-preflight.yml": {
+      "frozen_candidate_sha256": "182627a83a2adcf60ab27109c8f7ad6e112d079a8b6812e52bce5a27a4b47855",
+      "previous_sha256": "182627a83a2adcf60ab27109c8f7ad6e112d079a8b6812e52bce5a27a4b47855"
+    }
+  },
+  "retained_original_failure": {
+    "commit": "cf609efced9714c238b10893689939c211c72003",
+    "path": "docs/execution/pr33-ci-deadline-partition/original-guards.log.gz",
+    "compressed_sha256": "f2d08d5348557de01a72d0adcc4c7f6f116ccb441bacc78461a923603a8c61b4",
+    "selected_tests": 80,
+    "failures": 28,
+    "errors": 16
+  },
+  "environment": {
+    "kernel": "Darwin 25.6.0 arm64",
+    "macos": "26.6.1",
+    "python": "Python 3.14.0a7",
+    "git": "git version 2.54.0 (Apple Git-157)"
+  },
+  "verification": {
+    "focused": {
+      "exit": 0,
+      "passed": 90,
+      "seconds": 7.516
+    },
+    "full_infrastructure": {
+      "exit": 0,
+      "total": 1122,
+      "passed": 1106,
+      "skipped": 16,
+      "seconds": 106.895
+    },
+    "validator": {
+      "status": "passed",
+      "scope": "static_infrastructure_only",
+      "workflow_files": 2,
+      "pinned_action_references": 18,
+      "remote_ci_executed": false,
+      "product_development_authorized": true,
+      "product_tests_executed": false
+    },
+    "commands": "RUN.md"
+  },
+  "logs_sha256": {
+    "refs.txt": "6e76e2b51a89889f4f358763a053ff49c227f06c2163aa2bd4a6d308ae011488",
+    "exits.txt": "3eacfe2ff75a3074e47f714a2c173296afd11bebc42fcf9519ed179374721965",
+    "focused.log": "17edfbc880482bf56b1e82262231f4586c68aedc06d47a4d69e53c710ff08827",
+    "validator.log": "d9ddbfd8b035ed10215a8254f9435814c96a1d017966d798fa310e8eb22ab7c6",
+    "infrastructure.log": "900351b3bd31b62c5b87754efa2b32eda4eb1f546a0193be982423904fd5a4e2",
+    "tracked-status.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limits": [
+    "local source, shell and inline receipt controls with synthetic GitHub metadata and actual private Git",
+    "hosted scheduler behavior, original Native and package jobs, and final PR check conclusions not exercised"
+  ]
+}

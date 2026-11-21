@@ -1,0 +1,160 @@
+{
+  "requirement": "AB-REL-003",
+  "base": "c7dffe2ce7f3544e41fb4e2d93f816e536448754",
+  "prior_delivery": {
+    "head": "c7f27b0eb8283911438b2de8478513e6c63a204d",
+    "tree": "31db1a818911f12569a7485e43fa783a344228df"
+  },
+  "tested_source": {
+    "head": "bb9703e120a14954f7fafff38d66cd65d66967fe",
+    "tree": "1adee98779232099b7060b3187b235426f5bedcb"
+  },
+  "original_composition_failure": {
+    "head_prefix": "28525378",
+    "cases": 1060,
+    "local_reproduction": {
+      "path": "logs/split/baseline-guard.log.gz",
+      "sha256": "c43f2cb8021ee92860641ea0e81906cb73377974f1c6e15d64fc63c3d34df14d"
+    },
+    "composed_console": {
+      "path": "logs/split/python.log.gz",
+      "sha256": "b40475864e39ba66b99dac5dfe524a5f34ada72c7d4a9b546e2c80ef87735ddb"
+    }
+  },
+  "restored_legacy": {
+    "path": "scripts/native-audit-release.sh",
+    "sha256": "372ebc9860d2ecc1f529f5f089b877cf3bc0d8d68459ebf1d663af09933b99a5",
+    "unchanged_mode_and_git_blob": true
+  },
+  "compatibility": {
+    "whole_source_guard_unchanged": true,
+    "ci_workflow_unchanged": true,
+    "bundle_script": "scripts/native-audit-release-bundle.sh",
+    "legacy_invocation": [
+      "bash",
+      "scripts/native-audit-release.sh",
+      "<executable>"
+    ],
+    "bundle_invocation": [
+      "bash",
+      "scripts/native-audit-release-bundle.sh",
+      "--bundle",
+      "<AgentBaton.app>",
+      "--sha256-manifest",
+      "<expected-digests>"
+    ],
+    "marker_reuse": "The guarded legacy audit checks the complete printable-string snapshot of each verified executable."
+  },
+  "checks": {
+    "guard": {
+      "exit": 0,
+      "cases": 12,
+      "skipped": 0,
+      "log": {
+        "path": "logs/split/guard.log.gz",
+        "sha256": "eaf3013bbaa1cf70ca63f135b4d4d969e88b948daf8a4232d16e97e1e104abe4"
+      }
+    },
+    "focused": {
+      "exit": 0,
+      "cases": 22,
+      "skipped": 0,
+      "log": {
+        "path": "logs/split/focused.log.gz",
+        "sha256": "a0b116b74cf7f29e49fa33bf7784cbc996c89741a07028fa286b4a94059d8e2f"
+      }
+    },
+    "ci-contract": {
+      "exit": 0,
+      "cases": 18,
+      "skipped": 0,
+      "log": {
+        "path": "logs/split/ci-contract.log.gz",
+        "sha256": "b350495318dcf1362dde950d1bc4afd8f220793909532b94893e60e283af19af"
+      }
+    },
+    "python-full": {
+      "exit": 0,
+      "cases": 1048,
+      "skipped": 16,
+      "log": {
+        "path": "logs/split/python-full.log.gz",
+        "sha256": "9088ae5d50626d316c7a1a4eb7dc7845cd278ced6e32ec9ac6e9368eae72bb21"
+      }
+    },
+    "linux-unit": {
+      "exit": 0,
+      "cases": 22,
+      "skipped": 0,
+      "log": {
+        "path": "logs/split/linux-unit.log.gz",
+        "sha256": "704c5c3f1c2ca01d6d024de0ce7e4487c8136f231d0f43d9643455253584da5e"
+      }
+    }
+  },
+  "historical": {
+    "artifact_id": 14350183579,
+    "build_head": "df35231eab29aa2d4a043fd9be60888504507716",
+    "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f",
+    "bundle_exit": 0,
+    "legacy_exit": 0,
+    "readonly": true,
+    "detached": true,
+    "negative_missing_exit": 1,
+    "negative_mixed_exit": 1,
+    "original_and_post_check_snapshots_equal": true,
+    "logs": [
+      {
+        "path": "logs/split/candidate-attach.log.gz",
+        "sha256": "ad9b358a4b0e376c430959186bef8093c6cd29cb399fe4ac8ed18cef3cf96a0f"
+      },
+      {
+        "path": "logs/split/candidate-detach.log.gz",
+        "sha256": "a8b61537b3498a3141e8068f4098e9bb6548236f7844dd97bf006093a704b3af"
+      },
+      {
+        "path": "logs/split/candidate-mount-mode.gz",
+        "sha256": "35b814d09a27c961ae007b5072af6ee38f3bda3f46583b6779fb032f0354ee4b"
+      },
+      {
+        "path": "logs/split/historical-candidate.log.gz",
+        "sha256": "3f343695f50251ae9e6c01835e7f32a7b06bf418c61648be4e0682c025b142c4"
+      },
+      {
+        "path": "logs/split/historical-legacy.log.gz",
+        "sha256": "ff4e894592fa46d0ba0a79880879546ccff15de58eb80bcbbb860592a3c18634"
+      },
+      {
+        "path": "logs/split/historical-shadow-restored.log.gz",
+        "sha256": "3f343695f50251ae9e6c01835e7f32a7b06bf418c61648be4e0682c025b142c4"
+      },
+      {
+        "path": "logs/split/historic-missing-batond.log.gz",
+        "sha256": "16880a5f3e6efe02b3fbfda191b8282f77ba62acee0fa0841b9b056660174b14"
+      },
+      {
+        "path": "logs/split/historic-mixed-sidecar.log.gz",
+        "sha256": "7a35abffa29588959796acad81c39913b22b3b5e6808c8390179f8a5eb6c89a9"
+      }
+    ],
+    "manifest": {
+      "path": "logs/split/historical-executables.sha256",
+      "sha256": "d899341cdcb16fb4898413b7f6069a1cc0f837424cc313aacbd1db42c226a36f"
+    },
+    "snapshots": [
+      {
+        "path": "logs/split/historical-app-before.json",
+        "sha256": "7968750d11ecfcd5ff32c96f4f7c622d0c218bba803fbe5674aae25673c33b54"
+      },
+      {
+        "path": "logs/split/historical-app-after.json",
+        "sha256": "7968750d11ecfcd5ff32c96f4f7c622d0c218bba803fbe5674aae25673c33b54"
+      },
+      {
+        "path": "logs/split/historical-app-after-negatives.json",
+        "sha256": "7968750d11ecfcd5ff32c96f4f7c622d0c218bba803fbe5674aae25673c33b54"
+      }
+    ]
+  },
+  "tested_scope": "Only known native test-entry markers and the three pinned executables in the historical bundle."
+}

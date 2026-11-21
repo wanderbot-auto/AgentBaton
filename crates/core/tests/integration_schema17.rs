@@ -1,7 +1,9 @@
-//! Store18 persistence with exact Integration17 predecessor contract. Synthetic malformed predecessors below are
+//! Store19 persistence with exact Integration17 predecessor contract. Synthetic malformed predecessors below are
 //! negatives only; genuine source16 data is tested by integration_actual16_migration.
 //! Opaque compatibility inputs below are controlled generated schema16/17 inputs,
 //! never claimed as genuine historical producers.
+#[path = "fixtures/schema19_integration_schema17.rs"]
+mod current19;
 #[path = "fixtures/pre_factory_schema.rs"]
 pub mod pre_factory_schema;
 use agentbaton_core::storage::Store;
@@ -112,13 +114,14 @@ fn fixture() -> (Retained, PathBuf) {
     );
     (Retained(Some(root)), path)
 }
-fn backups(root: &Path) -> Vec<PathBuf> {
+fn backups(root: &Path, version: u32) -> Vec<PathBuf> {
+    let prefix = format!("state.pre-v{version}-");
     let mut result: Vec<_> = fs::read_dir(root)
         .unwrap()
         .map(|e| e.unwrap().path())
         .filter(|p| {
             let name = p.file_name().unwrap().to_string_lossy();
-            name.starts_with("state.pre-v18-") && name.ends_with(".sqlite3")
+            name.starts_with(&prefix) && name.ends_with(".sqlite3")
         })
         .collect();
     result.sort();
@@ -129,7 +132,8 @@ fn zero_authority(store: &Store, db: &Connection) {
         serde_json::to_value(store.integration_record_counts().unwrap()).unwrap(),
         json!({"policies":0,"runs":0,"attempts":0,"ref_fences":0})
     );
-    for table in NEW_TABLES.into_iter().chain([
+    use pre_factory_schema::pre_conversation_schema::CONVERSATION18_TABLES;
+    for table in NEW_TABLES.into_iter().chain(CONVERSATION18_TABLES).chain([
         "approval_proposals",
         "execution_grants",
         "sessions",
@@ -138,6 +142,7 @@ fn zero_authority(store: &Store, db: &Connection) {
         "goal_runs",
         "factory_scopes",
         "factory_runs",
+        "host_registrations",
     ]) {
         let count: i64 = db
             .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r.get(0))
@@ -150,8 +155,15 @@ fn zero_authority(store: &Store, db: &Connection) {
         .exists([])
         .unwrap());
 }
-fn preserved_backup(before: &Image, root: &Path) {
-    let copies = backups(root);
+fn no_backups(root: &Path) {
+    assert!(fs::read_dir(root)
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name())
+        .all(|name| !name.to_string_lossy().starts_with("state.pre-v")));
+}
+
+fn preserved_backup(before: &Image, root: &Path, version: u32) {
+    let copies = backups(root, version);
     assert_eq!(copies.len(), 1);
     let metadata = fs::symlink_metadata(&copies[0]).unwrap();
     assert!(metadata.is_file() && !metadata.file_type().is_symlink());
@@ -167,7 +179,7 @@ fn preserved_backup(before: &Image, root: &Path) {
 }
 
 #[test]
-fn fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_rows() {
+fn fresh_store19_is_additive_empty_authority_and_reopen_preserves_real_store_rows() {
     let (root, path) = fixture();
     let mut store = Store::open(&path).unwrap();
     let task = store
@@ -175,8 +187,9 @@ fn fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_row
         .unwrap();
     assert!(task.code_workspace_binding.is_none());
     let before = image(&ro(&path));
-    assert_eq!(before.version, 18);
-    assert_eq!(before.rows.len(), 63); // complete55 + four Integration17 + four Conversation18 tables
+    assert_eq!(before.version, 19);
+    assert_eq!(before.rows.len(), 64); // complete55 + four Integration17 + four Conversation18 + Host19
+    assert_eq!(current19::without_host19(image(&ro(&path))).rows.len(), 63);
     zero_authority(&store, &ro(&path));
     drop(store);
     let reopened = Store::open(&path).unwrap();
@@ -189,38 +202,64 @@ fn fresh_store18_is_additive_empty_authority_and_reopen_preserves_real_store_row
         "Reopen rewrote persisted history"
     );
     zero_authority(&reopened, &ro(&path));
-    assert!(backups(root.path()).is_empty());
+    no_backups(root.path());
 }
 
 #[test]
-fn future19_refuses_before_backup_or_recovery_with_committed_wal_preserved() {
+fn historical_store18_open_rejects_future19_before_backup_or_recovery_and_preserves_wal() {
     let (root, path) = fixture();
     drop(Store::open(&path).unwrap());
     let keeper = Connection::open(&path).unwrap();
-    keeper.execute_batch("PRAGMA wal_autocheckpoint=0; CREATE TABLE future_private(bytes BLOB); INSERT INTO future_private VALUES(x'00ff0123'); PRAGMA user_version=19;").unwrap();
-    let wal = path.with_file_name("state.sqlite3-wal");
-    let before = image(&keeper);
-    let raw = fs::read(&path).unwrap();
-    let wal_raw = fs::read(&wal).unwrap();
-    assert!(wal_raw.len() > 32);
-    assert_eq!(
-        Store::open(&path).err().unwrap().code,
-        "VERSION_UNSUPPORTED"
-    );
-    assert!(before == image(&keeper));
-    assert_eq!(fs::read(&path).unwrap(), raw);
-    assert_eq!(fs::read(&wal).unwrap(), wal_raw);
-    assert!(backups(root.path()).is_empty());
+    current19::pre_host_schema::remove_empty_host19(&keeper).unwrap();
+    assert_eq!(current19::historical_open_version(&path).unwrap(), 18);
+    assert_future_version_rejected(root.path(), &path, &keeper, 19, |path| {
+        current19::historical_open_version(path).unwrap_err()
+    });
 }
 
 #[test]
-fn corrupt_non_sqlite_input_is_not_replaced_by_a_fresh_empty18_database() {
+fn current_store19_open_rejects_future20_before_backup_or_recovery_and_preserves_wal() {
+    let (root, path) = fixture();
+    drop(Store::open(&path).unwrap());
+    let keeper = Connection::open(&path).unwrap();
+    assert_eq!(image(&keeper).version, 19);
+    assert_future_version_rejected(root.path(), &path, &keeper, 20, |path| {
+        Store::open(path).err().unwrap()
+    });
+}
+
+fn assert_future_version_rejected(
+    root: &Path,
+    path: &Path,
+    keeper: &Connection,
+    future: u32,
+    open: impl FnOnce(&Path) -> agentbaton_core::CoreError,
+) {
+    keeper.execute_batch("PRAGMA wal_autocheckpoint=0; CREATE TABLE future_private(bytes BLOB); INSERT INTO future_private VALUES(x'00ff0123');").unwrap();
+    keeper.pragma_update(None, "user_version", future).unwrap();
+    let wal = path.with_file_name("state.sqlite3-wal");
+    let before = image(keeper);
+    assert_eq!(before.version, future);
+    let raw = fs::read(path).unwrap();
+    let wal_raw = fs::read(&wal).unwrap();
+    assert!(wal_raw.len() > 32);
+    let error = open(path);
+    assert_eq!(error.code, "VERSION_UNSUPPORTED");
+    assert_eq!(error.message, "Database was created by a newer application");
+    assert!(before == image(keeper));
+    assert_eq!(fs::read(path).unwrap(), raw);
+    assert_eq!(fs::read(&wal).unwrap(), wal_raw);
+    no_backups(root);
+}
+
+#[test]
+fn corrupt_non_sqlite_input_is_not_replaced_by_a_fresh_empty_database() {
     let (root, path) = fixture();
     let original = b"This is retained invalid SQLite input.\0\xff";
     fs::write(&path, original).unwrap();
     assert!(Store::open(&path).is_err());
     assert_eq!(fs::read(&path).unwrap(), original);
-    assert!(backups(root.path()).is_empty());
+    no_backups(root.path());
 }
 
 #[test]
@@ -237,7 +276,8 @@ fn synthetic_incomplete_label16_refuses_without_committing_partial17_authority()
         "Malformed predecessor partially migrated"
     );
     assert_eq!(fs::read(&path).unwrap(), raw);
-    preserved_backup(&before, root.path());
+    preserved_backup(&before, root.path(), 18);
+    preserved_backup(&before, root.path(), 19);
 }
 
 #[test]
@@ -267,11 +307,12 @@ fn synthetic_late_ddl_conflict_rolls_back_all_prior17_ddl_version_and_wal_bytes(
     ] {
         assert!(!image(&keeper).rows.contains_key(name));
     }
-    preserved_backup(&before, root.path());
+    preserved_backup(&before, root.path(), 18);
+    preserved_backup(&before, root.path(), 19);
 }
 
 // These are generated test-only inverses, never genuine historical producers.
-fn empty_current_fixture() -> (Retained, PathBuf, Connection) {
+fn empty_schema18_fixture() -> (Retained, PathBuf, Connection) {
     let (root, path) = fixture();
     let mut store = Store::open(&path).unwrap();
     store
@@ -289,10 +330,12 @@ fn empty_current_fixture() -> (Retained, PathBuf, Connection) {
     db.execute("UPDATE tasks SET document=?1", [&pretty])
         .unwrap();
     db.pragma_update(None, "foreign_keys", true).unwrap();
+    current19::pre_host_schema::remove_empty_host19(&db).unwrap();
+    pre_factory_schema::pre_integration_schema::verify_empty_integration17_current18(&db).unwrap();
     (root, path, db)
 }
 fn empty_schema17_fixture() -> (Retained, PathBuf, Connection) {
-    let (root, path, db) = empty_current_fixture();
+    let (root, path, db) = empty_schema18_fixture();
     pre_factory_schema::pre_conversation_schema::remove_empty_conversation18(&db).unwrap();
     (root, path, db)
 }
@@ -347,9 +390,16 @@ fn controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_th
     assert!(db.is_autocommit());
     drop(db);
     let store = Store::open(&path).unwrap();
-    let db = ro(&path);
+    let db = Connection::open(&path).unwrap();
+    let known18 = current19::without_host19(image(&db));
+    zero_authority(&store, &db);
+    drop(store);
+    let before_host_inverse = inverse_settings(&db);
+    current19::pre_host_schema::remove_empty_host19(&db).unwrap();
     let restored = image(&db);
     assert_eq!(restored.version, 18);
+    assert!(known18.schema == restored.schema && known18.rows == restored.rows);
+    assert_eq!(inverse_settings(&db), before_host_inverse);
     assert!(
         restored
             .schema
@@ -374,8 +424,8 @@ fn controlled_empty17_inverse_preserves_all_predecessor_rows_and_exact_schema_th
         "known synthetic16 roundtrip preserves all raw rows and original DDL"
     );
     pre_factory_schema::pre_conversation_schema::verify_empty_conversation18(&db).unwrap();
-    assert_eq!(store.integration_record_counts().unwrap().policies, 0);
-    assert_eq!(backups(root.path()).len(), 1);
+    preserved_backup(&after, root.path(), 18);
+    preserved_backup(&after, root.path(), 19);
 }
 #[test]
 fn controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_dependencies() {
@@ -383,7 +433,7 @@ fn controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_
         remove_empty_integration17, INTEGRATION17_TABLES,
     };
     let mut variants: Vec<(String, String)> = vec![];
-    for version in [0, 15, 16, 18] {
+    for version in [0, 15, 16, 18, 19] {
         variants.push((
             format!("version{version}"),
             format!("PRAGMA user_version={version};"),
@@ -456,7 +506,7 @@ fn controlled_empty17_inverse_refuses_wrong_version_changed_domain_and_incoming_
 }
 #[test]
 fn controlled_current18_then_original_factory_inverse_keeps_one_rollback_boundary() {
-    let (_root, path, db) = empty_current_fixture();
+    let (_root, path, db) = empty_schema18_fixture();
     db.execute_batch(
         "CREATE TABLE fixture_caller_collision(sentinel TEXT);PRAGMA wal_checkpoint(TRUNCATE);",
     )
@@ -503,7 +553,7 @@ fn controlled_current18_then_original_factory_inverse_keeps_one_rollback_boundar
     assert!(exact_collision);
     assert!(
         image(&db) == before,
-        "caller failure must restore17, every Integration object and old raw history"
+        "caller failure must restore schema18, every Integration object and old raw history"
     );
     assert_eq!(inverse_settings(&db), settings);
     assert!(fs::read(&path).unwrap() == main);
@@ -553,7 +603,7 @@ fn controlled_empty17_inverse_preserves_unrelated_unknown_schema_and_typed_bytes
 }
 
 #[test]
-fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen() {
+fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backups_and19_reopen() {
     use pre_factory_schema::pre_integration_schema::remove_empty_integration17;
     let (root, path, db) = empty_schema17_fixture();
     remove_empty_integration17(&db).unwrap();
@@ -574,8 +624,8 @@ fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen(
     drop(db);
     let store = Store::open(&path).unwrap();
     let after = image(&ro(&path));
-    assert_eq!(after.version, 18);
-    let old_schema: Schema = after
+    let known18 = current19::without_host19(image(&ro(&path)));
+    let old_schema: Schema = known18
         .schema
         .iter()
         .filter(|row| {
@@ -585,7 +635,7 @@ fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen(
         })
         .cloned()
         .collect();
-    let old_rows: BTreeMap<_, _> = after
+    let old_rows: BTreeMap<_, _> = known18
         .rows
         .iter()
         .filter(|(name, _)| {
@@ -597,8 +647,10 @@ fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen(
         .collect();
     assert!(before.schema == old_schema && before.rows == old_rows);
     zero_authority(&store, &ro(&path));
-    preserved_backup(&before, root.path());
-    let backup_raw = fs::read(&backups(root.path())[0]).unwrap();
+    preserved_backup(&before, root.path(), 18);
+    preserved_backup(&before, root.path(), 19);
+    let backup18 = fs::read(&backups(root.path(), 18)[0]).unwrap();
+    let backup19 = fs::read(&backups(root.path(), 19)[0]).unwrap();
     drop(store);
     let reopened = Store::open(&path).unwrap();
     assert!(
@@ -606,8 +658,11 @@ fn controlled16_opaque_blob_and_own_indexes_survive_upgrade_backup_and18_reopen(
         "reopen changed opaque or known history"
     );
     zero_authority(&reopened, &ro(&path));
-    assert_eq!(backups(root.path()).len(), 1);
-    assert_eq!(fs::read(&backups(root.path())[0]).unwrap(), backup_raw);
+    for (version, retained) in [(18, backup18), (19, backup19)] {
+        let copies = backups(root.path(), version);
+        assert_eq!(copies.len(), 1);
+        assert_eq!(fs::read(&copies[0]).unwrap(), retained);
+    }
 }
 
 #[test]
@@ -669,7 +724,8 @@ fn opaque_compatibility_never_substitutes_for_known_objects_or_accepts_dependenc
                 wal_raw,
                 "WAL rollback version{version}:{variant}"
             );
-            preserved_backup(&before, root.path());
+            preserved_backup(&before, root.path(), 18);
+            preserved_backup(&before, root.path(), 19);
         }
     }
 }
@@ -706,8 +762,8 @@ fn opaque_virtual_and_shadow_tables_are_refused_before_rows_are_evaluated() {
             .map(Result::unwrap)
             .collect();
         assert!(schema == after);
-        {
-            let copies = backups(root.path());
+        for target in [18, 19] {
+            let copies = backups(root.path(), target);
             assert_eq!(copies.len(), 1);
             let backup = ro(&copies[0]);
             assert_eq!(
@@ -753,7 +809,8 @@ fn opaque16_at_object_budget_refuses_additive17_overflow_atomically() {
     assert!(before == image(&db));
     assert_eq!(fs::read(&path).unwrap(), raw);
     assert_eq!(fs::read(&wal).unwrap(), wal_raw);
-    preserved_backup(&before, root.path());
+    preserved_backup(&before, root.path(), 18);
+    preserved_backup(&before, root.path(), 19);
 }
 
 #[test]
@@ -779,6 +836,7 @@ fn opaque_named_pragma_table_list_cannot_forge_virtual_or_shadow_table_metadata(
         assert!(before == image(&db));
         assert_eq!(fs::read(&path).unwrap(), raw);
         assert_eq!(fs::read(&wal).unwrap(), wal_raw);
-        preserved_backup(&before, root.path());
+        preserved_backup(&before, root.path(), 18);
+        preserved_backup(&before, root.path(), 19);
     }
 }

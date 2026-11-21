@@ -1,0 +1,136 @@
+   Compiling agentbaton-core v0.1.0 (/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-pragma-compat/crates/core)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 51.85s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-3e149a5721946c12)
+
+running 42 tests
+test host_registry_migration::tests::broken_old_foreign_keys_and_corrupt_database_are_not_empty_proof ... {"case":"broken_old_fk","logical_after_sha256":"17473f7d4b757f3a584854daa4c4494055501780f45eb7402d7eb90206d222f9","logical_before_sha256":"17473f7d4b757f3a584854daa4c4494055501780f45eb7402d7eb90206d222f9","logical_equal":true}
+ok
+test host_registry_migration::tests::current19_readonly_proof_and_atomic_original18_17_16_composition ... {"case":"current19_pure_readonly","logical_after_sha256":"02207853034358430fddb35b70888f85f3eb911604c3cdb0e8ce44fce3d40215","logical_before_sha256":"02207853034358430fddb35b70888f85f3eb911604c3cdb0e8ce44fce3d40215","logical_equal":true}
+{"case":"late_inverse_caller_failure_rolls_back19","logical_after_sha256":"02207853034358430fddb35b70888f85f3eb911604c3cdb0e8ce44fce3d40215","logical_before_sha256":"02207853034358430fddb35b70888f85f3eb911604c3cdb0e8ce44fce3d40215","logical_equal":true}
+ok
+test host_registry_migration::tests::host_ddl_index_fk_and_constraint_mutations_refuse_idempotence_and_inverse ... {"case":"changed_host_ddl","logical_after_sha256":"13ee5173dabd5031f9f361af588508ce23f2f690f560d0b97776e4140b841444","logical_before_sha256":"13ee5173dabd5031f9f361af588508ce23f2f690f560d0b97776e4140b841444","logical_equal":true}
+{"case":"changed_host_inverse_ddl","logical_after_sha256":"13ee5173dabd5031f9f361af588508ce23f2f690f560d0b97776e4140b841444","logical_before_sha256":"13ee5173dabd5031f9f361af588508ce23f2f690f560d0b97776e4140b841444","logical_equal":true}
+{"case":"changed_host_ddl","logical_after_sha256":"5ca76b0e6eace863930511711536946898926927a6ace5dc66ddcd344bc1ee0e","logical_before_sha256":"5ca76b0e6eace863930511711536946898926927a6ace5dc66ddcd344bc1ee0e","logical_equal":true}
+{"case":"changed_host_inverse_ddl","logical_after_sha256":"5ca76b0e6eace863930511711536946898926927a6ace5dc66ddcd344bc1ee0e","logical_before_sha256":"5ca76b0e6eace863930511711536946898926927a6ace5dc66ddcd344bc1ee0e","logical_equal":true}
+{"case":"changed_host_ddl","logical_after_sha256":"7ecda159d66cc78d0292665a0e3b7b670749ad845926e540c59b46656b47f646","logical_before_sha256":"7ecda159d66cc78d0292665a0e3b7b670749ad845926e540c59b46656b47f646","logical_equal":true}
+{"case":"changed_host_inverse_ddl","logical_after_sha256":"7ecda159d66cc78d0292665a0e3b7b670749ad845926e540c59b46656b47f646","logical_before_sha256":"7ecda159d66cc78d0292665a0e3b7b670749ad845926e540c59b46656b47f646","logical_equal":true}
+{"case":"changed_host_ddl","logical_after_sha256":"d6d1f88a04810ec89d7a0ad06a3d706e4de56bc7b197447a5ee5400b2029f017","logical_before_sha256":"d6d1f88a04810ec89d7a0ad06a3d706e4de56bc7b197447a5ee5400b2029f017","logical_equal":true}
+{"case":"changed_host_inverse_ddl","logical_after_sha256":"d6d1f88a04810ec89d7a0ad06a3d706e4de56bc7b197447a5ee5400b2029f017","logical_before_sha256":"d6d1f88a04810ec89d7a0ad06a3d706e4de56bc7b197447a5ee5400b2029f017","logical_equal":true}
+{"case":"changed_host_ddl","logical_after_sha256":"c18c0c9b38130722ce4405abe8e15a7e3954b803d90069a1d1c772a1a83f8451","logical_before_sha256":"c18c0c9b38130722ce4405abe8e15a7e3954b803d90069a1d1c772a1a83f8451","logical_equal":true}
+{"case":"changed_host_inverse_ddl","logical_after_sha256":"c18c0c9b38130722ce4405abe8e15a7e3954b803d90069a1d1c772a1a83f8451","logical_before_sha256":"c18c0c9b38130722ce4405abe8e15a7e3954b803d90069a1d1c772a1a83f8451","logical_equal":true}
+{"case":"changed_host_ddl","logical_after_sha256":"3b1736aef2f3f58e2185823f586f2a1a75ad3ef7d909d476a9c8a3540a1510b5","logical_before_sha256":"3b1736aef2f3f58e2185823f586f2a1a75ad3ef7d909d476a9c8a3540a1510b5","logical_equal":true}
+{"case":"changed_host_inverse_ddl","logical_after_sha256":"3b1736aef2f3f58e2185823f586f2a1a75ad3ef7d909d476a9c8a3540a1510b5","logical_before_sha256":"3b1736aef2f3f58e2185823f586f2a1a75ad3ef7d909d476a9c8a3540a1510b5","logical_equal":true}
+{"case":"DROP INDEX host_registrations_name_id","logical_after_sha256":"73a5017a605fc664db872983c17a2dc4f034b0e91503258d7f88f68f6b0e5e17","logical_before_sha256":"73a5017a605fc664db872983c17a2dc4f034b0e91503258d7f88f68f6b0e5e17","logical_equal":true}
+{"case":"DROP TABLE host_registrations","logical_after_sha256":"7d6cc9af145c2f84c60b5a8eae638a797365dd145b7c951f93518fac00d3bc04","logical_before_sha256":"7d6cc9af145c2f84c60b5a8eae638a797365dd145b7c951f93518fac00d3bc04","logical_equal":true}
+ok
+test host_registry_migration::tests::inverse_checks_row_and_byte_bounds_without_silent_truncation ... {"case":"oversized_event","logical_after_sha256":"90972ffeb66fdc2c18ee5b6f414e714a68e878a6dc9dd4907f2e2dda3885abee","logical_before_sha256":"90972ffeb66fdc2c18ee5b6f414e714a68e878a6dc9dd4907f2e2dda3885abee","logical_equal":true}
+{"case":"namespace_row_bound","logical_after_sha256":"9886534785519af2ecf588d771a94c172170acb6aaf746373b1765da7cf0d80a","logical_before_sha256":"9886534785519af2ecf588d771a94c172170acb6aaf746373b1765da7cf0d80a","logical_equal":true}
+ok
+test host_registry_migration::tests::inverse_refuses_every_missing_or_duplicated_event_outer_field ... {"case":"event_outer_sequence_missing","logical_after_sha256":"714e7fe8cf0e497f2c66f17b8997feade58da04243ab07fbe79059d52a30ae61","logical_before_sha256":"714e7fe8cf0e497f2c66f17b8997feade58da04243ab07fbe79059d52a30ae61","logical_equal":true}
+{"case":"event_outer_sequence_duplicate","logical_after_sha256":"63021f399c441b6f45651fb79b03f8b9e9e5c4edf160fed731fd4fb28c0ffa69","logical_before_sha256":"63021f399c441b6f45651fb79b03f8b9e9e5c4edf160fed731fd4fb28c0ffa69","logical_equal":true}
+{"case":"event_outer_event_id_missing","logical_after_sha256":"219823479e49c48cdd88e3bc389929c38cd1a5fa3b3aca21e005fae41c1778f6","logical_before_sha256":"219823479e49c48cdd88e3bc389929c38cd1a5fa3b3aca21e005fae41c1778f6","logical_equal":true}
+{"case":"event_outer_event_id_duplicate","logical_after_sha256":"b0d6d9350ee6240671b62ae0bcdf11277455319500fdfbc0b1c80fd37370fb90","logical_before_sha256":"b0d6d9350ee6240671b62ae0bcdf11277455319500fdfbc0b1c80fd37370fb90","logical_equal":true}
+{"case":"event_outer_aggregate_id_missing","logical_after_sha256":"4f7e6bbe892804f124d54cfc4e15b5969bad994126dc50f4b8a08ddb0159fea7","logical_before_sha256":"4f7e6bbe892804f124d54cfc4e15b5969bad994126dc50f4b8a08ddb0159fea7","logical_equal":true}
+{"case":"event_outer_aggregate_id_duplicate","logical_after_sha256":"77241caa1a6afc9b44bb816e34d3355175d5f3cf96b743b002298a667e7ada54","logical_before_sha256":"77241caa1a6afc9b44bb816e34d3355175d5f3cf96b743b002298a667e7ada54","logical_equal":true}
+{"case":"event_outer_revision_missing","logical_after_sha256":"4e6b814ad8af410511617157bb1478eb1dc2e69e6f9656901d656e24fe00c0e0","logical_before_sha256":"4e6b814ad8af410511617157bb1478eb1dc2e69e6f9656901d656e24fe00c0e0","logical_equal":true}
+{"case":"event_outer_revision_duplicate","logical_after_sha256":"cabfe5bf43d57abd3446dae06cef2afcfb0a53ecb61ffeac3a1d331f4feaff9c","logical_before_sha256":"cabfe5bf43d57abd3446dae06cef2afcfb0a53ecb61ffeac3a1d331f4feaff9c","logical_equal":true}
+{"case":"event_outer_kind_missing","logical_after_sha256":"a1640bcf4aeb6018d8a9b43d45064917cb3a50a4326e96e1b60148cd22fc737b","logical_before_sha256":"a1640bcf4aeb6018d8a9b43d45064917cb3a50a4326e96e1b60148cd22fc737b","logical_equal":true}
+{"case":"event_outer_kind_duplicate","logical_after_sha256":"fa1aed46f667b130771ec5bfa6313251915212361375b4638ac01c2cb27ab341","logical_before_sha256":"fa1aed46f667b130771ec5bfa6313251915212361375b4638ac01c2cb27ab341","logical_equal":true}
+{"case":"event_outer_occurred_at_missing","logical_after_sha256":"5f8898c52c78686c12163f192928448434987bb7b91365d45d12aeca1891fac0","logical_before_sha256":"5f8898c52c78686c12163f192928448434987bb7b91365d45d12aeca1891fac0","logical_equal":true}
+{"case":"event_outer_occurred_at_duplicate","logical_after_sha256":"7f72011b17372d73a6517ce492f0cff8e30c9d114dddb6badfefea2d93530648","logical_before_sha256":"7f72011b17372d73a6517ce492f0cff8e30c9d114dddb6badfefea2d93530648","logical_equal":true}
+{"case":"event_outer_payload_missing","logical_after_sha256":"3414a3e6c00397fe95c39cba0cef260989955e50fb87639852da15ee10cb9a76","logical_before_sha256":"3414a3e6c00397fe95c39cba0cef260989955e50fb87639852da15ee10cb9a76","logical_equal":true}
+{"case":"event_outer_payload_duplicate","logical_after_sha256":"fde2226d05ae4755f68b21570cac171eb5fab5322480174ab781acf5981a01e4","logical_before_sha256":"fde2226d05ae4755f68b21570cac171eb5fab5322480174ab781acf5981a01e4","logical_equal":true}
+{"case":"event_outer_source_missing","logical_after_sha256":"5647b0b0365d4d2ae1ab73f739c64ae3c4825619f6b44e98ee865aa001cda903","logical_before_sha256":"5647b0b0365d4d2ae1ab73f739c64ae3c4825619f6b44e98ee865aa001cda903","logical_equal":true}
+{"case":"event_outer_source_duplicate","logical_after_sha256":"4d5a1cb132907dfbb4d374c5e07f4a56d62aec29bdd6c82589856e5334264d34","logical_before_sha256":"4d5a1cb132907dfbb4d374c5e07f4a56d62aec29bdd6c82589856e5334264d34","logical_equal":true}
+{"case":"event_unknown_outer","logical_after_sha256":"bbe674c69427081874ddfc761fce5547a09dadf9e16d749e480ae3fa584afce7","logical_before_sha256":"bbe674c69427081874ddfc761fce5547a09dadf9e16d749e480ae3fa584afce7","logical_equal":true}
+ok
+test host_registry_migration::tests::inverse_refuses_orphan_unknown_and_malformed_host_event_receipt_evidence ... {"case":"host.registered","logical_after_sha256":"a0d4853974beb43a6cc9b5fb2342068f8d8735cf825ab30d771b1ead511102dc","logical_before_sha256":"a0d4853974beb43a6cc9b5fb2342068f8d8735cf825ab30d771b1ead511102dc","logical_equal":true}
+{"case":"host.future.v2","logical_after_sha256":"2fbfdd27fde6b4081e34571b93828a438ae96ef1e38a61be14829260fa89e70c","logical_before_sha256":"2fbfdd27fde6b4081e34571b93828a438ae96ef1e38a61be14829260fa89e70c","logical_equal":true}
+{"case":"HOST.future","logical_after_sha256":"645259aeaea51c6130bf9818c907836d3c39ec525c5aa5efaf605ef94dc299da","logical_before_sha256":"645259aeaea51c6130bf9818c907836d3c39ec525c5aa5efaf605ef94dc299da","logical_equal":true}
+{"case":"hosts.registered","logical_after_sha256":"8372e6178ce7e0c4896f10e9b4fb2db6e6a8be6d9177746ef4880d20272849d6","logical_before_sha256":"8372e6178ce7e0c4896f10e9b4fb2db6e6a8be6d9177746ef4880d20272849d6","logical_equal":true}
+{"case":"host","logical_after_sha256":"81c5b4ab46f25abe616b999a982fdb6e69d98e8f32fef2d80bc347401184b05b","logical_before_sha256":"81c5b4ab46f25abe616b999a982fdb6e69d98e8f32fef2d80bc347401184b05b","logical_equal":true}
+{"case":"hosts.register:v1","logical_after_sha256":"5cb4ab9bb7af7b86532d74ecfd2b394bd40431494c40e65d237d4f5ca991b67f","logical_before_sha256":"5cb4ab9bb7af7b86532d74ecfd2b394bd40431494c40e65d237d4f5ca991b67f","logical_equal":true}
+{"case":"hosts.register:v2","logical_after_sha256":"d052d28f63dac309037ae70a0b6d51c347cc844dac427467979dcbb931b694ec","logical_before_sha256":"d052d28f63dac309037ae70a0b6d51c347cc844dac427467979dcbb931b694ec","logical_equal":true}
+{"case":"HOSTS.future","logical_after_sha256":"bd77af22477c807d273cfd9e885a16373557bb14224b230c846d6a654292e10f","logical_before_sha256":"bd77af22477c807d273cfd9e885a16373557bb14224b230c846d6a654292e10f","logical_equal":true}
+{"case":"host.unknown","logical_after_sha256":"4a003387b29fc2303b0720132ddb49bff117c4402f8cce22da031aba42a7173a","logical_before_sha256":"4a003387b29fc2303b0720132ddb49bff117c4402f8cce22da031aba42a7173a","logical_equal":true}
+{"case":"malformed_event_classification","logical_after_sha256":"c42cfd75b6f39739518b426d5176b0269d2778b04a96521730a3fb6a9eb4cdce","logical_before_sha256":"c42cfd75b6f39739518b426d5176b0269d2778b04a96521730a3fb6a9eb4cdce","logical_equal":true}
+{"case":"malformed_event_classification","logical_after_sha256":"b144f01235d3c1b71e4da0ca9b75f782493d26ad5165ebee74deb70b703cd682","logical_before_sha256":"b144f01235d3c1b71e4da0ca9b75f782493d26ad5165ebee74deb70b703cd682","logical_equal":true}
+{"case":"malformed_event_classification","logical_after_sha256":"c3323927fb7fd978b0d24acb95b5113add2f3dff37bda09447c47c51a004d4e3","logical_before_sha256":"c3323927fb7fd978b0d24acb95b5113add2f3dff37bda09447c47c51a004d4e3","logical_equal":true}
+{"case":"malformed_event_classification","logical_after_sha256":"34874872e186dd59ea60a15026f4de7b19107edd69566caad8048eb4cdf9d78c","logical_before_sha256":"34874872e186dd59ea60a15026f4de7b19107edd69566caad8048eb4cdf9d78c","logical_equal":true}
+{"case":"malformed_event_classification","logical_after_sha256":"457a7bf4dbce6c2216e28b95a6dedefc166585acba75d728c6e6bd301e4b35de","logical_before_sha256":"457a7bf4dbce6c2216e28b95a6dedefc166585acba75d728c6e6bd301e4b35de","logical_equal":true}
+ok
+test host_registry_migration::tests::inverse_refuses_unknown_extensions_dependencies_and_mixed_versions ... {"case":"CREATE TABLE host_future(raw BLOB)","logical_after_sha256":"b2990c36179d86f1796ac2526d9790ff58504c89c8b1f141189e9f1aabe9243b","logical_before_sha256":"b2990c36179d86f1796ac2526d9790ff58504c89c8b1f141189e9f1aabe9243b","logical_equal":true}
+{"case":"CREATE TABLE unrelated_sentinel(raw BLOB)","logical_after_sha256":"3cab4f6c1ac7766ea746d00fdcb0334d9c00ba59efdae16b80e74d11a1506206","logical_before_sha256":"3cab4f6c1ac7766ea746d00fdcb0334d9c00ba59efdae16b80e74d11a1506206","logical_equal":true}
+{"case":"CREATE TABLE dependent(id TEXT,host TEXT REFERENCES host_registrations(id))","logical_after_sha256":"ff355f1c2af2b079e9a65c40a1dc7ed83d988319a9ade2dd58888844f05e1ede","logical_before_sha256":"ff355f1c2af2b079e9a65c40a1dc7ed83d988319a9ade2dd58888844f05e1ede","logical_equal":true}
+{"case":"CREATE INDEX extra_host_index ON host_registrations(name)","logical_after_sha256":"d5668f73bf1de15e8a8229cf9b2684ff4178f68cec2df1ca98c11478ae0ac01b","logical_before_sha256":"d5668f73bf1de15e8a8229cf9b2684ff4178f68cec2df1ca98c11478ae0ac01b","logical_equal":true}
+{"case":"CREATE VIEW external_dependency AS SELECT * FROM host_registrations","logical_after_sha256":"49923b63f1f1faa656ac5f99dcb9463a9f45b1697b79f8a5d8cefdc117a6ba1b","logical_before_sha256":"49923b63f1f1faa656ac5f99dcb9463a9f45b1697b79f8a5d8cefdc117a6ba1b","logical_equal":true}
+{"case":"CREATE TRIGGER external_dependency AFTER INSERT ON host_registrations BEGIN SELECT 1; END","logical_after_sha256":"a7121618d39389deb93feb036f68f8b3fc10987353b70ef6d133272577f01fb6","logical_before_sha256":"a7121618d39389deb93feb036f68f8b3fc10987353b70ef6d133272577f01fb6","logical_equal":true}
+{"case":"CREATE TEMP VIEW hidden_dependency AS SELECT * FROM main.host_registrations","logical_after_sha256":"8bc095582ff16c476050b37ab535bc3042dd1270267207072c3c154bff07070a","logical_before_sha256":"8bc095582ff16c476050b37ab535bc3042dd1270267207072c3c154bff07070a","logical_equal":true}
+{"case":"ATTACH DATABASE ':memory:' AS unrecognized","logical_after_sha256":"72750d26bcd12e5c8b2265e8419541766c0f02420b33f45d47a9a3bd5c58d96d","logical_before_sha256":"72750d26bcd12e5c8b2265e8419541766c0f02420b33f45d47a9a3bd5c58d96d","logical_equal":true}
+{"case":"PRAGMA user_version=18","logical_after_sha256":"fe0c4c6bd330ccae057b4a68ba2635c8cf7c2fdc1169d6520ec029ddf06bc1dd","logical_before_sha256":"fe0c4c6bd330ccae057b4a68ba2635c8cf7c2fdc1169d6520ec029ddf06bc1dd","logical_equal":true}
+{"case":"PRAGMA user_version=20","logical_after_sha256":"ab384356c639119734748ce27a32e714bb9df7075708fa36a79865a67b594937","logical_before_sha256":"ab384356c639119734748ce27a32e714bb9df7075708fa36a79865a67b594937","logical_equal":true}
+ok
+test host_registry_migration::tests::known_authority_check_corruption_still_refuses_recognition_without_changes ... {"case":"known_authority_check_still_enforced","logical_after_sha256":"3817800cc898595e41ddf3458628045cefaa64131db6ae90141a007c8a1eea66","logical_before_sha256":"3817800cc898595e41ddf3458628045cefaa64131db6ae90141a007c8a1eea66","logical_equal":true}
+ok
+test host_registry_migration::tests::late_forward_migration_failure_rolls_back_entire_extension ... {"case":"late_forward_caller_failure","logical_after_sha256":"7de66f5358c653d46873d7cd750b263a6341f639fe1095f74975303c8c0301d6","logical_before_sha256":"7de66f5358c653d46873d7cd750b263a6341f639fe1095f74975303c8c0301d6","logical_equal":true}
+ok
+test host_registry_migration::tests::migration_preserves_nonempty_old_history_opaque_rows_and_idempotent_recognition ... {"after_cookie":91,"after_version":19,"application_id_equal":true,"before_cookie":89,"before_version":18,"case":"forward18_to19_preserves_original_data","expected_cookie_delta":2,"hashes_describe":"whole logical images;Host objects/version/cookie intentionally differ","logical_after_sha256":"63f40ef59060ae96742dca509f23d2a5851a13b95630633100cbb66f756744cc","logical_before_sha256":"c37b74d12f856f23ff8a0db4a5d2ed16a808ec696bbfb9971eb25af68a2e85c2","original_ddl_equal":true,"original_rows_equal":true}
+{"case":"idempotent19_recognition","logical_after_sha256":"63f40ef59060ae96742dca509f23d2a5851a13b95630633100cbb66f756744cc","logical_before_sha256":"63f40ef59060ae96742dca509f23d2a5851a13b95630633100cbb66f756744cc","logical_equal":true}
+{"case":"opaque_product_data_not_fixture_extension","logical_after_sha256":"63f40ef59060ae96742dca509f23d2a5851a13b95630633100cbb66f756744cc","logical_before_sha256":"63f40ef59060ae96742dca509f23d2a5851a13b95630633100cbb66f756744cc","logical_equal":true}
+ok
+test host_registry_migration::tests::on_disk_refusal_measures_logical_and_raw_main_preservation_separately ... {"case":"disk_refusal_logical","logical_after_sha256":"764946941fa0c313b88b81645aa7c46d0f679a5c7440dfc1667b7b84f81ffcf2","logical_before_sha256":"764946941fa0c313b88b81645aa7c46d0f679a5c7440dfc1667b7b84f81ffcf2","logical_equal":true}
+{"after_sha256":"6be872e1287c452933469b941ddb95df4088565af802a6f3a6e99152b5cf6af3","before_sha256":"6be872e1287c452933469b941ddb95df4088565af802a6f3a6e99152b5cf6af3","case":"disk_refusal_raw_main","journal_mode":"delete","raw_equal":true,"wal":"not_present_not_tested"}
+ok
+test host_registry_migration::tests::opaque_check_udf_is_not_evaluated_and_missing_udf_legacy_reopen_is_preserved ... {"case":"opaque_check_not_evaluated","logical_after_sha256":"2e9213349d4cbf35ba26fd09fea77ea82443feab8cc9d4a31c5f1b9c2e895301","logical_before_sha256":"2e9213349d4cbf35ba26fd09fea77ea82443feab8cc9d4a31c5f1b9c2e895301","logical_equal":true}
+ok
+test host_registry_migration::tests::ordinary_store_is_still18_and_has_no_host_table ... ok
+test host_registry_migration::tests::pinned_ddl_reference_tables_indexes_fk_and_cookie_delta_are_real_sqlite ... ok
+test host_registry_migration::tests::predecessor_and_opaque_schema_mutations_fail_before_destructive_work ... {"case":"ALTER TABLE tasks ADD COLUMN unreviewed TEXT","logical_after_sha256":"3ab8d4a9460338f3f9417146efd42197907c154ce6eeaf67157d485beb6cce47","logical_before_sha256":"3ab8d4a9460338f3f9417146efd42197907c154ce6eeaf67157d485beb6cce47","logical_equal":true}
+{"case":"CREATE INDEX unreviewed ON tasks(id)","logical_after_sha256":"d845ace5cc35d4b07cd1927399abddaf49ab76bcc18845517115f3ab599ee64c","logical_before_sha256":"d845ace5cc35d4b07cd1927399abddaf49ab76bcc18845517115f3ab599ee64c","logical_equal":true}
+{"case":"CREATE VIEW unknown_view AS SELECT * FROM events","logical_after_sha256":"c1327db0c48d744e44e2deef9632dee1ead355ee720e442f1490e50e4c0758bd","logical_before_sha256":"c1327db0c48d744e44e2deef9632dee1ead355ee720e442f1490e50e4c0758bd","logical_equal":true}
+{"case":"CREATE TRIGGER unknown_trigger AFTER INSERT ON events BEGIN SELECT 1; END","logical_after_sha256":"ee9f4cf98243fa9c611f7318f3687b0322d89f9bea2c8c0ab52fba9d62d4904c","logical_before_sha256":"ee9f4cf98243fa9c611f7318f3687b0322d89f9bea2c8c0ab52fba9d62d4904c","logical_equal":true}
+{"case":"CREATE TABLE opaque(id TEXT, event INTEGER REFERENCES events(sequence))","logical_after_sha256":"1a7aa41108e9ce85e272ec116865a32759bf1e122de89e53e3ae6b74ef3c6784","logical_before_sha256":"1a7aa41108e9ce85e272ec116865a32759bf1e122de89e53e3ae6b74ef3c6784","logical_equal":true}
+{"case":"CREATE TABLE opaque(id TEXT, generated TEXT GENERATED ALWAYS AS(id) VIRTUAL)","logical_after_sha256":"c6e572c62726f610ee37cc20c38590b9f9ee157eb97f99bc5e68011454390c1f","logical_before_sha256":"c6e572c62726f610ee37cc20c38590b9f9ee157eb97f99bc5e68011454390c1f","logical_equal":true}
+{"case":"CREATE TABLE opaque(id TEXT);CREATE INDEX opaque_expression ON opaque(lower(id))","logical_after_sha256":"5232584211f1b9a72f036114261ec186d47a6204ea0d2e3e869bb507cbf13199","logical_before_sha256":"5232584211f1b9a72f036114261ec186d47a6204ea0d2e3e869bb507cbf13199","logical_equal":true}
+{"case":"CREATE TABLE opaque(id TEXT);CREATE INDEX opaque_partial ON opaque(id) WHERE id IS NOT NULL","logical_after_sha256":"1bfc9b135560eb8755c634c4ca79abcb25b30c2ea05d68149b311ed717e3e2b5","logical_before_sha256":"1bfc9b135560eb8755c634c4ca79abcb25b30c2ea05d68149b311ed717e3e2b5","logical_equal":true}
+{"case":"CREATE TABLE integration_future(id TEXT)","logical_after_sha256":"5932bfb45e9e80fad87d12f9ca7fed0f6b299e6e53ebb711563b94b01b62c9b6","logical_before_sha256":"5932bfb45e9e80fad87d12f9ca7fed0f6b299e6e53ebb711563b94b01b62c9b6","logical_equal":true}
+{"case":"CREATE TABLE host_registrations(id TEXT)","logical_after_sha256":"614c02eca56babc610a1a23a53cf0e0f3682293c5931c6fa185906c73cec6199","logical_before_sha256":"614c02eca56babc610a1a23a53cf0e0f3682293c5931c6fa185906c73cec6199","logical_equal":true}
+ok
+test host_registry_migration::tests::real_sql_sequence_unique_fk_no_action_and_repeated_name_semantics ... {"case":"nonempty19_structural_recognition","logical_after_sha256":"5f70a4ad21d9d89831faeaf3e01ad3b9a15f32d1e3a09207b881974a90fc47df","logical_before_sha256":"5f70a4ad21d9d89831faeaf3e01ad3b9a15f32d1e3a09207b881974a90fc47df","logical_equal":true}
+{"case":"nonempty_host_never_downgraded","logical_after_sha256":"5f70a4ad21d9d89831faeaf3e01ad3b9a15f32d1e3a09207b881974a90fc47df","logical_before_sha256":"5f70a4ad21d9d89831faeaf3e01ad3b9a15f32d1e3a09207b881974a90fc47df","logical_equal":true}
+ok
+test host_registry_migration::tests::strict_inverse_preserves_old_rows_and_original_helpers_keep_exact_versions ... {"case":"old_helpers_refuse19","logical_after_sha256":"a9404ae669d655dad5d63d3837b1d1d823ad5b1cea4077c75d538c8ee518cc95","logical_before_sha256":"a9404ae669d655dad5d63d3837b1d1d823ad5b1cea4077c75d538c8ee518cc95","logical_equal":true}
+ok
+test host_registry_migration::tests::unsupported_versions_and_foreign_key_policy_refuse_without_changes ... {"case":"unsupported_-1","logical_after_sha256":"6176c47314571993486a6edbe007011d40caf029c98cedfba12021ebb22b2e90","logical_before_sha256":"6176c47314571993486a6edbe007011d40caf029c98cedfba12021ebb22b2e90","logical_equal":true}
+{"case":"unsupported_0","logical_after_sha256":"c52a5babfe96767c51be840a1aed50853a27704f4489ca545cad2cbc704d822b","logical_before_sha256":"c52a5babfe96767c51be840a1aed50853a27704f4489ca545cad2cbc704d822b","logical_equal":true}
+{"case":"unsupported_17","logical_after_sha256":"ae896dcc805cdf40aa1ab8b078d94b59825332419be8de0959a36a1e3fcd1893","logical_before_sha256":"ae896dcc805cdf40aa1ab8b078d94b59825332419be8de0959a36a1e3fcd1893","logical_equal":true}
+{"case":"unsupported_20","logical_after_sha256":"4bcc727d58c2690017e865f6ebfea851e35af71d99bc3ef3ee0b7191ec44463d","logical_before_sha256":"4bcc727d58c2690017e865f6ebfea851e35af71d99bc3ef3ee0b7191ec44463d","logical_equal":true}
+{"case":"fk_policy_not_silently_enabled","logical_after_sha256":"54ee2d3d4cacd080f13e64a91384e2c675ff9eb999c2b69b9fe80fb509f3d025","logical_before_sha256":"54ee2d3d4cacd080f13e64a91384e2c675ff9eb999c2b69b9fe80fb509f3d025","logical_equal":true}
+ok
+test registry::host_registry::tests::absence_or_inexact_schema_never_migrates_or_creates ... ok
+test registry::host_registry::tests::actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_names ... ok
+test registry::host_registry::tests::actual_create_binds_event_receipt_and_metadata_without_authority ... ok
+test registry::host_registry::tests::actual_deferred_commit_failure_is_unknown_and_rolls_back_on_reopen ... ok
+test registry::host_registry::tests::actual_journal_creation_failure_does_not_leave_a_partial_registration ... ok
+test registry::host_registry::tests::bounded_list_makes_cursor_progress_and_rejects_invalid_cursors ... ok
+test registry::host_registry::tests::corrupt_autoindex_sql_cannot_masquerade_as_its_legitimate_null ... ok
+test registry::host_registry::tests::direct_main_fk_metadata_still_refuses_incoming_case_variants_and_host_objects ... ok
+test registry::host_registry::tests::direct_main_fk_scan_preserves_existing_schema_budget_and_long_opaque_names ... ok
+test registry::host_registry::tests::duplicate_creation_keys_and_over_cap_receipt_scans_are_not_absent ... ok
+test registry::host_registry::tests::event_host_and_receipt_insert_failures_roll_back_all_three_domains ... ok
+test registry::host_registry::tests::event_linkage_is_checked_and_no_action_pins_sql_sequence ... ok
+test registry::host_registry::tests::exact_golden_bytes_are_read_through_real_sqlite ... ok
+test registry::host_registry::tests::identity_pin_configuration_and_name_changes_are_not_upserts ... ok
+test registry::host_registry::tests::lost_return_value_and_actual_connection_reopen_reconcile_original_key ... ok
+test registry::host_registry::tests::missing_receipts_or_hosts_are_integrity_errors_not_absent ... ok
+test registry::host_registry::tests::persisted_record_versions_types_bounds_mirrors_and_facts_fail_closed ... ok
+test registry::host_registry::tests::replay_precedes_capacity_and_repeated_names_are_separate_ids ... ok
+test registry::host_registry::tests::safe_opaque_tables_indexes_and_blob_rowids_remain_unchanged ... ok
+test registry::host_registry::tests::simultaneous_last_capacity_slot_has_one_winner ... ok
+test registry::host_registry::tests::simultaneous_same_key_has_one_committed_result ... ok
+test registry::host_registry::tests::sql_projects_oversized_or_wrong_type_bodies_as_null_without_hiding_rows ... ok
+test registry::host_registry::tests::strict_decoders_preserve_versions_unicode_and_reject_unknown_fields ... ok
+test registry::host_registry::tests::unsafe_inserted_sequence_rolls_back_including_event_counter ... ok
+
+test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 380 filtered out; finished in 5.50s
+

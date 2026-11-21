@@ -1,0 +1,6 @@
+Source: 438bc935611c886ad86f45bb34011f816692d670
+Started (UTC): 2026-11-18T14:18:30Z
+Command: cargo fmt --all -- --check
+collab: task runtime /private/tmp/ab-collab-oeejmzju
+Finished (UTC): 2026-11-18T14:18:31Z
+Exit: 0

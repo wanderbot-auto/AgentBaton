@@ -18,6 +18,7 @@ pub mod connections;
 pub mod driver;
 mod framing;
 pub mod installation;
+pub mod managed_update;
 #[cfg(unix)]
 mod process_io;
 #[cfg(unix)]

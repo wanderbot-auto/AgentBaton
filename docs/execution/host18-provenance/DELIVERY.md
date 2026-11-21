@@ -1,0 +1,20 @@
+# HOST18-P0 delivery
+
+Task basea6418d94bb9f1725fa3eef6135820197784008fb; verified source84022e3c0980ff8bba2dcc720f8a843291c73788; branch collab/host18-provenance. Only4 new Python paths plus this evidence directory change. Final own-docs head is supplied by the handoff receipt. No push/PR/CI/parent-ref/old-tree changes.
+
+Implemented strict fixed-a4 normal18 builder, real production UDS/companion history generator, finite provenance/FS/SQLite/local-missing-Git controls and input evidence verification. Source is a4e03303b54bd5a5544131e95ad39662f8310e29/tree ddd5bddbeeb8011fa070d53e67f7978deae87214; exact archive1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3 and full244-file index6f064dafeed10bdd60470301262f57472531a935f8f9fc4e849d021ca2412db4 remain fixed. Original producer/helper/lock/source pins are unchanged (FREEZE_CHECK).
+
+19 new targeted tests passed with ResourceWarning errors enabled. Leader-requested full infrastructure discovery then passed on repo .venv Python3.12.12:916 total =900 passed +16 original skips,0 failed,23.119s; exact d38c5cd3/source84022 and clean state unchanged before/after. Full suite is source/finite/mock/local infrastructure evidence, not Linux OS/native/Provider acceptance. New84022 real offline locked/default/jobs2 ARM64 normal pair build passed; one earlier2c8 successful build is separately retained because the later builder/network boundary changed. Fresh84022 actual owner-authenticated UDS/CLI verified API1/schema18,1 project/3 tasks (one cancelled),5 typed linked events,4 creation receipts, exact replay after cancellation, changed-body conflict and wrong-owner refusal. Actual source bytes unchanged; all owned compiler/daemon/CLI children joined. SQLite snapshot was made only after daemon SIGTERM0 and group quiescence.1 positive actual copy plus9 copy/record/source/tool rejections passed; no product child ran in those controls.
+
+Private usable predecessor artifact:
+`artifacts/host18-provenance/generated-boundaries/actual-schema18.sqlite3`
+737280 bytes, SHA256613e624582d6437576bbe53fd773be5c880c5d7e2aa424c4fd6931817e77c1f1.
+Build manifestSHA84b4d0cf4bb1dfea72ac85c8307593b44ffeecba67609cadf808ea5f90400018;
+generator manifestSHA99fa1de184bbe40a737d1db6f37c6f27b51e34acfdbcd45e47e645f74595cbfb.
+Frozen current pair is in `artifacts/host18-provenance/build-boundaries/frozen` (exact binary/architecture/creator/tool records in ACTUAL_BOUNDARIES_RESULT).
+
+Logical snapshotSHA18cd31cbe4b21cfecaeb7870db6e653a91190d8fe7bcdb65a3b3364ca41459fb is equal between original and snapshot. Original runtime schema cookie82 and backup cookie1 are measured separately; no physical byte/cookie equality is claimed. Read-only SQLite can leave0-byte WAL/32768-byte SHM; before/after inventories are retained. The actual snapshot artifact is the input to future P1; use its measured cookie1 as baseline rather than original runtime82.
+
+Retained failures: identity red2; sequence float red2 subtests; explicit SQLite-close red1;0-WAL red1; first real generator failed post-read inventory despite normal owned stop; auxiliary copied-tool restoration failed due0500 permissions. Each is separately labelled in32 byte-preserved raw log/record archives and evidence, not rewritten as successful. No private SQLite/token/raw RPC is committed; original failed/current runtimes, datasets, transcripts, source archives and frozen tools remain private local artifacts.
+
+Remaining: fifth Rust actual18->19 consumer unimplemented; Store19 activation/migration/pre-v19 backup/restore/reopen/rollback and Host UI are not tested. This is limited project/task/event/idempotency history, not nonempty Conversation/Factory/Goal/integration/Host coverage. Actual18 program has not reopened the final backup copy; read-only SQLite validation is the current snapshot proof. macOS ARM64 CLI/UDS is proven here; Linux/native Tauri/GUI/CI/Provider/SSH are not run. Requires local fixed Git objects and offline caches; missing objects/cache fail closed. Root owns acceptance and next source allocation.

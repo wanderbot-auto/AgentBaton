@@ -1,0 +1,447 @@
+{
+  "requirements": [
+    "AB-EXT-004",
+    "AB-REL-009"
+  ],
+  "approval": "AB-START-001",
+  "branch": "collab/compatibility-matrix",
+  "fixed_base": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+  "tested_source": "32bfe65cf645150eb1e5cae10b2aad4f18219315",
+  "evidence_scope": "Local CLI output and infrastructure verification, with read-only projections from seven fixed prior evidence documents.",
+  "environment": {
+    "os": "macOS 26.6.1 (25G76)",
+    "architecture": "arm64",
+    "python": "3.12.12",
+    "infra_dependencies": {
+      "jsonschema": "4.26.0",
+      "PyYAML": "6.0.3"
+    },
+    "versions": {
+      "git": "git version 2.54.0 (Apple Git-157)",
+      "node": "v26.7.0",
+      "npm": "11.19.0",
+      "python3": "Python 3.12.12",
+      "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)",
+      "rustup": "rustup 1.28.2 (e4f3ad6f8 2025-04-28)"
+    }
+  },
+  "invocation": {
+    "wrapper": "scripts/collab.sh run --",
+    "cli": "python scripts/report-compatibility-matrix.py --format {json,markdown}",
+    "samples": "Compared repeated outputs byte for byte, compared each input against git show fixed_base:path, and compared --source for the recorded native and hosted checkout IDs.",
+    "raw_logs_relative_to": "task runtime"
+  },
+  "samples": {
+    "selected_source": "32bfe65cf645150eb1e5cae10b2aad4f18219315",
+    "exact_source_inputs": [
+      {
+        "path": "docs/execution/provider-startup-evidence/EVIDENCE.json",
+        "sha256": "0f34996401148c5a5c2798dedee81f47d355e183ff8ff92641f8fd4ee6707e03",
+        "state": "pinned"
+      },
+      {
+        "path": "docs/execution/host19-native-handshake/EVIDENCE.json",
+        "sha256": "e8e0960e52fb88939d3ceccc404f562e5e37d9f706101d99f967f59192ce20ce",
+        "state": "pinned"
+      },
+      {
+        "path": "docs/execution/host19-browser-candidate/logs/browser-summary.json",
+        "sha256": "d2e7f97984b2f2192010a461899fbb9664a86ab3bce6d8279e1a63e88988a65b",
+        "state": "pinned"
+      },
+      {
+        "path": "docs/execution/host-registration-native-e2e/logs/app-final/result.json",
+        "sha256": "467480854a6e836d02c6b4552595731326266a602036f8dd597836f90067f9f6",
+        "state": "pinned"
+      },
+      {
+        "path": "docs/execution/host-registration-native-e2e/logs/app-frozen/result.json",
+        "sha256": "4c18e420ab878c96bde6f1138d60a8b3cae26aff56bb90c4f12428a3adc37b9f",
+        "state": "pinned"
+      },
+      {
+        "path": "docs/execution/goal-runtime-integration/CI_9200_VERIFICATION.json",
+        "sha256": "27d7a3f8b2d533a30570de29b08f2ee80ce7698bd606c2b639632e9747a88615",
+        "state": "pinned"
+      },
+      {
+        "path": "docs/execution/goal-runtime-integration/PACKAGE_9200_VERIFICATION.json",
+        "sha256": "f4b611e2695f3e6f2aaad4fb74532995ab41546f6754fa33fd4b710fd3dbd425",
+        "state": "pinned"
+      }
+    ],
+    "observations": 13,
+    "by_dimension": {
+      "browser": 1,
+      "native_app": 4,
+      "library": 1,
+      "provider_contract": 1,
+      "package_archive": 2,
+      "hosted_ci": 2,
+      "install": 2
+    },
+    "by_status": {
+      "passed": 10,
+      "failed": 1,
+      "not_run": 2
+    },
+    "by_relevance": {
+      "other_source": 9,
+      "historical_intel": 4
+    },
+    "platform_targets": {
+      "declared_app_version": "0.1.0",
+      "declared_bundle_minimum": "10.15",
+      "desktop_macos": [
+        "arm64"
+      ],
+      "historical_desktop_macos": [
+        "x86_64"
+      ],
+      "remote_hosts": [
+        "user-configured macOS",
+        "user-configured Linux"
+      ]
+    },
+    "minimum_system": {
+      "assessment": "candidate_not_selected",
+      "candidate": null,
+      "confirmed_minimum": null,
+      "required_checks": [
+        {
+          "dimension": "build",
+          "observations": [],
+          "provider_id": null,
+          "status": "unknown"
+        },
+        {
+          "dimension": "native_app",
+          "observations": [],
+          "provider_id": null,
+          "status": "unknown"
+        },
+        {
+          "dimension": "credential_store",
+          "observations": [],
+          "provider_id": null,
+          "status": "unknown"
+        },
+        {
+          "dimension": "background",
+          "observations": [],
+          "provider_id": null,
+          "status": "unknown"
+        },
+        {
+          "dimension": "install",
+          "observations": [],
+          "provider_id": null,
+          "status": "unknown"
+        },
+        {
+          "dimension": "update",
+          "observations": [],
+          "provider_id": null,
+          "status": "unknown"
+        },
+        {
+          "dimension": "provider_real",
+          "observations": [],
+          "provider_id": "claude-code",
+          "status": "unknown"
+        },
+        {
+          "dimension": "provider_real",
+          "observations": [],
+          "provider_id": "codex",
+          "status": "unknown"
+        },
+        {
+          "dimension": "provider_real",
+          "observations": [],
+          "provider_id": "qoder",
+          "status": "unknown"
+        }
+      ]
+    },
+    "repeat_output_identical": true,
+    "files": {
+      "historical-ci-source.json": "093585c697b8c24759ac0980a250b3ae67358721c262748976f7fa0728d0a664",
+      "native-source.json": "2a2a02ee9322672239c6a334089b70867548cb1e9b37babf83364ba427513c4e",
+      "repeat.json": "9ae9b13db6fd7f4d58dcc8d68ffd05d9c59c9789019eb79529ed2f5ce37f4f1f",
+      "repeat.markdown": "e72d6f6c280c78919946a61cefe9f34332cb0b4e4763b3e0c9c8e6ca10a75f6c",
+      "report.json": "9ae9b13db6fd7f4d58dcc8d68ffd05d9c59c9789019eb79529ed2f5ce37f4f1f",
+      "report.markdown": "e72d6f6c280c78919946a61cefe9f34332cb0b4e4763b3e0c9c8e6ca10a75f6c"
+    },
+    "explicit_source_samples": {
+      "native-source": {
+        "source": "cde501db847d1bbfc27a298e16cd772afc1a41e9",
+        "match_ids": [
+          "apple-silicon-host-registration-app-final",
+          "apple-silicon-host-registration-app-frozen"
+        ],
+        "intel_stays_historical": true
+      },
+      "historical-ci-source": {
+        "source": "9b0772178f7d843c0ef712e1195b73490d7f9933",
+        "match_ids": [
+          "pr15-development-archive-arm64",
+          "pr15-hosted-arm64",
+          "pr15-manual-install-arm64",
+          "pr15-native-goal-arm64"
+        ],
+        "intel_stays_historical": true
+      }
+    }
+  },
+  "reviewed_context": [
+    {
+      "path": "docs/execution/host-registration-native-e2e/EVIDENCE.md",
+      "sha256": "19b4812689a119c30f9d83512b339795ada08c5429acb067a15980f8cc1a2231"
+    },
+    {
+      "path": "docs/execution/host-registration-native-e2e/logs/build-environment.log",
+      "sha256": "1b1671b6b058db5e5c694538567e401e6e7252c1899e1480cdbc22919f0e42f3"
+    },
+    {
+      "path": "docs/execution/host19-browser-candidate/EVIDENCE.md",
+      "sha256": "33c9dc1be2f7a5997fb07c364c77d6423457893f330cec164475cf3ece2c877e"
+    },
+    {
+      "path": "docs/execution/goal-runtime-integration/DEVELOPMENT_DELIVERY_9200.md",
+      "sha256": "d547c92f9e89755ef8bf724fea7f61450c1c7393c64c67c92f3d71b71add6073"
+    }
+  ],
+  "initial_rejected_input": {
+    "exit_code": 2,
+    "case": "wrong JSON Pointer offset for handshake --lib argv",
+    "error": "evidence field does not match the index: /runs/handshake-green/argv/8",
+    "resolution": "Selected the actual argv offset 6. No pinned source changed."
+  },
+  "checks": [
+    {
+      "name": "focused",
+      "command": "python -m unittest discover -s tests/infrastructure -p test_compatibility_matrix.py -v",
+      "exit_code": 0,
+      "result": "11 passed",
+      "log": "compat-checks/focused.log",
+      "log_sha256": "862b24d2d0618165c1f10c8268b359930ace5eb7bac5bb96aa3a47e5a1ef2afe"
+    },
+    {
+      "name": "manifest",
+      "command": "python scripts/verify_bootstrap_manifest.py",
+      "exit_code": 0,
+      "result": "93 files verified",
+      "log": "compat-checks/manifest.log",
+      "log_sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+    },
+    {
+      "name": "design",
+      "command": "python scripts/validate_design.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "compat-checks/design.log",
+      "log_sha256": "e8652dac142f47e814a4a096c10fbaad6105360db37c15c4a43e6ad488bcdb26"
+    },
+    {
+      "name": "infrastructure",
+      "command": "python scripts/validate_infrastructure.py",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "compat-checks/infrastructure.log",
+      "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+    },
+    {
+      "name": "gate",
+      "command": "python scripts/check_gate.py --scope preparation",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "compat-checks/gate.log",
+      "log_sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+    },
+    {
+      "name": "doctor",
+      "command": "python scripts/doctor.py --strict",
+      "exit_code": 0,
+      "result": "passed",
+      "log": "compat-checks/doctor.log",
+      "log_sha256": "214687eb86f41a04ff35768a1603a29a6f79a9396570065dac343a3dff359cc4"
+    },
+    {
+      "name": "full-python",
+      "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "974 total, 958 passed, 16 existing real-companion skips; focused 11 included",
+      "log": "compat-checks/full-python.log",
+      "log_sha256": "23164a801ba582af17c14c60b7b9b825c9299e9631d5f21f16db423687c4776b"
+    },
+    {
+      "name": "node",
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "4 passed",
+      "log": "compat-checks/node.log",
+      "log_sha256": "fca62a0a10244e41acbd7458c1e8cc431de6bbf426f9c9d8efe11cb3f6370542"
+    },
+    {
+      "name": "rust-smoke",
+      "command": "cargo test --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\"",
+      "exit_code": 0,
+      "result": "2 passed; git archive of tested_source and cmp confirmed byte-identical fixture files",
+      "log": "compat-checks/rust-smoke.log",
+      "log_sha256": "ba0bff915aed9244533d1470451ff30773d60340c3117fdea9bb7d0816b3b935"
+    },
+    {
+      "name": "rust-smoke-clippy",
+      "command": "cargo clippy --locked --manifest-path \"$staging/tools/environment-smoke/Cargo.toml\" --all-targets -- -D warnings",
+      "exit_code": 0,
+      "result": "passed on the same byte-identical fixture",
+      "log": "compat-checks/rust-smoke-clippy.log",
+      "log_sha256": "bd497b1e01bcba5774bbc726c81f8888f8698b18ac80fc02a8a983372a36d705"
+    }
+  ],
+  "preview": [
+    {
+      "target": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+      "tree": "ad63f427de8ddbcc24e112c18a7467ad1ed61eed",
+      "exit_code": 0
+    },
+    {
+      "target": "4be7d4493a3e82624e2eb45329ec5c358503486a",
+      "tree": "8333185e317bf6bb0912b6fdfa1c54fb533d0390",
+      "exit_code": 0
+    },
+    {
+      "target": "977f918905e0bfc6ae0c4600de036a2c4182f39a",
+      "tree": "cd1b078087c0fdf48e365c786e9528fd661e189f",
+      "exit_code": 0
+    }
+  ],
+  "unverified": [
+    "Exact integration candidate and independent review pending leader.",
+    "Selected evidence is a bounded index. Vendor CLI versions, real Provider accounts, minimum OS candidate and release remain unestablished.",
+    "No real Provider, native product, installer, update, remote companion or hosted CI execution was performed for this report task."
+  ],
+  "leader_review_followup": {
+    "fixed_base": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+    "tested_source": "3221f26f03f805b2200f4c832f1ce2b27bb34234",
+    "environment": "Apple Silicon macOS 26.6.1 (25G76), Python 3.12.12",
+    "wrapper": "scripts/collab.sh run --",
+    "samples": {
+      "tested_source": "3221f26f03f805b2200f4c832f1ce2b27bb34234",
+      "primary_sources": 7,
+      "observations": 13,
+      "by_status": {
+        "passed": 10,
+        "failed": 1,
+        "not_run": 2
+      },
+      "browser_correction": {
+        "scope": "实际 Chromium 前端经测试桥接接入 schema 19 私有 Core Unix IPC，正常场景使用生成 ACP。schema 19 来自绑定到原报告摘要的快照核验。",
+        "source_fields": {
+          "browser_version": "149.0.7827.55",
+          "source_commit": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+          "source_dimension_label": "macOS built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host"
+        },
+        "evidence": {
+          "corroboration": {
+            "path": "docs/execution/host19-browser-candidate/logs/browser-verified.json",
+            "report_sha256_pointer": "/normal/report_sha256",
+            "schema19_snapshot_count": 12,
+            "schema19_snapshot_count_pointer": "/normal/actual_schema19_snapshot_count",
+            "sha256": "a0008003481f05e3d940e11c7da08664bc05e2b2319cd9489202591e06ba0585"
+          },
+          "observed_result": "passed",
+          "path": "docs/execution/host19-browser-candidate/logs/browser-all--normal--report.json",
+          "result_pointer": "/status",
+          "sha256": "c138965b696f263f7f211884afa45d3caa016838eb273c729155c1250058695d"
+        }
+      },
+      "minimum_system_assessment": "candidate_not_selected",
+      "confirmed_minimum": null,
+      "default_real_provider_rows": 0,
+      "repeat_output_identical": true,
+      "sha256": {
+        "report.json": "b9c2ed7580d812819a76e5afe6418a83adb2d063c5f3f1089009f312fdaf46cd",
+        "report.markdown": "a5061eab9fc2141a083fa6f4fc450af4718ce0727b0fd3a7eb4f4e39f0a5da8c"
+      },
+      "synthetic_misclassification_before_after": {
+        "same_input": "All six platform dimensions plus Generated Provider records with exact build/version fields relabeled in the index.",
+        "original_source": "010f9b005d5a189d5cd111a2c69aa1c43da0434c",
+        "original_exit": 0,
+        "original_assessment": "ready_for_release_review",
+        "fixed_exit": 2,
+        "fixed_stdout_empty": true,
+        "fixed_error": "report-compatibility-matrix.py: error: docs/execution/synthetic/observations.json: codex: expected a raw real_provider_execution receipt"
+      }
+    },
+    "checks": [
+      {
+        "name": "focused",
+        "command": "python -m unittest discover -s tests/infrastructure -p test_compatibility_matrix.py -v",
+        "exit_code": 0,
+        "result": "15 passed",
+        "log": "compat-review-checks/focused.log",
+        "log_sha256": "9e0cdc8fed27b43671ace3f0d62475f52189d272674c861438bade83e56a1ab5"
+      },
+      {
+        "name": "design",
+        "command": "python scripts/validate_design.py",
+        "exit_code": 0,
+        "result": "passed",
+        "log": "compat-review-checks/design.log",
+        "log_sha256": "9227953d58ffa4194b894700517228f83f66a590ef52d701d11fdc3049aca8e1"
+      },
+      {
+        "name": "infrastructure",
+        "command": "python scripts/validate_infrastructure.py",
+        "exit_code": 0,
+        "result": "passed",
+        "log": "compat-review-checks/infrastructure.log",
+        "log_sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      },
+      {
+        "name": "full-python",
+        "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+        "exit_code": 0,
+        "result": "978 total, 962 passed, 16 existing real-companion skips",
+        "log": "compat-review-checks/full-python.log",
+        "log_sha256": "c2779bd28a251849ae7b2620fe137873b9961d808018f7f4fe67ec212c5cbfa6"
+      },
+      {
+        "name": "node",
+        "command": "npm test",
+        "exit_code": 0,
+        "result": "4 passed",
+        "log": "compat-review-checks/node.log",
+        "log_sha256": "09a12e3affdada04c0616042700b1770bdf126f1c92e907660f75c7295003e8a"
+      }
+    ],
+    "synthetic_positive": "Exact source, artifact, OS and all version tuples with three canonical synthetic account receipts satisfy review checks. The confirmed minimum remains null.",
+    "synthetic_negatives": [
+      "Previously accepted relabelled generated records now fail closed.",
+      "Missing or false invocation, integer invocation, generated mode, failed authentication and incomplete task.",
+      "Index attempts to borrow an unrelated successful result from the same raw document.",
+      "Wrong report SHA, boolean or zero schema 19 snapshot count in an otherwise pinned browser receipt."
+    ],
+    "preview": [
+      {
+        "target": "51b9d762b2acc6ffa0e1c31411bb154ed4326b99",
+        "tree": "fa26745d783272930f26e3aca66bc49eb7d5cfdb",
+        "exit_code": 0
+      },
+      {
+        "target": "6d45b417210f892ec7d5f17dd992c05fc903773c",
+        "tree": "8f15712bae7aa1e51f54cbef8dec13c3f9c74253",
+        "exit_code": 0
+      },
+      {
+        "target": "0db9c959ce56b80402146a3c375775dbca50a505",
+        "tree": "4abfd07964a7d1e32d9ffdd0d277e6b62b27ba39",
+        "exit_code": 0
+      }
+    ],
+    "unverified": "Real Provider execution, minimum system support, exact remote integration CI and re-review remain pending."
+  }
+}

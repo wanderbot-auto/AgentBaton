@@ -1,0 +1,59 @@
+{
+  "feature": "f4b1e5217085fe20c9122b3fae12bff535d24930",
+  "built_source": "5f6718778d06e415098ca81ee29c89aa86965480",
+  "binary_sha256": "858711d6243b925cab0ae24b1e052fa7271e300d0bd8c1569c2751f884da8c53",
+  "byte_identical_build_inputs": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates"
+  ],
+  "private_source_sha256_unchanged": "9d83346e52a9d143cb545f09802eb53f8632b366376e2d1ce6116283a130bc9a",
+  "recorded": {
+    "first": {
+      "startup_api": 1,
+      "sqlite_schema_from_ipc": 19,
+      "initial_local_records_empty": true,
+      "normal_private_methods": [
+        "system.snapshot",
+        "connections.list",
+        "conversations.list",
+        "projects.import",
+        "tasks.create",
+        "tasks.get"
+      ],
+      "project_and_task_bound": true,
+      "draft_no_execution": true,
+      "daemon_wait_exit": 0
+    },
+    "second": {
+      "same_project_and_task_after_restart": true,
+      "readonly_sqlite_user_version": 19,
+      "normal_private_methods": [
+        "system.snapshot",
+        "tasks.get",
+        "projects.list",
+        "connections.list"
+      ],
+      "execution_and_connection_tables": {
+        "attempts": 0,
+        "connections": 0,
+        "execution_grants": 0,
+        "dispatch_intents": 0,
+        "host_registrations": 0
+      },
+      "daemon_wait_exit": 0
+    }
+  },
+  "receipt_version": 1,
+  "scope": "Actual ARM64 Core and private SQLite. Fresh local project and draft with no configured connection, cloud or team backend. No full UI, team outage simulation, OS network enforcement or Provider calls.",
+  "requirement": "AB-EXT-005",
+  "local_replay": {
+    "root": "/private/tmp/ab-local-core.rOCnDoVc",
+    "files": {
+      "replay.py": "233a3892dc05708c2884b49c109f0a64b2acc9735ca2f136aff3717e206cbc6d",
+      "receipt.json": "c35d3202426a542b6396976ed006aecc5d5832cca6477900770ea5211c0bd4a1",
+      "daemon-1.log": "bfdf89857c4c8e2d724a8b129dc687046019563c64ac952866b9273cf0afe630",
+      "daemon-2.log": "bfdf89857c4c8e2d724a8b129dc687046019563c64ac952866b9273cf0afe630"
+    }
+  }
+}

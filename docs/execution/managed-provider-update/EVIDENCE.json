@@ -1,0 +1,155 @@
+{
+  "requirement": "AB-PRO-011",
+  "scope": "provider crate managed update admission with synthetic release and compatibility fixtures",
+  "base_sha": "fb8bab79b091c203be4ec09c110a5a1cfc75de8e",
+  "tested_source_sha": "f2585a98c75ab8ab59c2b300b0a91d7be96b9bc2",
+  "verification_started_at_utc": "2026-11-18T19:02:05.107522+00:00",
+  "runner": {
+    "wrapper": [
+      "bash",
+      "scripts/collab.sh",
+      "run",
+      "--"
+    ],
+    "arch": "arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "rustc": "1.91.1 (ed61e7d7e 2025-11-07)",
+    "cargo": "1.91.1 (ea2d97820 2025-10-10)",
+    "default_python": "3.14.0a7",
+    "serial_suite_python": "3.12.12",
+    "environment_log": "logs/environment.txt"
+  },
+  "cargo_lock_sha256": "d51525ab03ffae7a2874d2db2610be938b5d97a3e84f519f36651e898f60ec3d",
+  "fixture_sha256": {
+    "fixture 1.0": "db8950dd30f13b902c56e6a1a7f52ee83e86654bd9ba81a984f7626a76e4219e",
+    "fixture 2.0": "df9e8b2e3d76c08ace33644a7abed0b92c59a8a9612bf9aa9dbfab923d83533f"
+  },
+  "checks": [
+    {
+      "label": "targeted",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-providers",
+        "--locked",
+        "--offline",
+        "--test",
+        "managed_update"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:02:09.273721+00:00",
+      "log": "logs/targeted.log.gz",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "label": "full",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-providers",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 101,
+      "finished_at_utc": "2026-11-18T19:02:11.932857+00:00",
+      "log": "logs/full.log.gz",
+      "status": "failed_at_existing_installation_tests",
+      "failed": 6
+    },
+    {
+      "label": "full-serial",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "agentbaton-providers",
+        "--locked",
+        "--offline",
+        "--no-fail-fast",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:02:46.965539+00:00",
+      "log": "logs/full-serial.log.gz",
+      "passed": 96,
+      "failed": 0,
+      "ignored": 0,
+      "setup": [
+        "PATH=/Users/wander/Documents/code/agentBaton-next/.venv/bin:$PATH",
+        "TMPDIR=mktemp directory under BATON_RUNTIME_DIR",
+        "unset AGENTBATON_TEST_SCHEMA_CAPTURE AGENTBATON_TEST_CODEX_POLICY_CAPTURE_DIR"
+      ]
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:02:13.107948+00:00",
+      "log": "logs/fmt.log.gz"
+    },
+    {
+      "label": "check",
+      "command": [
+        "cargo",
+        "check",
+        "-p",
+        "agentbaton-providers",
+        "--all-targets",
+        "--locked",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:02:14.576491+00:00",
+      "log": "logs/check.log.gz"
+    },
+    {
+      "label": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "agentbaton-providers",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "finished_at_utc": "2026-11-18T19:02:15.336802+00:00",
+      "log": "logs/clippy.log.gz"
+    }
+  ],
+  "initial_failure_logs": [
+    {
+      "log": "logs/baseline.log.gz",
+      "base_unchanged": true,
+      "failed_installation_tests": 7
+    },
+    {
+      "log": "logs/iteration.log.gz",
+      "failed_installation_tests": 6
+    },
+    {
+      "log": "logs/installation-serial.log.gz",
+      "failed_installation_tests": 1
+    }
+  ],
+  "scope_and_preview": "logs/scope-preview.txt",
+  "not_run": [
+    "actual provider account, capability negotiation, or model call",
+    "production download, registration, dispatch and activation",
+    "Linux and GitHub CI"
+  ]
+}

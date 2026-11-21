@@ -1,0 +1,26 @@
+Source: 438bc935611c886ad86f45bb34011f816692d670
+Started (UTC): 2026-11-18T14:20:24Z
+Command: cargo test --locked -p agentbaton-core --lib ipc::host_registry_wire::tests
+collab: task runtime /private/tmp/ab-collab-oeejmzju
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-3e149a5721946c12)
+
+running 13 tests
+test ipc::host_registry_wire::tests::complete_response_includes_lf_request_id_escaping_and_maximum_revision_digits ... ok
+test ipc::host_registry_wire::tests::normal_store19_bound_dispatch_registers_without_private_schema_override ... ok
+test ipc::host_registry_wire::tests::owner_api_request_id_guards_precede_host_params_and_schema ... ok
+test ipc::host_registry_wire::tests::create_requires_original_key_no_revision_and_strict_metadata_shape_types_version ... ok
+test ipc::host_registry_wire::tests::read_queries_are_closed_typed_and_use_registry_uuid_not_protocol_identity ... ok
+test ipc::host_registry_wire::tests::all_read_envelopes_require_none_mutation_fields_and_accept_existing_null_semantics ... ok
+test ipc::host_registry_wire::tests::actual_migrated_dispatch_register_get_list_lookup_are_metadata_only ... ok
+test ipc::host_registry_wire::tests::original_key_replay_and_lookup_do_not_recreate_or_use_global_revision_as_host_revision ... ok
+test ipc::host_registry_wire::tests::actual_paginated_dispatch_responses_are_bounded_and_progress_without_duplicate_ids ... ok
+test ipc::host_registry_wire::tests::unsupported_structural18_and_future20_return_errors_without_creating_schema_or_records ... ok
+test ipc::host_registry_wire::tests::scoped_or_unknown_methods_cannot_gain_a_generic_host_entry ... ok
+test ipc::host_registry_wire::tests::store_integrity_errors_and_side_effect_uncertainty_are_never_successful_null ... ok
+test ipc::host_registry_wire::tests::bounded_params_enforce_serialized_bytes_before_typed_decode ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 444 filtered out; finished in 1.78s
+
+Finished (UTC): 2026-11-18T14:20:26Z
+Exit: 0

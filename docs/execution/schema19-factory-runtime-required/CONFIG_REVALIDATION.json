@@ -1,0 +1,265 @@
+{
+  "requirement": "revalidate_default_factory_runtime_after_compiled_config_change",
+  "source_sha": "531a5f14986d023cdadc65ca5a555af3a020214c",
+  "original_evidence_sha": "76916962fbef91abd4144e4fad82ed4e705f6e47",
+  "integration_target": "7b04514caaf7807b46018547a8b10f2a5e7fc3d6",
+  "tested_candidate": {
+    "head": "a72d35d01067fde5adae16f05a930870f58b1571",
+    "tree": "aed04f79ea4e8ae2657bee2c055c46b062fcede9"
+  },
+  "status": "both_default_factory_targets_passed",
+  "mac_apple_silicon": {
+    "environment": [
+      "Darwin arm64",
+      "ProductName:\t\tmacOS",
+      "ProductVersion:\t\t26.6.1",
+      "BuildVersion:\t\t25G76",
+      "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "Python 3.14.0a7"
+    ],
+    "git_head": "a72d35d01067fde5adae16f05a930870f58b1571",
+    "git_tree": "aed04f79ea4e8ae2657bee2c055c46b062fcede9",
+    "test_command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "--",
+      "--test-threads=1",
+      "--show-output"
+    ],
+    "runtime_intervals": {
+      "started": "2026-11-18T22:38:03Z",
+      "ended": "2026-11-18T22:39:13Z"
+    },
+    "test_exit": 0,
+    "counts": {
+      "passed": 36,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 0
+    },
+    "test_duration_seconds": 69.1,
+    "rebuilt_binary_sha256": {
+      "baton": "c4628acf18c2c9823f397e0f4ee73f45f335592a209f60ee6ffdc6b776fce304",
+      "batond": "c5e4327aebf99c8b585bc47f95de478e803fd11c6c67aedcfcb988dc73e44c77"
+    },
+    "prepare_and_both_verifies_identical": true,
+    "log": {
+      "path": "logs/config-revalidation/mac-factory.log.gz",
+      "sha256": "6bc31751128c74ba728c8d9d442579be57def7fd8dc58c8d4e77afb16352ba26"
+    },
+    "prepare": {
+      "path": "logs/config-revalidation/mac-prepare.json",
+      "sha256": "445a8e1c4b21ba89f3ca7b7f7dec959fa0f75ff15aa6df0b9157cd33f8107014"
+    },
+    "before_verify": {
+      "path": "logs/config-revalidation/mac-before-verify.json",
+      "sha256": "445a8e1c4b21ba89f3ca7b7f7dec959fa0f75ff15aa6df0b9157cd33f8107014"
+    },
+    "after_verify": {
+      "path": "logs/config-revalidation/mac-after-verify.json",
+      "sha256": "445a8e1c4b21ba89f3ca7b7f7dec959fa0f75ff15aa6df0b9157cd33f8107014"
+    },
+    "build": {
+      "path": "logs/config-revalidation/mac-build.log.gz",
+      "sha256": "4d2bd544fb66bffc80ae81577d46d7f61ef7d6e51d9d748a09eac1420f2fcdcd"
+    },
+    "no_run": {
+      "path": "logs/config-revalidation/mac-no-run.log.gz",
+      "sha256": "a1d2ef3b77763bd6f56618c66b604c45acd65a6ff2199453ff3aa4f4a9d68c2f"
+    },
+    "cleanup": {
+      "path": "logs/config-revalidation/mac-prepare-cleanup.json",
+      "sha256": "7d81a196f7d460675da106e0f748069e22d7b7843635d41cdeb584d836ffea98"
+    },
+    "original_child_goal_deadline_observation": {
+      "path": "logs/config-revalidation/mac-deadline-stage.json",
+      "sha256": "fec6a29771ae23dc303f8fac9c1fbabd72ebe2c55a655fcdb1a801caf48c86e9"
+    }
+  },
+  "linux_arm64": {
+    "environment": [
+      "Linux aarch64",
+      "rustc 1.91.1 (ed61e7d7e 2025-11-07)",
+      "Python 3.11.2",
+      "cc (Debian 12.2.0-14+deb12u1) 12.2.0"
+    ],
+    "git_head": "a72d35d01067fde5adae16f05a930870f58b1571",
+    "git_tree": "aed04f79ea4e8ae2657bee2c055c46b062fcede9",
+    "test_command": [
+      "cargo",
+      "test",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "--",
+      "--test-threads=1",
+      "--show-output"
+    ],
+    "runtime_intervals": {
+      "started": "2026-11-18T22:40:17Z",
+      "ended": "2026-11-18T22:41:16Z"
+    },
+    "test_exit": 0,
+    "counts": {
+      "passed": 39,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered_out": 0
+    },
+    "test_duration_seconds": 58.92,
+    "rebuilt_binary_sha256": {
+      "baton": "767b0038395a8905b54e2890eaaab8e18a6df9c674481112b4fa9de820cdbbfe",
+      "batond": "a995df99398345de4dee07d9c2d533fa2611fb824327d7ade68b6780616fffd8"
+    },
+    "prepare_and_both_verifies_identical": true,
+    "log": {
+      "path": "logs/config-revalidation/linux-factory.log.gz",
+      "sha256": "416d5262da2e025098184538ea33baa0decd5abe67c594df2838a2aeed6e1968"
+    },
+    "prepare": {
+      "path": "logs/config-revalidation/linux-prepare.json",
+      "sha256": "de3d37b3f240ea63af227bc843dfc68edb65333fb227858f50d3a092b28a628a"
+    },
+    "before_verify": {
+      "path": "logs/config-revalidation/linux-before-verify.json",
+      "sha256": "de3d37b3f240ea63af227bc843dfc68edb65333fb227858f50d3a092b28a628a"
+    },
+    "after_verify": {
+      "path": "logs/config-revalidation/linux-after-verify.json",
+      "sha256": "de3d37b3f240ea63af227bc843dfc68edb65333fb227858f50d3a092b28a628a"
+    },
+    "build": {
+      "path": "logs/config-revalidation/linux-build.log.gz",
+      "sha256": "3a5e14aeeeff948cb55e61332e389d0d87f6e3da5006829d8811ff37dcfb416b"
+    },
+    "no_run": {
+      "path": "logs/config-revalidation/linux-no-run.log.gz",
+      "sha256": "0426f6b716057c85b55b2b3af1e041d7634b8415c2769ea3d64e87a30a5a073b"
+    },
+    "cleanup": {
+      "path": "logs/config-revalidation/linux-prepare-cleanup.json",
+      "sha256": "07d91239081cda510db15afaccdde0229969a25193afba6f079c214687e8f1fb"
+    },
+    "container_image": "sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33 arm64",
+    "network_enabled": false,
+    "prior_container_restart_preflight": {
+      "container_exit": 1,
+      "factory_started": false,
+      "verify_stderr": {
+        "path": "logs/config-revalidation/linux-parked-before-verify.stderr",
+        "sha256": "32d7d83706fe20d12491e308361f0b806cb25920d96004275cf70da91caecf93"
+      },
+      "verify_stdout": {
+        "path": "logs/config-revalidation/linux-parked-before-verify.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "prepare": {
+        "path": "logs/config-revalidation/linux-parked-prepare.json",
+        "sha256": "72d72c2cbbb967f020e22ca827ae3d4a5567a54306070301cb30f68b8ffa2b67"
+      },
+      "cleanup": {
+        "path": "logs/config-revalidation/linux-parked-prepare-cleanup.json",
+        "sha256": "2f30310cef287fe84d35851fda5afc0a1f97c340cbbd8b6a11e919de9c738e2f"
+      },
+      "restart_file_identities_and_hashes": {
+        "path": "logs/config-revalidation/linux-restart-identity.json",
+        "sha256": "f383ff7b718631265f86eb6b3b99fd017029857f6db633dc882e0ccbdbfd4266"
+      }
+    },
+    "recovery": "Fresh private prepare, verify, Factory and verify in one container start with unchanged precompiled tool bytes",
+    "container_final_state": "exited 0",
+    "read_gates": {
+      "cancel": {
+        "outcome": {
+          "path": "logs/config-revalidation/linux-read-gate-cancel-outcome.json",
+          "sha256": "7f69596912f4e23c4588ee808348310f70c62b054c9a77c2f94bac25de06958c"
+        },
+        "owned_daemon_exit": {
+          "path": "logs/config-revalidation/linux-read-gate-cancel-cleanup.json",
+          "sha256": "3be12c4e5e7745aeb591d53a1792897dd0bfc1952b782d7057a439003bb0e415"
+        }
+      },
+      "revoke": {
+        "outcome": {
+          "path": "logs/config-revalidation/linux-read-gate-revoke-outcome.json",
+          "sha256": "cda52749682a2fa35d6d28120c9716dd91008dbdf5f6c5fed4a5202c85b2abfb"
+        },
+        "owned_daemon_exit": {
+          "path": "logs/config-revalidation/linux-read-gate-revoke-cleanup.json",
+          "sha256": "302868e2ad26ccf3dbe19b659c078050104e24826b8f49f230ff2a0dbc8f4ab5"
+        }
+      },
+      "expiry": {
+        "outcome": {
+          "path": "logs/config-revalidation/linux-read-gate-expiry-outcome.json",
+          "sha256": "6e968bcf3ee027700134f3c03e26ba8e7e864695cef92bf5ddb473b79b2d29ec"
+        },
+        "owned_daemon_exit": {
+          "path": "logs/config-revalidation/linux-read-gate-expiry-cleanup.json",
+          "sha256": "a5bd415e3ca400ad72dcf3a2fdd90591e3a3986d598d84a6140671e105133762"
+        }
+      }
+    }
+  },
+  "default_workspace_reexecuted": false,
+  "composition_log": {
+    "path": "logs/config-revalidation/candidate-git.log.gz",
+    "sha256": "3db9fd159a0e22bb1bc27dbf96f163c0acf2c64e3360b769d8248ce9ee55ae3f"
+  },
+  "runtime_launchers": {
+    "mac_and_original_linux": {
+      "path": "logs/config-revalidation/serial-factory.sh.txt",
+      "sha256": "7bca9fb9bbbfe605f5bb036092cccbb1ed9000644d0cd4b66a1fe4ff83329181"
+    },
+    "linux_prebuild": {
+      "path": "logs/config-revalidation/linux-original-run.sh.txt",
+      "sha256": "34f7ce0c269d4ffb4046ef79a075c5fd4fe789344d2a318b55f915a3b10619a9"
+    },
+    "linux_recovery": {
+      "path": "logs/config-revalidation/linux-recovery.sh.txt",
+      "sha256": "0f2d8ff0bc46fd1a2a5c467ef50046b25b487ad78c050d54875b8ae31de36f38"
+    }
+  },
+  "build_workflow": {
+    "command": [
+      "nice",
+      "-n",
+      "15",
+      "cargo",
+      "build",
+      "-j",
+      "1",
+      "--workspace",
+      "--offline",
+      "--locked",
+      "--bins"
+    ],
+    "prebuild_command": [
+      "nice",
+      "-n",
+      "15",
+      "cargo",
+      "test",
+      "-j",
+      "1",
+      "--offline",
+      "--locked",
+      "-p",
+      "agentbaton-core",
+      "--test",
+      "factory_runtime_ipc",
+      "--no-run"
+    ]
+  }
+}

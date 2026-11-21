@@ -1,0 +1,16 @@
+collab: task runtime /private/tmp/ab-collab-wjo9gde4
+Traceback (most recent call last):
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 720, in <module>
+    main()
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 706, in main
+    app_case(paths, base, output, evidence)
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 648, in app_case
+    label_for = open_settings(ax, app, executable)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 590, in open_settings
+    ax.call(app, executable, "disclose", hosts)
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 514, in call
+    require(command.returncode == 0, command.stderr.strip() or "Owned App AX action failed")
+  File "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/host-registration-native-e2e/scripts/host-registration-native-smoke.py", line 42, in require
+    raise RuntimeError(message)
+RuntimeError: Owned App could not activate for input

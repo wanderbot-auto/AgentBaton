@@ -1,0 +1,183 @@
+{
+  "platform": "macOS-26.6.1-arm64-arm-64bit",
+  "python": "3.12.12",
+  "snapshots": {
+    "base": {
+      "commit": "53da4ce20fdfedae4a745e704394072ad6b742ae",
+      "cases": [
+        {
+          "case": "observation-error",
+          "wall_seconds": 0.127,
+          "harness_timeout_seconds": 3,
+          "signal_syscalls": [
+            {
+              "signal": "SIGTERM",
+              "result": "signalled"
+            },
+            {
+              "signal": "SIGKILL",
+              "errno": 1
+            }
+          ],
+          "fresh_group_proof_from_runner": [],
+          "only_original_zombie_at_wait": true,
+          "pre_wait_independent_quiescence": true,
+          "wait_exit": -15,
+          "second_waitpid_errno": 10,
+          "no_pid_or_group_after_wait": true,
+          "runner_report": {
+            "exit_code": -15,
+            "timeout": false,
+            "owned_group_cleanup": false,
+            "leader_observation": "ps-owned-child-zombie-state",
+            "group_signals": [
+              {
+                "signal": "SIGTERM",
+                "result": "signalled"
+              }
+            ],
+            "adopted_owned_group_children_reaped": 0,
+            "status": "failed",
+            "observation_error": "OSError:22",
+            "cleanup_errors": [
+              "SIGKILL:PermissionError:1; owned group not proven quiescent"
+            ],
+            "evidence_error": "native report was not produced by this run"
+          },
+          "run_exit": 1
+        },
+        {
+          "case": "timeout",
+          "wall_seconds": 1.177,
+          "harness_timeout_seconds": 1,
+          "signal_syscalls": [
+            {
+              "signal": "SIGTERM",
+              "result": "signalled"
+            },
+            {
+              "signal": "SIGKILL",
+              "result": "signalled"
+            }
+          ],
+          "fresh_group_proof_from_runner": [],
+          "only_original_zombie_at_wait": true,
+          "pre_wait_independent_quiescence": true,
+          "wait_exit": -9,
+          "second_waitpid_errno": 10,
+          "no_pid_or_group_after_wait": true,
+          "runner_report": {
+            "exit_code": -9,
+            "timeout": true,
+            "owned_group_cleanup": true,
+            "leader_observation": "ps-owned-child-zombie-state",
+            "group_signals": [
+              {
+                "signal": "SIGTERM",
+                "result": "signalled"
+              },
+              {
+                "signal": "SIGKILL",
+                "result": "signalled"
+              }
+            ],
+            "adopted_owned_group_children_reaped": 0,
+            "status": "failed",
+            "evidence_error": "native report was not produced by this run"
+          },
+          "run_exit": 1
+        }
+      ]
+    },
+    "candidate": {
+      "commit": "6e0e4f775762a224b89be338aedb49f725899647",
+      "cases": [
+        {
+          "case": "observation-error",
+          "wall_seconds": 0.125,
+          "harness_timeout_seconds": 3,
+          "signal_syscalls": [
+            {
+              "signal": "SIGTERM",
+              "result": "signalled"
+            },
+            {
+              "signal": "SIGKILL",
+              "errno": 1
+            }
+          ],
+          "fresh_group_proof_from_runner": [
+            true
+          ],
+          "only_original_zombie_at_wait": true,
+          "pre_wait_independent_quiescence": true,
+          "wait_exit": -15,
+          "second_waitpid_errno": 10,
+          "no_pid_or_group_after_wait": true,
+          "runner_report": {
+            "exit_code": -15,
+            "timeout": false,
+            "owned_group_cleanup": true,
+            "leader_observation": "ps-owned-child-zombie-state",
+            "group_signals": [
+              {
+                "signal": "SIGTERM",
+                "result": "signalled"
+              },
+              {
+                "signal": "SIGKILL",
+                "result": "observed_quiescent"
+              }
+            ],
+            "adopted_owned_group_children_reaped": 0,
+            "status": "failed",
+            "observation_error": "OSError:22",
+            "evidence_error": "native report was not produced by this run"
+          },
+          "run_exit": 1
+        },
+        {
+          "case": "timeout",
+          "wall_seconds": 1.171,
+          "harness_timeout_seconds": 1,
+          "signal_syscalls": [
+            {
+              "signal": "SIGTERM",
+              "result": "signalled"
+            },
+            {
+              "signal": "SIGKILL",
+              "result": "signalled"
+            }
+          ],
+          "fresh_group_proof_from_runner": [],
+          "only_original_zombie_at_wait": true,
+          "pre_wait_independent_quiescence": true,
+          "wait_exit": -9,
+          "second_waitpid_errno": 10,
+          "no_pid_or_group_after_wait": true,
+          "runner_report": {
+            "exit_code": -9,
+            "timeout": true,
+            "owned_group_cleanup": true,
+            "leader_observation": "ps-owned-child-zombie-state",
+            "group_signals": [
+              {
+                "signal": "SIGTERM",
+                "result": "signalled"
+              },
+              {
+                "signal": "SIGKILL",
+                "result": "signalled"
+              }
+            ],
+            "adopted_owned_group_children_reaped": 0,
+            "status": "failed",
+            "evidence_error": "native report was not produced by this run"
+          },
+          "run_exit": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "mode": "candidate",
+  "head": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+  "driver_sha256": "e5036fd15afa431228a9b11553b0602e144636dda58fecf4fbbbcaac8633f6f3",
+  "tools": {
+    "baton": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+    "batond": "f75eca51ec0ab4384e24a42143ac5d455e554bf5be4928428ecb24c39b976d84"
+  },
+  "bootstrap_boundary": "real driver bootstrap, real Host result, stopped before project import",
+  "bootstrap_status": "passed_schema_guard",
+  "snapshot": {
+    "api_version": 1,
+    "database_schema_version": 19,
+    "sequence": 0
+  },
+  "database": {
+    "19": {
+      "database_sha256_before": "ac6b66ba7deaa046d90a2135dd2faee155c156e82722567afe3093fac3c343f4",
+      "accepted": true,
+      "query_only": 1,
+      "active_transaction": true,
+      "version": 19,
+      "counts": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "write_refusal": "attempt to write a readonly database",
+      "database_sha256_after": "ac6b66ba7deaa046d90a2135dd2faee155c156e82722567afe3093fac3c343f4",
+      "database_files_before": {
+        "baton.sqlite3": "ac6b66ba7deaa046d90a2135dd2faee155c156e82722567afe3093fac3c343f4",
+        "baton.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "database_files_after": {
+        "baton.sqlite3": "ac6b66ba7deaa046d90a2135dd2faee155c156e82722567afe3093fac3c343f4",
+        "baton.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "18": {
+      "database_sha256_before": "d63c578c3e8846929d7c0b3fc70e023da95360ea20619ea7b9c3a64fab01693d",
+      "accepted": false,
+      "refused_at": "require(version == (19,) and type(version[0]) is int)",
+      "database_sha256_after": "d63c578c3e8846929d7c0b3fc70e023da95360ea20619ea7b9c3a64fab01693d",
+      "database_files_before": {
+        "baton.sqlite3": "d63c578c3e8846929d7c0b3fc70e023da95360ea20619ea7b9c3a64fab01693d",
+        "baton.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "database_files_after": {
+        "baton.sqlite3": "d63c578c3e8846929d7c0b3fc70e023da95360ea20619ea7b9c3a64fab01693d",
+        "baton.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "20": {
+      "database_sha256_before": "8ddbcae84976e34831c104f4fc5d14d447d5c9582987bf096ee5d52cb5f635a6",
+      "accepted": false,
+      "refused_at": "require(version == (19,) and type(version[0]) is int)",
+      "database_sha256_after": "8ddbcae84976e34831c104f4fc5d14d447d5c9582987bf096ee5d52cb5f635a6",
+      "database_files_before": {
+        "baton.sqlite3": "8ddbcae84976e34831c104f4fc5d14d447d5c9582987bf096ee5d52cb5f635a6",
+        "baton.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "database_files_after": {
+        "baton.sqlite3": "8ddbcae84976e34831c104f4fc5d14d447d5c9582987bf096ee5d52cb5f635a6",
+        "baton.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "sequence_unchanged": true,
+  "cleanup": {
+    "daemon_pid": 29913,
+    "exit": 0,
+    "joined": true,
+    "forced_kill": false,
+    "private_runtime_removed": true
+  }
+}

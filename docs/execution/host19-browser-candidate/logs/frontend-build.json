@@ -1,0 +1,15 @@
+{
+  "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "command": [
+    "npm",
+    "--prefix",
+    "apps/desktop",
+    "run",
+    "build"
+  ],
+  "exit": 0,
+  "source_head_and_tracked_unchanged": true,
+  "tracked_clean": true,
+  "seconds": 2.067,
+  "log_sha256": "4b260097e3f18fabb9f91097282f4c44ccdebf46bfaf27d81f87133a2eb679ab"
+}

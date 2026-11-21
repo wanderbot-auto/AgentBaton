@@ -1,0 +1,17 @@
+# Path: /private/tmp/ab-collab-0dgnp8ti/receipt-fixture/image/AgentBaton.app/Contents/MacOS/agentbaton-desktop
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /var/folders/md/zyqtp59s2573mqf8rkz2d33h0000gn/T/native-86f044.o
+[  2] /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x1000003B0	0x00000020	__TEXT	__text
+0x1000003D0	0x00000058	__TEXT	__unwind_info
+0x100004000	0x0000013B	__DATA	__fixtureweb
+# Symbols:
+# Address	Size    	File  Name
+0x100000000	0x00000000	[  0] __mh_execute_header
+0x1000003B0	0x00000020	[  1] _main
+0x1000003D0	0x00000058	[  0] compact unwind info
+0x100004000	0x0000013B	[  1] _fixture_web

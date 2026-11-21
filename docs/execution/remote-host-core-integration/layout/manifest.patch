@@ -1,0 +1,10 @@
+--- repo/crates/core/Cargo.toml
++++ mirror/crates/core/Cargo.toml
+@@ -5,6 +5,7 @@
+ publish = false
+ 
+ [dependencies]
++agentbaton-remote-host = { path = "../remote-host" }
+ agentbaton-config = { path = "../config" }
+ agentbaton-providers = { path = "../providers" }
+ sha2 = "0.10"

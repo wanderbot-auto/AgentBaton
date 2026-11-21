@@ -1,0 +1,71 @@
+{
+  "requirement": "AB-REL-003",
+  "base": "ae844ca33406aabd62f44ea73818f9127f211748",
+  "tested_package_commit": "37adc84966e6748fdd942651f3971e9bc6d850fc",
+  "tested_package_tree": "561ac8ee3fd5f1290a2de2bd07f97dd3b6741099",
+  "native": {
+    "platform": "Darwin arm64",
+    "os": "macOS 26.6.1 (25G76)",
+    "command": "bash scripts/collab.sh run --native -- env LC_ALL=C /bin/bash docs/execution/native-development-package-admission/replay-native.sh LOCKED_BUILD_CHECKOUT HISTORICAL_DMG",
+    "fixture_build_commit": "14530c62a0b532e2ba43ca4be4fbc75ccc41d856",
+    "fixture_build_tree": "41b3e2fe076ee4ebcb6355dddc1505f6bb75e135",
+    "compiled_originals_sha256": {
+      "agentbaton-desktop": "198293e8d1b87b3fec72d2f4b0945b30d5af6c0f873a46d45e14d1b217c2d62a",
+      "baton": "96811560a548a4dfd10576c43e6d2408d53dad371536e6a4e9b243977866d30b",
+      "batond": "0b18add53fc794e6684690a90b74542e487f18409216b2724c8d3d438785a1a1"
+    },
+    "mixed_fixture": {
+      "commit": "df35231eab29aa2d4a043fd9be60888504507716",
+      "actions_run": 44122458362,
+      "artifact_id": 14350183579,
+      "dmg_sha256": "e6373b07b5d76cb1d329b455b6a1dfc41595735be02416b2aeea974e740df03f",
+      "batond_sha256": "a3ad712dfceb6fa9ce4cce3f1266e74d4663faa1e33af690ab9278a57792e109"
+    },
+    "cases": {
+      "positive": {
+        "status": 0,
+        "bundle_audit": "passed",
+        "owned_image_detached": true,
+        "artifact_members": 4,
+        "provenance_consumer": "macos_arm64_read_only_dmg_detached",
+        "dmg_sha256": "209c1c8846cbdf8bc2581427113ab28eafd84d4becaafa2e2fdabd7db9b66188",
+        "archive_sha256": "80d931cf0a6bee665d08e170c064f008b159d2e18df9dbd31270a471a9e6a8b7"
+      },
+      "mixed": {
+        "status": 1,
+        "cause": "SHA-256 mismatch for batond",
+        "owned_image_detached": true,
+        "upload_candidate_present": false
+      },
+      "missing": {
+        "status": 1,
+        "cause": "missing baton from actual mounted app inventory",
+        "owned_image_detached": true,
+        "upload_candidate_present": false
+      }
+    },
+    "replay_exit": 0,
+    "transcript": "native-output.txt",
+    "transcript_sha256": "f469581fe1d4e6323de5883a5751bb4bda85b688c22570000bcf8374e996034d",
+    "raw_transcript_sha256": "b680236b7881c05c3d00b63a7a9a5dded72837942418297e9582b1aa280a8957",
+    "scope": "Local assembly from previously compiled, byte-pinned fixture inputs. The candidate name records the packaging code snapshot and the fixture build is recorded separately."
+  },
+  "infrastructure": {
+    "command": "python -m unittest discover -s tests/infrastructure -p 'test_*.py' -v",
+    "python": "3.12.12",
+    "executed": 1071,
+    "passed": 1055,
+    "skipped": 16,
+    "failed": 0,
+    "new_package_admission_tests_passed": 10,
+    "legacy_native_source_guard_tests_passed": 12,
+    "native_ci_contract_tests_passed": 18,
+    "release_audit_tests_passed": 22,
+    "static_checks": ["bash -n", "git diff --check", "validate_design.py", "validate_infrastructure.py", "verify_bootstrap_manifest.py"],
+    "transcript": "infrastructure-output.txt",
+    "raw_transcript_sha256": "2c1411e0c26352e2d7301824d6390d99e14864fc0eace076077125aa9c4ccbc0",
+    "original_single_file_audit_sha256": "372ebc9860d2ecc1f529f5f089b877cf3bc0d8d68459ebf1d663af09933b99a5"
+  },
+  "hosted_ci_for_candidate": "not_run",
+  "production_release": "not_run"
+}

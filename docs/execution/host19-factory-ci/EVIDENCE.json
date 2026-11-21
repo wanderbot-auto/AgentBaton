@@ -1,0 +1,480 @@
+{
+  "base_head": "7e41a4834af2ee592c9bba94b00152a40eda9b7a",
+  "verified_source_head": "29f6a14147880a2a1744e1044278165d8c11f4db",
+  "verified_source_tree": "63023c96e04d28827d2d280112b79ac295c2fdc6",
+  "build": {
+    "source_head": "29f6a14147880a2a1744e1044278165d8c11f4db",
+    "source_tree": "63023c96e04d28827d2d280112b79ac295c2fdc6",
+    "compiled_core_source_head": "29f6a14147880a2a1744e1044278165d8c11f4db",
+    "core_build_exit": 0,
+    "frontend_build_exit": 0,
+    "tracked_source_clean_before_and_after": true,
+    "core_build_log_sha256": "bfe53e1e8960de8aa628a3e6c550e90abd57436fc66f16038bcd0a466f7c3b57",
+    "frontend_build_log_sha256": "18df6779097bac2e4dc3089715bb3fc691bf7013f318f5c6c563595a09c3fe49",
+    "candidate_manifest_sha256": "eb92ebfbd0f47460ed76f9d76ae4c05bc981ee2844c6253f9ad8ce9380b71642",
+    "tools_sha256": {
+      "batond": "6f58f101f14dd830ec8a7f03502cb8a08c3ac549978e4c7aa4c8e8be0885dc87",
+      "baton": "c6be17976db26b164ae1ef36ec3ae26ada12ff395c0e34dea8277248e3284143"
+    },
+    "frontend_assets_sha256": {
+      "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+      "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+      "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c"
+    },
+    "cargo_command": "CARGO_PROFILE_DEV_DEBUG=0 CARGO_BUILD_JOBS=2 cargo build --offline --locked --bin baton --bin batond --features agentbaton-core/preview-evidence",
+    "frontend_command": "npm --prefix apps/desktop run build",
+    "frontend_build_host": "Apple Silicon macOS",
+    "frontend_copied_byte_for_byte": true,
+    "core_build_image": "rust@sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "linux_browser_image": "mcr.microsoft.com/playwright/python@sha256:ad879d1a9e49a94f6f8c99f6890f684b909498509c0494502320b70ddab655cf",
+    "playwright_arm64_wheel_lock_sha256": "64459894a6634ea3e7ac98d86291d8c63dc5d8a5083a997a3ea71ec6c3a19475",
+    "strip": {
+      "version": "GNU strip (GNU Binutils for Debian) 2.40",
+      "runtime_path": "/usr/bin/strip",
+      "bytes_sha256": "09ea31b5f54325e60310f43ee17fa532b4f816a177a13f4b59f72767d26932bf",
+      "pinned_dependencies_sha256": {
+        "libbfd-2.40-system.so": "9c5dc62defb1aef00a23b77726cce74cc22b91aa418287da8e82e5854d74dd26",
+        "libsframe.so.0": "8e1afea39d191b0fd280c6607f463141b42d5cdd70270029012943698208cca2"
+      }
+    }
+  },
+  "actual_linux_container": {
+    "receipt_sha256": "8a622137e173051868b3dc2390f3d79c0b3ef41bb856223a378ba8b74c34aed2",
+    "source": "29f6a14147880a2a1744e1044278165d8c11f4db",
+    "git_tree": "63023c96e04d28827d2d280112b79ac295c2fdc6",
+    "runtime": "Local Linux ARM64 Docker container; real procfs, private Core and Chromium; generated ACP and actual Baton MCP",
+    "kernel": "6.12.69-linuxkit",
+    "python": "3.12.3",
+    "playwright": "1.61.0",
+    "chromium": "Chromium 149.0.7827.0",
+    "chromium_sha256": "c1aa0fb5b6c60eb093df69d9e40dd50ab2039d3ccba8836ef21880340a77af64",
+    "snapshot_version": 19,
+    "manifest_sha256": "eb92ebfbd0f47460ed76f9d76ae4c05bc981ee2844c6253f9ad8ce9380b71642",
+    "harness_sha256": "e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464",
+    "graph_support_sha256": "550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18",
+    "build_receipt_sha256": "c9995749e5ef8e1db5dfe181032c727a898db573ad2523f8ce2c0527d382f408",
+    "tools_sha256": {
+      "batond": "6f58f101f14dd830ec8a7f03502cb8a08c3ac549978e4c7aa4c8e8be0885dc87",
+      "baton": "c6be17976db26b164ae1ef36ec3ae26ada12ff395c0e34dea8277248e3284143"
+    },
+    "frontend_assets_sha256": {
+      "assets/index-D8twEwnK.js": "6f21a1ae2d9f6e8038d7329be5105a205ee7fc193b0ed79902753b58594f0090",
+      "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+      "index.html": "4a0c7f3301dd165c2e1bba76fe88dc01ccc88803321c0a275d5b2338f39f946c"
+    },
+    "loopback_only": true,
+    "private_case_fixtures_removed": true,
+    "preflight_controls": {
+      "false": {
+        "exit": 2,
+        "refusal": "Only integer schema19 candidate is current Factory runtime evidence",
+        "report_sha256": "dd84d136bbc6d3c55e079ca2371970db5507e469da3ef161c60155c9cb43b1ae"
+      },
+      "float": {
+        "exit": 2,
+        "refusal": "Only integer schema19 candidate is current Factory runtime evidence",
+        "report_sha256": "dd84d136bbc6d3c55e079ca2371970db5507e469da3ef161c60155c9cb43b1ae"
+      },
+      "string": {
+        "exit": 2,
+        "refusal": "Only integer schema19 candidate is current Factory runtime evidence",
+        "report_sha256": "dd84d136bbc6d3c55e079ca2371970db5507e469da3ef161c60155c9cb43b1ae"
+      },
+      "old": {
+        "exit": 2,
+        "refusal": "Only integer schema19 candidate is current Factory runtime evidence",
+        "report_sha256": "dd84d136bbc6d3c55e079ca2371970db5507e469da3ef161c60155c9cb43b1ae"
+      },
+      "future": {
+        "exit": 2,
+        "refusal": "Only integer schema19 candidate is current Factory runtime evidence",
+        "report_sha256": "dd84d136bbc6d3c55e079ca2371970db5507e469da3ef161c60155c9cb43b1ae"
+      },
+      "source-mismatch": {
+        "exit": 2,
+        "refusal": "Factory candidate source does not match the clean Git HEAD/tree",
+        "report_sha256": "9438396d0e4a69e4a890bf4265683657214f6d5746ac06453aa8f4ae557e9f7f"
+      },
+      "compiled-mismatch": {
+        "exit": 2,
+        "refusal": "Factory candidate source does not match the clean Git HEAD/tree",
+        "report_sha256": "9438396d0e4a69e4a890bf4265683657214f6d5746ac06453aa8f4ae557e9f7f"
+      },
+      "tool-substitution": {
+        "exit": 2,
+        "refusal": "Factory frozen tool digest mismatch",
+        "report_sha256": "60ee2d6364d2ffa3af672032cd41e4911dffa904d82f23113f41ddaf97ea2193"
+      },
+      "frontend-substitution": {
+        "exit": 2,
+        "refusal": "Factory candidate frontend assets do not match",
+        "report_sha256": "fdd20a05147d02033f99ed21aac661104de5a76bc5be8c3558ced979ad1c4dfa"
+      }
+    },
+    "cases": {
+      "normal": {
+        "exit": 0,
+        "status": "passed",
+        "report_sha256": "b599b4a209ed414dc64f5452bdc6dfc72eaf8ec32b099fb98003b43826c3cb7f",
+        "checks": [
+          "current candidate, actual private IPC snapshot and read-only SQLite agree on schema 19 before Owner setup",
+          "actual generated resources and complete private Factory approval; approval starts no Provider",
+          "built UI reads genuine scope; folded load and explicit start; HTTP denies Owner and Agent tools",
+          "actual scoped MCP/owned attempts persist exact lineage and cumulative budgets; no TaskAccepted or new Grant",
+          "actual built Factory UI shows terminal history without acceptance or source/asset drift"
+        ],
+        "images": {
+          "01-real-approved-scope-not-started.png": {
+            "sha256": "970caf5352a39065ea91f257f70e5d0006f7598af4ce994eb9d35b41fb85080e",
+            "bytes": 172735,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "02-real-completed-task-history.png": {
+            "sha256": "9e9f14fee0d524a4ff1e83a6013ef7935023e8ac16b8e19bf0405e95a6edcf4b",
+            "bytes": 197633,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          }
+        },
+        "schema": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19,
+          "snapshot_reply_sha256": "52b98c37847422688b843b043f8ee1d2a7b18fb8e03f01eff2d1001e125d3a72"
+        },
+        "terminal": "completed",
+        "attempts": 3,
+        "stop_receipts": 3,
+        "selected_artifact_bytes": 88,
+        "root_and_project_active_slots": 0,
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_thread_and_handlers_joined": true,
+          "original_process_identities_gone_without_signal": 6,
+          "cleanup_complete": true
+        },
+        "installed_tools": {
+          "batond": {
+            "sha256": "6f58f101f14dd830ec8a7f03502cb8a08c3ac549978e4c7aa4c8e8be0885dc87",
+            "bytes": 77853272
+          },
+          "baton": {
+            "sha256": "2c6f222ca40b3a0f09e602a44fcdc7b25f651b07726621724690429ff6958d19",
+            "bytes": 1450536
+          }
+        }
+      },
+      "cancel": {
+        "exit": 0,
+        "status": "passed",
+        "report_sha256": "8cdc73a9c8de22f83cd1f8a6c1772eda58c25f12f402c73f4f8ac5cf3c443e96",
+        "checks": [
+          "current candidate, actual private IPC snapshot and read-only SQLite agree on schema 19 before Owner setup",
+          "actual generated resources and complete private Factory approval; approval starts no Provider",
+          "built UI reads genuine scope; folded load and explicit start; HTTP denies Owner and Agent tools",
+          "actual scoped MCP/owned attempts persist exact lineage and cumulative budgets; no TaskAccepted or new Grant",
+          "actual built Factory UI shows terminal history without acceptance or source/asset drift"
+        ],
+        "images": {
+          "01-real-approved-scope-not-started.png": {
+            "sha256": "4705722f7bab0a448b16adc1e24046b72c6a198dcb02c2ef3f23ecea692dfe0b",
+            "bytes": 173913,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "02-real-cancelled-task-history.png": {
+            "sha256": "ddb2f5b6e3daee1b3f4ce4bd2fa595863b98b5549ac5af1cf79bd168d4696c35",
+            "bytes": 188681,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          }
+        },
+        "schema": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19,
+          "snapshot_reply_sha256": "2de52901d468fd949f3b61362b4ce57659e88241bee5a3fcc622fa0811ad314e"
+        },
+        "terminal": "cancelled",
+        "attempts": 1,
+        "stop_receipts": 1,
+        "selected_artifact_bytes": 0,
+        "root_and_project_active_slots": 0,
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_thread_and_handlers_joined": true,
+          "original_process_identities_gone_without_signal": 2,
+          "cleanup_complete": true
+        },
+        "installed_tools": {
+          "batond": {
+            "sha256": "6f58f101f14dd830ec8a7f03502cb8a08c3ac549978e4c7aa4c8e8be0885dc87",
+            "bytes": 77853272
+          },
+          "baton": {
+            "sha256": "2c6f222ca40b3a0f09e602a44fcdc7b25f651b07726621724690429ff6958d19",
+            "bytes": 1450536
+          }
+        }
+      },
+      "unknown": {
+        "exit": 0,
+        "status": "passed",
+        "report_sha256": "583bd6ae419438e38d81432e4eb3d844b206ea507c39dbf89180338bf27af136",
+        "checks": [
+          "current candidate, actual private IPC snapshot and read-only SQLite agree on schema 19 before Owner setup",
+          "actual generated resources and complete private Factory approval; approval starts no Provider",
+          "built UI reads genuine scope; folded load and explicit start; HTTP denies Owner and Agent tools",
+          "actual scoped MCP/owned attempts persist exact lineage and cumulative budgets; no TaskAccepted or new Grant",
+          "actual built Factory UI shows terminal history without acceptance or source/asset drift"
+        ],
+        "images": {
+          "01-real-approved-scope-not-started.png": {
+            "sha256": "f25d8281c9fb369706d42ac2a28c52db11a14a7d64112a8e7b3f50c3d3a0452f",
+            "bytes": 173347,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          },
+          "02-real-outcome_unknown-task-history.png": {
+            "sha256": "8dd8630b1ae4add17e285a952d6a7d515b6b3e804a17790723bcf53c06731d9b",
+            "bytes": 190196,
+            "dimensions": [
+              1488,
+              1400
+            ]
+          }
+        },
+        "schema": {
+          "manifest_schema": 19,
+          "ipc_api_version": 1,
+          "ipc_database_schema_version": 19,
+          "sqlite_user_version": 19,
+          "snapshot_reply_sha256": "c77dfc69cadf8c0fe99262ff390544450834dc4f8a0c7d40795708a633166635"
+        },
+        "terminal": "outcome_unknown",
+        "attempts": 1,
+        "stop_receipts": 1,
+        "selected_artifact_bytes": 0,
+        "root_and_project_active_slots": 0,
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_thread_and_handlers_joined": true,
+          "original_process_identities_gone_without_signal": 2,
+          "cleanup_complete": true
+        },
+        "installed_tools": {
+          "batond": {
+            "sha256": "6f58f101f14dd830ec8a7f03502cb8a08c3ac549978e4c7aa4c8e8be0885dc87",
+            "bytes": 77853272
+          },
+          "baton": {
+            "sha256": "2c6f222ca40b3a0f09e602a44fcdc7b25f651b07726621724690429ff6958d19",
+            "bytes": 1450536
+          }
+        }
+      }
+    },
+    "teardown_controls": {
+      "browser-close": {
+        "exit": 1,
+        "report_sha256": "b284044ba3d8327d24d98b7ba2aefc8a3b7de53823edc024193ea29b092177f1",
+        "stage": "browser_close",
+        "business_reached": true,
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_thread_and_handlers_joined": true,
+          "original_process_identities_gone_without_signal": 2,
+          "cleanup_complete": false
+        }
+      },
+      "http-close": {
+        "exit": 1,
+        "report_sha256": "b971418d5bd5e19d1fac287e4b14cac63264fcbf138358b73170745c28506596",
+        "stage": "http_handlers_close",
+        "business_reached": true,
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_thread_and_handlers_joined": true,
+          "original_process_identities_gone_without_signal": 2,
+          "cleanup_complete": false
+        }
+      },
+      "frontend-drift": {
+        "exit": 1,
+        "report_sha256": "311109b15e0333f18e549cd3d86b046c425f897d2d8552f43680aa6ba83888ae",
+        "stage": "fixed_inputs_after_teardown",
+        "business_reached": true,
+        "cleanup": {
+          "daemon_wait0": true,
+          "http_thread_and_handlers_joined": true,
+          "original_process_identities_gone_without_signal": 2,
+          "cleanup_complete": false
+        }
+      }
+    },
+    "owned_container_removed": true,
+    "workflow_start_observation_seconds": 15,
+    "provider_observer_ack_deadline_seconds": 5,
+    "companion_size_cap_bytes": 134217728
+  },
+  "historical": {
+    "factory_original_sha256": "0a686d2a9aab1ec5ff17207f0a654d21c560bbc85f00176b71c6516ab7331df0",
+    "factory_original_artifact": "legacy-checkout/apps/desktop/tests/factory-real-ipc.py",
+    "graph_helper_exact_sha256": "550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18",
+    "wire_fixture_original_sha256": "0c6fbd065df4a49997acca4fc898a3f952721bfbc60b57229ca36571db0c0c64",
+    "linux_static_replay": {
+      "checkout": {
+        "self-check": {
+          "exit": 0,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+          "checks_passed": 63
+        },
+        "fixture-self-check": {
+          "exit": 0,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+          "checks_passed": 13
+        },
+        "cleanup-self-check": {
+          "exit": 0,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+          "checks_passed": 28
+        },
+        "diagnostic-self-check": {
+          "exit": 1,
+          "log_sha256": "f5f69c419e39b1f74ea9b723c2c1c89a537129eea7d0affee3e591d231485f58",
+          "failure": "Previously bound generated record required for an absent initial identity"
+        }
+      },
+      "historical": {
+        "self-check": {
+          "exit": 0,
+          "log_sha256": "f5faad1d1d43a0d8001530efff3d0f600ce2a528d5b9d1c81ae95ff1f6bcc50f",
+          "checks_passed": 63
+        },
+        "fixture-self-check": {
+          "exit": 0,
+          "log_sha256": "590af9b76339199d2fb79ca2b6f6b1179133b847f87679a6fd66de3f4ed935a1",
+          "checks_passed": 13
+        },
+        "cleanup-self-check": {
+          "exit": 0,
+          "log_sha256": "d5c141495e9e184e902bde213f7b091c138742067070a128c3deed52b8cea479",
+          "checks_passed": 28
+        },
+        "diagnostic-self-check": {
+          "exit": 1,
+          "log_sha256": "15c47b44fb0327de61a0523ad43b2442d8092b939698790638f671feba729bfb",
+          "failure": "Previously bound generated record required for an absent initial identity"
+        }
+      }
+    }
+  },
+  "checks": {
+    "initial_focused_legacy_passed": 84,
+    "current_schema19_passed": 13,
+    "existing_focused_passed": 84,
+    "shared_meters_passed": 18,
+    "child_planning_and_child_goal_static_passed": true,
+    "infrastructure": {
+      "passed": 985,
+      "skipped": 16,
+      "exit": 0
+    },
+    "root_node": {
+      "passed": 4,
+      "exit": 0
+    },
+    "desktop": {
+      "files": 114,
+      "passed": 1597,
+      "exit": 0
+    },
+    "preflight_passed": [
+      "verify_bootstrap_manifest",
+      "validate_design",
+      "validate_infrastructure",
+      "check_gate --scope preparation",
+      "doctor --strict"
+    ],
+    "isolated_rust_smoke": {
+      "passed": 2,
+      "strict_all_targets_clippy_exit": 0
+    },
+    "sha256_logs": {
+      "baseline": "7de5c39ec6e110c37505559ba1ad0abde5c891433c00b624d058bb15a4acb53d",
+      "focused-current": "951734d9bce043d533cb4b59f45ce84bf056f0280a53edbb70b83fcac032470e",
+      "focused-existing": "c62f25b31d0ed57edfe52ec27a74e7baaafadcf804ba39b1f8257698e2280cda",
+      "shared-meters": "c7ad40a18fdf84fca22385aa3a849365d3087b42bf0446420e6ed6d95d44b996",
+      "child-planning-static": "6cd0f3096224298b232ec7ffa5ee446120f471a6f3f633bab796a3e7b648f829",
+      "child-goal-static": "67f2112282c5a4b9ca5665614495c66c1ffc36758bf147517498ef8aa449c496",
+      "infra": "508c2881e83b6dc1f6cb50f49dceec1fb02e3157d6b80526e2f44ed06c3d8aca",
+      "root-node": "89af4413c9b1f0b293c9d49caa7fda68829b0b7ef761ccbc5cb703539e096b99",
+      "desktop": "2205761ac95738b54a6753e766358fc991c3ea5f24cd7b75e9d24f289b42c30a",
+      "verify_bootstrap_manifest": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462",
+      "validate_design": "e4872c4ec181adef2c717eacfdba8d18e16e4ddfd5bf79a93ba77c655f8f9335",
+      "validate_infrastructure": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+      "gate": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146",
+      "doctor": "584b0a91e75fc5f7922ed704559ab9165a6cabf2f1c4d497d789393889e979d1",
+      "rust-smoke": "74a7456a397eba3ec78d159d2c03f447876977ceeb0e0c2123571a080473cea2",
+      "smoke-clippy": "6a0ac1de4a10cc1b9982fa68ab3381f0f7c3c54b61e2d084e0905f037ebfe52f",
+      "linux-build": "bfe53e1e8960de8aa628a3e6c550e90abd57436fc66f16038bcd0a466f7c3b57",
+      "frontend-build": "18df6779097bac2e4dc3089715bb3fc691bf7013f318f5c6c563595a09c3fe49",
+      "locked-dependencies": "0c86acdba241fbb9ab7f486f33b6069ae343f45945eeef8dc1daee79c8963fe2",
+      "strip-source": "bb98c9d5c6c16706b2a2a9cc42a1c60ce5f1dcbc1883640c412c54540c5778d8",
+      "strip-bundle": "b97d3a6c4ac9cc2340a32aa0d18172ff5dfb7455e9ef3b50366fa4f7494098b6",
+      "legacy-fixture-self-check": "9084c7006101e2bc160cdac9930d0d192a1ee744d99557312b2e00b0ff506a9e",
+      "legacy-diagnostic-self-check": "0fdd8ce71bff17e677e95be0356014d653893bc9fc9746cf800a5184dfc9ad0a",
+      "current-diagnostic-self-check": "5b3425ac864b1b04659456ffb556e4be941e67f3a9eb8ad06ef0015bac153eab"
+    }
+  },
+  "initial_failures_retained": {
+    "browser_image_missing_strip": {
+      "normal": {
+        "report_sha256": "d3fba59da2a52db80b78a66cb880c9619ad32de72aef7fb24d0c00bf2c3cff99",
+        "exit": 1,
+        "daemon_started": false,
+        "failure_type": "FileNotFoundError"
+      },
+      "cancel": {
+        "report_sha256": "0107f8855d905c8cdb705a87c78ecfe45d2ae040734b5709aa9f06b5320476fa",
+        "exit": 1,
+        "daemon_started": false,
+        "failure_type": "FileNotFoundError"
+      },
+      "unknown": {
+        "report_sha256": "8879052556b6054809ebe5d72eb0ab98a622a212aa669ba8df615efd759c1c1e",
+        "exit": 1,
+        "daemon_started": false,
+        "failure_type": "FileNotFoundError"
+      }
+    },
+    "historical_fixture_initial_layout": "The first copied files lacked the original sibling wire fixture; the exact Git archive restored its original layout.",
+    "macos_diagnostic_static": "Both sources also fail on the macOS temporary path alias. On Linux both have the same initial absent identity refusal. Neither diagnostic self-check is credited as passing.",
+    "strip_package_query": "Initial query used unavailable libsframe package aliases. Dependency bytes were copied from the pinned compiler image and version/link validation was performed in the actual runtime image."
+  },
+  "private_runtime": {
+    "root": "/private/tmp/ab-collab-c554w3u5",
+    "linux_run": "linux-replay.J8dxjT",
+    "initial_linux_run": "linux-replay.KanTuC",
+    "linux_static_replay": "linux-static.uZnC2P",
+    "candidate_directory": "candidate",
+    "build_test_logs": "checks"
+  },
+  "hosted_linux_ci": "not_run",
+  "native_macos_owner_ui": "not_run",
+  "child_real_browser_paths": "not_run_in_this_task",
+  "production_or_real_provider_request": "none"
+}

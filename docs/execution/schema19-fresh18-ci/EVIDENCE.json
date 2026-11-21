@@ -1,0 +1,301 @@
+{
+  "base": "44021e1e6e6503a23dc640923cbf45b4e506a289",
+  "tested_head": "277cccb02c48df23123847c3363a5fb43ef56f49",
+  "tested_tree": "392431c09fe133f85b3a6759166f70e47cca2f55",
+  "integration_preview": {
+    "target": "84540f293a362c1098c6d6309df9cb1e12cb0dc8",
+    "tree": "85e43ef5d363d0a8ac9bfb915e1af79e05cfee5b",
+    "independent_factory_tests": [
+      "crates/core/tests/factory_runtime_ipc.rs",
+      "crates/core/tests/fixtures/factory_child_goal_runtime.rs"
+    ]
+  },
+  "workflow_run_sha256": "9f059bfbef941a4a5eb3278a2f8622b486ba7573617e25d076d6b2ef8a1a81fc",
+  "macos_arm64": {
+    "verified_checkout": {
+      "source": "277cccb02c48df23123847c3363a5fb43ef56f49",
+      "tree": "392431c09fe133f85b3a6759166f70e47cca2f55",
+      "shallow": true,
+      "old_object_absent_before_gate": true,
+      "fetch_head_unchanged": true,
+      "old_lock_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+      "matching_registry_packages": 87
+    },
+    "replay": {
+      "positive": {
+        "contract": "agentbaton.fresh-schema18-ci.v1",
+        "historical_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+        "historical_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+        "source": "277cccb02c48df23123847c3363a5fb43ef56f49",
+        "stage": "complete",
+        "status": "passed",
+        "test_exit": 0,
+        "tree": "392431c09fe133f85b3a6759166f70e47cca2f55"
+      },
+      "wrong_sha": {
+        "contract": "agentbaton.fresh-schema18-ci.v1",
+        "historical_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+        "historical_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+        "source": null,
+        "stage": "checkout",
+        "status": "failed",
+        "test_exit": null,
+        "tree": null
+      },
+      "workflow_run_sha256": "9f059bfbef941a4a5eb3278a2f8622b486ba7573617e25d076d6b2ef8a1a81fc"
+    },
+    "raw": {
+      "positive": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/positive.log",
+        "sha256": "78b88575b53e2495e8be6d363f4372e49d0261c32f5f8a0267d1c51c033a82eb"
+      },
+      "positive_summary": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/positive.summary",
+        "sha256": "70fd866372b73fd9faca3b765e2df00c717f6b87a7181a2600df971bbf98d4e5"
+      },
+      "wrong_sha": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/wrong-sha.log",
+        "sha256": "fcfdeb1631416cef1daaac402738392a1cda35b894ec61b23c8df68e6ec9ba64"
+      },
+      "wrong_sha_summary": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/wrong-sha.summary",
+        "sha256": "19061f03023979b8202bcf20306eb873178eb4db26806787e9f9299a81a29bd8"
+      },
+      "initial_fetch": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/initial-fetch.log",
+        "sha256": "4a5e85d31f234507d7041a44f11b0f7a5a808736b3c9ea5a09d7ca8c1aa14632"
+      },
+      "old_absent": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/old-absent.log",
+        "sha256": "1ac104c86d1839411e1398ecfcab0672b4fe7d703ffba8c47d9227f1a5553724"
+      },
+      "candidate": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/candidate.txt",
+        "sha256": "c6780444fc77bd613d9640028ebaf34a6cee0e4ff063bb50e03074aefbf604ca"
+      },
+      "checkout_fetch_head": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/fetch-head.before",
+        "sha256": "e5b285e7f39ac49594957f59e14861eaae49b9a14c0a1e2f68472a497e1842e7"
+      },
+      "invoked_step": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/fresh18-step.sh",
+        "sha256": "9f059bfbef941a4a5eb3278a2f8622b486ba7573617e25d076d6b2ef8a1a81fc"
+      },
+      "environment": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/environment.txt",
+        "sha256": "cb016832d1c9c79da7d23558fff50478267f38ef79cf86b8e9c40513884e674e"
+      }
+    },
+    "migration": {
+      "old_runtime_proof": {
+        "api_version": 1,
+        "database_schema_version": 18,
+        "sequence": 5
+      },
+      "old_runtime_exit": 0,
+      "old_runtime_joined": true,
+      "fixture_report": {
+        "path": "/private/tmp/ab19-f18-NSkct6/report.json",
+        "sha256": "c322be1c2fe4d9efac22029b41f2ae94bdd1a88cc378fb5cc6a9b43aec95a2f6"
+      },
+      "refusals": 14,
+      "legacy_archive_sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+      "sealed_digests": {
+        "archive": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+        "baton": "04535a4bdf479ecdfc07fd53b5886b2d5d2d5a2e436a378bdc950d596d2a762c",
+        "batond": "132e8e6549eb81073f97e69dc22438a4468455a603cdd9c44d500ef44585e855",
+        "build": "0d1a87395ba2595b4fa88ced2eb2fec378e4633c7d846059b21c709d6db45ee6",
+        "database": "dd257fc2e304e0930fd41589dde132ba959dbee56195704c1c5ba502e7e18e40",
+        "fixture": "502291e0cdb7196d9b5b307988007c923f8bc52bbc963524407a9b016d0ad441",
+        "provenance": "0d1a87395ba2595b4fa88ced2eb2fec378e4633c7d846059b21c709d6db45ee6",
+        "transcript": "b128ba51967b3e1ed88683bd2abac3a5be7f2b1f401e9d67b54ad3eaa984bbda"
+      },
+      "test_seconds": 102.28
+    },
+    "raw_private_migration": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/runner/agentbaton-fresh18-svvbkb03/migration.log",
+      "sha256": "352ce7d69bb3ee1b7286e50c8227dbc8d70a8397d71d9d2c690d6ab3e67d847f"
+    },
+    "raw_private_inputs": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/macos-replay.pVORXMlE/runner/agentbaton-fresh18-svvbkb03/inputs.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "linux_arm64": {
+    "verified_checkout": {
+      "source": "277cccb02c48df23123847c3363a5fb43ef56f49",
+      "tree": "392431c09fe133f85b3a6759166f70e47cca2f55",
+      "shallow": true,
+      "old_object_absent_before_gate": true,
+      "fetch_head_unchanged": true,
+      "old_lock_sha256": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+      "matching_registry_packages": 87
+    },
+    "replay": {
+      "positive": {
+        "contract": "agentbaton.fresh-schema18-ci.v1",
+        "historical_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+        "historical_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+        "source": "277cccb02c48df23123847c3363a5fb43ef56f49",
+        "stage": "complete",
+        "status": "passed",
+        "test_exit": 0,
+        "tree": "392431c09fe133f85b3a6759166f70e47cca2f55"
+      },
+      "wrong_sha": {
+        "contract": "agentbaton.fresh-schema18-ci.v1",
+        "historical_source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+        "historical_tree": "ddd5bddbeeb8011fa070d53e67f7978deae87214",
+        "source": null,
+        "stage": "checkout",
+        "status": "failed",
+        "test_exit": null,
+        "tree": null
+      },
+      "workflow_run_sha256": "9f059bfbef941a4a5eb3278a2f8622b486ba7573617e25d076d6b2ef8a1a81fc"
+    },
+    "raw": {
+      "positive": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/positive.log",
+        "sha256": "78b88575b53e2495e8be6d363f4372e49d0261c32f5f8a0267d1c51c033a82eb"
+      },
+      "positive_summary": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/positive.summary",
+        "sha256": "70fd866372b73fd9faca3b765e2df00c717f6b87a7181a2600df971bbf98d4e5"
+      },
+      "wrong_sha": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/wrong-sha.log",
+        "sha256": "fcfdeb1631416cef1daaac402738392a1cda35b894ec61b23c8df68e6ec9ba64"
+      },
+      "wrong_sha_summary": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/wrong-sha.summary",
+        "sha256": "19061f03023979b8202bcf20306eb873178eb4db26806787e9f9299a81a29bd8"
+      },
+      "initial_fetch": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/initial-fetch.log",
+        "sha256": "4a5e85d31f234507d7041a44f11b0f7a5a808736b3c9ea5a09d7ca8c1aa14632"
+      },
+      "old_absent": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/old-absent.log",
+        "sha256": "1ac104c86d1839411e1398ecfcab0672b4fe7d703ffba8c47d9227f1a5553724"
+      },
+      "candidate": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/candidate.txt",
+        "sha256": "c6780444fc77bd613d9640028ebaf34a6cee0e4ff063bb50e03074aefbf604ca"
+      },
+      "checkout_fetch_head": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/fetch-head.before",
+        "sha256": "e5b285e7f39ac49594957f59e14861eaae49b9a14c0a1e2f68472a497e1842e7"
+      },
+      "invoked_step": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/fresh18-step.sh",
+        "sha256": "9f059bfbef941a4a5eb3278a2f8622b486ba7573617e25d076d6b2ef8a1a81fc"
+      },
+      "environment": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/environment.txt",
+        "sha256": "581495787cc5e000aa2be8fc3700b318f07f120384db1911276dea3cd079664a"
+      }
+    },
+    "migration": {
+      "old_runtime_proof": {
+        "api_version": 1,
+        "database_schema_version": 18,
+        "sequence": 5
+      },
+      "old_runtime_exit": 0,
+      "old_runtime_joined": true,
+      "fixture_report": {
+        "path": "/tmp/ab19-f18-Pc7jEO/report.json",
+        "sha256": "a7d7de6d2a1c9296a5cf8ce7b138861e503649aca979e3dd5589387f5d20898b"
+      },
+      "refusals": 14,
+      "legacy_archive_sha256": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+      "sealed_digests": {
+        "archive": "1995df43686db331d61e5d7bdbfdb0146de7eeaa1dd1a784be42597b73f58bb3",
+        "baton": "3aa46b23af55b2ff2e18525a6afbd2c7d1ab3ea38321747cef40884671edc960",
+        "batond": "9ffd934645ae0a4c6318d6b29260b94eb78cea664656617932095e4d5a604d15",
+        "build": "5849d8d67e0577407db5386a0bcd21f67a9a945a29659e2ac4b0c22b66179280",
+        "database": "661b768e9f840ca364382123de16fc0ab8e8bbbec8d148e32a6bc808f34d746c",
+        "fixture": "80d1c93ec58f7dfde509b58d30d15b96800f39c0cb5fd1197bfff55338032090",
+        "provenance": "5849d8d67e0577407db5386a0bcd21f67a9a945a29659e2ac4b0c22b66179280",
+        "transcript": "27be97493f2795320dd414ba5841cf8be59f845998f3704a6235e3b841e0f955"
+      },
+      "test_seconds": 101.66
+    },
+    "private_log_members": {
+      "tmp/ci-runner/agentbaton-fresh18-ha1_k0gh/migration.log": "048fe4103eb06eba3921a77de4f3e28c5d9eb7f3b9016635acc63028dbc78da2",
+      "tmp/ci-runner/agentbaton-fresh18-ha1_k0gh/inputs.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "private_archive": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/linux-replay.kZ3TRK2b/raw-evidence.tar",
+      "sha256": "ccb1ac5a6a54371c6142b281b09110ffc7256fadd17736176d1e10b0a673110e"
+    },
+    "image": "rust@sha256:c1e5f19e773b7878c3f7a805dd00a495e747acbdc76fb2337a4ebf0418896b33",
+    "test_setup": "Docker ARM64 with task-local passwd entry and Rustup stable name for image Rust 1.91.1"
+  },
+  "first_synthetic_control_fetch_failure": {
+    "exit": 1,
+    "public": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/exit-control.kojJCJ9E/control.log",
+      "sha256": "dcda8bebf4aa7a94438d000e2082f7e77b61b5f12a59570253f284dac6b233e6"
+    },
+    "private_git_stderr": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/exit-control.kojJCJ9E/runner/agentbaton-fresh18-c9wsl9a0/inputs.log",
+      "sha256": "54ff34b3aa13d536a419556f7b0bfe07ba1d82c7f7d42c033950e908111ce1e2"
+    },
+    "failure": "HTTP2 transport before Cargo"
+  },
+  "synthetic_cargo_exit_and_privacy_control": {
+    "exit": 101,
+    "public": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/exit-control.1BeAUnp5/control.log",
+      "sha256": "e0a77a7ce4410da0218510b5eb559b4ade9e43d21a0ada3a7029148e49c84aa5"
+    },
+    "public_summary": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/exit-control.1BeAUnp5/control.summary",
+      "sha256": "105c15adfa2f393824cae01700c8b447d82912fbe3812c675eae5d6e5eb90e71"
+    },
+    "private_synthetic_output": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/exit-control.1BeAUnp5/runner/agentbaton-fresh18-jj0fueou/migration.log",
+      "sha256": "bc7f81980af39502265853effd1c5e2d90b6f48a33d394b893812ecbea1993e6"
+    },
+    "synthetic_fetch_control": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/exit-control.1BeAUnp5/runner/agentbaton-fresh18-jj0fueou/inputs.log",
+      "sha256": "01a14cb419e33a285d367755c2058950cdbbebf9b34272871b69f4d450552ae6"
+    },
+    "sentinel_excluded_from_public": true
+  },
+  "static": {
+    "full_infrastructure": {
+      "run": 1021,
+      "skipped": 16,
+      "original": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/infra.log",
+        "sha256": "9d286c8eb6a2eae5e32506c32a1a64e67e5eb668df2f7279362ec6236d362976"
+      }
+    },
+    "exact_inverses": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/exact-inverses.log",
+      "sha256": "44ede1a9fd2f21c57c8a495f91577e2f49dbe9653acba14acd8b0d917f7e55f2"
+    },
+    "first_targeted": {
+      "path": "/private/tmp/ab-collab-jfj4sbu_/targeted-first.log",
+      "sha256": "cd465bea1697af1a566cfdaf1e065a8bd768adc554bb95892cef453605e0a350"
+    },
+    "validation": {
+      "verify_bootstrap_manifest": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/verify_bootstrap_manifest.log",
+        "sha256": "78639812c899f36a65a9e3f19e612f313d67333f752d8eff957f9528bcf0b462"
+      },
+      "validate_infrastructure": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/validate_infrastructure.log",
+        "sha256": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6"
+      },
+      "gate": {
+        "path": "/private/tmp/ab-collab-jfj4sbu_/gate.log",
+        "sha256": "a53489f7d7bb45e98c503bd107b4f05542f7fa774af0a8022d323e17fe065146"
+      }
+    }
+  },
+  "hosted_ci": "not_run"
+}

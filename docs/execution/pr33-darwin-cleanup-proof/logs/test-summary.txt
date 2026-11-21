@@ -1,0 +1,21 @@
+Baseline direct suite
+FAIL: test_observation_failure_still_reaps_child_and_writes_failed_report (__main__.NativeRunnerTests.test_observation_failure_still_reaps_child_and_writes_failed_report)
+Ran 38 tests in 10.408s
+FAILED (failures=1, skipped=1)
+
+Candidate direct suite
+Ran 39 tests in 3.377s
+OK (skipped=1)
+test_fresh_quiescence_after_observation_failure_keeps_valid_native_report_failed (__main__.NativeRunnerTests.test_fresh_quiescence_after_observation_failure_keeps_valid_native_report_failed) ... ok
+test_observation_failure_still_reaps_child_and_writes_failed_report (__main__.NativeRunnerTests.test_observation_failure_still_reaps_child_and_writes_failed_report) ... ok
+test_permission_denied_without_quiescence_proof_cannot_pass (__main__.NativeRunnerTests.test_permission_denied_without_quiescence_proof_cannot_pass) ... ok
+test_timeout_remains_bounded_when_child_ignores_term (__main__.NativeRunnerTests.test_timeout_remains_bounded_when_child_ignores_term) ... ok
+test_unexpected_permission_error_cannot_use_the_eperm_exception (__main__.NativeRunnerTests.test_unexpected_permission_error_cannot_use_the_eperm_exception) ... ok
+
+Historical migration and original source guards
+Ran 28 tests in 0.686s
+OK
+
+Complete infrastructure suite
+Ran 1099 tests in 36.245s
+OK (skipped=16)

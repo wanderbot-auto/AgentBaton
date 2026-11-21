@@ -1,0 +1,84 @@
+{
+  "status": "NOT_RUN",
+  "reason": "--run required",
+  "inputs": {
+    "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+    "tools": {
+      "batond": {
+        "sha256": "355fc7d88894b475a391e11d5cba70ad1ab6a21a3011872b20b50a4b79a53f58",
+        "bytes": 17574656,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68227170",
+        "uid": 501,
+        "links": 1
+      },
+      "baton": {
+        "sha256": "6f70be052ebe1c072b8cc23f62a0b75f768d598ecae36f55311b4752f42f201c",
+        "bytes": 808240,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68227172",
+        "uid": 501,
+        "links": 1
+      }
+    },
+    "assets": {
+      "assets/index-DZHSe46f.css": {
+        "sha256": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+        "bytes": 32470,
+        "mode": 420,
+        "device": "16777234",
+        "inode": "68224055",
+        "uid": 501,
+        "links": 1
+      },
+      "assets/index-Q47YZ8uE.js": {
+        "sha256": "b59f625846822412101c94cd389316f3180002167dd3ceefdfe4defd650cee16",
+        "bytes": 987211,
+        "mode": 420,
+        "device": "16777234",
+        "inode": "68224054",
+        "uid": 501,
+        "links": 1
+      },
+      "index.html": {
+        "sha256": "79f813e44000effb31bd7bca00146b246fb39be7c022b3faa1f01e3befb42f90",
+        "bytes": 441,
+        "mode": 420,
+        "device": "16777234",
+        "inode": "68224056",
+        "uid": 501,
+        "links": 1
+      }
+    },
+    "manifest_sha256": "5adf7dbbb4f3057f904a1292b6941b99c2126fc9f75976769736aa97a1fd75d3",
+    "build_record_sha256": "189640a56d5469cbb2e597bc628db84dfbb323a21b5b33b384facca7023d6f34",
+    "driver_sha256": "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be",
+    "source_guard": {
+      "head": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+      "tracked_clean": true,
+      "driver_sha256": "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be"
+    },
+    "runtime_tools": {
+      "chromium": {
+        "sha256": "11e393326c7d20a7c56641a7c65def33ea9c280da3b0b74cf8563b07989a0ee3",
+        "bytes": 159293248,
+        "mode": 493,
+        "device": "16777234",
+        "inode": "68227627",
+        "uid": 501,
+        "links": 1
+      },
+      "python": {
+        "sha256": "c4f10ec6ab82c9b4528e4e07407b2b51712485f904172fe59186c24b03add59d",
+        "bytes": 6095216,
+        "mode": 320,
+        "device": "16777234",
+        "inode": "68224118",
+        "uid": 501,
+        "links": 1
+      }
+    }
+  }
+}

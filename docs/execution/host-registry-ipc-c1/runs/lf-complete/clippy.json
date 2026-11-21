@@ -1,0 +1,29 @@
+{
+  "source_head": "49348b2291da5c22fa994db9c452dfd2331d079a",
+  "command": [
+    "cargo",
+    "clippy",
+    "--offline",
+    "--locked",
+    "-p",
+    "agentbaton-core",
+    "--all-targets",
+    "-j",
+    "2",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "expected_counts": null,
+  "started_utc": "2026-11-17T21:27:30.381778+00:00",
+  "dimension": "Private Daemon.handle actual A-migrated SQLite19; no actor/new Host wire/native acceptance",
+  "response_budget_includes_LF": true,
+  "exit_code": 0,
+  "actual_counts": [],
+  "count_gate": true,
+  "finished_utc": "2026-11-17T21:27:37.540746+00:00",
+  "log_sha256": "88ff5aaa649d1c7477f4ecd0cffc8531a5a75ac28b363e8b1a14cc0bd6980b77",
+  "bytes": 215,
+  "all_children_joined": true,
+  "status": "passed"
+}

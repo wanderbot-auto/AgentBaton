@@ -1,0 +1,37 @@
+Source: 438bc935611c886ad86f45bb34011f816692d670
+Started (UTC): 2026-11-18T14:20:18Z
+Command: cargo test --locked -p agentbaton-core --lib registry::host_registry::tests
+collab: task runtime /private/tmp/ab-collab-oeejmzju
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (target/debug/deps/agentbaton_core-3e149a5721946c12)
+
+running 24 tests
+test registry::host_registry::tests::actual_journal_creation_failure_does_not_leave_a_partial_registration ... ok
+test registry::host_registry::tests::actual_create_binds_event_receipt_and_metadata_without_authority ... ok
+test registry::host_registry::tests::actual_deferred_commit_failure_is_unknown_and_rolls_back_on_reopen ... ok
+test registry::host_registry::tests::bounded_list_makes_cursor_progress_and_rejects_invalid_cursors ... ok
+test registry::host_registry::tests::actual_a_migration_then_b_inventory_preserves_shadow_pragma_rows_and_quoted_names ... ok
+test registry::host_registry::tests::direct_main_fk_scan_preserves_existing_schema_budget_and_long_opaque_names ... ok
+test registry::host_registry::tests::exact_golden_bytes_are_read_through_real_sqlite ... ok
+test registry::host_registry::tests::identity_pin_configuration_and_name_changes_are_not_upserts ... ok
+test registry::host_registry::tests::lost_return_value_and_actual_connection_reopen_reconcile_original_key ... ok
+test registry::host_registry::tests::duplicate_creation_keys_and_over_cap_receipt_scans_are_not_absent ... ok
+test registry::host_registry::tests::corrupt_autoindex_sql_cannot_masquerade_as_its_legitimate_null ... ok
+test registry::host_registry::tests::event_host_and_receipt_insert_failures_roll_back_all_three_domains ... ok
+test registry::host_registry::tests::replay_precedes_capacity_and_repeated_names_are_separate_ids ... ok
+test registry::host_registry::tests::safe_opaque_tables_indexes_and_blob_rowids_remain_unchanged ... ok
+test registry::host_registry::tests::direct_main_fk_metadata_still_refuses_incoming_case_variants_and_host_objects ... ok
+test registry::host_registry::tests::simultaneous_same_key_has_one_committed_result ... ok
+test registry::host_registry::tests::absence_or_inexact_schema_never_migrates_or_creates ... ok
+test registry::host_registry::tests::strict_decoders_preserve_versions_unicode_and_reject_unknown_fields ... ok
+test registry::host_registry::tests::unsafe_inserted_sequence_rolls_back_including_event_counter ... ok
+test registry::host_registry::tests::simultaneous_last_capacity_slot_has_one_winner ... ok
+test registry::host_registry::tests::missing_receipts_or_hosts_are_integrity_errors_not_absent ... ok
+test registry::host_registry::tests::event_linkage_is_checked_and_no_action_pins_sql_sequence ... ok
+test registry::host_registry::tests::persisted_record_versions_types_bounds_mirrors_and_facts_fail_closed ... ok
+test registry::host_registry::tests::sql_projects_oversized_or_wrong_type_bodies_as_null_without_hiding_rows ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 433 filtered out; finished in 5.90s
+
+Finished (UTC): 2026-11-18T14:20:24Z
+Exit: 0

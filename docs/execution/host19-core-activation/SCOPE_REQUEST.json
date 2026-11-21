@@ -1,0 +1,13 @@
+{
+  "base": "c9225714319a91dae60e635c0a34ba4b3a4a670d",
+  "status": "leader_granted_and_applied",
+  "literal": "crates/core/src/integration_budget.rs",
+  "region": "accounting_records:166-184, exact current schema gate181",
+  "observed_dependency": "Store::open -> recover_integrations (integration_runtime.rs680) -> budget::accounting_records -> version!=18 refuses19, including empty fresh DB",
+  "minimal_change": "coordinate literal; change only exact current recognition to19 for startup accounting, preserve old<17 no-table branch/conversation validation/bounds/error semantics; no18|19 range",
+  "not_modified": true,
+  "unaffected_work": "continue backup/test fixtures/strict Factory inverse and actual18 test implementation; no bypass/temporary version downgrade or recovery skip",
+  "receipt": "artifacts/collab/HOST19_INTEGRATION_BUDGET_SCOPE.json",
+  "new_source_claims": 14,
+  "change": "only accounting_records exact current gate18->19; older branch/body unchanged"
+}

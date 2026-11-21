@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "declared_source": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+  "driver_sha256": "e5036fd15afa431228a9b11553b0602e144636dda58fecf4fbbbcaac8633f6f3",
+  "stage": "candidate_schema_guard",
+  "exception_kind": "refusal",
+  "run_requested": true,
+  "runtime_case_entered": false,
+  "runtime_checks": {
+    "chromium_owner_allowed": null,
+    "chromium_mode_allowed": null,
+    "python_owner_allowed": null,
+    "python_mode_allowed": null
+  }
+}

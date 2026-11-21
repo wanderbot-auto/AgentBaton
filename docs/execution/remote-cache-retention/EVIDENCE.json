@@ -1,0 +1,104 @@
+{
+  "requirement": "AB-EXT-010",
+  "scope": "read-only remote cache retention preview",
+  "base": "4be7d4493a3e82624e2eb45329ec5c358503486a",
+  "validated_commit": "b84c56765883a9c1f3fdf119562793a97a56cb43",
+  "validated_tree": "5a7f9ef86894fe951c92dc6612fb5212a7c2b1de",
+  "crate_tree": "a3155a6ca9287c83c3dfd3a1107f364f5a9779a8",
+  "lock_blobs": {
+    "crates/remote-host/Cargo.lock": "2e59864e503191c24a64cdc126c7ec046d625548",
+    "Cargo.lock": "b111c362b7ad360d5b4f9f1143e5bac38c5f5d9c"
+  },
+  "source_sha256": {
+    "crates/remote-host/src/lib.rs": "bb5fc28b406d69321ca7ba492c070942eea79fe5c4b19af32fc4fa51bbafab2f",
+    "crates/remote-host/src/cache_retention.rs": "3a61c4aa8a61cab4f3483777a37da176e68193c44c82034a1ef46de833179542",
+    "crates/remote-host/tests/cache_retention.rs": "16badbd85c2ce063432f9f879e11f961b53b3f01c3201b4740f51387f69347b0"
+  },
+  "platform": {
+    "host": "aarch64-apple-darwin",
+    "macos": "26.6.1 (25G76)",
+    "rustc": "1.91.1",
+    "cargo": "1.91.1",
+    "rustfmt": "1.8.0-stable"
+  },
+  "environment": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "runner": "bash scripts/collab.sh run --",
+  "started_utc": "2026-11-18T17:52:25Z",
+  "ended_utc": "2026-11-18T17:52:33Z",
+  "baseline": {
+    "format_exit_code": 0,
+    "test_exit_code": 0,
+    "passed_tests": 47,
+    "log": "logs/baseline-test.log.gz"
+  },
+  "validation": [
+    {
+      "command": "cargo fmt --manifest-path crates/remote-host/Cargo.toml --all --check",
+      "exit_code": 0,
+      "log": "logs/fmt.log"
+    },
+    {
+      "command": "cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline --test cache_retention",
+      "exit_code": 0,
+      "log": "logs/cache-retention.log.gz",
+      "passed_tests": 9
+    },
+    {
+      "command": "cargo test --manifest-path crates/remote-host/Cargo.toml --locked --offline",
+      "exit_code": 0,
+      "log": "logs/all.log.gz",
+      "passed_tests": 56
+    },
+    {
+      "command": "cargo check --manifest-path crates/remote-host/Cargo.toml --locked --offline --all-targets",
+      "exit_code": 0,
+      "log": "logs/check.log"
+    },
+    {
+      "command": "cargo clippy --manifest-path crates/remote-host/Cargo.toml --locked --offline --all-targets -- -D warnings",
+      "exit_code": 0,
+      "log": "logs/clippy.log"
+    }
+  ],
+  "fixtures": [
+    "in-memory synthetic Binding and Snapshot pages",
+    "simulated exact durable local detail confirmations and retention inputs"
+  ],
+  "merge_preview": {
+    "target": "4be7d4493a3e82624e2eb45329ec5c358503486a",
+    "source": "b84c56765883a9c1f3fdf119562793a97a56cb43",
+    "tree": "5a7f9ef86894fe951c92dc6612fb5212a7c2b1de",
+    "remote_host_subtree_matches": true,
+    "conflicts": false,
+    "log": "logs/source-preview.log"
+  },
+  "unverified": [
+    "real primary history detail persistence and protection sources",
+    "cleanup-time revalidation and deletion",
+    "native remote Host or Linux/CI"
+  ],
+  "review": "independent integration review accepted at 60097581e1f3cfdb167a6cf2d515d98410a14c21; main history wiring and cleanup remain unverified",
+  "log_sha256": {
+    "logs/all.log.gz": "3caafc889a1b5fdf980b5bdb00e202da1bb75abb00deb936b689587fa0a7280e",
+    "logs/baseline-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/baseline-test.log.gz": "3ef76b74109f1716137a4e01cce2cdc499ab3e05b6b93ed7a82e0554dd2766e0",
+    "logs/baseline.log": "647beb9e236fab1868ef4570449a3326f347c14e37026254f86535ed519b001d",
+    "logs/cache-retention.log.gz": "f2bee718d7e2808c28f36af417e819ac0916ab1f888cd0dcf6523fe7039cef3c",
+    "logs/check.log": "a3c08e57c613264a5c47d90609bc7a45507915ee4f02b4da482b01969814c92e",
+    "logs/clippy.log": "02db5a66fa0c60ca8618bd08aac556eac4f3ec863e8630a0d353dba6a0f6e126",
+    "logs/development-clippy.log": "c78eee14d45024af6f6abb911ce8a94ea677f25132aadecc7fc68d5ddeb78be7",
+    "logs/development.log.gz": "25179c7e81d03db80f881935bcd70d402d12fd5fcf6747d917f3352299414dd5",
+    "logs/fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "logs/source-preview.log": "158d4759dea507d63eb234f085ea8bf94704d04f9bbd55602a204fe83cd73115",
+    "logs/validation.log": "5fef3ef84a4f42dac9191d1acc5a3e1118ee660696973e10ad9f4cbfa1268b05"
+  },
+  "uncompressed_log_sha256": {
+    "logs/all.log.gz": "718b3ed1349381d10018af79eb93677fce17a4e39febaed25f845a4421fe8e61",
+    "logs/baseline-test.log.gz": "86949c6d59db6286fee9c97d5caa6faed24d5a38b75653cfa2a8a06ff86a50c7",
+    "logs/development.log.gz": "470093d55ed5b55176e58a3b58727fffef233a3aa59f844275c330536d758aef",
+    "logs/cache-retention.log.gz": "e790cde224854500c350e199bab5754931e1cf6cd1d92d675940c32878a24203"
+  }
+}

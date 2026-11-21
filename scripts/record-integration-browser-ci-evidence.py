@@ -27,7 +27,7 @@ NAMES = ('task-pending-before-acceptance', 'permission-before-task-acceptance',
     'terminal-state-desktop', 'terminal-receipt-desktop', 'terminal-state-mobile', 'terminal-receipt-mobile')
 PUBLIC_NAMES = frozenset(case + '-' + name + '.png' for case in CASES for name in NAMES)
 MAX_REPORT, MAX_STATUS, MAX_PNG, MAX_TOTAL = 2097152, 65536, 16777216, 67108864
-DIMENSION = 'Linux built React/Chromium + finite TEST bridge + actual Core18 Unix IPC + generated ACP + private trusted test host'
+DIMENSION = 'Linux built React/Chromium + finite TEST bridge + actual Core19 Unix IPC + generated ACP + private trusted test host'
 NOT_CLAIMED = ['production Tauri Native formatter', 'OS dialog', 'macOS', 'live Provider/model',
     'OS sandbox', 'whole-filesystem output quota', 'complete failure matrix', 'whole product completion']
 CHECKS = ('real managed Task/Graph before Task acceptance; visible new5s draft; optional original Command selected',
@@ -198,6 +198,31 @@ def failure(expected, reason):
         'not_claimed': NOT_CLAIMED}
 
 
+def validated_candidate(fd, expected, witnesses):
+    manifest_raw = P.regular_bytes(fd, 'candidate.json', MAX_REPORT, witnesses=witnesses)
+    build_raw = P.regular_bytes(fd, 'frontend-build-record.json', MAX_REPORT, witnesses=witnesses)
+    probe_raw = P.regular_bytes(fd, 'schema-probe.json', MAX_STATUS, witnesses=witnesses)
+    manifest, build, probe = P.decode(manifest_raw), P.decode(build_raw), P.decode(probe_raw)
+    require(type(manifest) is dict and type(build) is dict and type(probe) is dict)
+    require(type(manifest.get('schema')) is int and manifest['schema'] == 19 and manifest['git_head'] == expected
+        and manifest.get('dirty') is False and manifest.get('tracked_clean', True) is True
+        and all(manifest.get(key, expected) == expected for key in ('source_head', 'compiled_core_source_head')))
+    binaries = manifest['binaries']
+    require(type(binaries) is dict and set(binaries) == {'batond', 'baton'})
+    require(build['source'] == expected and type(build['exit']) is int and build['exit'] == 0
+        and build['source_head_and_tracked_unchanged'] is True
+        and build.get('dirty', False) is False and build.get('tracked_clean', True) is True
+        and build['command'] == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
+    binding = {'source': expected, 'manifest_sha256': raw_sha(manifest_raw),
+        'build_record_sha256': raw_sha(build_raw), 'tools_sha256': {key: sha(value) for key, value in binaries.items()}}
+    result_keys = {'api_version', 'database_schema_version', 'daemon_exit', 'joined'}
+    require(set(probe) == binding.keys() | result_keys and all(probe[key] == value for key, value in binding.items())
+        and type(probe['api_version']) is int and probe['api_version'] == 1
+        and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 19
+        and type(probe['daemon_exit']) is int and probe['daemon_exit'] == 0 and probe['joined'] is True)
+    return binding, {key: probe[key] for key in ('api_version', 'database_schema_version', 'daemon_exit', 'joined')}
+
+
 def collect(private, expected):
     sha(expected, 40)
     fd = P.directory(private, private=True)
@@ -208,22 +233,7 @@ def collect(private, expected):
         require(type(status) is dict and set(status) == {'source', 'driver_exit', 'probe_passed'}
             and status['source'] == expected and type(status['driver_exit']) is int
             and status['driver_exit'] == 0 and status['probe_passed'] is True)
-        manifest_raw = P.regular_bytes(fd, 'candidate.json', MAX_REPORT, witnesses=witnesses)
-        build_raw = P.regular_bytes(fd, 'frontend-build-record.json', MAX_REPORT, witnesses=witnesses)
-        probe_raw = P.regular_bytes(fd, 'schema-probe.json', MAX_STATUS, witnesses=witnesses)
-        manifest, build, probe = P.decode(manifest_raw), P.decode(build_raw), P.decode(probe_raw)
-        require(type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == expected
-            and manifest.get('dirty') is False and manifest.get('tracked_clean', True) is True
-            and set(manifest['binaries']) == {'batond', 'baton'}
-            and all(manifest.get(k, expected) == expected for k in ('source_head', 'compiled_core_source_head')))
-        require(build['source'] == expected and type(build['exit']) is int and build['exit'] == 0
-            and build['source_head_and_tracked_unchanged'] is True
-            and build.get('dirty', False) is False and build.get('tracked_clean', True) is True
-            and build['command'] == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
-        require(type(probe) is dict and set(probe) == {'source', 'api_version', 'database_schema_version', 'daemon_exit', 'joined'}
-            and probe['source'] == expected and type(probe['api_version']) is int and probe['api_version'] == 1
-            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18
-            and type(probe['daemon_exit']) is int and probe['daemon_exit'] == 0 and probe['joined'] is True)
+        binding, probe = validated_candidate(fd, expected, witnesses)
         summaries, sources, payloads, images, total = [], [], {}, [], 0
         case_witnesses = []
         harness = expected_driver()
@@ -234,8 +244,8 @@ def collect(private, expected):
             local_witness = []
             report_raw = P.regular_bytes(case_fd, 'report.json', MAX_REPORT, witnesses=local_witness)
             report = P.decode(report_raw)
-            summary, source = report_summary(report, case, expected, raw_sha(manifest_raw), raw_sha(build_raw), harness)
-            require(source['tools_sha256'] == manifest['binaries'])
+            summary, source = report_summary(report, case, expected, binding['manifest_sha256'], binding['build_record_sha256'], harness)
+            require(source['tools_sha256'] == binding['tools_sha256'])
             data, pngs, size = screenshots(case_fd, report, case, local_witness)
             case_witnesses.append((path, case_fd, local_witness))
             total += size; require(total <= MAX_TOTAL)
@@ -254,7 +264,7 @@ def collect(private, expected):
         for name, original_pin in witnesses:
             require(P.pin(os.stat(name, dir_fd=fd, follow_symlinks=False)) == original_pin)
         return {'contract': CONTRACT, 'status': 'passed', **sources[0], 'cases': summaries,
-            'checks': 9, 'actual_schema_probe': {'api_version': 1, 'database_schema_version': 18, 'joined': True},
+            'checks': 9, 'dimension': DIMENSION, 'actual_schema_probe': probe,
             'private_history_published': False, 'screenshots_published': True, 'screenshots': images,
             'visual_review': 'not_performed_by_projector', 'pixel_synchronized': False,
             'not_claimed': NOT_CLAIMED}, payloads
@@ -485,23 +495,7 @@ def runtime_failure_diagnostic(private, expected):
         require(type(status) is dict and set(status) == {'source', 'driver_exit', 'probe_passed'}
             and status['source'] == expected and type(status['driver_exit']) is int
             and status['driver_exit'] == 1 and status['probe_passed'] is True)
-        manifest_raw = P.regular_bytes(fd, 'candidate.json', MAX_REPORT, witnesses=witnesses)
-        build_raw = P.regular_bytes(fd, 'frontend-build-record.json', MAX_REPORT, witnesses=witnesses)
-        probe_raw = P.regular_bytes(fd, 'schema-probe.json', MAX_STATUS, witnesses=witnesses)
-        manifest, build, probe = P.decode(manifest_raw), P.decode(build_raw), P.decode(probe_raw)
-        require(type(manifest) is dict and type(build) is dict and type(probe) is dict)
-        require(type(manifest.get('schema')) is int and manifest['schema'] == 18 and manifest['git_head'] == expected
-            and manifest.get('dirty') is False and manifest.get('tracked_clean', True) is True
-            and set(manifest['binaries']) == {'batond', 'baton'}
-            and all(manifest.get(k, expected) == expected for k in ('source_head', 'compiled_core_source_head')))
-        require(build['source'] == expected and type(build['exit']) is int and build['exit'] == 0
-            and build['source_head_and_tracked_unchanged'] is True
-            and build.get('dirty', False) is False and build.get('tracked_clean', True) is True
-            and build['command'] == ['npm', '--prefix', 'apps/desktop', 'run', 'build'])
-        require(type(probe) is dict and set(probe) == {'source', 'api_version', 'database_schema_version', 'daemon_exit', 'joined'}
-            and probe['source'] == expected and type(probe['api_version']) is int and probe['api_version'] == 1
-            and type(probe['database_schema_version']) is int and probe['database_schema_version'] == 18
-            and type(probe['daemon_exit']) is int and probe['daemon_exit'] == 0 and probe['joined'] is True)
+        binding, probe = validated_candidate(fd, expected, witnesses)
         harness = expected_driver()
         driver_path = Path(private) / 'driver'
         driver_fd = P.directory(driver_path, private=True)
@@ -512,8 +506,8 @@ def runtime_failure_diagnostic(private, expected):
             local_witness = []
             report = P.decode(P.regular_bytes(case_fd, 'report.json', MAX_REPORT, witnesses=local_witness))
             observation, source = runtime_report_observation(report, case, expected,
-                raw_sha(manifest_raw), raw_sha(build_raw), harness)
-            require(source['tools_sha256'] == manifest['binaries'])
+                binding['manifest_sha256'], binding['build_record_sha256'], harness)
+            require(source['tools_sha256'] == binding['tools_sha256'])
             cases.append(observation); sources.append(source)
             records.append((path, case_fd, local_witness))
         require(sources[0] == sources[1] and any(c['report_status'] == 'failed_or_interrupted' for c in cases))
@@ -521,8 +515,9 @@ def runtime_failure_diagnostic(private, expected):
             P.same_directory(path, descriptor)
             for name, original_pin in records_to_check:
                 require(P.pin(os.stat(name, dir_fd=descriptor, follow_symlinks=False)) == original_pin)
-        return {'status': 'observed', 'source': expected, 'driver_sha256': harness,
-            'driver_exit': 1, 'cases': cases, 'observation_only': True, 'runtime_acceptance': False}
+        return {'status': 'observed', **binding, 'driver_sha256': harness,
+            'driver_exit': 1, 'dimension': DIMENSION, 'actual_schema_probe': probe,
+            'cases': cases, 'observation_only': True, 'runtime_acceptance': False}
     except (ValueError, OSError, KeyError, TypeError, OverflowError, RecursionError):
         return unavailable
     finally:

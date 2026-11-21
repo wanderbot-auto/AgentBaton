@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-11-17T19:09:25.893933+00:00",
+  "base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+  "B_contract": "4e48985d68f324d3980a981abd5c7789d0379090",
+  "ddl_sha256": "a81ce46f0c66692b48ed887a389c7f7d30890840c7111c324b78503145a7815c",
+  "lib_change": "one module declaration only",
+  "source": {
+    "crates/core/src/lib.rs": {
+      "sha256": "04aba96339080025e02ee1a5034c3d22c852048dffde68d987396c009cd02dfb",
+      "bytes": 2515
+    },
+    "crates/core/src/host_registry_migration.rs": {
+      "sha256": "c5362898868309fe38d3771e7441cbfaeab5804321b978a248f5c7324c7f8a7c",
+      "bytes": 11570
+    },
+    "crates/core/src/host_registry_migration_tests.rs": {
+      "sha256": "4225424918746ae73fec7b4e244a0f29994e0e91d0ef74d871254a79feb9c82d",
+      "bytes": 24154
+    },
+    "crates/core/tests/fixtures/pre_host_schema.rs": {
+      "sha256": "4d9752f3d172f9f49d3d80e94c82c794a85f3ac997d015c9d89dcb09d9ce2909",
+      "bytes": 7195
+    },
+    "crates/core/tests/fixtures/current19_schema.rs": {
+      "sha256": "7bb919b921531733be630611a60fa14534aac927580e7d5084db09bd5de6bde1",
+      "bytes": 1755
+    }
+  },
+  "unchanged_originals": {
+    "crates/core/src/storage.rs": "6cfdeb71b2732ff2443c5a261161e28f89c990bf000b83b5fd5de7a6d85cef4c",
+    "crates/core/src/integration_store.rs": "16a3dfc1d9c5e06310a8defd74e770352974ffbb06ff24c2ad102cb8fcc170d2",
+    "crates/core/src/conversations.rs": "b967540939649b11269ba289a4dde23714243b8445e8b08095d011df4087204b",
+    "crates/core/tests/fixtures/pre_conversation_schema.rs": "ad614f521ae1aee477ebc11ff93c64c2e900dc96101730d73801b3b6e002c5ce",
+    "crates/core/tests/fixtures/pre_integration_schema.rs": "c0545cded330429324047b30f032b4e81ea0b4ed4ed24c1efc15000e041aa990",
+    "crates/core/tests/fixtures/pre_factory_schema.rs": "407a1a9c5a5fdb191aa24c8875eb4ee49416306e0c4c928948cd6f6024003a65",
+    "Cargo.lock": "539b5d31c06ece04833a6d4e17b676c1afd827b9e12cb4938aa3a8ff6fa38d38",
+    "crates/core/Cargo.toml": "f8aa362c7edb71416e6d99165607be6d2dd6698dbf1ef838f90abb5af239c8ec"
+  },
+  "dynamic_validation": "not_run; commit fixed source next"
+}

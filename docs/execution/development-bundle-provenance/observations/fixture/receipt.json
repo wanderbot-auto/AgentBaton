@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "source_commit": "1d1c35dc7301e0811d0126ce41fa861aaeca4585",
+  "source_tree": "e0d4bac964ce9d4c816407c5cffa8504cf5d6c8b",
+  "target": "aarch64-apple-darwin",
+  "archive_sha256": "6512eef12475345c2a0d9919ba14f1b41cc8599f78c4d7c5b85d9377f699f5e8",
+  "dmg_sha256": "54f02ddc37f889f97103e46988bd424f4bdf14ad4901bab34b78ddda3fbc508b",
+  "bindings": [
+    {
+      "file": "AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+      "file_sha256": "b782379282da96517bdedffda0231ac904c1600ef37cd1776b8cac60915f6183",
+      "kind": "linker",
+      "record": "desktop.map",
+      "record_sha256": "6682e60eb567d4e309ccb390880396552ecb1fe49c6949921ef63a0f965ac6ac",
+      "linked_output": "agentbaton-desktop"
+    },
+    {
+      "file": "AgentBaton.app/Contents/MacOS/agentbaton-desktop",
+      "file_sha256": "b782379282da96517bdedffda0231ac904c1600ef37cd1776b8cac60915f6183",
+      "kind": "web",
+      "record": "web-record.json",
+      "record_sha256": "d40bb2412745a131f94012bb70691b46a145448d9754fed06f418b4ad2b4febb",
+      "asset": "fixture-web.js",
+      "asset_sha256": "76a67f3aa924a49ff7b8b3b0337332a995e5ced573f875b23537c4fff1b21752",
+      "offset": 16384
+    }
+  ]
+}

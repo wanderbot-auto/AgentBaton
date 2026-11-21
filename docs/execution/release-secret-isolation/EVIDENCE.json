@@ -1,0 +1,79 @@
+{
+  "requirement": "AB-REL-005",
+  "scope": "ordinary_ci_static_credential_isolation",
+  "base": "f912214b0a415f36b4bb4e4d949552d450ad67de",
+  "base_tree": "00aa59ec71686638fd2f08e9ebb17e89dcca352a",
+  "tested_code": "794151d3afe217caff96a236c16861ccab026247",
+  "tested_code_tree": "84096e2efeb80e470406f0bc27e064c8663a7142",
+  "environment": {
+    "kernel": "Darwin",
+    "machine": "arm64",
+    "macos": "26.6.1",
+    "python": "3.13.2",
+    "pyyaml": "6.0.3",
+    "jsonschema": "4.26.0"
+  },
+  "immutable_workflow_inputs": {
+    ".github/workflows/environment-preflight.yml": "182627a83a2adcf60ab27109c8f7ad6e112d079a8b6812e52bce5a27a4b47855",
+    ".github/workflows/product.yml": "80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c"
+  },
+  "validator_manifest_entry": {
+    "path": "scripts/validate_infrastructure.py",
+    "base_sha256": "20374bad35e7559ab86788abece2c68f8f6a59adc2365916df5d586e071a37a2",
+    "candidate_sha256": "3c01475527f2384d7452bf4742729581c67a8b26e5e2152533637a8828cbdb07",
+    "owner": "integration_window",
+    "unchanged_manifest_expected_exit": 1
+  },
+  "observations": {
+    "required_workflow_validation_command": "python scripts/validate_infrastructure.py",
+    "base_normal_exit": 0,
+    "candidate_normal_exit": 0,
+    "workflow_count": 2,
+    "pinned_action_references": 15,
+    "targeted_command": "python -m unittest discover -s tests/infrastructure -p test_pr_workflow_secret_isolation.py -v",
+    "targeted_passed": 13,
+    "targeted_failed": 0,
+    "paired_negative_command": "Execute python scripts/validate_infrastructure.py in independent temporary inputs for each validator",
+    "paired_negative_cases": [
+      "yaml_suffix_writable_workflow",
+      "job_oidc_write",
+      "job_environment",
+      "step_secret_index",
+      "duplicate_permissions"
+    ],
+    "paired_negative_result": {
+      "baseline_exit_each": 0,
+      "candidate_exit_each": 1,
+      "marker_echoed": false
+    },
+    "unchanged_integrity_command": "python scripts/verify_bootstrap_manifest.py",
+    "unchanged_integrity_exit": 1,
+    "unchanged_integrity_reason": "Bootstrap file changed; review before staging: scripts/validate_infrastructure.py",
+    "fixture_revision": "Initial fixture generation emitted a single opening brace in interpolated synthetic expressions. The final fixture uses an explicit interpolator and reran every case."
+  },
+  "static_scope_limits": [
+    "Only checked-in workflow definitions and synthetic fixture definitions were inspected.",
+    "Registry credential settings, unchecked runner selectors, reusable job invocations, reusable secret declarations and transfers, and use of the Secrets context are rejected.",
+    "The check does not audit arbitrary shell commands or measure deployed repository, organization, and environment secret configuration."
+  ],
+  "pending_on_integration_candidate": [
+    "Update the one frozen script digest in BOOTSTRAP_MANIFEST.json and run the actual integrity gate.",
+    "Run the complete Python infrastructure suite, Node test, Rust smoke test and Rust smoke Clippy."
+  ],
+  "separate_release_acceptance": [
+    "Hosted required Environment jobs",
+    "Approved protected signing or real-account workflow",
+    "Real credentials and signed release"
+  ],
+  "log_sha256": {
+    "logs/baseline-candidate-comparison.log": "d112b1e7e26a76f6b3f98425f37ba44b2631e302372b028fa5854daec6dd03a7",
+    "logs/baseline-validation.log": "fff6663d82063cd59b89d40447fee872fea7cee584076f8dd764a12fb3b1f2f6",
+    "logs/candidate-targeted.log": "da51876b6f5a7274b363c967db0bf88154f093492dc697a5189e0c1bcd31c840",
+    "logs/manifest-pending.log": "64a81b422c0e1f5d6569448ada0623dce5f07ab03c930683baf90a80da57e126"
+  },
+  "references": [
+    "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax",
+    "https://docs.github.com/en/actions/reference/workflows-and-actions/contexts",
+    "https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows"
+  ]
+}

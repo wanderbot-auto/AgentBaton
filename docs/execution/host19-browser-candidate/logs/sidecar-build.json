@@ -1,0 +1,19 @@
+{
+  "source": "c79a31fbc54f9dff846cfaeccbfb8a93b9e86043",
+  "command": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "--locked",
+    "--bin",
+    "baton",
+    "--bin",
+    "batond"
+  ],
+  "exit": 0,
+  "source_head_and_tracked_unchanged": true,
+  "tracked_clean": true,
+  "seconds": 71.301,
+  "log_sha256": "e525fa2f6394996db69fb1e91ae55a8f85eca17323ef6c3941cb0fd1ceef5beb"
+}

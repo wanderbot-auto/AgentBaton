@@ -14,7 +14,7 @@ type Fixture=ReturnType<typeof integrationFixture>;
 function ready(f:Fixture){
  const context:IntegrationContextView={task_revision:f.task.revision,bindings:f.policy.bindings,available_validators:[],as_of_sequence:12,shared_usage:f.view.shared_usage,preview_only:true};
  const state={policies:[] as IntegrationPolicy[],views:[] as IntegrationRunView[]};
- vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[f.task],sequence:12,api_version:1,database_schema_version:18}));
+ vi.mocked(api.snapshot).mockImplementation(async()=>({tasks:[f.task],sequence:12,api_version:1,database_schema_version:19}));
  vi.mocked(api.taskGet).mockImplementation(async()=>f.task);vi.mocked(goalApi.scopesList).mockImplementation(async()=>[f.scope]);
  vi.mocked(integrationApi.context).mockImplementation(async()=>context);vi.mocked(integrationApi.targets).mockImplementation(async()=>[f.target]);
  vi.mocked(integrationApi.policies).mockImplementation(async()=>state.policies);vi.mocked(integrationApi.list).mockImplementation(async()=>state.views.map(v=>v.run));vi.mocked(integrationApi.get).mockImplementation(async id=>state.views.find(v=>v.run.id===id)!);
@@ -110,10 +110,47 @@ describe('Task local integration, mocked component dimension only',()=>{
  it('rejects get responses for another run even when task and policy match',async()=>{const f=integrationFixture();const {state}=ready(f);state.policies=[f.policy];state.views=[f.view];const wrongId='another-run-same-task-and-policy';vi.mocked(integrationApi.get).mockResolvedValue({...f.view,run:{...f.view.run,id:wrongId},fence:{...f.view.fence,integration_id:wrongId}});const user=userEvent.setup();render(<TaskIntegration task={f.task} language="en" connected/>);await open(user);expect(await screen.findByRole('alert')).toHaveTextContent('foreign');expect(integrationApi.get).toHaveBeenCalledWith(f.view.run.id);expect(screen.queryByRole('region',{name:`Integration history ${wrongId}`})).toBeNull();expect(screen.queryByRole('button',{name:'Request integration cancellation'})).toBeNull();expect(integrationApi.cancel).not.toHaveBeenCalled();expect(integrationApi.reconcile).not.toHaveBeenCalled();});
 });
 
-it.each([17,19])('refuses database schema %s before offering integration writes',async database_schema_version=>{
- const f=integrationFixture();ready(f);vi.mocked(api.snapshot).mockResolvedValue({tasks:[f.task],sequence:12,api_version:1,database_schema_version});
+it.each([
+ {database_schema_version:17},{database_schema_version:18},{database_schema_version:20},
+ {database_schema_version:'19'},{database_schema_version:true},{api_version:2},{api_version:'1'},{api_version:true},
+])('refuses version mismatch %j before offering integration writes',async versions=>{
+ const f=integrationFixture();ready(f);
+ // Delivery from an older or malformed bridge; bypass only the API parser to exercise the refresh guard.
+ vi.mocked(api.snapshot).mockResolvedValue({
+  tasks:[f.task],sequence:12,api_version:1,database_schema_version:19,...versions,
+ } as Awaited<ReturnType<typeof api.snapshot>>);
  const user=userEvent.setup();render(<TaskIntegration task={f.task} language="en" connected/>);await open(user);
  expect(await screen.findByRole('alert')).toHaveTextContent('foreign');
  expect(screen.getByRole('button',{name:'Review branch permission in native dialog'})).toBeDisabled();
- expect(integrationApi.context).not.toHaveBeenCalled();expect(integrationApi.approve).not.toHaveBeenCalled();expect(integrationApi.start).not.toHaveBeenCalled();
+ expect(integrationApi.context).not.toHaveBeenCalled();
+ expect(integrationApi.targets).not.toHaveBeenCalled();
+ for(const write of [integrationApi.approve,integrationApi.start,integrationApi.revoke,integrationApi.cancel,integrationApi.reconcile]){
+  expect(write).not.toHaveBeenCalled();
+ }
+});
+
+it('disables previously available lifecycle actions when a refresh returns schema18',async()=>{
+ const f=integrationFixture();
+ const {state}=ready(f);
+ state.policies=[f.policy];
+ state.views=[f.view];
+ const user=userEvent.setup();
+ render(<TaskIntegration task={f.task} language="en" connected/>);
+ await open(user);
+ const revoke=screen.getByRole('button',{name:'Revoke branch permission'});
+ const cancel=screen.getByRole('button',{name:'Request integration cancellation'});
+ expect(revoke).toBeEnabled();
+ expect(cancel).toBeEnabled();
+ const contextReads=vi.mocked(integrationApi.context).mock.calls.length;
+
+ vi.mocked(api.snapshot).mockResolvedValue({tasks:[f.task],sequence:13,api_version:1,database_schema_version:18});
+ await user.click(screen.getByRole('button',{name:'Refresh integration records'}));
+ expect(await screen.findByRole('alert')).toHaveTextContent('foreign');
+ expect(revoke).toBeDisabled();
+ expect(cancel).toBeDisabled();
+ expect(screen.getByRole('button',{name:'Review branch permission in native dialog'})).toBeDisabled();
+ expect(integrationApi.context).toHaveBeenCalledTimes(contextReads);
+ for(const write of [integrationApi.approve,integrationApi.start,integrationApi.revoke,integrationApi.cancel,integrationApi.reconcile]){
+  expect(write).not.toHaveBeenCalled();
+ }
 });

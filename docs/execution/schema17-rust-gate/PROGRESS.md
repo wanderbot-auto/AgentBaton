@@ -1,0 +1,13 @@
+# Integration schema17 progress
+
+At bd894a012ddb504b0e576f20f1f8fabb3dc8e949, the default target reproduced 3 passed and 12 failed, exit 101. Nine fixture tests start from Store19 and fail the existing exact Conversation18 entry. The separate Factory inverse no longer reaches its deliberate late collision, the fresh Store version is 19, and current Store correctly accepts the old future19 label. The complete log is archived. The leader independently reported 30 failures among 37 tests across nine other default Core targets, outside this reservation. A direct checkpoint message to the leader failed at the local Codex HTTP transport.
+
+The restored target passes all 16 default cases with zero ignores. The focused run also passed 21 related Conversation18, Host migration, Host fixture and real Unix IPC cases. Core and workspace formatting and all-target strict default Core Clippy pass. The first successful target run emitted an unused-mut warning from the frozen open prefix. The checked adapter removes that mutability and preserves the behavior. Source provenance is verified against the accepted Store18 blob.
+
+Historical exact-18 setup uses the existing pre_host_schema::remove_empty_host19 proof through its fixture entry. Later generated versions continue through the pinned Conversation and Integration fixtures. The read-only projection used for opaque cases validates exact Host DDL and zero registrations, and preserves every other row/schema object in the comparison. Both pre-v18 and pre-v19 backups are compared with the actual predecessor image and existing private-file checks.
+
+The leader independently ran the frozen historical ARM64 daemon and CLI from accepted a4e03303. The ordinary default test executes the checked source prefix without requiring those separately built tools. The leader receipt is archived verbatim.
+
+Candidate dff96b7006a44f54c6cb254cf882eb735b2c8f81 passed the Apple Silicon CI workspace binary build. The unchanged preparation script received API 1, schema 19 and sequence 0 from those tools, then refused the database at its exact schema18 guard. The owned daemon stopped and was joined cleanly. The workspace test command was not reached. The leader reproduced the same earliest blocker independently on the baseline. Nine other default Core targets remain separate; the leader reproduced 30 failures in 37 tests on the baseline. No workflow, production modules or shared fixtures changed.
+
+Leader independently reran four actual migration targets on dff96b7006a44f54c6cb254cf882eb735b2c8f81. All 34 tests passed. The review log is archived. The leader authorized handoff with the clean diagnosis and frozen test sources.
