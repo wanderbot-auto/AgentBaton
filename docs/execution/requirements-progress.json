@@ -1323,7 +1323,7 @@
     {
       "id": "AB-CAP-005",
       "work_package": "WP06",
-      "status": "implementing",
+      "status": "accepted",
       "implementation_refs": [
         "crates/config/src/capabilities.rs",
         "crates/config/src/capabilities/native.rs",
@@ -1332,13 +1332,14 @@
         "crates/core/src/sessions.rs"
       ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "local_partial_scope": "passed; see session-supervision EVIDENCE for exact dimensions",
-        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance"
+        "current_local_partial": "passed for listed generated-child/config/journal/UI tests only; consult EVIDENCE; not full requirement acceptance",
+        "ci": "passed"
       },
       "evidence": [
         "docs/execution/project-registry/EVIDENCE.json",
@@ -1346,20 +1347,20 @@
         "docs/execution/session-supervision/REVIEW.md",
         "docs/execution/provider-adapters/EVIDENCE.json",
         "docs/execution/provider-adapters/FINAL_REVIEW.md",
-        "docs/execution/leader-control/AB_CAP_005_STATIC_SCAN_CURRENT.json"
+        "docs/execution/leader-control/AB_CAP_005_STATIC_SCAN_CURRENT.json",
+        "docs/execution/leader-control/CAPABILITY_STATIC_SCAN_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Explicit source/snapshot primitive only; native adapter parsing, actual diagnostics/materialization and daemon/UI integration remain.",
-        "Selected read-only source adapters/catalog fixtures only; full runtime capability/config bridge remains.",
-        "Private generated default plans/snapshot integrity only; full profile UI/import/write/revocation, actual native loading/identity and hidden-source enforcement remain incomplete or unknown."
+        "Static inspection and enumeration of explicit selected sources. Provider loading, actual diagnostics and active runtime evidence remain separately tracked."
       ],
-      "coverage": "partial",
+      "coverage": "complete",
       "verification_refs": [
         "crates/config/tests/native_sources.rs",
         "crates/config/tests/runtime.rs",
         "crates/core/tests/sessions_ipc.rs",
         "crates/core/tests/migration_v5.rs",
-        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/CAPABILITY_CONFIG_VERIFICATION_APPLICABILITY.json",
+        "docs/execution/leader-control/CAPABILITY_STATIC_SCAN_MAIN_ACCEPTANCE.json"
       ],
       "verified_slices": [
         {
@@ -1367,6 +1368,12 @@
           "source": "6c207575c60e55a6e421df7f043daf9941593698",
           "tested_source_tree": "043bc357cd83d385db63181cd5bf6e341217cd7d",
           "evidence": "docs/execution/leader-control/AB_CAP_005_STATIC_SCAN_CURRENT.json"
+        },
+        {
+          "slice": "protected_main_static_scan_without_execution",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "evidence": "docs/execution/leader-control/CAPABILITY_STATIC_SCAN_MAIN_ACCEPTANCE.json",
+          "scope": "Static enumeration and parsing of explicitly selected Skill and native MCP source configurations. Active diagnosis, real server operation and credentialed Provider integration have their own requirements."
         }
       ],
       "verification_applicability": {
