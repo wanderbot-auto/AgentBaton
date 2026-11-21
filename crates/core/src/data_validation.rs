@@ -3,7 +3,7 @@
 use crate::{
     sessions::ApprovalProposal,
     storage::{db_error, decode, encode, now, Event, Store},
-    validation::bounded_documents,
+    validation::{bounded_documents, require_confirmed_validation_policy},
     CoreError, Result,
 };
 use agentbaton_workspaces::{
@@ -168,30 +168,19 @@ fn event(
         .map_err(db_error)?;
     Ok(())
 }
-/// Only these fixed tables can be selected. Check raw size before decoding even
-/// a single legacy/corrupt policy or owner proposal.
-fn bounded_document(connection: &rusqlite::Connection, table: &str, id: &str) -> Result<String> {
-    let (size_sql, document_sql) = match table {
-        "data_validation_policies" => ("SELECT octet_length(document) FROM data_validation_policies WHERE id=?1", "SELECT document FROM data_validation_policies WHERE id=?1 AND octet_length(document)<=?2"),
-        "approval_proposals" => ("SELECT octet_length(document) FROM approval_proposals WHERE id=?1", "SELECT document FROM approval_proposals WHERE id=?1 AND octet_length(document)<=?2"),
-        _ => return Err(CoreError::new("INTERNAL_ERROR", "Unknown data validation document")),
-    };
-    let size: Option<i64> = connection
-        .query_row(size_sql, [id], |row| row.get(0))
+/// Bound the raw serialized policy before decoding, including a legacy or corrupt row.
+fn bounded_policy_document(connection: &rusqlite::Connection, id: &str) -> Result<String> {
+    let result: Option<Option<String>> = connection
+        .query_row(
+            "SELECT CASE WHEN octet_length(document)<=?2 THEN document END
+             FROM data_validation_policies WHERE id=?1",
+            params![id, MAX_RECORD_BYTES],
+            |row| row.get(0),
+        )
         .optional()
         .map_err(db_error)?;
-    let size = size.ok_or_else(|| {
-        CoreError::new("NOT_FOUND", "Data policy or owner proposal is unavailable")
-    })?;
-    if !(0..=MAX_RECORD_BYTES).contains(&size) {
-        return Err(limited());
-    }
-    connection
-        .query_row(document_sql, params![id, MAX_RECORD_BYTES], |row| {
-            row.get(0)
-        })
-        .optional()
-        .map_err(db_error)?
+    result
+        .ok_or_else(|| CoreError::new("NOT_FOUND", "Data validation policy is unavailable"))?
         .ok_or_else(limited)
 }
 impl Store {
@@ -339,11 +328,7 @@ impl Store {
         Ok(json!(policy))
     }
     pub fn get_data_validation_policy(&self, id: &str) -> Result<DataValidationPolicy> {
-        let policy: DataValidationPolicy = decode(&bounded_document(
-            &self.conn,
-            "data_validation_policies",
-            id,
-        )?)?;
+        let policy: DataValidationPolicy = decode(&bounded_policy_document(&self.conn, id)?)?;
         if policy.id != id {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
@@ -477,23 +462,13 @@ impl Store {
                 "Data validation subject or attempt binding changed",
             ));
         }
-        let proposal: ApprovalProposal = decode(&bounded_document(
+        let proposal = require_confirmed_validation_policy(
             &self.conn,
-            "approval_proposals",
             &policy.approval_id,
-        )?)?;
-        let confirmed: bool = self
-            .conn
-            .query_row(
-                "SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",
-                [&policy.approval_id],
-                |r| r.get(0),
-            )
-            .map_err(db_error)?;
-        if !confirmed
-            || !proposal.consumed
-            || proposal.kind != "data_validation"
-            || proposal.snapshot["file_contract"] != json!(policy.file_contract)
+            "data_validation",
+            &policy,
+        )?;
+        if proposal.snapshot["file_contract"] != json!(policy.file_contract)
             || proposal.snapshot["table"] != json!(policy.table)
             || proposal.snapshot["contract_digest"] != json!(policy.contract_digest)
             || proposal.snapshot["validator_id"] != json!(VALIDATOR_ID)
@@ -613,11 +588,7 @@ impl Store {
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(db_error)?;
         // Recheck revocation/revision at the commit boundary as well.
-        let current: DataValidationPolicy = decode(&bounded_document(
-            &tx,
-            "data_validation_policies",
-            policy_id,
-        )?)?;
+        let current: DataValidationPolicy = decode(&bounded_policy_document(&tx, policy_id)?)?;
         if current.revoked
             || current.revision != expected_revision
             || encode(&current)? != encode(&policy)?
@@ -707,11 +678,120 @@ mod tests {
     // The stopped session/connection are explicit storage fixtures. No Provider
     // process, native owner dialog or model is executed by these core tests.
     fn fixture(stopped: bool) -> Fixture {
+        fixture_workspace(stopped, false)
+    }
+
+    fn create_directory_workspace(
+        runtime: &Path,
+        source: &Path,
+    ) -> (crate::registry::Project, ManagedWorkspace) {
+        use std::{
+            sync::{
+                atomic::{AtomicBool, Ordering},
+                Arc,
+            },
+            time::{Duration, Instant},
+        };
+        struct Running {
+            stop: Arc<AtomicBool>,
+            thread: Option<std::thread::JoinHandle<Result<()>>>,
+        }
+        impl Drop for Running {
+            fn drop(&mut self) {
+                self.stop.store(true, Ordering::Relaxed);
+                self.thread.take().unwrap().join().unwrap().unwrap();
+            }
+        }
+        let runtime = runtime.canonicalize().unwrap();
+        let daemon = crate::ipc::Daemon::bind(&runtime).unwrap();
+        let stop = Arc::new(AtomicBool::new(false));
+        let run = stop.clone();
+        let _running = Running {
+            stop,
+            thread: Some(std::thread::spawn(move || daemon.run(run))),
+        };
+        let call = |command| {
+            let reply = crate::ipc::call(&runtime, command).unwrap();
+            assert!(reply.get("error").is_none(), "{reply}");
+            reply["result"].clone()
+        };
+        let project = call(
+            json!({"method":"projects.import","params":{"path":source,"name":"Generated non-Git dataset"},"idempotency_key":"import"}),
+        );
+        let preview = call(json!({
+            "method":"data_workspace_previews.start","expected_revision":project["revision"],"idempotency_key":"preview",
+            "params":{"project_id":project["id"],"files":[{"artifact_id":"input","relative_path":"input.txt","max_bytes":1024}],
+                      "limits":{"max_file_bytes":1024,"max_total_bytes":1024,"max_files":1}}
+        }));
+        let wait = |method, id_field: &str, id: &Value, pending| {
+            let deadline = Instant::now() + Duration::from_secs(5);
+            loop {
+                let current = call(json!({"method":method,"params":{(id_field):id}}));
+                if current["state"] != pending {
+                    break current;
+                }
+                assert!(Instant::now() < deadline, "{method}: {current}");
+                std::thread::sleep(Duration::from_millis(5));
+            }
+        };
+        let preview = wait(
+            "data_workspace_previews.get",
+            "preview_id",
+            &preview["id"],
+            "checking",
+        );
+        assert_eq!(preview["state"], "verified", "{preview}");
+        let proposal = call(
+            json!({"method":"data_workspaces.propose","expected_revision":preview["revision"],"idempotency_key":"propose-copy","params":{"preview_id":preview["id"]}}),
+        );
+        let copy = call(
+            json!({"method":"approvals.finalize","expected_revision":proposal["revision"],"idempotency_key":"generated-owner-copy","params":{"proposal_id":proposal["id"]}}),
+        );
+        let copy = wait(
+            "data_workspaces.get",
+            "creation_id",
+            &copy["id"],
+            "creating",
+        );
+        assert_eq!(copy["state"], "ready", "{copy}");
+        let workspaces =
+            call(json!({"method":"workspaces.list","params":{"project_id":project["id"]}}));
+        assert_eq!(workspaces[0]["id"], copy["workspace_id"]);
+        (
+            serde_json::from_value(project).unwrap(),
+            serde_json::from_value(workspaces[0].clone()).unwrap(),
+        )
+    }
+
+    fn restore_directory_input(store: &mut Store, workspace_id: &str) {
+        let contexts = store
+            .prepare_data_input_contexts(&[workspace_id.to_owned()])
+            .unwrap();
+        assert_eq!(contexts.len(), 1);
+        store.data_input = Some(
+            crate::data_workspaces::DataInputWitness::restore(
+                contexts,
+                "validation-binding-test".into(),
+                std::time::Instant::now() + std::time::Duration::from_secs(30),
+            )
+            .unwrap(),
+        );
+    }
+
+    fn fixture_workspace(stopped: bool, non_git: bool) -> Fixture {
         let directory = tempfile::Builder::new()
             .permissions(fs::Permissions::from_mode(0o700))
             .tempdir()
             .unwrap();
-        let database = directory.path().join("baton.sqlite3");
+        let runtime = if non_git {
+            let runtime = directory.path().join("runtime");
+            fs::create_dir(&runtime).unwrap();
+            fs::set_permissions(&runtime, fs::Permissions::from_mode(0o700)).unwrap();
+            runtime
+        } else {
+            directory.path().to_owned()
+        };
+        let database = runtime.join("baton.sqlite3");
         // Match the daemon's private-file preparation even with umask022;
         // Store itself also serves explicitly selected non-runtime databases.
         fs::OpenOptions::new()
@@ -726,21 +806,29 @@ mod tests {
         );
         let source = directory.path().join("source");
         fs::create_dir(&source).unwrap();
-        git(&source, &["init", "--initial-branch=main"]);
         fs::write(source.join("input.txt"), "fixed input\n").unwrap();
-        git(&source, &["add", "input.txt"]);
-        git(&source, &["commit", "-m", "generated input"]);
-        let head = git(&source, &["rev-parse", "HEAD"]);
-        let managed = directory.path().join("managed");
-        fs::create_dir(&managed).unwrap();
-        fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
-        let mut store = Store::open(&database).unwrap();
-        let project = store
-            .import_project(&source, "Generated project", "import")
-            .unwrap();
-        let workspace = store
-            .create_workspace(&project.id, project.revision, &head, &managed, "workspace")
-            .unwrap();
+        let (mut store, project, workspace) = if non_git {
+            let (project, workspace) = create_directory_workspace(&runtime, &source);
+            let mut store = Store::open(&database).unwrap();
+            restore_directory_input(&mut store, &workspace.id);
+            (store, project, workspace)
+        } else {
+            git(&source, &["init", "--initial-branch=main"]);
+            git(&source, &["add", "input.txt"]);
+            git(&source, &["commit", "-m", "generated input"]);
+            let head = git(&source, &["rev-parse", "HEAD"]);
+            let managed = directory.path().join("managed");
+            fs::create_dir(&managed).unwrap();
+            fs::set_permissions(&managed, fs::Permissions::from_mode(0o700)).unwrap();
+            let mut store = Store::open(&database).unwrap();
+            let project = store
+                .import_project(&source, "Generated project", "import")
+                .unwrap();
+            let workspace = store
+                .create_workspace(&project.id, project.revision, &head, &managed, "workspace")
+                .unwrap();
+            (store, project, workspace)
+        };
         let task = store
             .create_registered(&project.id, "Validate recorded output", "task")
             .unwrap();
@@ -886,7 +974,12 @@ mod tests {
             session_id: session.id.clone(),
             inputs: vec![ArtifactRequirement {
                 artifact_id: "input".into(),
-                relative_path: "input.txt".into(),
+                relative_path: if non_git {
+                    "inputs/input.txt"
+                } else {
+                    "input.txt"
+                }
+                .into(),
                 max_bytes: 1024,
                 expected_sha256: Some(input_hash),
             }],
@@ -1001,6 +1094,164 @@ mod tests {
                 .unwrap()[0]
                 .contract_digest,
             policy.contract_digest
+        );
+    }
+
+    #[test]
+    fn non_git_validation_binds_real_directory_copy_and_replays_only_original_history() {
+        use agentbaton_workspaces::validation::sha256;
+
+        let mut f = fixture_workspace(true, true);
+        assert_eq!(
+            f.workspace.identity.as_ref().unwrap().kind,
+            agentbaton_workspaces::WorkspaceKind::Directory
+        );
+        let table = f.workspace.root.join("table.json");
+        let original_bytes = fs::read(&table).unwrap();
+        f.selection.outputs[0].expected_sha256 = Some(sha256(&original_bytes));
+        let policy = approve(&mut f);
+        let run =
+            |store: &mut Store, revision, key| store.run_data_validation(&policy.id, revision, key);
+        let original = run(&mut f.store, 1, "original").unwrap();
+        assert_eq!(original.state, "contract_passed", "{}", original.evidence);
+        assert_eq!(original.evidence["validator_id"], VALIDATOR_ID);
+        assert_eq!(
+            original.evidence["file_integrity"]["subject"]["attempt_id"],
+            f.session.attempt_id
+        );
+        assert_eq!(
+            original.evidence["contract"]["artifact_policy"]["subject"]["version"]
+                ["dataset_revision"],
+            f.workspace.base_revision
+        );
+
+        update_table(&f, |value| value["rows"][0]["x"] = json!(2.5));
+        let changed = run(&mut f.store, 1, "different-table-bytes").unwrap();
+        assert_eq!(changed.state, "contract_failed");
+        assert_eq!(changed.evidence["failure"]["code"], "artifact_integrity");
+        fs::write(&table, &original_bytes).unwrap();
+
+        let replace_policy = |store: &Store, document: &DataValidationPolicy| {
+            store
+                .conn
+                .execute(
+                    "UPDATE data_validation_policies SET document=?1 WHERE id=?2",
+                    params![encode(document).unwrap(), policy.id],
+                )
+                .unwrap();
+        };
+        let mut replacement = policy.clone();
+        replacement.revision = 2;
+        replace_policy(&f.store, &replacement);
+        assert_eq!(
+            run(&mut f.store, 2, "unapproved-revision")
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+        replacement = policy.clone();
+        replacement.table.columns[0].nullable = true;
+        replace_policy(&f.store, &replacement);
+        assert_eq!(
+            run(&mut f.store, 1, "different-definition")
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+
+        let foreign_root = f._directory.path().join("foreign");
+        fs::create_dir(&foreign_root).unwrap();
+        let foreign = f
+            .store
+            .import_project(&foreign_root, "Foreign dataset", "foreign")
+            .unwrap();
+        replacement = policy.clone();
+        replacement.project_id = foreign.id;
+        replace_policy(&f.store, &replacement);
+        assert_eq!(
+            run(&mut f.store, 1, "different-project").unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        replace_policy(&f.store, &policy);
+
+        let mut other_workspace = f.workspace.clone();
+        other_workspace.base_revision = "different-dataset-revision".into();
+        f.store
+            .conn
+            .execute(
+                "UPDATE managed_workspaces SET document=?1 WHERE id=?2",
+                params![encode(&other_workspace).unwrap(), f.workspace.id],
+            )
+            .unwrap();
+        assert_eq!(
+            run(&mut f.store, 1, "different-dataset").unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        f.store
+            .conn
+            .execute(
+                "UPDATE managed_workspaces SET document=?1 WHERE id=?2",
+                params![encode(&f.workspace).unwrap(), f.workspace.id],
+            )
+            .unwrap();
+
+        let stopped = f.store.intent(&f.session.intent_id).unwrap();
+        let task = f.store.get(&f.session.task_id).unwrap();
+        let newer = f
+            .store
+            .prepare_attempt(&task.id, task.revision, stopped.binding, "newer")
+            .unwrap();
+        f.store
+            .confirm_stop(&newer.id, StopEvidence::NeverDispatched)
+            .unwrap();
+        let mut replaced_session = f.session.clone();
+        replaced_session.intent_id = newer.id;
+        replaced_session.attempt_id = newer.attempt_id;
+        f.store
+            .conn
+            .execute(
+                "UPDATE sessions SET document=?1 WHERE id=?2",
+                params![encode(&replaced_session).unwrap(), f.session.id],
+            )
+            .unwrap();
+        assert_eq!(
+            run(&mut f.store, 1, "different-attempt").unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        f.store
+            .conn
+            .execute(
+                "UPDATE sessions SET document=?1 WHERE id=?2",
+                params![encode(&f.session).unwrap(), f.session.id],
+            )
+            .unwrap();
+        restore_directory_input(&mut f.store, &f.workspace.id);
+        fs::write(f.workspace.root.join("inputs/input.txt"), b"other input").unwrap();
+        assert_eq!(
+            run(&mut f.store, 1, "different-input-bytes")
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+
+        drop(f.store);
+        let mut reopened = Store::open(&f.database).unwrap();
+        let before = reopened.sequence().unwrap();
+        let replay = run(&mut reopened, 1, "original").unwrap();
+        assert_eq!(encode(&replay).unwrap(), encode(&original).unwrap());
+        assert_eq!(replay.task_acceptance, "not_established");
+        assert!(!replay.integration_authorized);
+        assert_ne!(
+            reopened.get(&task.id).unwrap().state,
+            crate::storage::TaskState::Accepted
+        );
+        assert_eq!(reopened.sequence().unwrap(), before);
+        assert_eq!(
+            reopened
+                .list_data_validation_records(&task.id)
+                .unwrap()
+                .len(),
+            2
         );
     }
     #[test]
