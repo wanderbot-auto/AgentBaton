@@ -813,26 +813,161 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
   desktop:
-    name: Product / ${{ matrix.os }}
+    name: Product / ${{ matrix.os }} Core and migrations
     runs-on: ${{ matrix.os }}
-    # Native tests, two application profiles, release audit and DMG packaging
-    # must finish on the same exact checkout. Per-test/product limits stay fixed.
+    # Keep the existing budget for the full Core and genuine schema14/15/16 gates.
     timeout-minutes: 60
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
         os: [macos-15]
+    outputs:
+      source_receipt: ${{ steps.core_source_complete.outputs.source_receipt }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Bind the macOS Core checkout
+        id: core_source_start
+        env:
+          MACOS_SOURCE_STAGE: core-start
+        run: &macos_source_binding |
+          set -euo pipefail
+          python3 - <<'MACOS_SOURCE_BINDING'
+          import json
+          import os
+          import re
+          import subprocess
+
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+
+          def git(*args):
+              return subprocess.check_output(
+                  ['git', '--no-replace-objects', *args], text=True,
+              ).strip()
+
+          def encoded(value):
+              return json.dumps(value, sort_keys=True, separators=(',', ':'))
+
+          def output(name, value):
+              with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as stream:
+                  stream.write(f'{name}={encoded(value)}\n')
+
+          def source_context():
+              env = os.environ
+              host = os.uname()
+              require(host.sysname == 'Darwin' and host.machine == 'arm64',
+                      'macOS native validation requires Apple Silicon')
+              event = env['GITHUB_EVENT_NAME']
+              require(event in {'pull_request', 'workflow_dispatch'}, 'Unexpected macOS check trigger')
+              with open(env['GITHUB_EVENT_PATH'], encoding='utf-8') as stream:
+                  payload = json.load(stream)
+              repository = env['GITHUB_REPOSITORY']
+              repository_id = env['GITHUB_REPOSITORY_ID']
+              workflow_path = '.github/workflows/product.yml'
+              workflow_ref = env['GITHUB_WORKFLOW_REF']
+              workflow_sha = env['GITHUB_WORKFLOW_SHA']
+              require(workflow_ref.partition('@')[0] == f'{repository}/{workflow_path}',
+                      'Unexpected macOS workflow source')
+              require(str(payload['repository']['id']) == repository_id
+                      and payload['repository']['full_name'] == repository,
+                      'Unexpected macOS repository authority')
+              checkout, tree = git('rev-parse', 'HEAD', 'HEAD^{tree}').splitlines()
+              require(checkout == env['GITHUB_SHA'] and not git('status', '--porcelain=v1', '--untracked-files=no'),
+                      'macOS checkout is not the clean event SHA')
+              ref = env['GITHUB_REF']
+              pr_number = 0
+              base_ref, base, head, merge_ref = '', '', checkout, ''
+              if event == 'pull_request':
+                  pull = payload['pull_request']
+                  pr_number = payload['number']
+                  require(type(pr_number) is int and pr_number > 0, 'Invalid macOS PR number')
+                  base_ref, base, head = pull['base']['ref'], pull['base']['sha'], pull['head']['sha']
+                  merge_ref = f'refs/pull/{pr_number}/merge'
+                  require(base_ref == 'main' and ref == merge_ref, 'Unexpected macOS PR merge ref')
+                  headers = git('cat-file', '-p', checkout).split('\n\n', 1)[0]
+                  parents = re.findall(r'^parent ([0-9a-f]{40})$', headers, re.MULTILINE)
+                  require(parents == [base, head], 'macOS checkout parents differ from PR base/head')
+              shas = (checkout, tree, head, workflow_sha) + ((base,) if event == 'pull_request' else ())
+              require(all(re.fullmatch(r'[0-9a-f]{40}', value) for value in shas), 'Invalid macOS source SHA')
+              run_id, run_attempt = env['GITHUB_RUN_ID'], env['GITHUB_RUN_ATTEMPT']
+              require(all(re.fullmatch(r'[1-9][0-9]{0,19}', value)
+                          for value in (repository_id, run_id, run_attempt)), 'Invalid macOS run identity')
+              return {
+                  'repository': repository, 'repository_id': repository_id,
+                  'workflow_path': workflow_path, 'workflow_ref': workflow_ref, 'workflow_sha': workflow_sha,
+                  'event': event, 'ref': ref, 'pr_number': pr_number, 'base_ref': base_ref,
+                  'base': base, 'head': head, 'merge_ref': merge_ref, 'checkout': checkout, 'tree': tree,
+                  'run_id': run_id, 'run_attempt': run_attempt,
+                  'os': host.sysname, 'architecture': host.machine,
+              }
+
+          def artifact(artifact_id, digest):
+              require(re.fullmatch(r'[1-9][0-9]{0,19}', artifact_id)
+                      and re.fullmatch(r'[0-9a-f]{64}', digest), 'Invalid macOS artifact identity')
+              return {'id': artifact_id, 'sha256': digest}
+
+          def main():
+              env = os.environ
+              stage = env['MACOS_SOURCE_STAGE']
+              context = source_context()
+              protocol = 'agentbaton.macos-core-ci.v1'
+              gates = {
+                  'frontend': 'success', 'schema14_build': 'success', 'schema15_build': 'success',
+                  'schema16_build': 'success', 'core_native': 'success', 'schema14_migrate': 'success',
+                  'schema15_migrate': 'success', 'schema16_migrate': 'success',
+                  'migration_evidence': 'success', 'rework_evidence': 'success', 'core_artifact': 'success',
+              }
+              if stage == 'core-start':
+                  output('source_context', context)
+                  return
+              if stage == 'core-complete':
+                  require(env['MACOS_CORE_START_CONTEXT'] == encoded(context), 'macOS Core source changed')
+                  expected_outcomes = ' '.join(f'{name}={result}' for name, result in gates.items())
+                  require(env['MACOS_CORE_GATE_OUTCOMES'] == expected_outcomes, 'An exact macOS Core gate did not pass')
+                  receipt = {
+                      'contract': protocol, 'source': context, 'gates': gates,
+                      'core_evidence': artifact(env['MACOS_CORE_ARTIFACT_ID'], env['MACOS_CORE_ARTIFACT_SHA256']),
+                  }
+                  output('source_receipt', receipt)
+                  print(encoded(receipt))
+                  return
+              require(stage in {'release-check', 'release-complete'}, 'Unknown macOS source stage')
+              raw = env['MACOS_CORE_RECEIPT']
+              require(0 < len(raw) <= 4096, 'Missing or oversized macOS Core receipt')
+              receipt = json.loads(raw)
+              require(type(receipt) is dict and set(receipt) == {'contract', 'source', 'gates', 'core_evidence'}
+                      and encoded(receipt) == raw and receipt['contract'] == protocol
+                      and receipt['source'] == context and receipt['gates'] == gates,
+                      'macOS Core proof differs from the release checkout or attempt')
+              core_evidence = receipt['core_evidence']
+              require(type(core_evidence) is dict and set(core_evidence) == {'id', 'sha256'}
+                      and all(type(value) is str for value in core_evidence.values()),
+                      'Invalid macOS Core evidence format')
+              artifact(core_evidence['id'], core_evidence['sha256'])
+              if stage == 'release-complete':
+                  native = artifact(env['MACOS_NATIVE_ARTIFACT_ID'], env['MACOS_NATIVE_ARTIFACT_SHA256'])
+                  development = artifact(env['MACOS_DEVELOPMENT_ARTIFACT_ID'], env['MACOS_DEVELOPMENT_ARTIFACT_SHA256'])
+                  require(len({core_evidence['id'], native['id'], development['id']}) == 3,
+                          'macOS evidence roles must use distinct artifacts')
+                  print(encoded({
+                      'contract': 'agentbaton.macos-release-ci.v1', 'source': context, 'core_evidence': core_evidence,
+                      'native_evidence': native, 'development': development,
+                  }))
+
+          main()
+          MACOS_SOURCE_BINDING
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
       - name: Toolchain
         run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - name: Frontend dependencies and validation
+        id: frontend
         working-directory: apps/desktop
         run: |
           set -euo pipefail
@@ -841,6 +976,7 @@ jobs:
           npm test
           npm run build
       - name: Build genuine native schema14 history for the required migration gate
+        id: schema14_build
         run: |
           set -euo pipefail
           # Freeze the original native14 pair before normal17 overwrites target.
@@ -848,18 +984,21 @@ jobs:
           python3 scripts/prepare-legacy-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy14-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/child_goal_legacy_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy14-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy14-build/frozen/source-build-manifest.json" --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy14-fixture"
       - name: Build genuine schema15 Task history for the required migration gate
+        id: schema15_build
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-schema15-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy15-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy15-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 crates/core/tests/fixtures/task_workspace_actual15_migration/generate.py --frozen "$RUNNER_TEMP/agentbaton-legacy15-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy15-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy15-fixture"
       - name: Build genuine schema16 workspace history for the required migration gate
+        id: schema16_build
         run: |
           set -euo pipefail
           export CARGO_TARGET_DIR="$GITHUB_WORKSPACE/target"
           python3 scripts/prepare-schema16-migration-fixture.py --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/agentbaton-legacy16-build" --target-dir "$RUNNER_TEMP/agentbaton-legacy16-target" --cargo "$(command -v cargo)" --rustc "$(command -v rustc)"
           python3 scripts/generate-schema16-migration-fixture.py --frozen "$RUNNER_TEMP/agentbaton-legacy16-build/frozen" --build-manifest "$RUNNER_TEMP/agentbaton-legacy16-build/frozen/source-build-manifest.json" --output "$RUNNER_TEMP/agentbaton-legacy16-fixture"
       - name: Core and native host tests
+        id: core_native
         env:
           # Each fixture owns real Git/SQLite/process work. Keep the original
           # per-test deadlines while avoiding unrelated fixture contention.
@@ -882,6 +1021,7 @@ jobs:
           bash scripts/prepare-desktop-sidecars.sh
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml
       - name: Migrate genuine native schema14 history with corruption and rollback controls
+        id: schema14_migrate
         env:
           AGENTBATON_ACTUAL_SCHEMA14_FIXTURE: ${{ runner.temp }}/agentbaton-legacy14-fixture
           RUST_TEST_THREADS: '1'
@@ -890,6 +1030,7 @@ jobs:
           cargo test --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-legacy-migration-tests --test factory_child_goal_legacy_migration -- -D warnings
       - name: Migrate genuine nonempty schema15 Task history with corruption and receipt controls
+        id: schema15_migrate
         env:
           AGENTBATON_ACTUAL_SCHEMA15_FIXTURE: ${{ runner.temp }}/agentbaton-legacy15-fixture
           RUST_TEST_THREADS: '1'
@@ -898,6 +1039,7 @@ jobs:
           cargo test --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema15-migration-tests --test task_workspace_actual15_migration -- -D warnings
       - name: Migrate genuine nonempty schema16 workspace history with corruption and receipt controls
+        id: schema16_migrate
         env:
           AGENTBATON_ACTUAL_SCHEMA16_FIXTURE: ${{ runner.temp }}/agentbaton-legacy16-fixture/manifest.json
           RUST_TEST_THREADS: '1'
@@ -905,6 +1047,109 @@ jobs:
           set -euo pipefail
           cargo test --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- --nocapture --test-threads=1
           cargo clippy --locked -p agentbaton-core --features actual-schema16-migration-tests --test integration_actual16_migration -- -D warnings
+      - name: Retain bounded native migration metadata without private history
+        id: migration_evidence
+        if: always()
+        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
+      - name: Retain finite rework progress without private runtime data
+        id: rework_evidence
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, sys
+          output = pathlib.Path('artifacts/native-smoke')
+          output.mkdir(parents=True, exist_ok=True)
+          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
+          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+          with os.fdopen(fd, 'wb') as report:
+              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
+          PY
+      - name: Upload finite macOS Core evidence
+        id: core_artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-core-${{ matrix.os }}-${{ github.sha }}
+          path: |
+            artifacts/native-smoke/factory-test-tools/probe-stdout.log
+            artifacts/native-smoke/factory-test-tools/probe-stderr.log
+            artifacts/native-smoke/factory-test-tools/probe-snapshot.stderr
+            artifacts/native-smoke/factory-test-tools/probe-snapshot.json
+            artifacts/native-smoke/factory-test-tools/probe-cleanup.json
+            artifacts/native-smoke/factory-test-tools/probe-failure.json
+            artifacts/native-smoke/factory-test-tools/manifest.json
+            artifacts/native-smoke/legacy-migration/summary.json
+            artifacts/native-smoke/factory-rework-progress.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Record the successful macOS Core source and evidence
+        id: core_source_complete
+        env:
+          MACOS_SOURCE_STAGE: core-complete
+          MACOS_CORE_START_CONTEXT: ${{ steps.core_source_start.outputs.source_context }}
+          MACOS_CORE_ARTIFACT_ID: ${{ steps.core_artifact.outputs.artifact-id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ steps.core_artifact.outputs.artifact-digest }}
+          MACOS_CORE_GATE_OUTCOMES: >-
+            frontend=${{ steps.frontend.outcome }}
+            schema14_build=${{ steps.schema14_build.outcome }}
+            schema15_build=${{ steps.schema15_build.outcome }}
+            schema16_build=${{ steps.schema16_build.outcome }}
+            core_native=${{ steps.core_native.outcome }}
+            schema14_migrate=${{ steps.schema14_migrate.outcome }}
+            schema15_migrate=${{ steps.schema15_migrate.outcome }}
+            schema16_migrate=${{ steps.schema16_migrate.outcome }}
+            migration_evidence=${{ steps.migration_evidence.outcome }}
+            rework_evidence=${{ steps.rework_evidence.outcome }}
+            core_artifact=${{ steps.core_artifact.outcome }}
+        run: *macos_source_binding
+  desktop_release:
+    name: Product / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: desktop
+    if: ${{ always() }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [macos-15]
+    steps:
+      - name: Require successful macOS Core validation
+        env:
+          MACOS_CORE_RESULT: ${{ needs.desktop.result }}
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+        run: |
+          set -euo pipefail
+          if [[ "$MACOS_CORE_RESULT" != success || -z "$MACOS_CORE_RECEIPT" ]]; then
+            echo 'The required macOS Core validation did not finish successfully with a source receipt.'
+            exit 1
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Verify the upstream receipt against the macOS release checkout
+        id: release_source_start
+        env:
+          MACOS_SOURCE_STAGE: release-check
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+        run: *macos_source_binding
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Prepare the macOS release frontend
+        working-directory: apps/desktop
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+      - name: Prepare release sidecars for the independent macOS runner
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --bin batond --bin baton
+          bash scripts/prepare-desktop-sidecars.sh
       - *fresh_schema18_gate
       - name: Actual macOS WebView and daemon lifecycle acceptance
         run: |
@@ -970,7 +1215,7 @@ jobs:
               run_integration_cases()
           INTEGRATION_NATIVE
       - name: Retain finite Native integration evidence without private snapshots
-        if: always()
+        if: ${{ always() && steps.release_source_start.outcome == 'success' }}
         run: |
           python3 - <<'INTEGRATION_EVIDENCE'
           import importlib.util, json, os, pathlib, subprocess, sys
@@ -1031,23 +1276,9 @@ jobs:
           if __name__ == '__main__':
               project_integration_cases()
           INTEGRATION_EVIDENCE
-      - name: Retain bounded native migration metadata without private history
-        if: always()
-        run: python3 scripts/record-legacy-migration-ci-evidence.py --temporary "$RUNNER_TEMP" --output artifacts/native-smoke/legacy-migration
-      - name: Retain finite rework progress without private runtime data
-        if: always()
-        run: |
-          python3 - <<'PY'
-          import os, pathlib, subprocess, sys
-          output = pathlib.Path('artifacts/native-smoke')
-          output.mkdir(parents=True, exist_ok=True)
-          assert not output.is_symlink() and output.resolve().is_relative_to(pathlib.Path.cwd().resolve())
-          fd = os.open(output / 'factory-rework-progress.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-          with os.fdopen(fd, 'wb') as report:
-              subprocess.run([sys.executable, 'scripts/record-factory-rework-ci-evidence.py', '--evidence-root', str(pathlib.Path('artifacts/factory-child-goal-core').absolute())], stdout=report, check=True)
-          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
+        id: native_artifact
+        if: ${{ always() && steps.release_source_start.outcome == 'success' }}
         with:
           name: native-webview-${{ matrix.os }}-${{ github.sha }}
           path: artifacts/native-smoke/
@@ -1062,9 +1293,24 @@ jobs:
         run: bash scripts/native-audit-release.sh apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop
       - name: Package development application and evidence
         run: bash scripts/package-development-macos.sh
+      - name: Verify the macOS release source before publishing the development artifact
+        env:
+          MACOS_SOURCE_STAGE: release-check
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+        run: *macos_source_binding
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        id: development_artifact
         with:
           name: development-${{ matrix.os }}-${{ github.sha }}
           path: artifacts/development/
           if-no-files-found: error
           retention-days: 14
+      - name: Record successful macOS validation and development artifact identities
+        env:
+          MACOS_SOURCE_STAGE: release-complete
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ steps.native_artifact.outputs.artifact-id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ steps.native_artifact.outputs.artifact-digest }}
+          MACOS_DEVELOPMENT_ARTIFACT_ID: ${{ steps.development_artifact.outputs.artifact-id }}
+          MACOS_DEVELOPMENT_ARTIFACT_SHA256: ${{ steps.development_artifact.outputs.artifact-digest }}
+        run: *macos_source_binding
