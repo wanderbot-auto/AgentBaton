@@ -14,6 +14,7 @@ from unittest import mock
 
 import yaml
 
+from tests.infrastructure.macos_ci_partition_source_fixture import normalize_partitioned_workflow
 from tests.infrastructure.test_schema17_migration_workflow import strip_integration_browser_ci_layer
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -25,12 +26,17 @@ CASES = ('last-page', 'first-page')
 SECRET = 'PRIVATE_CANARY_PROPOSAL_TOKEN_SNAPSHOT_PATH'
 
 
-def workflow():
-    return yaml.load(WORKFLOW.read_text(), Loader=yaml.BaseLoader)
+def workflow(*, historical=False):
+    text = WORKFLOW.read_text()
+    if historical:
+        text = normalize_partitioned_workflow(text)
+    return yaml.load(text, Loader=yaml.BaseLoader)
 
 
 def step(name):
-    matches = [value for value in workflow()['jobs']['desktop']['steps'] if value.get('name') == name]
+    jobs = workflow()['jobs']
+    lane = jobs['desktop_release'] if 'desktop_release' in jobs else jobs['desktop']
+    matches = [value for value in lane['steps'] if value.get('name') == name]
     if len(matches) != 1:
         raise AssertionError('One fixed Native integration CI step required')
     return matches[0]
@@ -112,7 +118,7 @@ class IntegrationNativeCiTests(unittest.TestCase):
                          '599074c95afb9324470bc859f11added4b5232a877ba6e0486001e1bebf015fc')
 
     def test_apple_silicon_lane_keeps_existing_jobs_limits_actions_and_permissions(self):
-        document = workflow()
+        document = workflow(historical=True)
         self.assertEqual(set(document['jobs']), {'core', 'frontend', 'desktop'})
         desktop = document['jobs']['desktop']
         self.assertEqual(desktop['name'], 'Product / ${{ matrix.os }}')
@@ -128,14 +134,16 @@ class IntegrationNativeCiTests(unittest.TestCase):
                     self.assertRegex(value['uses'], r'@[0-9a-f]{40}$')
 
     def test_original_default_and_owner_binary_commands_are_not_replaced(self):
-        steps = workflow()['jobs']['desktop']['steps']
-        original = next(value for value in steps if value.get('name') == 'Core and native host tests')['run']
+        jobs = workflow()['jobs']
+        original = next(value for value in jobs['desktop']['steps']
+                        if value.get('name') == 'Core and native host tests')['run']
         self.assertIn('cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml\n', original)
-        owner = next(value for value in steps if value.get('name') == 'Actual native Owner Grant dialog and private database acceptance')['run']
+        owner = step('Actual native Owner Grant dialog and private database acceptance')['run']
         self.assertIn('--features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke', owner)
         self.assertIn('--output artifacts/native-smoke/owner-dialog', owner)
-        factory = next(value for value in steps if value.get('name') == 'Actual Native Factory planning approval and unchanged Grant evidence')['run']
+        factory = step('Actual Native Factory planning approval and unchanged Grant evidence')['run']
         self.assertIn('--kind factory_planning', factory)
+        steps = (jobs['desktop_release'] if 'desktop_release' in jobs else jobs['desktop'])['steps']
         names = [value.get('name') for value in steps]
         self.assertLess(names.index('Actual Native Factory planning approval and unchanged Grant evidence'), names.index(LIB_STEP))
         self.assertLess(names.index(LIB_STEP), names.index(DRIVER_STEP))
@@ -148,7 +156,7 @@ class IntegrationNativeCiTests(unittest.TestCase):
             '--features', 'native-smoke,custom-protocol', '--lib', '--', '--test-threads=1'])
 
     def test_existing_always_retention_release_audit_and_package_remain(self):
-        steps = workflow()['jobs']['desktop']['steps']
+        steps = workflow(historical=True)['jobs']['desktop']['steps']
         for name in ('Retain bounded native migration metadata without private history',
                      'Retain finite rework progress without private runtime data', PROJECT_STEP):
             self.assertEqual(next(value for value in steps if value.get('name') == name)['if'], 'always()')

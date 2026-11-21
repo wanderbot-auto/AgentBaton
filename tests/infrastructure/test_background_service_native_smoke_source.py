@@ -17,6 +17,7 @@ from tests.infrastructure.host19_native_webview_source_fixture import (
 )
 from tests.infrastructure.host_native_bridge_source_fixture import restore_host_native_bridge_v1
 from tests.infrastructure.host_native_schema19_source_fixture import restore_host_native_schema18
+from tests.infrastructure.macos_ci_partition_source_fixture import normalize_partitioned_workflow
 
 from tests.infrastructure.host19_native_integration_owner_source_fixture import (
     SOURCE_LAYERS as INTEGRATION_OWNER_LAYERS,
@@ -466,7 +467,8 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
                 normalize(composed.replace('contents: read', 'contents: write', 1))
 
     def test_exact_new_mac_step_recovers_entire_parent_workflow(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text();old=strip_background_native_smoke_layer(text)
+        text=normalize_partitioned_workflow((ROOT/'.github/workflows/product.yml').read_text())
+        old=strip_background_native_smoke_layer(text)
         self.assertEqual(hashlib.sha256(old.encode()).hexdigest(),BASE_WORKFLOW_SHA256)
         self.assertEqual(text.count(BG_STEP),1)
         self.assertEqual(restore_previous_mac_matrix(text).replace(BG_STEP,'',1),old)
@@ -481,7 +483,7 @@ class NativeBackgroundSourceBoundaries(unittest.TestCase):
         self.assertNotIn('timeout-minutes',BG_STEP)
 
     def test_any_unknown_missing_duplicate_moved_budget_or_permission_change_refuses(self):
-        text=(ROOT/'.github/workflows/product.yml').read_text()
+        text=normalize_partitioned_workflow((ROOT/'.github/workflows/product.yml').read_text())
         variants=[text.replace(BG_STEP,'',1),text.replace(BG_STEP,BG_STEP*2,1),
                   BG_STEP+text.replace(BG_STEP,'',1),text+'# unknown\n',text.replace('\n','\r\n'),
                   text.replace('timeout-minutes: 60','timeout-minutes: 61',1),
