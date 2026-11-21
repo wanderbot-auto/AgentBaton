@@ -1,0 +1,197 @@
+{
+  "recorded_at": "2026-11-21T14:10:23.819289+00:00",
+  "registration": {
+    "ref": "origin/collab/host-registration-integration",
+    "starting_sha": "70bcc2aeada84e454a128a4ef38db7251cc9b1fd",
+    "normal_scope": "reported ten inherited paths outside scope",
+    "inherited_path_reports": [
+      "docs/execution/leader-control/CAPABILITY_STATIC_SCAN_MAIN_ACCEPTANCE.json",
+      "docs/execution/leader-control/CORE_IPC_SCHEMA_ERRORS_MAIN_ACCEPTANCE.json",
+      "docs/execution/leader-control/CORE_IPC_WRITE_OUTCOME_MAIN_REVIEW.json",
+      "docs/execution/leader-control/CORE_TASK_TRANSITIONS_MAIN_REVIEW.json",
+      "docs/execution/leader-control/TASK_SUBMISSION_IDEMPOTENCY_MAIN_ACCEPTANCE.json",
+      "docs/execution/pr33-linux-rust-job-budget/CHECKPOINT.md",
+      "docs/execution/pr33-linux-rust-job-budget/EVIDENCE.json",
+      "docs/execution/pr33-linux-rust-job-budget/PLAN.md",
+      "docs/execution/pr33-linux-rust-job-budget/PROGRESS.md",
+      "docs/execution/requirements-progress.json"
+    ],
+    "exact_candidate_relative_scope": "passed",
+    "source_paths": [
+      ".github/workflows/product.yml",
+      "tests/infrastructure/macos_ci_partition_source_fixture.py",
+      "tests/infrastructure/test_macos_ci_partition_source_fixture.py",
+      "tests/infrastructure/test_pr_workflow_secret_isolation.py"
+    ]
+  },
+  "source": {
+    "parent": "3e8171314b78fb2f35a7001f268a594e1f962b02",
+    "commit": "9176c4fcdf87ca55a8992271892d5145bdbb79d5",
+    "tree": "6e1098edae1e33d00f48e5f98cf1c43a92618b4a",
+    "workflow_sha256": "fe359488c4fa2eca6bd0d49707463a18701d6425a9b4e98a3989755c529a31d4",
+    "workflow_delta": "Forward --locked to Cargo in the release Tauri build.",
+    "checkout_receipt_guard": "byte-identical before and after change",
+    "cargo_locks": "byte-identical"
+  },
+  "hosted_failure": {
+    "product_run": 44904851079,
+    "package_job": 136864678456,
+    "actual_merge": "77c57a63eeee1712dce69103d06eb99ad203c5be",
+    "message": "macOS checkout is not the clean event SHA",
+    "published": false,
+    "specific_tracked_path_in_hosted_log": "not_observed"
+  },
+  "native_resolution": {
+    "target": "aarch64-apple-darwin",
+    "macos": "26.6.1",
+    "tauri_cli": "2.12.4",
+    "local_cargo": "1.91.1",
+    "hosted_rustc": "1.100.0",
+    "committed_lock_sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5",
+    "unlocked_lock_sha256": "e4fe8dd737f2bd9d4cee31de0bf36e55f213ee5c2a583891f8718aa8ec3748b2",
+    "manifest_and_locked_checkout_clean": true,
+    "pinned_lock_records": 443,
+    "metadata_platform_nodes": 269,
+    "metadata_sha256": "4c3caf09f90c33372bbee78b9af491055dd596d2f8354a626a53c965be60cb04",
+    "release_compilation": "not_run_in_bounded_replay",
+    "dmg_rebuild": "not_run",
+    "hosted_rerun": "not_run_by_this_window",
+    "previous_complete_locked_native_replay_evidence": "docs/execution/leader-control/PR33_LOCAL_PACKAGE_BUILD.json"
+  },
+  "verification": {
+    "focused_passed": 37,
+    "full_total": 1151,
+    "full_passed": 1135,
+    "full_original_skips": 16,
+    "static_action_references": 20,
+    "prior_failure": "system Python lacked jsonschema"
+  },
+  "logs": {
+    "source-review.patch": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/source-review.patch",
+      "bytes": 10851,
+      "sha256": "f06e1ddd6a06dce57e17e60b64dcda5abefd34e2787a32eaae5c8d33195b93f1"
+    },
+    "runner.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/runner.log",
+      "bytes": 242,
+      "sha256": "9e243af4733840fcde58d655af85595fb1dfc479454895f4e30efe6bcbc71190"
+    },
+    "tauri.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/tauri.log",
+      "bytes": 1128,
+      "sha256": "640886b601a4646de3efd1b01eed428198386048c5a1092cbe312a7567dccaa6"
+    },
+    "locked-metadata.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/locked-metadata.log",
+      "bytes": 44,
+      "sha256": "50499a3400fc40c691100543fa4ead4b09266d35275291ddacb74bb96bfb2fb2"
+    },
+    "unlocked-metadata.diff": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/unlocked-metadata.diff",
+      "bytes": 311,
+      "sha256": "783454e9f12525df4f9a40624eb6a35a22728003d66556b4143bfeba9061a71f"
+    },
+    "precise-unlocked.argv": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-unlocked.argv",
+      "bytes": 56,
+      "sha256": "9c4262d98d9de13af8be3d265c38dc76da7b21f17404a9bde4ac3e46baf562bc"
+    },
+    "precise-locked.argv": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-locked.argv",
+      "bytes": 65,
+      "sha256": "6e27cede17c9138b9de918d6b1427b0ef2c2e50133cf3897993c333a682014be"
+    },
+    "precise-unlocked.tauri.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-unlocked.tauri.log",
+      "bytes": 1133,
+      "sha256": "3b1c1d413888d5258fb0e936a520828c60f73aba81d8186321f58781a7beea34"
+    },
+    "precise-locked.tauri.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-locked.tauri.log",
+      "bytes": 1145,
+      "sha256": "d05f3321c15fcfa6350d3606c0e86ed875f30c536f28c536b4d6db6f788a42d7"
+    },
+    "precise-unlocked.runner.status": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-unlocked.runner.status",
+      "bytes": 37,
+      "sha256": "a00407ad69f706ae4b0b4ec9f01e5b08ea47643b4c3e03460e02b215bd34f432"
+    },
+    "precise-locked.runner.status": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-locked.runner.status",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "precise-unlocked.diff": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-unlocked.diff",
+      "bytes": 311,
+      "sha256": "783454e9f12525df4f9a40624eb6a35a22728003d66556b4143bfeba9061a71f"
+    },
+    "precise-locked.diff": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-locked.diff",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "precise-locked.metadata.json": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-locked.metadata.json",
+      "bytes": 1437597,
+      "sha256": "4c3caf09f90c33372bbee78b9af491055dd596d2f8354a626a53c965be60cb04"
+    },
+    "precise-unlocked.metadata.json": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-unlocked.metadata.json",
+      "bytes": 1437597,
+      "sha256": "4c3caf09f90c33372bbee78b9af491055dd596d2f8354a626a53c965be60cb04"
+    },
+    "precise-unlocked.Cargo.lock": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-unlocked.Cargo.lock",
+      "bytes": 113079,
+      "sha256": "e4fe8dd737f2bd9d4cee31de0bf36e55f213ee5c2a583891f8718aa8ec3748b2"
+    },
+    "precise-locked.Cargo.lock": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/precise-locked.Cargo.lock",
+      "bytes": 113080,
+      "sha256": "439c10289c6d0b2b130046b732cb46c8988ed3414636864eb0fda171261231b5"
+    },
+    "focused.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/focused.log",
+      "bytes": 136,
+      "sha256": "b610e193899b78ae10e26b643c27ccd6d3bc84a79f1156223c1d4ff675e6f7f8"
+    },
+    "infrastructure-tests.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/infrastructure-tests.log",
+      "bytes": 63742,
+      "sha256": "e42364dbcd7596dc62c2b3579b42e0a4ab0abd9a1072dbcdf15b2717c4b414ad"
+    },
+    "infrastructure-validation.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/infrastructure-validation.log",
+      "bytes": 231,
+      "sha256": "4f8f24e96d79a73daa18668f4ce83798e0577a450848deead079fbc57cce96a7"
+    },
+    "infrastructure-pinned-tests.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/infrastructure-pinned-tests.log",
+      "bytes": 2905,
+      "sha256": "f3d42b490ea4cfa298e9f961b6212237538833c3812d42c45d305bdc9f0f4a18"
+    },
+    "infrastructure-pinned-validation.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/infrastructure-pinned-validation.log",
+      "bytes": 231,
+      "sha256": "4f8f24e96d79a73daa18668f4ce83798e0577a450848deead079fbc57cce96a7"
+    },
+    "python-pins.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/python-pins.log",
+      "bytes": 31,
+      "sha256": "912cb991c9701d5def73f479280dfb7e0ff571c2cf984fc30c1474566683f381"
+    },
+    "pinned-cargo-transfer.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/pinned-cargo-transfer.log",
+      "bytes": 210,
+      "sha256": "d68a3e5af7405f19417ff946f98be9c3fca140564e111b6eb1efa2500ae26d33"
+    },
+    "registered-scope.log": {
+      "path": "/private/tmp/ab-clean-source-probe.q7jQio/registered-scope.log",
+      "bytes": 837,
+      "sha256": "dc3de317d507b9cbacfb504775a3d8e2aeecae033dab79b2f72e2aec8523d969"
+    }
+  },
+  "remote_mutations": []
+}
