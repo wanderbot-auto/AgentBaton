@@ -1,0 +1,380 @@
+{
+  "worktree_base": "9e3add27c37f4022dcd2517ab9d1c9cc8f3e9102",
+  "pull_request": 33,
+  "repository_id": 1434422493,
+  "github_app_id": 15368,
+  "recorded_active_ruleset_id": 25893455,
+  "required_names": [
+    "Environment / ubuntu-24.04",
+    "Environment / macos-15",
+    "Product / Rust",
+    "Product / UI",
+    "Product / macos-15"
+  ],
+  "rules_read": "Last verified repository record; current remote API call failed with transport EOF. No mutation.",
+  "checkout": {
+    "pr_head": "9e3add27c37f4022dcd2517ab9d1c9cc8f3e9102",
+    "pr_base": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+    "merge_sha": "83c22bcc479c271d3389d812f954b63873066422",
+    "merge_tree": "670e41f8b86020e897d4c108c1c21719d9243d7f"
+  },
+  "product_run_id": 44792307596,
+  "environment_run_id": 44792308595,
+  "hosted_evidence_sources": {
+    "step_outcomes_and_artifact_metadata": "Read-only GitHub connector, including both attempts' macOS steps",
+    "timing_and_timeout_annotation": "Integration window observation of actual GitHub attempt metadata/logs"
+  },
+  "previous_case_attempts": [
+    {
+      "attempt": 1,
+      "job_id": 136482869813,
+      "started_utc": "2026-11-20T18:23:38Z",
+      "core_and_native_host_seconds": 2426,
+      "step_12_elapsed_seconds": 3049,
+      "observed_timeout_annotation": true,
+      "terminal_time_approx_utc": "2026-11-20T19:23:48Z",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Frontend dependencies and validation",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Build genuine native schema14 history for the required migration gate",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Build genuine schema15 Task history for the required migration gate",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Build genuine schema16 workspace history for the required migration gate",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Core and native host tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Migrate genuine nonempty schema15 Task history with corruption and receipt controls",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Migrate genuine nonempty schema16 workspace history with corruption and receipt controls",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Migrate and restore a freshly built genuine schema18 database",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Actual macOS WebView and daemon lifecycle acceptance",
+          "conclusion": "success"
+        },
+        {
+          "number": 15,
+          "name": "Actual native Owner Grant dialog and private database acceptance",
+          "conclusion": "success"
+        },
+        {
+          "number": 16,
+          "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+          "conclusion": "success"
+        },
+        {
+          "number": 17,
+          "name": "Native library tests with smoke features",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Actual Native background registration IPC in generated private paths",
+          "conclusion": "cancelled"
+        },
+        {
+          "number": 19,
+          "name": "Actual Native integration approval and early cancellation",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 20,
+          "name": "Retain finite Native integration evidence without private snapshots",
+          "conclusion": "failure"
+        },
+        {
+          "number": 21,
+          "name": "Retain bounded native migration metadata without private history",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Retain finite rework progress without private runtime data",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "success"
+        },
+        {
+          "number": 24,
+          "name": "Build desktop UI and application",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 25,
+          "name": "Audit the actual default release application for test controls",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 26,
+          "name": "Package development application and evidence",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 27,
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "job_id": 136778165181,
+      "started_utc": "2026-11-21T07:45:17Z",
+      "core_and_native_host_seconds": 2204,
+      "step_12_elapsed_seconds": 2857,
+      "conclusion": "cancelled",
+      "integration_step_started_utc": "2026-11-21T08:43:25Z",
+      "integration_step_cancelled_utc": "2026-11-21T08:45:30Z",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Frontend dependencies and validation",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Build genuine native schema14 history for the required migration gate",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Build genuine schema15 Task history for the required migration gate",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Build genuine schema16 workspace history for the required migration gate",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Core and native host tests",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Migrate genuine native schema14 history with corruption and rollback controls",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Migrate genuine nonempty schema15 Task history with corruption and receipt controls",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Migrate genuine nonempty schema16 workspace history with corruption and receipt controls",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Migrate and restore a freshly built genuine schema18 database",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Actual macOS WebView and daemon lifecycle acceptance",
+          "conclusion": "success"
+        },
+        {
+          "number": 15,
+          "name": "Actual native Owner Grant dialog and private database acceptance",
+          "conclusion": "success"
+        },
+        {
+          "number": 16,
+          "name": "Actual Native Factory planning approval and unchanged Grant evidence",
+          "conclusion": "success"
+        },
+        {
+          "number": 17,
+          "name": "Native library tests with smoke features",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Actual Native background registration IPC in generated private paths",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Actual Native integration approval and early cancellation",
+          "conclusion": "cancelled"
+        },
+        {
+          "number": 20,
+          "name": "Retain finite Native integration evidence without private snapshots",
+          "conclusion": "failure"
+        },
+        {
+          "number": 21,
+          "name": "Retain bounded native migration metadata without private history",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Retain finite rework progress without private runtime data",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "success"
+        },
+        {
+          "number": 24,
+          "name": "Build desktop UI and application",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 25,
+          "name": "Audit the actual default release application for test controls",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 26,
+          "name": "Package development application and evidence",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 27,
+          "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "conclusion": "skipped"
+        }
+      ]
+    }
+  ],
+  "observed_native_artifacts": [
+    {
+      "id": 14700391395,
+      "name": "native-webview-macos-15-83c22bcc479c271d3389d812f954b63873066422",
+      "size_in_bytes": 39936803,
+      "digest": "sha256:dacf727c7e9ea84180eab62afd90632ef7dd84452858082114603abd7d32b06c",
+      "created_at": "2026-11-21T08:45:36Z",
+      "workflow_run_id": 44792307596
+    },
+    {
+      "id": 14662011113,
+      "name": "native-webview-macos-15-83c22bcc479c271d3389d812f954b63873066422",
+      "size_in_bytes": 39944044,
+      "digest": "sha256:b2ec0e343dd54a8cd5e52c64847da286d4275555dd32911d6f9650de625c3a03",
+      "created_at": "2026-11-20T19:23:42Z",
+      "workflow_run_id": 44792307596
+    }
+  ],
+  "workflow_sha256": {
+    "product.yml": "80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c",
+    "environment-preflight.yml": "182627a83a2adcf60ab27109c8f7ad6e112d079a8b6812e52bce5a27a4b47855"
+  },
+  "local_environment": {
+    "kernel": "Darwin 25.6.0 arm64",
+    "macos": "26.6.1",
+    "python": "Python 3.14.0a7",
+    "rust": "rustc 1.91.1 (ed61e7d7e 2025-11-07)"
+  },
+  "local_controls": {
+    "receipt_zip_layout_positives": 3,
+    "zip_rejections": 99,
+    "direct_job_output_positives": 1,
+    "direct_job_output_rejections": 7,
+    "real_sidecar_script_synthetic_byte_copy_positive": 1,
+    "staging_rejections": 2,
+    "raw_inverse_reconstruction_positives": 1,
+    "raw_inverse_rejections": 7,
+    "existing_regressions_passed": 84,
+    "scope": "Git and synthetic source/receipt/IO controls; no Actions execution or release/native compilation",
+    "commands": "RUN.md"
+  },
+  "local_log_sha256": {
+    "first.log": "8b0e83c6152e9856b59e48195c6bb22da2291d7df3f1430dbcea14724aa71c7f",
+    "final.log": "37c235a3a3d4f07b2f3213a88fdf7121d8b2f548a4deec09e64b590f3fee6659",
+    "inverse.log": "6fd4bcfb1d6da78b8a488ea3488d918ca026232fc13e5b5582b172a3b59cd2a4",
+    "regression.log": "9883dda77e1c58eea4a0e4c76ed662a1626064fd6baf934ecfe725a214ac5268"
+  },
+  "local_control_sha256": {
+    "local-contract.py": "5aca4a26eaec4700acfcdab1c25a6d0728899957d78c4ec92081492e6bc866cc",
+    "workflow-inverse-control.py": "a975b1090b6832f6e6708062cf35e0b1fdf2bf36122acd651f30f8727540e41e"
+  },
+  "pending": [
+    "Exact split candidate YAML and its historical inverse",
+    "Hosted required-gate and all original native/package checks on one attempt",
+    "Cold timing and account headroom",
+    "Actual output/optional ZIP transport",
+    "Live branch rule reread"
+  ]
+}
