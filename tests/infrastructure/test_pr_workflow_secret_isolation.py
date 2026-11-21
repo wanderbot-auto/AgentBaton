@@ -9,7 +9,7 @@ from pathlib import Path
 import yaml
 
 from tests.infrastructure.macos_ci_partition_source_fixture import (
-    PACKAGE_SHA256, PARTITION_SHA256, PREFLIGHT_SHA256, RUST_OUTER_TIMEOUT_SHA256,
+    LOCKED_PACKAGE_SHA256, PACKAGE_SHA256, PARTITION_SHA256, PREFLIGHT_SHA256, RUST_OUTER_TIMEOUT_SHA256,
     assert_action_inventory, digest, restore_partitioned_workflow,
 )
 
@@ -50,7 +50,7 @@ class WorkflowCredentialIsolationTests(unittest.TestCase):
         cls.workflow_pins = assert_action_inventory(
             yaml.load(product, Loader=yaml.BaseLoader), yaml.load(environment, Loader=yaml.BaseLoader),
             partitioned=digest(product) == PARTITION_SHA256,
-            package_partitioned=digest(product) in (PACKAGE_SHA256, RUST_OUTER_TIMEOUT_SHA256),
+            package_partitioned=digest(product) in (PACKAGE_SHA256, RUST_OUTER_TIMEOUT_SHA256, LOCKED_PACKAGE_SHA256),
         )
 
     def setUp(self):

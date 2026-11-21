@@ -14,9 +14,9 @@ from unittest.mock import patch
 import yaml
 
 from tests.infrastructure.macos_ci_partition_source_fixture import (
-    CHECKOUT, DEPENDENCY_GUARD, NATIVE_GATE_IDS, PACKAGE_DEPENDENCY_GUARD, PACKAGE_SHA256,
+    CHECKOUT, DEPENDENCY_GUARD, LOCKED_PACKAGE_SHA256, NATIVE_GATE_IDS, PACKAGE_DEPENDENCY_GUARD, PACKAGE_SHA256,
     PARTITION_SHA256, PREFLIGHT_SHA256, PREVIOUS_SHA256, RUST_OUTER_TIMEOUT_SHA256, UPSTREAM_GATE_IDS,
-    assert_action_inventory, digest, restore_package_partitioned_workflow, restore_partitioned_workflow,
+    assert_action_inventory, digest, restore_locked_package_build, restore_package_partitioned_workflow, restore_partitioned_workflow,
     restore_rust_outer_timeout, validate_package_graph, validate_partition_graph,
 )
 
@@ -35,7 +35,7 @@ def current_workflow_text():
 
 
 def package_workflow_text():
-    return restore_rust_outer_timeout(current_workflow_text())
+    return restore_rust_outer_timeout(restore_locked_package_build(current_workflow_text()))
 
 
 def workflow_text():
@@ -319,7 +319,7 @@ class MacosPartitionReceiptTests(MacosReceiptFixture, unittest.TestCase):
 
 class RustOuterTimeoutTests(unittest.TestCase):
     def test_only_the_ubuntu_rust_outer_timeout_differs(self):
-        actual = current_workflow_text()
+        actual = restore_locked_package_build(current_workflow_text())
         prior = restore_rust_outer_timeout(actual)
         self.assertEqual(digest(actual), RUST_OUTER_TIMEOUT_SHA256)
         self.assertEqual(digest(prior), PACKAGE_SHA256)
@@ -331,7 +331,7 @@ class RustOuterTimeoutTests(unittest.TestCase):
         self.assertEqual(restore_partitioned_workflow(actual), restore_partitioned_workflow(prior))
 
     def test_unknown_timeout_changes_and_unrelated_mutations_are_rejected(self):
-        actual = current_workflow_text()
+        actual = restore_locked_package_build(current_workflow_text())
         for old, new in (
             ('timeout-minutes: 30', 'timeout-minutes: 31'),
             ('timeout-minutes: 20', 'timeout-minutes: 30'),
@@ -344,6 +344,38 @@ class RustOuterTimeoutTests(unittest.TestCase):
                 changed = actual.replace(old, new, 1)
                 with self.assertRaisesRegex(ValueError, 'Unknown complete Rust timeout'):
                     restore_rust_outer_timeout(changed)
+                with self.assertRaises(ValueError):
+                    restore_partitioned_workflow(changed)
+
+
+class MacosLockedPackageBuildTests(unittest.TestCase):
+    def test_only_release_desktop_build_passes_locked_to_cargo(self):
+        actual = current_workflow_text()
+        prior = restore_locked_package_build(actual)
+        self.assertEqual(digest(actual), LOCKED_PACKAGE_SHA256)
+        self.assertEqual(digest(prior), RUST_OUTER_TIMEOUT_SHA256)
+        self.assertEqual(restore_locked_package_build(prior), prior)
+        expected = load(prior)
+        build = next(step for step in expected['jobs']['desktop_package']['steps']
+                     if step.get('name') == 'Build desktop UI and application')
+        self.assertEqual(build['run'], 'set -euo pipefail\nnpm run tauri -- build --bundles app\n')
+        build['run'] = 'set -euo pipefail\nnpm run tauri -- build --bundles app -- --locked\n'
+        self.assertEqual(load(actual), expected)
+        self.assertEqual(restore_partitioned_workflow(actual), restore_partitioned_workflow(prior))
+
+    def test_refuses_wrong_cargo_flag_and_changes_to_the_source_guard(self):
+        actual = current_workflow_text()
+        for old, new in (
+            ('--bundles app -- --locked', '--bundles app --locked'),
+            ('--bundles app -- --locked', '--bundles app -- --offline'),
+            ("'--untracked-files=no'", "'--untracked-files=all'"),
+            ("and not git('status'", "or not git('status'"),
+        ):
+            with self.subTest(old=old):
+                self.assertIn(old, actual)
+                changed = actual.replace(old, new, 1)
+                with self.assertRaisesRegex(ValueError, 'Unknown complete locked packaging workflow'):
+                    restore_locked_package_build(changed)
                 with self.assertRaises(ValueError):
                     restore_partitioned_workflow(changed)
 
@@ -397,7 +429,7 @@ class MacosPackageGraphTests(unittest.TestCase):
 
 
 class MacosPackageReceiptTests(MacosReceiptFixture, unittest.TestCase):
-    workflow_input = staticmethod(package_workflow_text)
+    workflow_input = staticmethod(current_workflow_text)
 
     @classmethod
     def setUpClass(cls):
@@ -468,6 +500,17 @@ class MacosPackageReceiptTests(MacosReceiptFixture, unittest.TestCase):
         self.assertEqual(receipt['source'], json.loads(package['MACOS_CORE_RECEIPT'])['source'])
         self.assertEqual([receipt[role]['id'] for role in ('core_evidence', 'native_evidence', 'development')],
                          ['7001', '7002', '7003'])
+
+    def test_package_source_gate_refuses_a_tracked_change_before_and_after_upload(self):
+        package = self.package_inputs()
+        source = self.checkout / 'README'
+        original = source.read_bytes()
+        self.addCleanup(source.write_bytes, original)
+        self.assertEqual(self.run_binding('package-check', **package), ('', ''))
+        source.write_bytes(original + b'\n')
+        for stage, inputs in (('package-check', package), ('release-complete', {**package, **self.development})):
+            with self.subTest(stage=stage), self.assertRaisesRegex(SystemExit, 'not the clean event SHA'):
+                self.run_binding(stage, **inputs)
 
     def test_manual_dispatch_keeps_its_source_identity(self):
         dispatch = {'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REF': 'refs/heads/main',

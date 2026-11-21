@@ -1435,7 +1435,7 @@ jobs:
         working-directory: apps/desktop
         run: |
           set -euo pipefail
-          npm run tauri -- build --bundles app
+          npm run tauri -- build --bundles app -- --locked
       - name: Audit the actual default release application for test controls
         run: bash scripts/native-audit-release.sh apps/desktop/src-tauri/target/release/bundle/macos/AgentBaton.app/Contents/MacOS/agentbaton-desktop
       - name: Package development application and evidence
