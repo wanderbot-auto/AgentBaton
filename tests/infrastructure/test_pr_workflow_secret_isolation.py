@@ -9,7 +9,8 @@ from pathlib import Path
 import yaml
 
 from tests.infrastructure.macos_ci_partition_source_fixture import (
-    PACKAGE_SHA256, PARTITION_SHA256, PREFLIGHT_SHA256, assert_action_inventory, digest, restore_partitioned_workflow,
+    PACKAGE_SHA256, PARTITION_SHA256, PREFLIGHT_SHA256, RUST_OUTER_TIMEOUT_SHA256,
+    assert_action_inventory, digest, restore_partitioned_workflow,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,7 +50,7 @@ class WorkflowCredentialIsolationTests(unittest.TestCase):
         cls.workflow_pins = assert_action_inventory(
             yaml.load(product, Loader=yaml.BaseLoader), yaml.load(environment, Loader=yaml.BaseLoader),
             partitioned=digest(product) == PARTITION_SHA256,
-            package_partitioned=digest(product) == PACKAGE_SHA256,
+            package_partitioned=digest(product) in (PACKAGE_SHA256, RUST_OUTER_TIMEOUT_SHA256),
         )
 
     def setUp(self):
@@ -106,6 +107,19 @@ class WorkflowCredentialIsolationTests(unittest.TestCase):
         self.assertFalse(output['remote_ci_executed'])
         self.assertEqual(output['pinned_action_references'], self.workflow_pins)
         self.assert_admitted(2, self.workflow_pins)
+
+    def test_rust_and_other_linux_jobs_keep_the_existing_thirty_minute_ceiling(self):
+        path = self.workflows / PRODUCT
+        original = path.read_text()
+        for name, prior in (('Rust', 30), ('UI', 20)):
+            with self.subTest(job=name):
+                header = f'    name: Product / {name}\n    runs-on: ubuntu-24.04\n    timeout-minutes: '
+                self.assertIn(header + str(prior) + '\n', original)
+                path.write_text(original.replace(header + str(prior) + '\n', header + '31\n', 1))
+                result = self.validator()
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertFalse(result.stdout)
+                self.assertIn('Unbounded CI job', result.stderr)
 
     def test_yaml_suffix_narrow_permissions_and_builtin_token(self):
         for token in (expression('github.token'), expression("github['token']")):

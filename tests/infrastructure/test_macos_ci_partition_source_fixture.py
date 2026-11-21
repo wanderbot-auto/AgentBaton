@@ -15,9 +15,9 @@ import yaml
 
 from tests.infrastructure.macos_ci_partition_source_fixture import (
     CHECKOUT, DEPENDENCY_GUARD, NATIVE_GATE_IDS, PACKAGE_DEPENDENCY_GUARD, PACKAGE_SHA256,
-    PARTITION_SHA256, PREFLIGHT_SHA256, PREVIOUS_SHA256, UPSTREAM_GATE_IDS,
+    PARTITION_SHA256, PREFLIGHT_SHA256, PREVIOUS_SHA256, RUST_OUTER_TIMEOUT_SHA256, UPSTREAM_GATE_IDS,
     assert_action_inventory, digest, restore_package_partitioned_workflow, restore_partitioned_workflow,
-    validate_package_graph, validate_partition_graph,
+    restore_rust_outer_timeout, validate_package_graph, validate_partition_graph,
 )
 
 
@@ -34,8 +34,12 @@ def current_workflow_text():
     return (WORKFLOWS / 'product.yml').read_bytes().decode()
 
 
+def package_workflow_text():
+    return restore_rust_outer_timeout(current_workflow_text())
+
+
 def workflow_text():
-    return restore_package_partitioned_workflow(current_workflow_text())
+    return restore_package_partitioned_workflow(package_workflow_text())
 
 
 def load(text):
@@ -313,9 +317,40 @@ class MacosPartitionReceiptTests(MacosReceiptFixture, unittest.TestCase):
             path.write_bytes(content)
 
 
+class RustOuterTimeoutTests(unittest.TestCase):
+    def test_only_the_ubuntu_rust_outer_timeout_differs(self):
+        actual = current_workflow_text()
+        prior = restore_rust_outer_timeout(actual)
+        self.assertEqual(digest(actual), RUST_OUTER_TIMEOUT_SHA256)
+        self.assertEqual(digest(prior), PACKAGE_SHA256)
+        self.assertEqual(restore_rust_outer_timeout(prior), prior)
+        expected = load(prior)
+        self.assertEqual(expected['jobs']['core']['timeout-minutes'], '25')
+        expected['jobs']['core']['timeout-minutes'] = '30'
+        self.assertEqual(load(actual), expected)
+        self.assertEqual(restore_partitioned_workflow(actual), restore_partitioned_workflow(prior))
+
+    def test_unknown_timeout_changes_and_unrelated_mutations_are_rejected(self):
+        actual = current_workflow_text()
+        for old, new in (
+            ('timeout-minutes: 30', 'timeout-minutes: 31'),
+            ('timeout-minutes: 20', 'timeout-minutes: 30'),
+            ('timeout-minutes: 60', 'timeout-minutes: 70'),
+            ('name: Product / Rust', 'name: Product / Rust guarded'),
+            ('cargo fmt --all -- --check', 'cargo fmt --all'),
+        ):
+            with self.subTest(old=old):
+                self.assertIn(old, actual)
+                changed = actual.replace(old, new, 1)
+                with self.assertRaisesRegex(ValueError, 'Unknown complete Rust timeout'):
+                    restore_rust_outer_timeout(changed)
+                with self.assertRaises(ValueError):
+                    restore_partitioned_workflow(changed)
+
+
 class MacosPackageGraphTests(unittest.TestCase):
     def test_previous_workflow_and_historical_assertions_use_the_pinned_bytes(self):
-        actual = current_workflow_text()
+        actual = package_workflow_text()
         restored = restore_package_partitioned_workflow(actual)
         self.assertEqual(digest(actual), PACKAGE_SHA256)
         self.assertEqual(digest(restored), PARTITION_SHA256)
@@ -329,7 +364,7 @@ class MacosPackageGraphTests(unittest.TestCase):
                 restore_package_partitioned_workflow(changed)
 
     def test_packaging_graph_refuses_skipped_checks_wrong_sources_and_shared_builds(self):
-        actual = load(current_workflow_text())
+        actual = load(package_workflow_text())
         validate_package_graph(actual)
         cases = {
             'conditional required job': lambda native, package: package.update({'if': '${{ success() }}'}),
@@ -362,7 +397,7 @@ class MacosPackageGraphTests(unittest.TestCase):
 
 
 class MacosPackageReceiptTests(MacosReceiptFixture, unittest.TestCase):
-    workflow_input = staticmethod(current_workflow_text)
+    workflow_input = staticmethod(package_workflow_text)
 
     @classmethod
     def setUpClass(cls):

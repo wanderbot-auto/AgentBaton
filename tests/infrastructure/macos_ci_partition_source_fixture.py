@@ -8,6 +8,7 @@ import yaml
 PREVIOUS_SHA256 = '80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c'
 PARTITION_SHA256 = '854c9502d344002ff81535d62a002c9af63c96dbb5d01ea167c7724699f39b57'
 PACKAGE_SHA256 = '75c5d5e01f7146bdbb8138abc45429d9c52e251fb04b885d5d602ccb8ebaba79'
+RUST_OUTER_TIMEOUT_SHA256 = 'ee93dd9d6d8ef6777399dbf33292ab966b396a4ecebd6fce92d58f9abbf81220'
 PREFLIGHT_SHA256 = '182627a83a2adcf60ab27109c8f7ad6e112d079a8b6812e52bce5a27a4b47855'
 FRESH_SCHEMA18_RUN_SHA256 = '9f059bfbef941a4a5eb3278a2f8622b486ba7573617e25d076d6b2ef8a1a81fc'
 DESKTOP = '  desktop:\n'
@@ -274,6 +275,19 @@ def validate_package_graph(document):
             ], 'Packaging must build fresh sidecars before the original audit and packaging commands')
 
 
+def restore_rust_outer_timeout(text):
+    """Restore the exact prior packaging workflow before its original inverses."""
+    pin = digest(text)
+    if pin == PACKAGE_SHA256:
+        return text
+    require(pin == RUST_OUTER_TIMEOUT_SHA256, 'Unknown complete Rust timeout workflow')
+    header = '  core:\n    name: Product / Rust\n    runs-on: ubuntu-24.04\n    timeout-minutes: 30\n'
+    require(text.count(header) == 1, 'Unexpected Rust outer timeout location')
+    restored = text.replace(header, header.replace('30\n', '25\n'), 1)
+    require(digest(restored) == PACKAGE_SHA256, 'Rust timeout inverse did not restore exact prior bytes')
+    return restored
+
+
 def restore_package_partitioned_workflow(text):
     """Undo the packaging split before applying the existing exact inverse."""
     require(digest(text) == PACKAGE_SHA256, 'Unknown complete macOS packaging workflow')
@@ -321,6 +335,9 @@ def restore_package_partitioned_workflow(text):
 def restore_partitioned_workflow(text):
     """Reverse only the reviewed split, leaving all old assertions on exact bytes."""
     pin = digest(text)
+    if pin == RUST_OUTER_TIMEOUT_SHA256:
+        text = restore_rust_outer_timeout(text)
+        pin = digest(text)
     if pin == PACKAGE_SHA256:
         text = restore_package_partitioned_workflow(text)
         pin = digest(text)
@@ -350,6 +367,6 @@ def restore_partitioned_workflow(text):
 
 def normalize_partitioned_workflow(text):
     """Feed legacy adapters only the admitted inverse or their own input."""
-    if digest(text) in (PARTITION_SHA256, PACKAGE_SHA256):
+    if digest(text) in (PARTITION_SHA256, PACKAGE_SHA256, RUST_OUTER_TIMEOUT_SHA256):
         return restore_partitioned_workflow(text)
     return text
