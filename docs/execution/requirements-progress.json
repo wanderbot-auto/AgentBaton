@@ -5,33 +5,39 @@
     {
       "id": "AB-PRJ-001",
       "work_package": "WP05",
-      "status": "implementing",
+      "status": "accepted",
       "implementation_refs": [
         "crates/workspaces/src/lib.rs",
         "crates/core/src/registry.rs",
         "crates/core/src/ipc.rs",
-        "apps/desktop/src/Projects.tsx"
+        "apps/desktop/src/Projects.tsx",
+        "apps/cli/src/main.rs",
+        "apps/desktop/src-tauri/src/lib.rs"
       ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "ci": "passed"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
-        "docs/execution/project-registry/EVIDENCE.json"
+        "docs/execution/project-registry/EVIDENCE.json",
+        "docs/execution/leader-control/PROJECT_IMPORT_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
-        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete."
+        "Applies to project registration only. Dispatch, adoption and GUI runtime have separate acceptance criteria."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs",
-        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json",
+        "crates/core/tests/registry.rs",
+        "crates/core/tests/project_ipc.rs",
+        "docs/execution/leader-control/PROJECT_IMPORT_MAIN_ACCEPTANCE.json"
       ],
-      "coverage": "partial",
+      "coverage": "complete",
       "verified_slices": [
         {
           "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
@@ -41,6 +47,14 @@
           "cross_compile_darwin": "bothpassed; notMacexecution",
           "independent_review_sha256": "b8df9e2d6c9352b068cad6c470107bd8a87cd9b5817b7d76bd7cea9c669b66f2",
           "limits": "purelibrary; Core10/IPC/nativeUI wiring and actualMac pending; no DLP/OSsandbox/continuousfreeze"
+        },
+        {
+          "slice": "explicit_project_import_without_execution_or_git_initialization_on_protected_main",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "local_arm64_unit_and_integration_passed": 36,
+          "actual_cli_daemon_replay": "passed",
+          "hosted_linux_and_arm64_same_tree": "passed",
+          "evidence": "docs/execution/leader-control/PROJECT_IMPORT_MAIN_ACCEPTANCE.json"
         }
       ],
       "verification_applicability": {
@@ -162,22 +176,25 @@
     {
       "id": "AB-PRJ-003",
       "work_package": "WP05",
-      "status": "implementing",
+      "status": "accepted",
       "implementation_refs": [
         "crates/workspaces/src/lib.rs",
         "crates/core/src/registry.rs",
         "crates/core/src/ipc.rs",
-        "apps/desktop/src/Projects.tsx"
+        "apps/desktop/src/Projects.tsx",
+        "apps/cli/src/main.rs",
+        "apps/desktop/src-tauri/src/lib.rs"
       ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
         "native_arm64": "not_run",
         "native_x86_64": "not_run",
         "schema16_parent_de0b_composed": "bc86 actualFactory26/fullinfra192/strictClippy/fmt/newreal16joinedCLI pass; exact compiledELF retry follows retained capacityinterruption; own16CI/Mac/native not_run; remains partial",
         "schema16_parent_34f_composed": "bc10 actualFactory30/Core156/infra235/sameheadFE+Corebuilt/6realIPC8PNG PASS; nestedhelperexcluded, originalfailures retained. No own16CI/Mac/native/package acceptance; partial.",
-        "schema16_parent_674d_composed": "2e actualCore166/Factory30/infra241/fmt/strictClippy passed; firstFactorycapacity/noTests retained. Historicalbc10 six browser paths not relabelled. Own16CI/native/Mac/package/fullscope pending; partial."
+        "schema16_parent_674d_composed": "2e actualCore166/Factory30/infra241/fmt/strictClippy passed; firstFactorycapacity/noTests retained. Historicalbc10 six browser paths not relabelled. Own16CI/native/Mac/package/fullscope pending; partial.",
+        "ci": "passed"
       },
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
@@ -194,18 +211,19 @@
         "docs/execution/integration-browser-failure-observation/EVIDENCE.json",
         "docs/execution/integration-preparation-phase-observation/EVIDENCE.json",
         "docs/execution/factory-rework-fee-kind-observation/EVIDENCE.json",
-        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json"
+        "docs/execution/workspace-snapshot-failure-diagnostic/EVIDENCE.json",
+        "docs/execution/leader-control/PROJECT_REASSOCIATION_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Git/path primitives only; registry, leases, product UI/API and actual adoption executor remain.",
-        "Persistent project/workspace flow verified locally; full dispatch/adoption and native desktop acceptance remain incomplete.",
-        "Supporting debug-only preparation phase diagnostics and Linux regression/release-isolation evidence only. Original2s/5s/4s/6s/20s and permission/freshness/join/unknown charges retained; exact Mac phase/native/current CI/installer/full requirement acceptance not established."
+        "Applies to local project path reassociation. Remote-host routing, task dispatch and workspace adoption are separate."
       ],
       "verification_refs": [
         "crates/workspaces/tests/safety.rs",
-        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/CORE_ACP_PROJECT_VERIFICATION_APPLICABILITY.json",
+        "crates/core/tests/registry.rs",
+        "docs/execution/leader-control/PROJECT_REASSOCIATION_MAIN_ACCEPTANCE.json"
       ],
-      "coverage": "partial",
+      "coverage": "complete",
       "verified_slices": [
         {
           "slice": "explicit_non_git_selected_dataset_copy_private_workspace_restore_library",
@@ -234,6 +252,13 @@
           "evidence": "docs/execution/task-workspace-integration/PARENT_AE42_COMPOSED_RESULTS.json",
           "dimension": "Local actual Rust/migration/React/UnixIPC only; Native/Mac/current CI pending",
           "coverage": "partial"
+        },
+        {
+          "slice": "identity_and_project_journal_preserved_through_git_and_directory_reassociation",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "actual_cli_daemon_replay": "passed",
+          "hosted_linux_and_arm64_same_tree": "passed",
+          "evidence": "docs/execution/leader-control/PROJECT_REASSOCIATION_MAIN_ACCEPTANCE.json"
         }
       ],
       "data_workspace_contribution": {
