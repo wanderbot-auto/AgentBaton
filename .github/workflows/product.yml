@@ -840,6 +840,7 @@ jobs:
           python3 - <<'MACOS_SOURCE_BINDING'
           import json
           import os
+          from pathlib import Path
           import re
           import subprocess
 
@@ -873,8 +874,6 @@ jobs:
               workflow_path = '.github/workflows/product.yml'
               workflow_ref = env['GITHUB_WORKFLOW_REF']
               workflow_sha = env['GITHUB_WORKFLOW_SHA']
-              require(workflow_ref.partition('@')[0] == f'{repository}/{workflow_path}',
-                      'Unexpected macOS workflow source')
               require(str(payload['repository']['id']) == repository_id
                       and payload['repository']['full_name'] == repository,
                       'Unexpected macOS repository authority')
@@ -882,6 +881,8 @@ jobs:
               require(checkout == env['GITHUB_SHA'] and not git('status', '--porcelain=v1', '--untracked-files=no'),
                       'macOS checkout is not the clean event SHA')
               ref = env['GITHUB_REF']
+              require(workflow_ref == f'{repository}/{workflow_path}@{ref}' and workflow_sha == checkout,
+                      'Unexpected macOS workflow source')
               pr_number = 0
               base_ref, base, head, merge_ref = '', '', checkout, ''
               if event == 'pull_request':
@@ -938,7 +939,8 @@ jobs:
                   output('source_receipt', receipt)
                   print(encoded(receipt))
                   return
-              require(stage in {'release-check', 'release-complete'}, 'Unknown macOS source stage')
+              require(stage in {'native-start', 'native-complete', 'package-check', 'release-complete'},
+                      'Unknown macOS source stage')
               raw = env['MACOS_CORE_RECEIPT']
               require(0 < len(raw) <= 4096, 'Missing or oversized macOS Core receipt')
               receipt = json.loads(raw)
@@ -949,8 +951,53 @@ jobs:
               core_evidence = artifact(env['MACOS_CORE_ARTIFACT_ID'], env['MACOS_CORE_ARTIFACT_SHA256'])
               require(receipt['core_evidence'] == core_evidence,
                       'macOS Core receipt differs from the independently reported upload')
+              if stage == 'native-start':
+                  output('source_context', context)
+                  return
+              native = artifact(env['MACOS_NATIVE_ARTIFACT_ID'], env['MACOS_NATIVE_ARTIFACT_SHA256'])
+              require(core_evidence['id'] != native['id'], 'macOS Core and Native uploads must be distinct')
+              native_gates = dict.fromkeys((
+                  'native_frontend', 'native_sidecars', 'native_webview', 'native_owner_grant',
+                  'native_factory_approval', 'native_library', 'native_registration',
+                  'integration_driver', 'integration_evidence', 'native_artifact',
+              ), 'success')
+              integration_cases = {
+                  case: {'driver_exit': 0, 'projection_exit': 0, 'complete': True}
+                  for case in ('first-page', 'last-page')
+              }
+              native_receipt = {
+                  'contract': 'agentbaton.macos-native-ci.v1', 'source': context,
+                  'core_evidence': core_evidence, 'native_evidence': native,
+                  'gates': native_gates, 'integration_cases': integration_cases,
+              }
+              if stage == 'native-complete':
+                  require(env['MACOS_NATIVE_START_CONTEXT'] == encoded(context), 'macOS Native source changed')
+                  expected_outcomes = ' '.join(f'{name}={result}' for name, result in native_gates.items())
+                  require(env['MACOS_NATIVE_GATE_OUTCOMES'] == expected_outcomes, 'An exact macOS Native gate did not pass')
+
+                  def unique_object(pairs):
+                      value = dict(pairs)
+                      require(len(value) == len(pairs), 'Duplicate key in Native Integration proof')
+                      return value
+
+                  proof_path = Path('artifacts/native-smoke/integration-execution.json')
+                  with proof_path.open('rb') as stream:
+                      proof = stream.read(8193)
+                  require(0 < len(proof) <= 8192, 'Missing or oversized Native Integration proof')
+                  expected_proof = {
+                      'contract': 'agentbaton.integration-native-ci.v1',
+                      'status': 'driver_and_projection_passed', 'cases': integration_cases,
+                      'private_history_published': False, 'visual_review': 'not_established',
+                      'runtime_acceptance': False,
+                  }
+                  require(encoded(json.loads(proof, object_pairs_hook=unique_object)) == encoded(expected_proof),
+                          'Both Native Integration driver and projection cases must pass')
+                  output('source_receipt', native_receipt)
+                  print(encoded(native_receipt))
+                  return
+              require(env['MACOS_NATIVE_RECEIPT'] == encoded(native_receipt),
+                      'macOS Native proof differs from the packaging checkout, attempt or uploads')
               if stage == 'release-complete':
-                  native = artifact(env['MACOS_NATIVE_ARTIFACT_ID'], env['MACOS_NATIVE_ARTIFACT_SHA256'])
                   development = artifact(env['MACOS_DEVELOPMENT_ARTIFACT_ID'], env['MACOS_DEVELOPMENT_ARTIFACT_SHA256'])
                   require(len({core_evidence['id'], native['id'], development['id']}) == 3,
                           'macOS evidence roles must use distinct artifacts')
@@ -1103,7 +1150,7 @@ jobs:
             core_artifact=${{ steps.core_artifact.outcome }}
         run: *macos_source_binding
   desktop_release:
-    name: Product / ${{ matrix.os }}
+    name: Product / ${{ matrix.os }} Native
     runs-on: ${{ matrix.os }}
     needs: desktop
     if: ${{ always() }}
@@ -1113,6 +1160,10 @@ jobs:
       max-parallel: 2
       matrix:
         os: [macos-15]
+    outputs:
+      source_receipt: ${{ steps.native_source_complete.outputs.source_receipt }}
+      native_evidence_id: ${{ steps.native_artifact.outputs.artifact-id }}
+      native_evidence_sha256: ${{ steps.native_artifact.outputs.artifact-digest }}
     steps:
       - name: Require successful macOS Core validation
         env:
@@ -1132,9 +1183,9 @@ jobs:
           persist-credentials: false
           ref: ${{ github.sha }}
       - name: Verify the upstream receipt against the macOS release checkout
-        id: release_source_start
+        id: native_source_start
         env:
-          MACOS_SOURCE_STAGE: release-check
+          MACOS_SOURCE_STAGE: native-start
           MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
           MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
           MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
@@ -1145,37 +1196,44 @@ jobs:
       - name: Toolchain
         run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
       - name: Prepare the macOS release frontend
+        id: native_frontend
         working-directory: apps/desktop
         run: |
           set -euo pipefail
           npm ci --ignore-scripts --no-audit --no-fund
           npm run build
       - name: Prepare release sidecars for the independent macOS runner
+        id: native_sidecars
         run: |
           set -euo pipefail
           cargo build --release --locked --bin batond --bin baton
           bash scripts/prepare-desktop-sidecars.sh
       - *fresh_schema18_gate
       - name: Actual macOS WebView and daemon lifecycle acceptance
+        id: native_webview
         run: |
           set -euo pipefail
           mkdir -p artifacts/native-smoke
           bash scripts/native-macos-smoke.sh artifacts/native-smoke 2>&1 | tee artifacts/native-smoke/lane.log
       - name: Actual native Owner Grant dialog and private database acceptance
+        id: native_owner_grant
         run: |
           set -euo pipefail
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
           cargo build --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --bin agentbaton-native-owner-dialog-smoke
           python3 scripts/native-owner-dialog-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --output artifacts/native-smoke/owner-dialog
       - name: Actual Native Factory planning approval and unchanged Grant evidence
+        id: native_factory_approval
         run: |
           set -euo pipefail
           python3 scripts/native-owner-dialog-smoke.py --kind factory_planning --binary apps/desktop/src-tauri/target/debug/agentbaton-native-owner-dialog-smoke --daemon target/debug/batond --companion target/debug/baton --output artifacts/native-smoke/factory-planning-owner-dialog
       - name: Native library tests with smoke features
+        id: native_library
         env:
           RUST_TEST_THREADS: '1'
         run: cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib -- --test-threads=1
       - name: Actual Native background registration IPC in generated private paths
+        id: native_registration
         run: |
           set -euo pipefail
           cargo test --locked --manifest-path apps/desktop/src-tauri/Cargo.toml --features native-smoke,custom-protocol --lib background_service -- --test-threads=1
@@ -1183,6 +1241,7 @@ jobs:
           cp target/debug/batond apps/desktop/src-tauri/target/debug/batond
           python3 scripts/native-background-service-smoke.py --binary apps/desktop/src-tauri/target/debug/agentbaton-native-background-service-smoke --daemon target/debug/batond --output artifacts/native-smoke/background-registration
       - name: Actual Native integration approval and early cancellation
+        id: integration_driver
         run: |
           set -euo pipefail
           python3 - <<'INTEGRATION_NATIVE'
@@ -1220,7 +1279,8 @@ jobs:
               run_integration_cases()
           INTEGRATION_NATIVE
       - name: Retain finite Native integration evidence without private snapshots
-        if: ${{ always() && steps.release_source_start.outcome == 'success' }}
+        id: integration_evidence
+        if: ${{ always() && steps.native_source_start.outcome == 'success' }}
         run: |
           python3 - <<'INTEGRATION_EVIDENCE'
           import importlib.util, json, os, pathlib, subprocess, sys
@@ -1283,12 +1343,94 @@ jobs:
           INTEGRATION_EVIDENCE
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: native_artifact
-        if: ${{ always() && steps.release_source_start.outcome == 'success' }}
+        if: ${{ always() && steps.native_source_start.outcome == 'success' }}
         with:
           name: native-webview-${{ matrix.os }}-${{ github.sha }}
           path: artifacts/native-smoke/
           if-no-files-found: warn
           retention-days: 14
+      - name: Record successful macOS Native validation and uploaded evidence
+        id: native_source_complete
+        env:
+          MACOS_SOURCE_STAGE: native-complete
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_START_CONTEXT: ${{ steps.native_source_start.outputs.source_context }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ steps.native_artifact.outputs.artifact-id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ steps.native_artifact.outputs.artifact-digest }}
+          MACOS_NATIVE_GATE_OUTCOMES: >-
+            native_frontend=${{ steps.native_frontend.outcome }}
+            native_sidecars=${{ steps.native_sidecars.outcome }}
+            native_webview=${{ steps.native_webview.outcome }}
+            native_owner_grant=${{ steps.native_owner_grant.outcome }}
+            native_factory_approval=${{ steps.native_factory_approval.outcome }}
+            native_library=${{ steps.native_library.outcome }}
+            native_registration=${{ steps.native_registration.outcome }}
+            integration_driver=${{ steps.integration_driver.outcome }}
+            integration_evidence=${{ steps.integration_evidence.outcome }}
+            native_artifact=${{ steps.native_artifact.outcome }}
+        run: *macos_source_binding
+  desktop_package:
+    name: Product / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: [desktop, desktop_release]
+    if: ${{ always() }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [macos-15]
+    steps:
+      - name: Require successful macOS Core and Native validation
+        env:
+          MACOS_CORE_RESULT: ${{ needs.desktop.result }}
+          MACOS_NATIVE_RESULT: ${{ needs.desktop_release.result }}
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
+        run: |
+          set -euo pipefail
+          if [[ "$MACOS_CORE_RESULT" != success || "$MACOS_NATIVE_RESULT" != success ||
+                -z "$MACOS_CORE_RECEIPT" || -z "$MACOS_CORE_ARTIFACT_ID" || -z "$MACOS_CORE_ARTIFACT_SHA256" ||
+                -z "$MACOS_NATIVE_RECEIPT" || -z "$MACOS_NATIVE_ARTIFACT_ID" || -z "$MACOS_NATIVE_ARTIFACT_SHA256" ]]; then
+            echo 'The required macOS Core and Native validation did not finish successfully with bound evidence.'
+            exit 1
+          fi
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Verify the Core and Native receipts against the macOS packaging checkout
+        env:
+          MACOS_SOURCE_STAGE: package-check
+          MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
+        run: *macos_source_binding
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+      - name: Prepare the macOS release frontend
+        working-directory: apps/desktop
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm run build
+      - name: Prepare release sidecars for the independent macOS runner
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --bin batond --bin baton
+          bash scripts/prepare-desktop-sidecars.sh
       - name: Build desktop UI and application
         working-directory: apps/desktop
         run: |
@@ -1300,10 +1442,13 @@ jobs:
         run: bash scripts/package-development-macos.sh
       - name: Verify the macOS release source before publishing the development artifact
         env:
-          MACOS_SOURCE_STAGE: release-check
+          MACOS_SOURCE_STAGE: package-check
           MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
           MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
           MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
         run: *macos_source_binding
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: development_artifact
@@ -1318,8 +1463,9 @@ jobs:
           MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
           MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
           MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
-          MACOS_NATIVE_ARTIFACT_ID: ${{ steps.native_artifact.outputs.artifact-id }}
-          MACOS_NATIVE_ARTIFACT_SHA256: ${{ steps.native_artifact.outputs.artifact-digest }}
+          MACOS_NATIVE_RECEIPT: ${{ needs.desktop_release.outputs.source_receipt }}
+          MACOS_NATIVE_ARTIFACT_ID: ${{ needs.desktop_release.outputs.native_evidence_id }}
+          MACOS_NATIVE_ARTIFACT_SHA256: ${{ needs.desktop_release.outputs.native_evidence_sha256 }}
           MACOS_DEVELOPMENT_ARTIFACT_ID: ${{ steps.development_artifact.outputs.artifact-id }}
           MACOS_DEVELOPMENT_ARTIFACT_SHA256: ${{ steps.development_artifact.outputs.artifact-digest }}
         run: *macos_source_binding

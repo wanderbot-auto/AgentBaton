@@ -14,9 +14,10 @@ from unittest.mock import patch
 import yaml
 
 from tests.infrastructure.macos_ci_partition_source_fixture import (
-    CHECKOUT, DEPENDENCY_GUARD, PARTITION_SHA256, PREFLIGHT_SHA256, PREVIOUS_SHA256,
-    UPSTREAM_GATE_IDS, assert_action_inventory, digest, restore_partitioned_workflow,
-    validate_partition_graph,
+    CHECKOUT, DEPENDENCY_GUARD, NATIVE_GATE_IDS, PACKAGE_DEPENDENCY_GUARD, PACKAGE_SHA256,
+    PARTITION_SHA256, PREFLIGHT_SHA256, PREVIOUS_SHA256, UPSTREAM_GATE_IDS,
+    assert_action_inventory, digest, restore_package_partitioned_workflow, restore_partitioned_workflow,
+    validate_package_graph, validate_partition_graph,
 )
 
 
@@ -29,8 +30,12 @@ def encoded(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'))
 
 
-def workflow_text():
+def current_workflow_text():
     return (WORKFLOWS / 'product.yml').read_bytes().decode()
+
+
+def workflow_text():
+    return restore_package_partitioned_workflow(current_workflow_text())
 
 
 def load(text):
@@ -116,10 +121,12 @@ class MacosPartitionSourceTests(unittest.TestCase):
             assert_action_inventory(product, changed_env, partitioned=True)
 
 
-class MacosPartitionReceiptTests(unittest.TestCase):
+class MacosReceiptFixture:
+    workflow_input = staticmethod(workflow_text)
+
     @classmethod
     def setUpClass(cls):
-        raw = workflow_text()
+        raw = cls.workflow_input()
         restore_partitioned_workflow(raw)
         jobs = load(raw)['jobs']
         core, release = jobs['desktop']['steps'], jobs['desktop_release']['steps']
@@ -199,6 +206,8 @@ class MacosPartitionReceiptTests(unittest.TestCase):
         self.assertEqual(published, 'source_receipt=' + observed)
         return observed
 
+
+class MacosPartitionReceiptTests(MacosReceiptFixture, unittest.TestCase):
     def test_first_step_fails_closed_without_checkout_or_execution(self):
         self.assertEqual(self.first['name'], DEPENDENCY_GUARD)
         inputs = {'MACOS_CORE_RESULT': 'success', 'MACOS_CORE_RECEIPT': '{}',
@@ -302,6 +311,207 @@ class MacosPartitionReceiptTests(unittest.TestCase):
                 self.run_binding('core-start')
         finally:
             path.write_bytes(content)
+
+
+class MacosPackageGraphTests(unittest.TestCase):
+    def test_previous_workflow_and_historical_assertions_use_the_pinned_bytes(self):
+        actual = current_workflow_text()
+        restored = restore_package_partitioned_workflow(actual)
+        self.assertEqual(digest(actual), PACKAGE_SHA256)
+        self.assertEqual(digest(restored), PARTITION_SHA256)
+        self.assertEqual(restore_partitioned_workflow(actual), restore_partitioned_workflow(restored))
+        self.assertEqual(digest(restore_partitioned_workflow(actual)), PREVIOUS_SHA256)
+        environment = load((WORKFLOWS / 'environment-preflight.yml').read_bytes().decode())
+        self.assertEqual(assert_action_inventory(load(actual), environment, partitioned=True, package_partitioned=True), 20)
+        self.assertEqual(assert_action_inventory(load(restored), environment, partitioned=True), 18)
+        for changed in (actual + '# changed\n', actual.replace('timeout-minutes: 30', 'timeout-minutes: 31', 1)):
+            with self.assertRaisesRegex(ValueError, 'Unknown complete macOS packaging workflow'):
+                restore_package_partitioned_workflow(changed)
+
+    def test_packaging_graph_refuses_skipped_checks_wrong_sources_and_shared_builds(self):
+        actual = load(current_workflow_text())
+        validate_package_graph(actual)
+        cases = {
+            'conditional required job': lambda native, package: package.update({'if': '${{ success() }}'}),
+            'checks missing Native result': lambda native, package: package.update(needs=['desktop']),
+            'checks wrong name or runner': lambda native, package: package.update(name=native['name']),
+            'allows longer Native stage': lambda native, package: native.update({'timeout-minutes': '60'}),
+            'allows timeouts': lambda native, package: package.update({'continue-on-error': 'true'}),
+            'checkout precedes refusal': lambda native, package: package['steps'].reverse(),
+            'hard-coded Native result': lambda native, package: package['steps'][0]['env'].update(MACOS_NATIVE_RESULT='success'),
+            'misroutes Native artifact': lambda native, package: native['outputs'].update(native_evidence_id='7002'),
+            'misroutes attempt receipt': lambda native, package: package['steps'][2]['env'].update(MACOS_NATIVE_RECEIPT='{}'),
+            'skips Native proof': lambda native, package: native['steps'][-1].update({'if': 'false'}),
+            'skips fresh schema18': lambda native, package: native['steps'][7].update({'if': 'false'}),
+            'ignores failed fresh schema18': lambda native, package: native['steps'][7].update({'continue-on-error': 'true'}),
+            'rewrites original fresh schema18 command': lambda native, package: native['steps'][7].update(run='exit 0'),
+            'skips required audit': lambda native, package: package['steps'][8].update({'if': 'false'}),
+            'reuses cross-job executable': lambda native, package: package['steps'][6].update(run='cp old-binary new-binary'),
+        }
+        for label, mutate in cases.items():
+            with self.subTest(label=label):
+                changed = deepcopy(actual)
+                mutate(changed['jobs']['desktop_release'], changed['jobs']['desktop_package'])
+                with self.assertRaises(ValueError):
+                    validate_package_graph(changed)
+        changed = deepcopy(actual)
+        changed['jobs']['desktop_package']['steps'][11]['with']['path'] = 'artifacts/**'
+        environment = load((WORKFLOWS / 'environment-preflight.yml').read_bytes().decode())
+        with self.assertRaisesRegex(ValueError, 'Product Actions'):
+            assert_action_inventory(changed, environment, partitioned=True, package_partitioned=True)
+
+
+class MacosPackageReceiptTests(MacosReceiptFixture, unittest.TestCase):
+    workflow_input = staticmethod(current_workflow_text)
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.package = load(cls.workflow_input())['jobs']['desktop_package']['steps']
+
+    def setUp(self):
+        self.native_artifact = {'MACOS_NATIVE_ARTIFACT_ID': '7002', 'MACOS_NATIVE_ARTIFACT_SHA256': 'b' * 64}
+        self.development = {'MACOS_DEVELOPMENT_ARTIFACT_ID': '7003', 'MACOS_DEVELOPMENT_ARTIFACT_SHA256': 'c' * 64}
+        self.proof = self.checkout / 'artifacts/native-smoke/integration-execution.json'
+        self.proof.parent.mkdir(parents=True, exist_ok=True)
+        self.addCleanup(self.proof.unlink, missing_ok=True)
+        self.integration = {
+            'contract': 'agentbaton.integration-native-ci.v1',
+            'status': 'driver_and_projection_passed',
+            'cases': {case: {'driver_exit': 0, 'projection_exit': 0, 'complete': True}
+                      for case in ('first-page', 'last-page')},
+            'private_history_published': False,
+            'visual_review': 'not_established',
+            'runtime_acceptance': False,
+        }
+        self.proof.write_text(json.dumps(self.integration, indent=2))
+        self.native_outcomes = ' '.join(f'{gate}=success' for gate in NATIVE_GATE_IDS)
+
+    def native_inputs(self):
+        core = self.core_receipt()
+        started, _ = self.run_binding('native-start', MACOS_CORE_RECEIPT=core)
+        return {'MACOS_CORE_RECEIPT': core, **self.native_artifact,
+                'MACOS_NATIVE_START_CONTEXT': started.removeprefix('source_context='),
+                'MACOS_NATIVE_GATE_OUTCOMES': self.native_outcomes}
+
+    def package_inputs(self):
+        native = self.native_inputs()
+        published, record = self.run_binding('native-complete', **native)
+        self.assertEqual(published, 'source_receipt=' + record)
+        self.assertEqual(json.loads(record)['integration_cases'], self.integration['cases'])
+        return {'MACOS_CORE_RECEIPT': native['MACOS_CORE_RECEIPT'],
+                'MACOS_NATIVE_RECEIPT': record, **self.native_artifact}
+
+    def test_required_job_rejects_unsuccessful_dependencies_and_missing_uploads_before_checkout(self):
+        guard = self.package[0]
+        self.assertEqual(guard['name'], PACKAGE_DEPENDENCY_GUARD)
+        inputs = {
+            'MACOS_CORE_RESULT': 'success', 'MACOS_NATIVE_RESULT': 'success',
+            'MACOS_CORE_RECEIPT': '{}', 'MACOS_CORE_ARTIFACT_ID': '7001', 'MACOS_CORE_ARTIFACT_SHA256': 'a' * 64,
+            'MACOS_NATIVE_RECEIPT': '{}', **self.native_artifact,
+        }
+        negatives = [{key: status} for key in ('MACOS_CORE_RESULT', 'MACOS_NATIVE_RESULT')
+                     for status in ('failure', 'skipped', 'cancelled', 'timed_out', 'neutral', '', 'SUCCESS')]
+        negatives.extend({key: ''} for key in inputs if not key.endswith('_RESULT'))
+        for changes in ({}, *negatives):
+            with self.subTest(changes=changes):
+                attempt = subprocess.run(['bash', '-c', guard['run']], timeout=5, cwd=self.root,
+                                         env={'PATH': self.env['PATH'], **inputs, **changes},
+                                         capture_output=True, text=True)
+                self.assertEqual(attempt.returncode, int(bool(changes)))
+                if changes:
+                    self.assertIn('did not finish successfully with bound evidence', attempt.stdout)
+        self.assertFalse((self.root / '.git').exists())
+
+    def test_receipts_bind_both_native_cases_and_three_uploads_to_same_shallow_merge(self):
+        package = self.package_inputs()
+        self.assertEqual(self.run_binding('package-check', **package), ('', ''))
+        published, payload = self.run_binding('release-complete', **package, **self.development)
+        self.assertEqual(published, '')
+        receipt = json.loads(payload)
+        self.assertEqual(receipt['source'], json.loads(package['MACOS_NATIVE_RECEIPT'])['source'])
+        self.assertEqual(receipt['source'], json.loads(package['MACOS_CORE_RECEIPT'])['source'])
+        self.assertEqual([receipt[role]['id'] for role in ('core_evidence', 'native_evidence', 'development')],
+                         ['7001', '7002', '7003'])
+
+    def test_manual_dispatch_keeps_its_source_identity(self):
+        dispatch = {'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REF': 'refs/heads/main',
+                    'GITHUB_WORKFLOW_REF': self.env['GITHUB_WORKFLOW_REF'].replace('refs/pull/33/merge', 'refs/heads/main')}
+        payload = {'repository': self.payload['repository']}
+        context, _ = self.run_binding('core-start', payload=payload, **dispatch)
+        _, core = self.run_binding('core-complete', payload=payload, **dispatch,
+                                   MACOS_CORE_START_CONTEXT=context.removeprefix('source_context='),
+                                   MACOS_CORE_GATE_OUTCOMES=self.outcomes)
+        started, _ = self.run_binding('native-start', payload=payload, **dispatch, MACOS_CORE_RECEIPT=core)
+        _, native = self.run_binding('native-complete', payload=payload, **dispatch, **self.native_artifact,
+                                     MACOS_CORE_RECEIPT=core,
+                                     MACOS_NATIVE_START_CONTEXT=started.removeprefix('source_context='),
+                                     MACOS_NATIVE_GATE_OUTCOMES=self.native_outcomes)
+        self.assertEqual(self.run_binding('package-check', payload=payload, **dispatch, **self.native_artifact,
+                                          MACOS_CORE_RECEIPT=core, MACOS_NATIVE_RECEIPT=native), ('', ''))
+
+    def test_native_completion_rejects_failed_missing_or_forged_projection(self):
+        native = self.native_inputs()
+        for gate in NATIVE_GATE_IDS:
+            for state in ('failure', 'skipped', 'cancelled', ''):
+                outcomes = self.native_outcomes.replace(f'{gate}=success', f'{gate}={state}')
+                with self.subTest(gate=gate, state=state), self.assertRaisesRegex(SystemExit, 'Native gate did not pass'):
+                    self.run_binding('native-complete', **{**native, 'MACOS_NATIVE_GATE_OUTCOMES': outcomes})
+        self.proof.unlink()
+        with self.assertRaises(FileNotFoundError):
+            self.run_binding('native-complete', **native)
+        for case in ('first-page', 'last-page'):
+            for key, bad in (('driver_exit', 1), ('projection_exit', False), ('complete', 1)):
+                forged = deepcopy(self.integration)
+                forged['cases'][case][key] = bad
+                self.proof.write_text(json.dumps(forged))
+                with self.subTest(case=case, key=key), self.assertRaisesRegex(SystemExit, 'Both Native Integration'):
+                    self.run_binding('native-complete', **native)
+        self.proof.write_text('x' * 8193)
+        with self.assertRaisesRegex(SystemExit, 'oversized Native Integration proof'):
+            self.run_binding('native-complete', **native)
+        encoded_report = encoded(self.integration)
+        for duplicate in ('{"status":"failed",' + encoded_report[1:],
+                          encoded_report.replace('"driver_exit":0', '"driver_exit":1,"driver_exit":0', 1)):
+            self.proof.write_text(duplicate)
+            with self.assertRaisesRegex(SystemExit, 'Duplicate key in Native Integration proof'):
+                self.run_binding('native-complete', **native)
+
+    def test_packaging_rejects_stale_attempt_or_workflow_and_swapped_artifacts(self):
+        package = self.package_inputs()
+        changes = (
+            {'GITHUB_RUN_ATTEMPT': '3'},
+            {'GITHUB_RUN_ID': '44792307597'},
+            {'GITHUB_WORKFLOW_SHA': self.head},
+            {'GITHUB_WORKFLOW_REF': self.env['GITHUB_WORKFLOW_REF'].replace('/merge', '/head')},
+            {'GITHUB_SHA': self.head},
+            {'MACOS_NATIVE_ARTIFACT_ID': '7001'},
+            {'MACOS_NATIVE_ARTIFACT_ID': '7008'},
+            {'MACOS_NATIVE_ARTIFACT_SHA256': 'd' * 64},
+            {'MACOS_NATIVE_ARTIFACT_SHA256': ''},
+            {'MACOS_NATIVE_RECEIPT': package['MACOS_CORE_RECEIPT']},
+            {'MACOS_NATIVE_RECEIPT': ' ' + package['MACOS_NATIVE_RECEIPT']},
+        )
+        for changed in changes:
+            with self.subTest(changed=changed), self.assertRaises(SystemExit):
+                self.run_binding('package-check', **{**package, **changed})
+        for role in ('7001', '7002'):
+            with self.subTest(role=role), self.assertRaisesRegex(SystemExit, 'distinct artifacts'):
+                self.run_binding('release-complete', **package, **{**self.development, 'MACOS_DEVELOPMENT_ARTIFACT_ID': role})
+
+    def test_native_receipt_alone_cannot_substitute_stale_fields_or_one_case(self):
+        package = self.package_inputs()
+        changes = (
+            ('source', 'run_attempt', '1'), ('source', 'tree', 'd' * 40), ('source', 'head', self.base),
+            ('source', 'base', self.head), ('source', 'checkout', self.head),
+            ('core_evidence', 'sha256', 'b' * 64), ('native_evidence', 'id', '7001'),
+            ('gates', 'native_webview', 'skipped'), ('integration_cases', 'first-page', None),
+        )
+        for section, key, bad in changes:
+            proof = json.loads(package['MACOS_NATIVE_RECEIPT'])
+            proof[section][key] = bad
+            with self.subTest(section=section, key=key), self.assertRaisesRegex(SystemExit, 'Native proof differs'):
+                self.run_binding('package-check', **{**package, 'MACOS_NATIVE_RECEIPT': encoded(proof)})
 
 
 if __name__ == '__main__':
