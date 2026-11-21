@@ -7133,32 +7133,35 @@
     {
       "id": "AB-DOM-002",
       "work_package": "WP01",
-      "status": "implementing",
+      "status": "accepted",
       "implementation_refs": [
         "crates/core/src/storage.rs",
         "crates/core/src/ipc.rs",
         "crates/core/src/execution.rs"
       ],
       "verification": {
-        "unit": "not_run",
-        "integration": "not_run",
+        "unit": "passed",
+        "integration": "passed",
         "provider": "not_run",
         "native_arm64": "not_run",
-        "native_x86_64": "not_run"
+        "native_x86_64": "not_run",
+        "ci": "passed"
       },
       "evidence": [
-        "docs/execution/product-foundation/EVIDENCE.json"
+        "docs/execution/product-foundation/EVIDENCE.json",
+        "docs/execution/leader-control/CORE_IPC_SCHEMA_ERRORS_MAIN_ACCEPTANCE.json"
       ],
       "limitations": [
-        "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain."
+        "Local public Core IPC schema and version rejection. External Provider formats and state-machine acceptance use separate criteria."
       ],
       "verification_refs": [
         "crates/core/tests/storage.rs",
         "crates/core/tests/ipc.rs",
         "crates/core/tests/execution.rs",
-        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json"
+        "docs/execution/leader-control/WP01_VERIFICATION_APPLICABILITY.json",
+        "docs/execution/leader-control/CORE_IPC_SCHEMA_ERRORS_MAIN_ACCEPTANCE.json"
       ],
-      "coverage": "partial",
+      "coverage": "complete",
       "verification_applicability": {
         "unit": "applicable",
         "integration": "applicable",
@@ -7166,7 +7169,15 @@
         "native_arm64": "not_applicable",
         "native_x86_64": "not_applicable",
         "ci": "applicable"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "protected_main_strict_local_ipc_schema_errors",
+          "source": "a4e03303b54bd5a5544131e95ad39662f8310e29",
+          "scope": "Common local public Core IPC envelope validation, version routing and typed parameter refusal. Tested task changes, project import, event read and empty-parameter requests; no claim about unapproved external Provider protocol versions.",
+          "evidence": "docs/execution/leader-control/CORE_IPC_SCHEMA_ERRORS_MAIN_ACCEPTANCE.json"
+        }
+      ]
     },
     {
       "id": "AB-DOM-003",
