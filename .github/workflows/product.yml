@@ -824,6 +824,8 @@ jobs:
         os: [macos-15]
     outputs:
       source_receipt: ${{ steps.core_source_complete.outputs.source_receipt }}
+      core_evidence_id: ${{ steps.core_artifact.outputs.artifact-id }}
+      core_evidence_sha256: ${{ steps.core_artifact.outputs.artifact-digest }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -942,13 +944,11 @@ jobs:
               receipt = json.loads(raw)
               require(type(receipt) is dict and set(receipt) == {'contract', 'source', 'gates', 'core_evidence'}
                       and encoded(receipt) == raw and receipt['contract'] == protocol
-                      and receipt['source'] == context and receipt['gates'] == gates,
+                      and encoded(receipt['source']) == encoded(context) and receipt['gates'] == gates,
                       'macOS Core proof differs from the release checkout or attempt')
-              core_evidence = receipt['core_evidence']
-              require(type(core_evidence) is dict and set(core_evidence) == {'id', 'sha256'}
-                      and all(type(value) is str for value in core_evidence.values()),
-                      'Invalid macOS Core evidence format')
-              artifact(core_evidence['id'], core_evidence['sha256'])
+              core_evidence = artifact(env['MACOS_CORE_ARTIFACT_ID'], env['MACOS_CORE_ARTIFACT_SHA256'])
+              require(receipt['core_evidence'] == core_evidence,
+                      'macOS Core receipt differs from the independently reported upload')
               if stage == 'release-complete':
                   native = artifact(env['MACOS_NATIVE_ARTIFACT_ID'], env['MACOS_NATIVE_ARTIFACT_SHA256'])
                   development = artifact(env['MACOS_DEVELOPMENT_ARTIFACT_ID'], env['MACOS_DEVELOPMENT_ARTIFACT_SHA256'])
@@ -1118,10 +1118,13 @@ jobs:
         env:
           MACOS_CORE_RESULT: ${{ needs.desktop.result }}
           MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
         run: |
           set -euo pipefail
-          if [[ "$MACOS_CORE_RESULT" != success || -z "$MACOS_CORE_RECEIPT" ]]; then
-            echo 'The required macOS Core validation did not finish successfully with a source receipt.'
+          if [[ "$MACOS_CORE_RESULT" != success || -z "$MACOS_CORE_RECEIPT" ||
+                -z "$MACOS_CORE_ARTIFACT_ID" || -z "$MACOS_CORE_ARTIFACT_SHA256" ]]; then
+            echo 'The required macOS Core validation did not finish successfully with bound evidence.'
             exit 1
           fi
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -1133,6 +1136,8 @@ jobs:
         env:
           MACOS_SOURCE_STAGE: release-check
           MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
         run: *macos_source_binding
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
@@ -1297,6 +1302,8 @@ jobs:
         env:
           MACOS_SOURCE_STAGE: release-check
           MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
         run: *macos_source_binding
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         id: development_artifact
@@ -1309,6 +1316,8 @@ jobs:
         env:
           MACOS_SOURCE_STAGE: release-complete
           MACOS_CORE_RECEIPT: ${{ needs.desktop.outputs.source_receipt }}
+          MACOS_CORE_ARTIFACT_ID: ${{ needs.desktop.outputs.core_evidence_id }}
+          MACOS_CORE_ARTIFACT_SHA256: ${{ needs.desktop.outputs.core_evidence_sha256 }}
           MACOS_NATIVE_ARTIFACT_ID: ${{ steps.native_artifact.outputs.artifact-id }}
           MACOS_NATIVE_ARTIFACT_SHA256: ${{ steps.native_artifact.outputs.artifact-digest }}
           MACOS_DEVELOPMENT_ARTIFACT_ID: ${{ steps.development_artifact.outputs.artifact-id }}

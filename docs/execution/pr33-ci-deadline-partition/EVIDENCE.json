@@ -4,7 +4,7 @@
   "workflow": {
     "path": ".github/workflows/product.yml",
     "previous_sha256": "80e53ff9052815bbdb5fa9eb2c132b4b4ba632b4e6245b096fb573206eef616c",
-    "candidate_sha256": "4172a3b4588046fbbe05b6ba521affa6303cf6de7008854a63cbe7cd8cf54f6e"
+    "candidate_sha256": "854c9502d344002ff81535d62a002c9af63c96dbb5d01ea167c7724699f39b57"
   },
   "local_source_contract": {
     "preserved_named_steps": 22,
@@ -19,6 +19,7 @@
       "required entry refuses neutral": 1,
       "required entry refuses SUCCESS": 1,
       "required entry refuses missing receipt": 1,
+      "required entry refuses missing independent artifact": 1,
       "identical release receipt": 0,
       "reject mismatched event": 1,
       "reject mismatched repository_id": 1,
@@ -36,8 +37,12 @@
       "reject mismatched checkout": 1,
       "reject mismatched run_id": 1,
       "reject mismatched run_attempt": 1,
-      "reject malformed artifact id": 1,
-      "reject malformed artifact sha256": 1,
+      "reject equal but noninteger PR number": 1,
+      "reject independent upload ID mismatch": 1,
+      "reject independent upload digest mismatch": 1,
+      "reject missing receipt artifact ID": 1,
+      "reject short receipt artifact digest": 1,
+      "reject different receipt artifact ID": 1,
       "reject noncanonical receipt": 1,
       "reject unpassed Core gate": 1,
       "reject receipt after Core attempt change": 1,
@@ -51,7 +56,7 @@
       "manual dispatch is bound as a separate diagnostic source": 0,
       "manual dispatch cannot replace a PR source": 1
     },
-    "passed": 41
+    "passed": 46
   },
   "local_command": "bash scripts/collab.sh run -- python3 -B docs/execution/pr33-ci-deadline-partition/verify-local.py",
   "local_infrastructure": {
@@ -68,7 +73,8 @@
     "raw_log_sha256": "1de6fe3b2bd332d3d0160d7349a67e5c8835e2027a84da9b84d66ae8df5ab5fb",
     "archive_sha256": "f2d08d5348557de01a72d0adcc4c7f6f116ccb441bacc78461a923603a8c61b4",
     "summary": "FAILED (failures=28, errors=16)",
-    "handling": "expected on uncomposed draft; guard owner preserves old assertions with exact candidate validation"
+    "handling": "expected on uncomposed draft; guard owner preserves old assertions with exact candidate validation",
+    "workflow_sha256_at_execution": "4172a3b4588046fbbe05b6ba521affa6303cf6de7008854a63cbe7cd8cf54f6e"
   },
   "prior_observations": {
     "attempt1_job": 136482869813,
@@ -84,5 +90,6 @@
     "hosted workflow",
     "new graph runner timing",
     "development artifact build and independent inspection"
-  ]
+  ],
+  "first_draft_head": "cf609efced9714c238b10893689939c211c72003"
 }

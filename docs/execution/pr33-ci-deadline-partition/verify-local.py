@@ -138,14 +138,17 @@ def check_binding(core, release, root):
     receipt = produced.strip().split("=", 1)[1]
     gates_as_dict = json.loads(receipt)["gates"]
     assert len(gates_as_dict) == 11 and set(gates_as_dict.values()) == {"success"}
-    upstream = {"MACOS_CORE_RESULT": "success", "MACOS_CORE_RECEIPT": receipt}
+    upload = {"MACOS_CORE_ARTIFACT_ID": "600", "MACOS_CORE_ARTIFACT_SHA256": "a" * 64}
+    upstream = {"MACOS_CORE_RESULT": "success", "MACOS_CORE_RECEIPT": receipt} | upload
     invoke("required entry accepts upstream success", admission["run"], upstream, True)
     for status in ("", "failure", "cancelled", "skipped", "neutral", "SUCCESS"):
         invoke(f"required entry refuses {status or 'missing'}", admission["run"],
                upstream | {"MACOS_CORE_RESULT": status}, False)
     invoke("required entry refuses missing receipt", admission["run"],
            upstream | {"MACOS_CORE_RECEIPT": ""}, False)
-    release_values = {"MACOS_SOURCE_STAGE": "release-check", "MACOS_CORE_RECEIPT": receipt}
+    invoke("required entry refuses missing independent artifact", admission["run"],
+           upstream | {"MACOS_CORE_ARTIFACT_ID": ""}, False)
+    release_values = {"MACOS_SOURCE_STAGE": "release-check", "MACOS_CORE_RECEIPT": receipt} | upload
     invoke("identical release receipt", binding, release_values, True)
     for key, wrong in {
         "event": "workflow_dispatch", "repository_id": "124", "workflow_path": ".github/workflows/other.yml",
@@ -157,10 +160,22 @@ def check_binding(core, release, root):
         changed = json.loads(receipt)
         changed["source"][key] = wrong
         invoke(f"reject mismatched {key}", binding, release_values | {"MACOS_CORE_RECEIPT": encode(changed)}, False)
-    for key, wrong in {"id": "", "sha256": "0" * 63}.items():
+    changed = json.loads(receipt)
+    changed["source"]["pr_number"] = 13.0
+    invoke("reject equal but noninteger PR number", binding,
+           release_values | {"MACOS_CORE_RECEIPT": encode(changed)}, False)
+    invoke("reject independent upload ID mismatch", binding,
+           release_values | {"MACOS_CORE_ARTIFACT_ID": "603"}, False)
+    invoke("reject independent upload digest mismatch", binding,
+           release_values | {"MACOS_CORE_ARTIFACT_SHA256": "d" * 64}, False)
+    for reason, key, wrong in (
+        ("missing receipt artifact ID", "id", ""),
+        ("short receipt artifact digest", "sha256", "0" * 63),
+        ("different receipt artifact ID", "id", "602"),
+    ):
         changed = json.loads(receipt)
         changed["core_evidence"][key] = wrong
-        invoke(f"reject malformed artifact {key}", binding,
+        invoke(f"reject {reason}", binding,
                release_values | {"MACOS_CORE_RECEIPT": encode(changed)}, False)
     invoke("reject noncanonical receipt", binding, release_values | {"MACOS_CORE_RECEIPT": receipt + " "}, False)
     invoke("reject unpassed Core gate", binding, core_success | {
