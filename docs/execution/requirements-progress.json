@@ -7201,7 +7201,8 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/leader-control/CORE_TASK_TRANSITIONS_MAIN_REVIEW.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -7224,7 +7225,15 @@
         "native_arm64": "not_applicable",
         "native_x86_64": "not_applicable",
         "ci": "applicable"
-      }
+      },
+      "verified_slices": [
+        {
+          "slice": "protected_task_cancellation_and_invalid_acceptance_claims",
+          "source_commit": "df35231eab29aa2d4a043fd9be60888504507716",
+          "evidence": "docs/execution/leader-control/CORE_TASK_TRANSITIONS_MAIN_REVIEW.json",
+          "verification": "Public ARM64 IPC matrix with private SQLite starting-state fixtures, 12 denied reads or cancels of unsupported acceptance claims, and a real daemon restart."
+        }
+      ]
     },
     {
       "id": "AB-DOM-004",
@@ -7320,7 +7329,8 @@
       "evidence": [
         "docs/execution/product-foundation/EVIDENCE.json",
         "docs/execution/session-supervision/EVIDENCE.json",
-        "docs/execution/session-supervision/REVIEW.md"
+        "docs/execution/session-supervision/REVIEW.md",
+        "docs/execution/leader-control/CORE_IPC_WRITE_OUTCOME_MAIN_REVIEW.json"
       ],
       "limitations": [
         "Local task/IPC and trusted dispatch primitives only; full domain, router, lineage, policies, duration/money budgets and executor integration remain.",
@@ -7343,6 +7353,12 @@
           "evidence": "docs/execution/approval-outcome-guard/EVIDENCE.json",
           "review": "docs/execution/approval-outcome-guard/REVIEW.md",
           "verification": "actualgeneratedfixtureUnixIPC andfault/retrycontrols passed; notfullrequirement/nativeaccountacceptance"
+        },
+        {
+          "slice": "arm64_core_ipc_transaction_failure_and_post_commit_reply_loss",
+          "source_commit": "df35231eab29aa2d4a043fd9be60888504507716",
+          "evidence": "docs/execution/leader-control/CORE_IPC_WRITE_OUTCOME_MAIN_REVIEW.json",
+          "verification": "Real same-tree packaged ARM64 CLI/daemon and private SQLite fixture. Reconciliation passed. Truncated non-Session write acknowledgements still misclassify certainty."
         }
       ],
       "verification_applicability": {
