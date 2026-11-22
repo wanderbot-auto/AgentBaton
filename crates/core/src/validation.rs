@@ -357,6 +357,151 @@ mod tests {
             record.id
         );
     }
+
+    #[test]
+    fn git_validation_requires_the_current_subject_and_original_confirmed_definition() {
+        use agentbaton_workspaces::validation::sha256;
+
+        let mut f = fixture(true);
+        let policy = approve(&mut f);
+        let run = |store: &mut Store, revision, key| {
+            store.run_artifact_validation(&policy.id, revision, key)
+        };
+        let original = run(&mut f.store, 1, "original").unwrap();
+        assert_eq!(original.state, "integrity_passed");
+        assert_eq!(original.evidence.subject.attempt_id, f.session.attempt_id);
+        assert_eq!(
+            original.evidence.subject.input_revision,
+            f.workspace.base_revision
+        );
+        assert_eq!(original.evidence.policy_contract, policy.contract);
+        assert_eq!(
+            original.evidence.outputs[0].observed_sha256,
+            Some(sha256(b"generated output"))
+        );
+
+        let output = f.workspace.root.join("report.txt");
+        fs::write(&output, b"other output").unwrap();
+        let changed = run(&mut f.store, 1, "different-output").unwrap();
+        assert_eq!(changed.state, "failed");
+        assert_eq!(
+            changed.evidence.outputs[0].observed_sha256,
+            Some(sha256(b"other output"))
+        );
+
+        let change_policy = |store: &Store, document: &ValidationPolicy| {
+            store
+                .conn
+                .execute(
+                    "UPDATE validation_policies SET document=?1 WHERE id=?2",
+                    params![encode(document).unwrap(), policy.id],
+                )
+                .unwrap();
+        };
+        let mut replacement = policy.clone();
+        replacement.contract.outputs[0].requirement.expected_sha256 = Some(sha256(b"other output"));
+        change_policy(&f.store, &replacement);
+        assert_eq!(
+            run(&mut f.store, 1, "rewritten-output-rule")
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+        fs::write(&output, b"generated output").unwrap();
+
+        let mut replacement = policy.clone();
+        replacement.revision = 2;
+        change_policy(&f.store, &replacement);
+        assert_eq!(
+            run(&mut f.store, 2, "unapproved-revision")
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+        let foreign_root = f._directory.path().join("foreign");
+        fs::create_dir(&foreign_root).unwrap();
+        let foreign = f
+            .store
+            .import_project(&foreign_root, "Foreign project", "foreign")
+            .unwrap();
+        replacement = policy.clone();
+        replacement.project_id = foreign.id;
+        change_policy(&f.store, &replacement);
+        assert_eq!(
+            run(&mut f.store, 1, "foreign-project").unwrap_err().code,
+            "INPUT_CHANGED"
+        );
+        change_policy(&f.store, &policy);
+
+        let input = f.workspace.root.join("input.txt");
+        fs::write(&input, b"different input").unwrap();
+        assert_eq!(
+            run(&mut f.store, 1, "different-input-bytes").unwrap().state,
+            "failed"
+        );
+        fs::write(input, b"fixed input\n").unwrap();
+        let stopped = f.store.intent(&f.session.intent_id).unwrap();
+        let mut other_baseline = stopped.binding.clone();
+        other_baseline.input_revision = "different-registered-baseline".into();
+        f.store
+            .conn
+            .execute(
+                "UPDATE attempts SET binding=?1 WHERE id=?2",
+                params![encode(&other_baseline).unwrap(), stopped.attempt_id],
+            )
+            .unwrap();
+        assert_eq!(
+            run(&mut f.store, 1, "different-input-baseline")
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+        f.store
+            .conn
+            .execute(
+                "UPDATE attempts SET binding=?1 WHERE id=?2",
+                params![encode(&stopped.binding).unwrap(), stopped.attempt_id],
+            )
+            .unwrap();
+
+        let task = f.store.get(&f.session.task_id).unwrap();
+        let newer = f
+            .store
+            .prepare_attempt(&task.id, task.revision, stopped.binding, "newer")
+            .unwrap();
+        f.store
+            .confirm_stop(&newer.id, StopEvidence::NeverDispatched)
+            .unwrap();
+        f.session.intent_id = newer.id;
+        f.session.attempt_id = newer.attempt_id;
+        f.store
+            .conn
+            .execute(
+                "UPDATE sessions SET document=?1 WHERE id=?2",
+                params![encode(&f.session).unwrap(), f.session.id],
+            )
+            .unwrap();
+        assert_eq!(
+            run(&mut f.store, 1, "different-stopped-attempt")
+                .unwrap_err()
+                .code,
+            "INPUT_CHANGED"
+        );
+
+        drop(f.store);
+        let mut reopened = Store::open(&f.database).unwrap();
+        let before = reopened.sequence().unwrap();
+        let history = run(&mut reopened, 1, "original").unwrap();
+        assert_eq!(encode(&history).unwrap(), encode(&original).unwrap());
+        assert_eq!(history.task_acceptance, "not_established");
+        assert!(!history.integration_authorized);
+        assert_ne!(
+            reopened.get(&task.id).unwrap().state,
+            crate::storage::TaskState::Accepted
+        );
+        assert_eq!(reopened.sequence().unwrap(), before);
+        assert_eq!(reopened.list_validation_records(&task.id).unwrap().len(), 3);
+    }
     #[test]
     fn unsafe_output_is_recorded_as_failed_and_original_file_is_untouched() {
         let mut f = fixture(true);
@@ -707,6 +852,46 @@ fn key(key: &str) -> Result<()> {
     }
 }
 
+pub(crate) fn require_confirmed_validation_policy(
+    connection: &rusqlite::Connection,
+    approval_id: &str,
+    kind: &str,
+    policy: &impl Serialize,
+) -> Result<ApprovalProposal> {
+    let changed = || {
+        CoreError::new(
+            "INPUT_CHANGED",
+            "Validation policy no longer matches its confirmed owner approval",
+        )
+    };
+    let stored: Option<(Option<String>, Option<String>)> = connection
+        .query_row(
+            "SELECT CASE WHEN octet_length(document)<=4194304 THEN document END,
+                    CASE WHEN octet_length(result)<=4194304 THEN result END
+             FROM approval_proposals WHERE id=?1 AND result IS NOT NULL",
+            [approval_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .optional()
+        .map_err(db_error)?;
+    let (proposal, result) = stored.ok_or_else(changed)?;
+    let (proposal, result) = proposal.zip(result).ok_or_else(|| {
+        CoreError::new(
+            "RESOURCE_LIMIT",
+            "Stored validation approval exceeds its raw-byte bound",
+        )
+    })?;
+    let proposal: ApprovalProposal = decode(&proposal)?;
+    if proposal.id != approval_id
+        || proposal.kind != kind
+        || !proposal.consumed
+        || decode::<Value>(&result)? != serde_json::to_value(policy).map_err(|_| changed())?
+    {
+        return Err(changed());
+    }
+    Ok(proposal)
+}
+
 fn validation_event(
     tx: &rusqlite::Transaction<'_>,
     id: &str,
@@ -825,6 +1010,7 @@ impl Store {
         self.check_command_read_fence(&session, owned)?;
         let intent = self.intent(&session.intent_id)?;
         if intent.state != crate::execution::IntentState::Stopped
+            || intent.id != session.intent_id
             || intent.attempt_id != session.attempt_id
             || intent.task_id != session.task_id
         {
@@ -858,6 +1044,16 @@ impl Store {
             .map_err(db_error)?
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Session workspace is unavailable"))?;
         let workspace: ManagedWorkspace = decode(&raw)?;
+        if session.id != session_id
+            || self.get(&session.task_id)?.project_id != session.project_id
+            || workspace.id != session.workspace_id
+            || workspace.project_id != session.project_id
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Validation task, project and workspace references are inconsistent",
+            ));
+        }
         let lease = self.workspace_lease(&workspace.id)?.ok_or_else(|| {
             CoreError::new("INPUT_CHANGED", "Workspace write epoch is unavailable")
         })?;
@@ -899,7 +1095,10 @@ impl Store {
             .map_err(db_error)?
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Session attempt is unavailable"))?;
         let binding: ExecutionBinding = decode(&raw)?;
-        if binding.workspace_id != session.workspace_id {
+        if binding != intent.binding
+            || binding.workspace_id != session.workspace_id
+            || binding.input_revision != workspace.base_revision
+        {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
                 "Attempt workspace binding is inconsistent",
@@ -1052,17 +1251,30 @@ impl Store {
     }
 
     pub fn get_validation_policy(&self, id: &str) -> Result<ValidationPolicy> {
-        let raw: String = self
+        let raw: Option<String> = self
             .conn
             .query_row(
-                "SELECT document FROM validation_policies WHERE id=?1",
+                "SELECT CASE WHEN octet_length(document)<=4194304 THEN document END
+                 FROM validation_policies WHERE id=?1",
                 [id],
                 |row| row.get(0),
             )
             .optional()
             .map_err(db_error)?
             .ok_or_else(|| CoreError::new("NOT_FOUND", "Validation policy does not exist"))?;
-        decode(&raw)
+        let policy: ValidationPolicy = decode(&raw.ok_or_else(|| {
+            CoreError::new(
+                "RESOURCE_LIMIT",
+                "Stored validation policy exceeds its raw-byte bound",
+            )
+        })?)?;
+        if policy.id != id {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Stored validation policy identity is inconsistent",
+            ));
+        }
+        Ok(policy)
     }
 
     pub fn list_validation_policies(&self, task_id: &str) -> Result<Vec<ValidationPolicy>> {
@@ -1122,21 +1334,40 @@ impl Store {
             ));
         }
         let (session, workspace, binding) = self.validation_workspace(&policy.session_id)?;
-        if self.get(&policy.task_id)?.spec_revision != policy.contract.subject.spec_revision {
-            return Err(CoreError::new(
-                "INPUT_CHANGED",
-                "Task specification changed after validation policy approval",
-            ));
-        }
-
+        let subject = ValidationSubject {
+            task_id: session.task_id.clone(),
+            attempt_id: session.attempt_id.clone(),
+            spec_revision: self.get(&session.task_id)?.spec_revision,
+            input_revision: binding.input_revision.clone(),
+            version: VersionBinding::WorkspaceArtifacts {
+                workspace_id: workspace.id.clone(),
+                base_revision: workspace.base_revision.clone(),
+            },
+        };
         if session.task_id != policy.task_id
+            || session.project_id != policy.project_id
             || session.attempt_id != policy.attempt_id
             || workspace.id != policy.workspace_id
-            || binding.input_revision != policy.contract.subject.input_revision
+            || policy.scope != "artifact_integrity_only"
+            || policy.contract.subject != subject
         {
             return Err(CoreError::new(
                 "INPUT_CHANGED",
                 "Validation attempt binding changed",
+            ));
+        }
+        let approval = require_confirmed_validation_policy(
+            &self.conn,
+            &policy.approval_id,
+            "validation",
+            &policy,
+        )?;
+        if approval.snapshot["contract"] != json!(policy.contract)
+            || approval.snapshot["contract_digest"] != json!(policy.contract.digest())
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Artifact contract changed after owner confirmation",
             ));
         }
         let bind = |contracts: &[agentbaton_workspaces::validation::ArtifactContractView]| -> Result<Vec<BoundArtifact>> {
@@ -1150,7 +1381,7 @@ impl Store {
         let rule = ApprovedRule::from_verified_policy(
             policy.approval_id.clone(),
             policy.revision.to_string(),
-            policy.contract.subject.clone(),
+            subject,
             &inputs,
             &outputs,
             policy.contract.analysis.clone(),
