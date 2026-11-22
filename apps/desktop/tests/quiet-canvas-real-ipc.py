@@ -171,7 +171,7 @@ def main():
                 assert page.get_by_role('button', name='发送消息 · 暂不可用', exact=True).is_disabled()
                 page.get_by_label('草稿上下文', exact=True).fill('检查只读配置输入')
                 page.get_by_role('button', name='转为任务', exact=True).click()
-                dialog = page.get_by_role('dialog', name='从此摘要创建任务')
+                dialog = page.get_by_role('region', name='从此摘要创建任务')
                 assert dialog.is_visible()
                 page.get_by_label('选定摘要', exact=True).fill('仅将此审核摘要保存为任务')
                 dialog.get_by_role('button', name='创建任务', exact=True).click()
@@ -326,25 +326,26 @@ def main():
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 page.set_viewport_size({'width': 1488, 'height': 981})
                 page.get_by_role('button', name='搜索', exact=True).click()
-                search = page.get_by_role('dialog', name='搜索任务')
+                search = page.get_by_role('region', name='搜索任务')
                 page.get_by_role('textbox', name='搜索任务', exact=True).fill(goals[0])
                 assert search.get_by_role('button', name=re.compile(goals[0])).count() == 1
                 page.keyboard.press('Escape')
+                assert search.count() == 0
                 assert page.get_by_role('dialog').count() == 0
                 assert page.get_by_role('button', name='搜索', exact=True).evaluate('(e)=>e===document.activeElement')
                 page.keyboard.press('Control+k')
-                page.get_by_role('dialog', name='搜索任务').wait_for()
+                page.get_by_role('region', name='搜索任务').wait_for()
                 page.keyboard.press('Escape')
                 passed('keyboard command search, Escape and focus restore')
                 page.get_by_role('button', name='设置', exact=True).click()
-                settings = page.get_by_role('dialog', name='设置', exact=True)
-                close = settings.get_by_role('button', name='关闭', exact=True)
+                settings = page.get_by_role('region', name='设置', exact=True)
+                back = settings.get_by_role('button', name='返回', exact=True)
                 general = settings.get_by_role('tab', name='常规', exact=True)
                 background = settings.get_by_role('tab', name='后台与登录', exact=True)
                 diagnostics = settings.get_by_role('tab', name='恢复与诊断', exact=True)
                 assert general.get_attribute('aria-selected') == 'true'
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
-                assert close.evaluate('(e)=>e===document.activeElement')
+                assert settings.get_by_role('heading', name='设置', exact=True).evaluate('(e)=>e===document.activeElement')
                 page.keyboard.press('Tab')
                 assert general.evaluate('(e)=>e===document.activeElement')
                 page.keyboard.press('End')
@@ -353,18 +354,16 @@ def main():
                 assert background.get_attribute('tabindex') == '-1'
                 summary = settings.locator('summary').filter(has_text=re.compile('^连接证据$'))
                 assert summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
-                close.focus()
-                page.keyboard.press('Shift+Tab')
-                assert summary.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Tab')
-                assert close.evaluate('(e)=>e===document.activeElement')
+                assert page.get_by_role('dialog').count() == 0
+                assert page.get_by_role('button', name='能力', exact=True).is_enabled()
+                assert back.is_enabled()
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
                 settings_capture = output / 'settings-categories.png'
                 page.screenshot(path=settings_capture)
                 report['screenshots'].append(str(settings_capture))
                 page.keyboard.press('Escape')
                 assert page.get_by_role('button', name='设置', exact=True).evaluate('(e)=>e===document.activeElement')
-                passed('settings categories, closed details focus boundary and opener restoration')
+                passed('inline settings categories, closed evidence and opener restoration')
                 before_catalog = ipc('system.snapshot', {})['result']['sequence']
                 page.get_by_role('button', name='能力', exact=True).click()
                 page.get_by_role('combobox', name='能力范围', exact=True).select_option('')
@@ -382,7 +381,7 @@ def main():
                 page.get_by_role('button', name='空间', exact=True).click()
                 page.get_by_test_id('task-card').first.click()
                 page.get_by_role('button', name='执行与授权', exact=True).click()
-                execution = page.get_by_role('dialog', name='执行与授权', exact=True)
+                execution = page.get_by_role('region', name='执行与授权', exact=True)
                 duration = execution.locator('#grant-duration')
                 assert duration.get_attribute('max') == '3600'
                 duration.fill('3601')
@@ -413,7 +412,7 @@ def main():
                 page.get_by_text('0 项记录', exact=True).wait_for()
                 assert page.locator('.page-scroll').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
                 page.get_by_role('button', name='设置', exact=True).click()
-                settings = page.get_by_role('dialog', name='设置', exact=True)
+                settings = page.get_by_role('region', name='设置', exact=True)
                 settings.get_by_role('tab', name='后台与登录', exact=True).click()
                 background = settings.get_by_role('region', name='后台服务', exact=True)
                 service = background.get_by_text('服务证据', exact=True)
@@ -421,7 +420,7 @@ def main():
                 service.click()
                 background.get_by_text('已认证服务实例', exact=True).wait_for()
                 assert any(request['method'] == 'system.background' and request['error'] is None for request in report['requests'])
-                assert settings.locator('.dialog-content').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
+                assert settings.locator('.inline-page-content').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
                 assert settings.get_by_role('switch').count() == 0
                 service.click()
                 background_capture = output / 'settings-background-760.png'

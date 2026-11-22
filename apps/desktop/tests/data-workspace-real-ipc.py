@@ -858,10 +858,10 @@ def main():
                         details.locator(':scope > summary').click()
 
                 def open_project(name):
-                    if page.get_by_role('dialog', name='Projects & workspaces', exact=True).count():
-                        page.get_by_role('button', name='Close', exact=True).click()
+                    dialog = page.get_by_role('region', name='Projects & workspaces', exact=True)
+                    if dialog.count():
+                        dialog.get_by_role('button', name='Back', exact=True).click()
                     page.get_by_role('button', name='Projects & workspaces', exact=True).click()
-                    dialog = page.get_by_role('dialog', name='Projects & workspaces', exact=True)
                     dialog.get_by_role('button', name=re.compile('^Generated data ' + re.escape(name))).click()
                     panel = dialog.get_by_test_id('data-workspaces')
                     assert not panel.locator(':scope > details').evaluate('(element)=>element.open')

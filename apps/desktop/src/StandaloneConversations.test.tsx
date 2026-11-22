@@ -64,7 +64,7 @@ it('projects cancellation as a request rather than confirmed stop',async()=>{
  await waitFor(()=>expect(conversationApi.cancel).toHaveBeenCalledWith(conversation,expect.any(String)));await screen.findByText('Stop requested');expect(screen.queryByText('Stopped')).not.toBeInTheDocument();
 });
 it('converts only chosen excerpts with fixed source project and no hidden Task creation',async()=>{
- await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));fireEvent.change(screen.getByLabelText('Selected conversation summary'),{target:{value:'Reviewed selected option'}});fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id);expect(api.create).not.toHaveBeenCalled();
+ await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));fireEvent.change(screen.getByLabelText('Selected conversation summary'),{target:{value:'Reviewed selected option'}});fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id,expect.any(HTMLButtonElement));expect(api.create).not.toHaveBeenCalled();
 });
 it('rejects details that regress below the observed conversation revision',async()=>{
  vi.mocked(conversationApi.list).mockResolvedValue([conversation]);vi.mocked(conversationApi.get).mockResolvedValue({...conversation,revision:1});mount();await screen.findByRole('option',{name:'Discuss design · Ready'});fireEvent.change(screen.getByLabelText('Selected conversation'),{target:{value:conversation.id}});await screen.findByRole('alert');expect(screen.queryByRole('button',{name:'Send message'})).not.toBeInTheDocument();
@@ -73,10 +73,10 @@ it('never sends automatically after a cancelled native grant confirmation',async
  vi.mocked(sessionApi.grantsCreate).mockRejectedValue(new DaemonError('PERMISSION_DENIED','cancelled','not_started'));mount();await setup();fireEvent.click(screen.getByText('Authorize this scope'));fireEvent.click(screen.getByLabelText('I have reviewed the connection, workspace and execution limits.'));fireEvent.click(screen.getByRole('button',{name:'Approve execution grant'}));await waitFor(()=>expect(sessionApi.grantsCreate).toHaveBeenCalledTimes(1));await waitFor(()=>expect(state.inFlight).toBe(false));expect(state.pending).toBeNull();expect(conversationApi.create).not.toHaveBeenCalled();
 });
 
-it('opens the actual App dialog and starts no task or prompt implicitly',async()=>{
+it('opens the actual App inline page and starts no task or prompt implicitly',async()=>{
  vi.mocked(conversationApi.create).mockImplementation(async()=>{vi.mocked(conversationApi.list).mockResolvedValue([conversation]);return conversation;});
  render(<App/>);await screen.findByText('Local daemon connected');fireEvent.click(screen.getByRole('button',{name:'Quick chat'}));fireEvent.click(screen.getByRole('button',{name:'New independent conversation'}));
- expect(screen.getByRole('dialog',{name:'Independent Agent conversations'})).toBeInTheDocument();
+ expect(screen.getByRole('region',{name:'Independent Agent conversations'})).toBeInTheDocument();
  await setup();expect(conversationApi.create).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Start conversation'}));
  await waitFor(()=>expect(conversationApi.create).toHaveBeenCalledTimes(1));expect(api.create).not.toHaveBeenCalled();expect(conversationApi.send).not.toHaveBeenCalled();expect(sessionApi.sessionsCreate).not.toHaveBeenCalled();
 });
@@ -93,4 +93,29 @@ it('keeps stop and actor refresh available when scoped history fails',async()=>{
  expect(screen.getByRole('button',{name:'Request stop'})).toBeEnabled();expect(screen.getByRole('button',{name:'Refresh conversations'})).toBeEnabled();
  vi.mocked(conversationApi.cancel).mockResolvedValue({...conversation,state:'cancel_requested',revision:3});
  fireEvent.click(screen.getByRole('button',{name:'Request stop'}));await waitFor(()=>expect(conversationApi.cancel).toHaveBeenCalledWith(conversation,expect.any(String)));
+});
+
+
+it('returns from conversion to the edited independent conversation summary without starting a task', async () => {
+  vi.mocked(conversationApi.list).mockResolvedValue([conversation]);
+  render(<App />);
+  await screen.findByText('Local daemon connected');
+  fireEvent.click(screen.getByRole('button', { name: 'Quick chat' }));
+  fireEvent.click(screen.getByRole('button', { name: 'New independent conversation' }));
+  await screen.findByRole('option', { name: 'Discuss design · Ready' });
+  fireEvent.change(screen.getByLabelText('Selected conversation'), { target: { value: conversation.id } });
+  fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));
+  fireEvent.click(screen.getByRole('button', { name: 'Use selected excerpts' }));
+  const summary = screen.getByLabelText('Selected conversation summary');
+  fireEvent.change(summary, { target: { value: 'Keep this edited summary' } });
+  const opener = screen.getByRole('button', { name: 'Create task from summary' });
+  fireEvent.click(opener);
+  expect(screen.getByRole('region', { name: 'Create a task from this summary' })).toBeVisible();
+  expect(summary).not.toBeVisible();
+  fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(summary).toBeVisible();
+  expect(summary).toHaveValue('Keep this edited summary');
+  expect(opener).toHaveFocus();
+  expect(api.create).not.toHaveBeenCalled();
+  expect(conversationApi.send).not.toHaveBeenCalled();
 });

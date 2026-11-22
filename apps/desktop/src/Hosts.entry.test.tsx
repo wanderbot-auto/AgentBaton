@@ -46,7 +46,7 @@ beforeEach(() => {
 
 function showHosts() {
   fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
-  const dialog = screen.getByRole('dialog', { name: 'Settings' });
+  const dialog = screen.getByRole('region', { name: 'Settings' });
   fireEvent.click(within(dialog).getByRole('tab', { name: en.title }));
   const summary = within(dialog).getByText(en.register, { selector: 'summary' });
   fireEvent.click(summary);
@@ -95,7 +95,7 @@ it('retains the original in-flight Host request when Settings closes before rese
   render(<App />);
   expect(native).not.toHaveBeenCalled();
   await user.click(screen.getByRole('button', { name: 'Settings' }));
-  const dialog = screen.getByRole('dialog', { name: 'Settings' });
+  const dialog = screen.getByRole('region', { name: 'Settings' });
   await user.tab();
   expect(within(dialog).getByRole('tab', { name: 'General' })).toHaveFocus();
   await user.keyboard('{ArrowRight}');
@@ -116,8 +116,8 @@ it('retains the original in-flight Host request when Settings closes before rese
   await waitFor(() => expect(key).toEqual(expect.stringMatching(/^[0-9a-f-]{36}$/)));
   const original = { registration, idempotencyKey: key };
 
-  fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
-  expect(screen.queryByRole('dialog', { name: 'Settings' })).toBeNull();
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Back' }));
+  expect(screen.queryByRole('region', { name: 'Settings' })).toBeNull();
   showHosts();
   await waitFor(() => expect(native.mock.calls.filter(([command]) => command === 'hosts_registration_pending')).toHaveLength(2));
   const reopenedSubmit = screen.getByRole('button', { name: en.register });

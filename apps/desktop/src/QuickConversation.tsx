@@ -5,7 +5,7 @@ import { sessionEventText } from './ManagedSessions';
 import type { Language } from './i18n';
 import { quickConversationMessages } from './quick-conversation-i18n';
 
-type Props = { language: Language; connected: boolean; busy: boolean; tasks: Task[]; sessions: ManagedSession[]; connections: NamedConnection[]; events: JournalEvent[]; uncertainSessions: Set<string>; onUncertain: (id:string)=>void; onBusy:(busy:boolean)=>void; refresh:()=>Promise<void>; summary:string; summaryProject?:string; onSummary:(text:string,projectId?:string)=>void; onConvert:(summary:string,projectId?:string)=>void };
+type Props = { language: Language; connected: boolean; busy: boolean; tasks: Task[]; sessions: ManagedSession[]; connections: NamedConnection[]; events: JournalEvent[]; uncertainSessions: Set<string>; onUncertain: (id:string)=>void; onBusy:(busy:boolean)=>void; refresh:()=>Promise<void>; summary:string; summaryProject?:string; onSummary:(text:string,projectId?:string)=>void; onConvert:(summary:string,projectId:string | undefined,opener:HTMLButtonElement)=>void };
 const fits = (text:string) => text.length <= 8192 && new TextEncoder().encode(text).length <= 8192;
 const sameSession = (a:ManagedSession,b:ManagedSession) => ['id','task_id','project_id','workspace_id','connection_id','grant_id'].every(key => a[key as keyof ManagedSession] === b[key as keyof ManagedSession]);
 export function QuickConversation(props: Props) {
@@ -66,6 +66,6 @@ export function QuickConversation(props: Props) {
     </>}
     {error && <p role="alert">{error}</p>}
     <label htmlFor="quick-summary">{t.summary}</label><textarea id="quick-summary" value={props.summary} maxLength={8192} rows={6} onChange={event=>props.onSummary(event.target.value)} /><p className="hint">{t.summaryHint}</p>{props.summaryProject !== undefined && <p>{t.project}: {props.summaryProject}</p>}
-    {!fits(props.summary) && <p role="alert">{t.tooLong}</p>}<button type="button" className="primary" disabled={props.busy||!connected||!props.summary.trim()||!fits(props.summary)} onClick={()=>props.onConvert(props.summary,props.summaryProject)}>{t.convert}</button>
+    {!fits(props.summary) && <p role="alert">{t.tooLong}</p>}<button type="button" className="primary" disabled={props.busy||!connected||!props.summary.trim()||!fits(props.summary)} onClick={event=>props.onConvert(props.summary,props.summaryProject,event.currentTarget)}>{t.convert}</button>
   </section>;
 }

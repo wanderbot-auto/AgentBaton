@@ -58,7 +58,7 @@ it('copies only selected excerpts with pinned project and leaves conversion unex
  render(<Harness events={[event,{...event,event_id:'foreign',aggregate_id:'other',payload:{text:'Foreign secret'},kind:'session.message_queued'}]}/>);await choose();
  expect(screen.queryByText('Foreign secret')).not.toBeInTheDocument();fireEvent.click(screen.getByLabelText('Agent: Chosen reply'));fireEvent.click(screen.getByRole('button',{name:'Use selected context'}));
  expect(screen.getByLabelText('Draft context')).toHaveValue('Agent: Chosen reply');fireEvent.click(screen.getByRole('button',{name:'Turn into task'}));
- expect(convert).toHaveBeenCalledWith('Agent: Chosen reply','project-a');expect(api.create).not.toHaveBeenCalled();expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
+ expect(convert).toHaveBeenCalledWith('Agent: Chosen reply','project-a',expect.any(HTMLButtonElement));expect(api.create).not.toHaveBeenCalled();expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
 });
 it('refuses oversized selected context without truncating',async()=>{
  render(<Harness events={[{...event,payload:{update:{kind:{kind:'agent_text',text:'x'.repeat(8193)}}}}]}/>);await choose();
@@ -67,7 +67,7 @@ it('refuses oversized selected context without truncating',async()=>{
 });
 it('preserves manual draft conversion without a managed session',()=>{
  render(<Harness sessions={[]}/>);expect(screen.getByRole('button',{name:'Send message · Unavailable'})).toBeDisabled();
- fireEvent.change(screen.getByLabelText('Draft context'),{target:{value:'Manual summary'}});fireEvent.click(screen.getByRole('button',{name:'Turn into task'}));expect(convert).toHaveBeenCalledWith('Manual summary',undefined);
+ fireEvent.change(screen.getByLabelText('Draft context'),{target:{value:'Manual summary'}});fireEvent.click(screen.getByRole('button',{name:'Turn into task'}));expect(convert).toHaveBeenCalledWith('Manual summary',undefined,expect.any(HTMLButtonElement));
 });
 it('retains source project across App quick-view unmount and different project selection',async()=>{
  const user=userEvent.setup();const project=(id:string):Project=>({id,name:id,identity:{canonical_root:'/generated/'+id,device:1,inode:1,kind:{kind:'directory'}},revision:1,archived:false,created_at:'date',updated_at:'date'});

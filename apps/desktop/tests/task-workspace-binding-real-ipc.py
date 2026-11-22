@@ -912,7 +912,7 @@ def run(args, binary, frontend, attribution, output):
             expect(button).to_be_visible()
             expect(button).to_be_enabled()
             button.click()
-            dialog = page.get_by_role('dialog', name='Execution & approval', exact=True)
+            dialog = page.get_by_role('region', name='Execution & approval', exact=True)
             expect(dialog).to_be_visible()
             return dialog, start
 
@@ -949,7 +949,7 @@ def run(args, binary, frontend, attribution, output):
         read_start = len(report['http'])
         dialog.locator('#session-task').select_option(tasks[1]['id'])
         verify_dialog(dialog, read_start, t2_after, b1['receipt']['workspace_id'])
-        dialog.get_by_role('button', name='Close', exact=True).click()
+        dialog.get_by_role('button', name='Back', exact=True).click()
         expect(dialog).to_have_count(0)
         # Also exercise initialTaskId from Task1's own thread on a new mount.
         page.get_by_role('button', name='Back to tasks', exact=True).click()
@@ -960,7 +960,7 @@ def run(args, binary, frontend, attribution, output):
         expect(dialog.locator('#session-workspace')).to_have_value(b1['receipt']['workspace_id'])
         dialog.locator('#session-workspace').scroll_into_view_if_needed()
         shot('06-task1-bound-execution-mobile', dialog)
-        dialog.get_by_role('button', name='Close', exact=True).click()
+        dialog.get_by_role('button', name='Back', exact=True).click()
         expect(dialog).to_have_count(0)
         page.set_viewport_size({'width': 1440, 'height': 1100})
         require(db_image(runtime) == dialog_before, 'Dialog reads changed durable rows/events')
@@ -1074,7 +1074,7 @@ def run(args, binary, frontend, attribution, output):
                **replay_proof, parent_refresh_recovery=True, same_component_retained=True, fresh_task_read=True,
                fresh_scope_lists=True, locked_own_workspace=True, old_tasks_unchanged=True, old_workspaces_unchanged=True, source_unchanged=True,
                exact_replay_no_rows=True, no_execution_or_grants=True)
-        dialog.get_by_role('button', name='Close', exact=True).click()
+        dialog.get_by_role('button', name='Back', exact=True).click()
         expect(dialog).to_have_count(0)
 
         # Restore exactly the selected Task2/panel/desktop state at the original

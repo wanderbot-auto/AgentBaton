@@ -1,8 +1,7 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import type { Project } from './api';
 import { Connections, ConnectionEvidence } from './Connections';
 import { connectionMeetsFloor } from './connection-diagnostics-api';
-import { ContextDialog } from './ContextDialog';
 import { Icon, type IconName } from './Icons';
 import { messages, type Language } from './i18n';
 import { ManagedMcps } from './ManagedMcps';
@@ -184,13 +183,13 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
     const timer = setTimeout(() => setRevision(current => current + 1), 1500);
     return () => clearTimeout(timer);
   }, [connected, pending, reading, revision]);
-  useEffect(() => { if (selectedRecord && wide) detailsTitle.current?.focus({ preventScroll: true }); }, [selectedRecord, wide]);
+  useEffect(() => { if (selectedRecord) detailsTitle.current?.focus({ preventScroll: wide }); }, [selectedRecord, wide]);
   useEffect(() => { if (editor) editorTitle.current?.focus(); }, [editor]);
 
   function closeDetails() {
     const previous = selectedKey;
     setSelectedKey(null);
-    if (previous && wide) rowControls.current.get(previous)?.focus({ preventScroll: true });
+    if (previous) rowControls.current.get(previous)?.focus({ preventScroll: true });
   }
 
   function openEditor(kind: Kind, connectionId = '') {
@@ -210,15 +209,24 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
   }
 
   const addLabel = filter === 'connection' ? connectionCopy.register : filter === 'skill' ? m.editSkill : filter === 'mcp' ? m.editMcp : m.add;
-  const details = selected ? <>
-    <RecordDetails row={selected} language={language} connected={connected} onRefresh={refresh} />
-    {selected.kind !== 'connection' && !('code' in selected.profile) && (
-      <button type="button" disabled={!connected} onClick={() => {
-        if (!wide) closeDetails();
-        openEditor(selected.kind, selected.connection.id);
-      }}>{selected.kind === 'skill' ? m.editSkill : m.editMcp}</button>
-    )}
-  </> : null;
+  const details = selected ? <aside id={`${id}-details`} className={`management-inspector${wide ? '' : ' management-inline-record'}`}
+    aria-labelledby={`${id}-record-title`} onKeyDown={event => {
+      if (event.key === 'Escape') { event.stopPropagation(); closeDetails(); }
+    }}>
+    <header>
+      <h2 id={`${id}-record-title`} tabIndex={-1} ref={detailsTitle}>{rowName(selected)}</h2>
+      <button type="button" className="icon-button" aria-label={m.closeDetails} onClick={closeDetails}><Icon name="close" /></button>
+    </header>
+    <div>
+      <RecordDetails row={selected} language={language} connected={connected} onRefresh={refresh} />
+      {selected.kind !== 'connection' && !('code' in selected.profile) && (
+        <button type="button" disabled={!connected} onClick={() => {
+          if (!wide) closeDetails();
+          openEditor(selected.kind, selected.connection.id);
+        }}>{selected.kind === 'skill' ? m.editSkill : m.editMcp}</button>
+      )}
+    </div>
+  </aside> : null;
 
   return <section className="management-page" aria-labelledby={`${id}-title`}>
     <header className="management-header"><div><h1 id={`${id}-title`}>{t.capabilities}</h1><p>{m.intro}</p></div>
@@ -259,19 +267,22 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
           {shown.length > 0 && <div className="management-grid management-list-head" aria-hidden="true">
             <span>{m.name}</span><span>{m.status}</span><span>{m.source}</span><span />
           </div>}
-          {shown.map(row => <button key={row.key} type="button" className="management-grid management-list-row"
-            aria-controls={wide && selected?.key === row.key ? `${id}-details` : undefined}
-            aria-expanded={wide ? selected?.key === row.key : undefined} aria-haspopup={wide ? undefined : 'dialog'}
-            ref={node => { if (node) rowControls.current.set(row.key, node); else rowControls.current.delete(row.key); }}
-            onClick={() => selected?.key === row.key && wide ? closeDetails() : setSelectedKey(row.key)}>
-            <span className="management-row-name"><span className="management-row-icon"><Icon name={icons[row.kind]} /></span><span>
-              <strong>{rowName(row)}</strong><small>{row.kind === 'connection' ? row.connection.provider : `${m[row.kind]} · ${row.connection.name}`}</small>
-            </span></span>
-            <span className={`management-status ${needsReview(row) ? 'warning' : row.kind === 'connection' && row.connection.probe_state === 'ready' ? 'good' : ''}`}>{rowStatus(row, m)}</span>
-            <span className="management-source">{row.kind === 'connection' ? row.connection.config_status === 'private_environment_not_sandbox' ? m.privateEnvironment : t.unknown
-              : 'code' in row.profile ? t.unknown : m.managed}</span>
-            <Icon name="arrow" />
-          </button>)}
+          {shown.map(row => <Fragment key={row.key}>
+            <button type="button" className="management-grid management-list-row"
+              aria-controls={selectedKey === row.key ? `${id}-details` : undefined}
+              aria-expanded={selectedKey === row.key}
+              ref={node => { if (node) rowControls.current.set(row.key, node); else rowControls.current.delete(row.key); }}
+              onClick={() => selectedKey === row.key ? closeDetails() : setSelectedKey(row.key)}>
+              <span className="management-row-name"><span className="management-row-icon"><Icon name={icons[row.kind]} /></span><span>
+                <strong>{rowName(row)}</strong><small>{row.kind === 'connection' ? row.connection.provider : `${m[row.kind]} · ${row.connection.name}`}</small>
+              </span></span>
+              <span className={`management-status ${needsReview(row) ? 'warning' : row.kind === 'connection' && row.connection.probe_state === 'ready' ? 'good' : ''}`}>{rowStatus(row, m)}</span>
+              <span className="management-source">{row.kind === 'connection' ? row.connection.config_status === 'private_environment_not_sandbox' ? m.privateEnvironment : t.unknown
+                : 'code' in row.profile ? t.unknown : m.managed}</span>
+              <Icon name="arrow" />
+            </button>
+            {!wide && selectedKey === row.key && details}
+          </Fragment>)}
           {!shown.length && !reading && <div className="management-empty">
             <p>{!connected ? t.disconnected : catalog?.unavailable ? m.unavailable : query || attention ? m.noResults : scope ? m.noProject : rows.length ? m.noCapabilities : m.noConnections}</p>
             {connected && !catalog?.unavailable && !query && !attention && !scope && !rows.length && filter === 'all'
@@ -288,14 +299,8 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
           </div>
         </div>
       </div>
-      {selected && wide && <aside id={`${id}-details`} className="management-inspector" aria-labelledby={`${id}-record-title`}
-        onKeyDown={event => { if (event.key === 'Escape') closeDetails(); }}>
-        <header><h2 id={`${id}-record-title`} tabIndex={-1} ref={detailsTitle}>{rowName(selected)}</h2>
-          <button type="button" className="icon-button" aria-label={m.closeDetails} onClick={closeDetails}><Icon name="close" /></button></header>
-        <div>{details}</div>
-      </aside>}
+      {wide && details}
     </div>
-    {selected && !wide && <ContextDialog title={rowName(selected)} closeLabel={m.closeDetails} onClose={closeDetails}>{details}</ContextDialog>}
     {kinds.map(kind => Object.hasOwn(opened, kind) && <section key={kind} className="management-editor" hidden={editor !== kind}>
       <header><h2 ref={editor === kind ? editorTitle : undefined} tabIndex={-1}>{kind === 'connection' ? connectionCopy.register : kind === 'skill' ? m.editSkill : m.editMcp}</h2>
         <button type="button" className="icon-button" aria-label={m.closeDetails} onClick={() => {

@@ -15,12 +15,12 @@ export function createConversationUiState() {
   return { pending:null as Intent|null, inFlight:false, floors:new Map<string,Conversation>(), listeners:new Set<()=>void>() };
 }
 const defaultState=createConversationUiState();
-type Props={language:Language;connected:boolean;onConvert:(summary:string,projectId:string)=>void;onBusy?:(busy:boolean)=>void;uiState?:ReturnType<typeof createConversationUiState>};
+type Props={language:Language;connected:boolean;embedded?:boolean;onConvert:(summary:string,projectId:string,opener:HTMLButtonElement)=>void;onBusy?:(busy:boolean)=>void;uiState?:ReturnType<typeof createConversationUiState>};
 const validLimit=(n:number,min:number,max:number)=>Number.isSafeInteger(n)&&n>=min&&n<=max;
 const byteLength=(s:string)=>new TextEncoder().encode(s).length;
 const fitsSummary=(s:string)=>s.length<=8192&&byteLength(s)<=8192;
 const ambiguous=(e:unknown)=>!(e instanceof DaemonError)||!['none','not_started'].includes(e.sideEffectState);
-export function StandaloneConversations({language,connected,onConvert,onBusy,uiState=defaultState}:Props) {
+export function StandaloneConversations({language,connected,onConvert,onBusy,embedded=false,uiState=defaultState}:Props) {
   const t=standaloneConversationMessages[language], saved=uiState.pending;
   const [,renderState]=useState(0), [tick,setTick]=useState(0);
   const [projectId,setProjectId]=useState(saved?.kind==='create'||saved?.kind==='grant'?saved.selection.project_id:''), [workspaceId,setWorkspaceId]=useState(saved?.kind==='create'||saved?.kind==='grant'?saved.selection.workspace_id:''), [connectionId,setConnectionId]=useState(saved?.kind==='create'||saved?.kind==='grant'?saved.selection.connection_id:'');
@@ -98,7 +98,7 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,uiS
   function authorize(){if(disabled||!scopeReady||!ack||!validLimit(attempts,1,100)||!validLimit(concurrency,1,attempts)||!validLimit(duration,1,3600))return;void perform({kind:'grant',key:crypto.randomUUID(),reconciled:false,selection:{project_id:projectId,workspace_id:workspaceId,connection_id:connectionId,max_attempts:attempts,max_concurrency:concurrency,max_duration_ms:duration*1000}});}
   function send(){if(disabled||!view||view.state!=='ready'||!message.trim()||byteLength(message)>65536)return;void perform({kind:'send',key:crypto.randomUUID(),reconciled:false,conversation:structuredClone(view),text:message});}
   const label=(state:string)=>Object.hasOwn(t.states,state)?t.states[state as keyof typeof t.states]:t.unknown;
-  return <section className="standalone-conversations" aria-label={t.title} aria-busy={loading||busy}>
+  return <section className="standalone-conversations" aria-label={embedded ? undefined : t.title} aria-busy={loading||busy}>
     <p>{t.help}</p><button type="button" disabled={!connected||busy||loading} onClick={refresh}>{t.refresh}</button>
     {!connected&&<p>{t.disconnected}</p>}{error&&<p role="alert">{error}</p>}{busy&&<p role="status">{t.sending}</p>}{pending&&!busy&&<div role="status"><p>{t.pending}</p><details><summary>{t.scope}</summary><pre>{JSON.stringify(pending.kind==='create'||pending.kind==='grant'?pending.selection:{conversation_id:pending.conversation.id,project_id:pending.conversation.project_id,expected_revision:pending.conversation.revision,...(pending.kind==='send'?{text:pending.text}:{})},null,2)}</pre></details><button type="button" disabled={!connected||loading||!fresh||!pending.reconciled} onClick={()=>void perform(pending,true)}>{t.recover}</button></div>}
     <details><summary>{t.entry}</summary><fieldset disabled={disabled}>
@@ -117,6 +117,6 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,uiS
       <button type="button" disabled={disabled||!['starting','ready','running'].includes(view.state)} onClick={()=>void perform({kind:'cancel',key:crypto.randomUUID(),reconciled:false,conversation:structuredClone(view)})}>{t.stop}</button>
 
     </>}
-    {summaryProject!==null&&<><label>{t.summary}<textarea value={summary} maxLength={8192} onChange={e=>setSummary(e.target.value)}/></label><p>{t.project}: {summaryProject}</p><p>{t.conversionHelp}</p>{!fitsSummary(summary)&&<p role="alert">{t.limit}</p>}<button type="button" disabled={!connected||busy||!!pending||!summary.trim()||!fitsSummary(summary)} onClick={()=>onConvert(summary,summaryProject)}>{t.convert}</button></>}
+    {summaryProject!==null&&<><label>{t.summary}<textarea value={summary} maxLength={8192} onChange={e=>setSummary(e.target.value)}/></label><p>{t.project}: {summaryProject}</p><p>{t.conversionHelp}</p>{!fitsSummary(summary)&&<p role="alert">{t.limit}</p>}<button type="button" disabled={!connected||busy||!!pending||!summary.trim()||!fitsSummary(summary)} onClick={event=>onConvert(summary,summaryProject,event.currentTarget)}>{t.convert}</button></>}
   </section>;
 }

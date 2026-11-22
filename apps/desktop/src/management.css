@@ -303,3 +303,27 @@
   .management-row-icon { display: none; }
   .management-status { font-size: 12px; }
 }
+
+.inline-base[hidden], .inline-page[hidden], .composer-wrap[hidden] { display: none; }
+.inline-page { min-width: 0; }
+.inline-page-heading { margin-bottom: 24px; }
+.inline-page-heading .text-button { color: var(--management-muted, #616976); margin-bottom: 10px; }
+.inline-page-heading h1 { overflow-wrap: anywhere; }
+.inline-page-content { min-width: 0; }
+.inline-page-content > .management-settings { margin-inline: 0; }
+.inline-page-content > input[type="search"], .inline-page-content > textarea { max-width: 760px; }
+.inline-page-content > label:not(.sr-only) { display: block; margin-bottom: 8px; }
+.inline-page-content .search-results { max-width: 760px; }
+.inline-page-content > .dialog-actions { justify-content: flex-start; }
+
+.management-inline-record {
+  border: 0;
+  border-radius: 0;
+  border-top: 1px solid var(--line);
+  background: var(--canvas);
+}
+.management-inline-record + .management-list-row { border-top: 1px solid var(--line); }
+
+@media (max-width: 759px) {
+  .inline-page-heading { margin-bottom: 18px; }
+}

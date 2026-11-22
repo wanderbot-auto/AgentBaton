@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
@@ -26,30 +26,29 @@ beforeEach(() => {
   vi.mocked(dataValidationApi.recordsList).mockResolvedValue([]);
 });
 describe('Quiet Canvas product UI with mocked transport', () => {
-  it('includes a closed details summary at the dialog focus boundary and excludes its hidden content', async () => {
+  it('shows Settings in the main area with normal navigation and restores the opener on return', async () => {
     const user = userEvent.setup(); render(<App />);
     await screen.findAllByTestId('task-card');
-    await user.click(screen.getByRole('button', { name: 'Settings' }));
-    const close = screen.getByRole('button', { name: 'Close' });
-    const general = screen.getByRole('tab', { name: 'General' });
+    const opener = screen.getByRole('button', { name: 'Settings' });
+    await user.click(opener);
+    const settings = screen.getByRole('region', { name: 'Settings' });
+    const general = within(settings).getByRole('tab', { name: 'General' });
     expect(general).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('main')).toContainElement(settings);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
     expect(screen.queryByRole('region', { name: 'Start background work at next login' })).not.toBeInTheDocument();
-    expect(close).toHaveFocus();
+    expect(within(settings).getByRole('heading', { name: 'Settings' })).toHaveFocus();
     await user.tab(); expect(general).toHaveFocus();
     await user.keyboard('{End}');
-    const recovery = screen.getByRole('tab', { name: 'Recovery and diagnostics' });
+    const recovery = within(settings).getByRole('tab', { name: 'Recovery and diagnostics' });
     expect(recovery).toHaveFocus();
     expect(recovery).toHaveAttribute('aria-selected', 'true');
-    await user.click(close);
-    await user.click(screen.getByRole('button', { name: 'Settings' }));
-    await user.click(screen.getByRole('tab', { name: 'Recovery and diagnostics' }));
-    const summary = screen.getByText('Connection evidence', { selector: 'summary' });
+    const summary = within(settings).getByText('Connection evidence', { selector: 'summary' });
     expect(summary.closest('details')).not.toHaveAttribute('open');
-    screen.getByRole('button', { name: 'Close' }).focus();
-    await user.tab({ shift: true }); expect(summary).toHaveFocus();
-    await user.tab(); expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
-    await user.keyboard('{Escape}');
-    expect(screen.getByRole('button', { name: 'Settings' })).toHaveFocus();
+    await user.click(within(settings).getByRole('button', { name: 'Back' }));
+    expect(screen.queryByRole('region', { name: 'Settings' })).not.toBeInTheDocument();
+    expect(opener).toHaveFocus();
   });
 
   it('renders unknown prototype-named states as data without interpreting inherited object properties', async () => {
@@ -85,24 +84,37 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     await user.click(screen.getByRole('button', { name: 'Back to tasks' }));
     expect(screen.getAllByTestId('task-card')).toHaveLength(1);
   });
-  it('traps dialog keyboard focus, closes with Escape and restores its opener', async () => {
+  it('opens search inline and restores the draft, search query, and focus after returning', async () => {
     const user = userEvent.setup(); render(<App />);
     await screen.findAllByTestId('task-card');
+    const composer = screen.getByTestId('goal-input');
+    fireEvent.change(composer, { target: { value: 'Unsent local draft' } });
     const opener = screen.getByRole('button', { name: 'Search' });
     await user.click(opener);
-    const dialog = screen.getByRole('dialog', { name: 'Search tasks' });
-    const close = screen.getByRole('button', { name: 'Close' });
-    expect(screen.getByRole('textbox', { name: 'Search tasks' })).toHaveFocus();
-    await user.tab({ shift: true });
-    expect(close).toHaveFocus();
-    await user.tab({ shift: true });
-    expect(screen.getByRole('button', { name: /A recorded running task/ })).toHaveFocus();
-    await user.tab(); expect(close).toHaveFocus();
-    fireEvent.keyDown(dialog, { key: 'Escape' });
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    const search = screen.getByRole('region', { name: 'Search tasks' });
+    const input = within(search).getByRole('textbox', { name: 'Search tasks' });
+    expect(input).toHaveFocus();
+    expect(composer).not.toBeVisible();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await user.type(input, 'running');
+    expect(within(search).getByRole('button', { name: /A recorded running task/ })).toBeVisible();
+    const settings = screen.getByRole('button', { name: 'Settings' });
+    await user.click(settings);
+    expect(search).not.toBeVisible();
+    await user.click(within(screen.getByRole('region', { name: 'Settings' })).getByRole('button', { name: 'Back' }));
+    expect(search).toBeVisible();
+    expect(input).toHaveValue('running');
+    expect(settings).toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('region', { name: 'Search tasks' })).not.toBeInTheDocument();
     expect(opener).toHaveFocus();
+    expect(composer).toBeVisible();
+    expect(composer).toHaveValue('Unsent local draft');
     fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
-    expect(screen.getByRole('dialog', { name: 'Search tasks' })).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Search tasks' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Space' }));
+    expect(composer).toBeVisible();
+    expect(composer).toHaveValue('Unsent local draft');
   });
   it('previews only a chosen quick-context summary then creates a real draft without model replies', async () => {
     const user = userEvent.setup(); render(<App />);
@@ -111,7 +123,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     expect(screen.getByRole('button', { name: 'Send message · Unavailable' })).toBeDisabled();
     await user.type(screen.getByLabelText('Draft context'), 'Selected context <script>unsafe()</script>');
     await user.click(screen.getByRole('button', { name: 'Turn into task' }));
-    expect(screen.getByRole('dialog', { name: 'Create a task from this summary' })).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Create a task from this summary' })).toBeVisible();
     expect(api.create).not.toHaveBeenCalled();
     await user.clear(screen.getByLabelText('Selected summary'));
     await user.type(screen.getByLabelText('Selected summary'), 'Only this reviewed summary');
