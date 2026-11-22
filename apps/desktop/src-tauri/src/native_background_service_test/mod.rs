@@ -172,11 +172,11 @@ fn script(index: usize, op: Operation, direct: bool) -> String {
         r#"(async()=>{{try{{
 const until=performance.now()+15000;
 const wait=async f=>{{while(performance.now()<until){{const v=f();if(v)return v;await new Promise(r=>setTimeout(r,25));}}throw Error('DOM observation deadline');}};
-const find=(parent,text)=>[...parent.querySelectorAll('button')].find(b=>b.textContent.trim()===text);
+const find=(parent,text)=>[...parent.querySelectorAll('button')].find(b=>b.textContent.trim()===text||b.getAttribute('aria-label')===text);
 if({index}===0){{
- const language=await wait(()=>document.querySelector('.language select'));
+ const settings=await wait(()=>document.querySelector('[data-testid="settings-nav"]'));settings.click();
+ const language=await wait(()=>document.querySelector('[data-page="settings"] [role="tabpanel"]:not([hidden]) select'));
  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(language,'en');language.dispatchEvent(new Event('change',{{bubbles:true}}));
- const settings=await wait(()=>document.querySelector('button[title="Settings"]'));settings.click();
  const tab=await wait(()=>[...document.querySelectorAll('[role="tab"]')].find(e=>e.textContent.trim()==='Background and login'));tab.click();
 }}else{{
  const panel=await wait(()=>document.querySelector('section[aria-label="Start background work at next login"]'));

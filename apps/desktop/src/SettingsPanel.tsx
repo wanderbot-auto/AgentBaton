@@ -3,14 +3,12 @@ import { BackgroundService } from './BackgroundService';
 import { BackgroundServiceSettings } from './BackgroundServiceSettings';
 import { canvasMessages } from './canvas-i18n';
 import { Hosts, useHostRegistrationSession } from './Hosts';
-import { Icon, type IconName } from './Icons';
 import { messages, type Language } from './i18n';
 import { managementMessages } from './management-i18n';
 import { RecoveryCenter, useRecoveryCenter } from './RecoveryCenter';
 
 export type SettingsSection = 'general' | 'background' | 'hosts' | 'recovery';
 const sections: readonly SettingsSection[] = ['general', 'background', 'hosts', 'recovery'];
-const icons: Record<SettingsSection, IconName> = { general: 'settings', background: 'panel', hosts: 'folder', recovery: 'history' };
 
 type Props = {
   language: Language;
@@ -48,27 +46,27 @@ export function SettingsPanel({ language, onLanguage, status, initialSection, re
       {sections.map((section, index) => <button key={section} type="button" role="tab"
         id={`${id}-tab-${section}`} aria-controls={`${id}-panel-${section}`} aria-selected={active === section}
         tabIndex={active === section ? 0 : -1} onKeyDown={event => handleKey(event, index)} onClick={() => select(section)}>
-        <Icon name={icons[section]} />{m[section]}
+        {m[section]}
       </button>)}
     </div>
     {sections.map(section => <div key={section} role="tabpanel" className="management-settings-pane"
       id={`${id}-panel-${section}`} aria-labelledby={`${id}-tab-${section}`} hidden={active !== section}>
       {visited.has(section) && (section === 'general' ? <>
-        <div className="management-setting"><label htmlFor={`${id}-language`}>{t.language}</label>
+        <div className="management-setting settings-group"><label htmlFor={`${id}-language`}>{t.language}</label>
           <select id={`${id}-language`} value={language} onChange={event => onLanguage(event.target.value as Language)}>
             <option value="en">English</option><option value="zh">简体中文</option>
           </select></div>
-        <dl className="management-settings-facts"><dt>{c.appearance}</dt><dd>{c.light}</dd>
-          <dt>{c.readOnly}</dt><dd>{c.retained}</dd></dl>
       </> : section === 'background' ? <>
-        <div className="management-setting management-service-heading">
-          <h3>{m.backgroundStatus}</h3><span className={`management-status ${connected ? 'good' : ''}`}>{t[status]}</span>
+        <div className="settings-group">
+          <div className="management-setting management-service-heading">
+            <strong>{m.backgroundStatus}</strong><span className={`management-status ${connected ? 'good' : ''}`}>{t[status]}</span>
+          </div>
+          <BackgroundServiceSettings language={language} embedded />
         </div>
-        <BackgroundServiceSettings language={language} embedded />
         <BackgroundService language={language} connected={connected} embedded />
       </> : section === 'hosts' ? <Hosts language={language} daemonConnected={connected} session={hostRegistration} embedded />
         : <>
-          <RecoveryCenter language={language} controller={recovery} />
+          <RecoveryCenter language={language} controller={recovery} embedded />
           <details className="management-disclosure"><summary>{c.connectedHelp}</summary><p>{t[status]}</p></details>
         </>)}
     </div>)}

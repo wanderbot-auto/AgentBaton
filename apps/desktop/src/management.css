@@ -5,20 +5,12 @@
   --management-warning-wash: #fff8ee;
 }
 
-.management-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 18px;
-  margin-bottom: 22px;
-}
-.management-header p { margin: 8px 0 0; }
 .management-header > button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   flex: none;
-  min-height: 34px;
+  min-height: var(--control);
 }
 .management-header > button .icon { width: 16px; height: 16px; }
 
@@ -26,29 +18,30 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-8);
 }
-.management-toolbar { margin-bottom: 12px; }
+.management-toolbar { align-items: flex-end; margin-bottom: var(--space-12); }
+.management-toolbar .management-tabs { flex: 1; border-bottom: 1px solid var(--line); }
 .management-add { justify-content: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
 .management-filters { min-width: 0; gap: 8px; }
 .management-filters > label { min-width: 0; }
-.management-filters select { height: 34px; max-width: 190px; }
+.management-filters select { height: var(--control); max-width: 190px; }
 .management-search { position: relative; }
-.management-search input { padding-left: 32px; width: 170px; min-height: 34px; }
+.management-search input { padding-left: 32px; width: 170px; min-height: var(--control); }
 .management-search > .icon {
   position: absolute;
   inset: 8px auto auto 9px;
   color: var(--management-muted);
   pointer-events: none;
 }
-.management-tabs { display: flex; align-items: center; gap: 3px; }
+.management-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-12); }
 .management-tabs > button {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 7px 10px 9px;
-  min-height: 36px;
+  padding: var(--space-4) 1px var(--space-8);
+  min-height: var(--control);
   border: 0;
   border-radius: 4px 4px 0 0;
   background: transparent;
@@ -62,13 +55,13 @@
 .management-tabs > button:is([aria-pressed=true], [aria-selected=true])::after {
   content: '';
   position: absolute;
-  inset: auto 9px 0;
+  inset: auto 0 0;
   height: 2px;
   background: var(--ink);
 }
 .management-tabs small {
   color: var(--management-muted);
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
@@ -82,36 +75,33 @@
   margin: 0 0 10px;
   color: var(--warning);
 }
-.management-collection { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: start; }
-.management-collection.with-record { grid-template-columns: minmax(0, 1fr) minmax(285px, .65fr); }
-.management-list, .management-inspector, .management-editor, .management-settings-pane {
+.management-list, .management-detail-body, .settings-group {
   min-width: 0;
   border: 1px solid var(--line);
   background: var(--surface);
   border-radius: 6px;
-  overflow: clip;
 }
+.management-detail-body, .settings-group { background: var(--canvas); }
+.management-detail-body { padding: var(--space-16); overflow-wrap: anywhere; }
 .management-list:empty { display: none; }
 .management-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(108px, .87fr) minmax(0, .9fr) 16px;
   align-items: center;
-  gap: 13px;
-  padding-inline: 14px;
+  gap: var(--space-12);
+  padding-inline: var(--space-16);
   text-align: left;
 }
-.management-collection.with-record .management-grid { grid-template-columns: minmax(0, 1fr) minmax(99px, max-content) 16px; }
-.management-collection.with-record .management-grid > :nth-child(3) { display: none; }
 .management-list-head {
-  min-height: 34px;
+  min-height: var(--control);
   background: var(--soft);
   border-bottom: 1px solid var(--line);
   color: var(--management-muted);
-  font-size: 13px;
+  font-size: var(--fs-meta);
 }
 .management-list-row {
   width: 100%;
-  min-height: 57px;
+  min-height: var(--record);
   border: 0;
   border-radius: 0;
   padding-block: 8px;
@@ -120,13 +110,12 @@
 .management-list-row + .management-list-row { border-top: 1px solid var(--line); }
 .management-list-row:hover:not(:disabled) { background: var(--canvas); }
 .management-list-row:focus-visible { outline-offset: -3px; }
-.management-list-row[aria-expanded=true] { background: var(--soft); box-shadow: inset 2px 0 0 var(--accent); }
 .management-list-row > .icon { width: 15px; height: 15px; color: var(--management-muted); }
-.management-row-name { min-width: 0; display: flex; align-items: center; gap: 10px; }
+.management-row-name { min-width: 0; display: flex; align-items: center; gap: var(--space-8); }
 .management-row-name > span:last-child { min-width: 0; }
 .management-row-name strong, .management-row-name small, .management-source { overflow-wrap: anywhere; }
 .management-row-name strong { display: block; color: var(--ink); }
-.management-row-name small, .management-source { color: var(--management-muted); font-size: 13px; }
+.management-row-name small, .management-source { color: var(--management-muted); font-size: var(--fs-meta); }
 .management-row-icon {
   display: grid;
   place-items: center;
@@ -145,7 +134,7 @@
   gap: 6px;
   min-width: 0;
   color: var(--management-muted);
-  font-size: 13px;
+  font-size: var(--fs-meta);
   overflow-wrap: anywhere;
 }
 .management-status::before {
@@ -172,10 +161,10 @@
 }
 .management-list-foot {
   justify-content: space-between;
-  min-height: 34px;
+  min-height: var(--control);
   margin-top: 6px;
   color: var(--management-muted);
-  font-size: 13px;
+  font-size: var(--fs-meta);
 }
 .management-attention { color: var(--warning); background: transparent; border-color: transparent; white-space: nowrap; }
 .management-attention:hover:not(:disabled), .management-attention[aria-pressed=true] {
@@ -183,22 +172,10 @@
   border-color: #efddc8;
 }
 
-.management-inspector > header, .management-editor > header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px 12px 16px;
-  border-bottom: 1px solid var(--line);
-}
-.management-inspector > header > h2, .management-editor > header > h2 { overflow-wrap: anywhere; }
-.management-inspector > div, .management-editor > section { padding: 14px 16px 18px; }
-.management-inspector dl, .management-record dl { grid-template-columns: minmax(76px, .85fr) minmax(0, 1.4fr); gap: 8px 12px; }
-.management-inspector .connection-evidence summary { cursor: pointer; overflow-wrap: anywhere; }
-.management-inspector .connection-evidence summary > span + span { margin-inline-start: 5px; }
-.management-editor { margin-top: 20px; }
-.management-editor .connection-form { margin: 12px 0; }
-.management-editor-form > h2 { font-size: var(--fs-body); }
+.management-record dl { grid-template-columns: minmax(104px, max-content) minmax(0, 1fr); gap: var(--space-8) var(--space-16); }
+.management-record dl dd { margin: 0; }
+.management-detail-body .connection-evidence summary { cursor: pointer; overflow-wrap: anywhere; }
+.management-editor .connection-form { margin-block: 0; }
 .management-editor-form > label, .management-detail-actions > label {
   display: flex;
   align-items: flex-start;
@@ -221,46 +198,33 @@
 .management-diff > div + div { border-left: 1px solid var(--line); background: var(--soft); }
 .management-diff textarea { margin-top: 5px; }
 
-.management-settings { max-width: 760px; margin-inline: auto; }
-.management-settings > .management-tabs { flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-bottom: 15px; }
-.management-settings > .management-tabs > button { min-height: 42px; }
-.management-settings > .management-tabs > button[aria-selected=true] .icon { color: var(--accent); }
-.management-setting, .management-settings-facts {
-  padding: 14px 18px;
-  min-height: 56px;
-  margin: 0;
+.management-settings > .management-tabs { border-bottom: 1px solid var(--line); margin-bottom: var(--space-24); }
+.management-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  min-height: var(--record);
+  padding: var(--space-12) var(--space-16);
 }
-.management-setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.management-setting select { flex: none; }
-.management-setting p { margin: 3px 0 0; }
-.management-setting-extra { padding: 0 18px 12px; }
+.management-setting-controls { display: flex; align-items: center; gap: var(--space-8); }
+.management-service-heading { border-bottom: 1px solid var(--line); }
+.management-setting-status { margin: 0; padding: 0 var(--space-16) var(--space-12); }
+.management-setting-extra { padding: 0 var(--space-16) var(--space-12); }
 .management-setting-extra p:first-child { margin-top: 0; }
-.management-service-heading, .management-settings-facts { border-block: 1px solid var(--line); border-top: 0; }
-.management-service-heading { background: var(--canvas); }
-.management-settings-pane > section { min-width: 0; }
-.management-settings-pane > section:not([aria-label]) { padding: 12px 18px; }
-.management-settings-pane [id], .management-settings-pane dd { overflow-wrap: anywhere; }
-.management-disclosure {
-  border-top: 1px solid var(--line);
-  padding: 0 18px 12px;
-}
+.management-settings-pane > section { min-width: 0; margin-bottom: var(--space-16); }
+.management-settings-pane > .settings-group + section { margin-top: var(--space-16); }
+.management-settings-pane :is([id], dd, [aria-labelledby], [aria-label]) { overflow-wrap: anywhere; }
+.management-disclosure { border-top: 1px solid var(--line); padding: 0 0 var(--space-12); }
 .management-disclosure:not([open]) { padding-bottom: 0; }
-.management-disclosure summary {
-  min-height: 44px;
-  padding-block: 10px;
-  cursor: pointer;
-  color: var(--ink);
-}
-.management-disclosure summary > span { display: inline-grid; vertical-align: middle; }
-.management-disclosure summary small { color: var(--management-muted); margin-top: 3px; font-size: 13px; }
-.management-setting-extra .management-disclosure { padding-inline: 0; border-top: 0; }
-.management-settings-pane [aria-labelledby], .management-settings-pane [aria-label] { overflow-wrap: anywhere; }
-.management-settings-pane > section:not(:has(.management-setting, .management-disclosure)) { padding: 14px 18px; }
+.management-disclosure summary { min-height: var(--control); padding-block: var(--space-8); cursor: pointer; color: var(--ink); }
+.management-hide { border: 1px solid var(--line); border-radius: 6px; background: var(--canvas); padding-inline: var(--space-16); margin-bottom: var(--space-16); }
+.management-hide > summary { display: list-item; min-height: var(--record); align-content: center; }
 .management-switch {
   display: flex;
   align-items: center;
   width: 42px;
-  min-height: 36px;
+  min-height: var(--control);
   padding: 0;
   border: 0;
   background: transparent;
@@ -280,50 +244,42 @@
 .management-switch:hover:not(:disabled) { background: transparent; }
 .management-switch:hover:not(:disabled) > span { filter: brightness(.9); }
 
-@media (max-width: 880px) {
-  .management-toolbar { align-items: flex-start; flex-direction: column; }
-  .management-header > button { flex: 0 1 auto; }
+@media (max-width: 860px) {
+  .management-toolbar { align-items: stretch; flex-direction: column; }
 }
-@media (max-width: 759px) {
-  .management-filters { width: 100%; }
-  .management-search { flex: 1; }
+@media (max-width: 600px) {
+  .management-search { flex: 1; min-width: 0; }
   .management-search input { width: 100%; }
-  .management-search > .icon { top: 13px; }
-  .management-grid { grid-template-columns: minmax(0, 1fr) minmax(82px, max-content) 14px; gap: 8px; padding-inline: 10px; }
+  .management-filters > label { max-width: 55%; }
+  .management-filters select { max-width: 100%; }
+  .management-grid { grid-template-columns: minmax(0, 1fr) minmax(74px, max-content) 14px; gap: var(--space-8); padding-inline: var(--space-8); }
   .management-grid > :nth-child(3) { display: none; }
-  .management-settings > .management-tabs > button { min-height: 44px; }
-  .management-tabs > button { padding-inline: 7px; }
-  .management-settings > .management-tabs .icon { display: none; }
-  .management-setting, .management-disclosure, .management-settings-facts, .management-setting-extra { padding-inline: 12px; }
   .management-diff { grid-template-columns: minmax(0, 1fr); }
   .management-diff > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .management-setting { padding-inline: var(--space-12); }
 }
 @media (max-width: 390px) {
-  .management-header { flex-wrap: wrap; }
   .management-row-icon { display: none; }
-  .management-status { font-size: 12px; }
 }
 
 .inline-base[hidden], .inline-page[hidden], .composer-wrap[hidden] { display: none; }
-.inline-page { min-width: 0; }
-.inline-page-heading { margin-bottom: 24px; }
-.inline-page-heading .text-button { color: var(--management-muted, #616976); margin-bottom: 10px; }
-.inline-page-heading h1 { overflow-wrap: anywhere; }
-.inline-page-content { min-width: 0; }
-.inline-page-content > .management-settings { margin-inline: 0; }
-.inline-page-content > input[type="search"], .inline-page-content > textarea { max-width: 760px; }
-.inline-page-content > label:not(.sr-only) { display: block; margin-bottom: 8px; }
-.inline-page-content .search-results { max-width: 760px; }
-.inline-page-content > .dialog-actions { justify-content: flex-start; }
+.inline-page, .inline-page-content { min-width: 0; }
+.inline-page-content > label:not(.sr-only) { display: block; margin-bottom: var(--space-8); }
+.inline-page-content > .dialog-actions { justify-content: flex-start; margin-top: var(--space-16); }
 
-.management-inline-record {
-  border: 0;
-  border-radius: 0;
-  border-top: 1px solid var(--line);
-  background: var(--canvas);
+/* Projects keeps its region label for assistive tech. The inline route owns the visible title. */
+.inline-page[data-page="projects"] .projects > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-.management-inline-record + .management-list-row { border-top: 1px solid var(--line); }
-
-@media (max-width: 759px) {
-  .inline-page-heading { margin-bottom: 18px; }
+.inline-page[data-page="projects"] .projects > .workspace,
+.inline-page[data-page="execution"] .managed-sessions .workspace {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-16);
 }
+.inline-page .session-scope { padding: var(--space-16); gap: var(--space-8) var(--space-16); }
+.operation-note { color: var(--muted); font-size: var(--fs-meta); }

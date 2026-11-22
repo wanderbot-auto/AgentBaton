@@ -46,7 +46,8 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     expect(recovery).toHaveAttribute('aria-selected', 'true');
     const summary = within(settings).getByText('Connection evidence', { selector: 'summary' });
     expect(summary.closest('details')).not.toHaveAttribute('open');
-    await user.click(within(settings).getByRole('button', { name: 'Back' }));
+    expect(within(settings).queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
     expect(screen.queryByRole('region', { name: 'Settings' })).not.toBeInTheDocument();
     expect(opener).toHaveFocus();
   });
@@ -112,7 +113,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     expect(composer).toHaveValue('Unsent local draft');
     fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
     expect(screen.getByRole('region', { name: 'Search tasks' })).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Space' }));
+    await user.click(screen.getByRole('button', { name: 'Tasks' }));
     expect(composer).toBeVisible();
     expect(composer).toHaveValue('Unsent local draft');
   });

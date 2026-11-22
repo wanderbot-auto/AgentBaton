@@ -55,7 +55,7 @@ export function QuickConversation(props: Props) {
     if (!fits(summary)) { setError(t.tooLong); return; }
     props.onSummary(summary,session.project_id); setError('');
   }
-  return <section className="quick-thread"><h1>{t.title}</h1><p>{t.help}</p>
+  return <section className="quick-thread" aria-label={t.title}>
     <label>{t.choose}<select value={id} disabled={props.busy} onChange={event => { setId(event.target.value); setText(''); setChosen(new Map()); setIncludeGoal(false); setFresh(null); }}><option value="">{t.placeholder}</option>{sessions.filter(s => tasks.some(task => task.id === s.task_id)).map(s => <option key={s.id} value={s.id}>{connections.find(c => c.id === s.connection_id)?.name ?? s.connection_id} · {tasks.find(task => task.id === s.task_id)?.goal} · {s.id}</option>)}</select></label>
     {!sessions.length && <p>{t.empty}</p>}{!session && <button type="button" disabled>{t.noSessionSend}</button>}
     {session && <><p>{t.context}: {task?.goal}</p><p>{t.connection}: {connection?.name ?? t.missing}</p><p>{t.session}: {session.id} · {fresh?.session.id === session.id ? fresh.session.state : session.state}</p><button type="button" disabled={!connected||props.busy||loading} onClick={() => { setTick(n=>n+1); void props.refresh(); }}>{t.refresh}</button>
@@ -65,7 +65,7 @@ export function QuickConversation(props: Props) {
       {blocked ? <p role="status">{t.uncertain}</p> : !verified || fresh?.session.state !== 'ready' ? <p>{connection ? t.unavailable : t.missing}</p> : null}
     </>}
     {error && <p role="alert">{error}</p>}
-    <label htmlFor="quick-summary">{t.summary}</label><textarea id="quick-summary" value={props.summary} maxLength={8192} rows={6} onChange={event=>props.onSummary(event.target.value)} /><p className="hint">{t.summaryHint}</p>{props.summaryProject !== undefined && <p>{t.project}: {props.summaryProject}</p>}
+    <label htmlFor="quick-summary">{t.summary}</label><textarea id="quick-summary" value={props.summary} maxLength={8192} rows={6} onChange={event=>props.onSummary(event.target.value)} />{props.summaryProject !== undefined && <p>{t.project}: {props.summaryProject}</p>}
     {!fits(props.summary) && <p role="alert">{t.tooLong}</p>}<button type="button" className="primary" disabled={props.busy||!connected||!props.summary.trim()||!fits(props.summary)} onClick={event=>props.onConvert(props.summary,props.summaryProject,event.currentTarget)}>{t.convert}</button>
   </section>;
 }

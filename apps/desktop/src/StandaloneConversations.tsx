@@ -99,7 +99,7 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,emb
   function send(){if(disabled||!view||view.state!=='ready'||!message.trim()||byteLength(message)>65536)return;void perform({kind:'send',key:crypto.randomUUID(),reconciled:false,conversation:structuredClone(view),text:message});}
   const label=(state:string)=>Object.hasOwn(t.states,state)?t.states[state as keyof typeof t.states]:t.unknown;
   return <section className="standalone-conversations" aria-label={embedded ? undefined : t.title} aria-busy={loading||busy}>
-    <p>{t.help}</p><button type="button" disabled={!connected||busy||loading} onClick={refresh}>{t.refresh}</button>
+    <button type="button" disabled={!connected||busy||loading} onClick={refresh}>{t.refresh}</button>
     {!connected&&<p>{t.disconnected}</p>}{error&&<p role="alert">{error}</p>}{busy&&<p role="status">{t.sending}</p>}{pending&&!busy&&<div role="status"><p>{t.pending}</p><details><summary>{t.scope}</summary><pre>{JSON.stringify(pending.kind==='create'||pending.kind==='grant'?pending.selection:{conversation_id:pending.conversation.id,project_id:pending.conversation.project_id,expected_revision:pending.conversation.revision,...(pending.kind==='send'?{text:pending.text}:{})},null,2)}</pre></details><button type="button" disabled={!connected||loading||!fresh||!pending.reconciled} onClick={()=>void perform(pending,true)}>{t.recover}</button></div>}
     <details><summary>{t.entry}</summary><fieldset disabled={disabled}>
       <label>{t.project}<select value={projectId} onChange={e=>{setProjectId(e.target.value);setWorkspaceId('');invalidateScope();}}><option value="">{t.choose}</option>{projects.filter(p=>!p.archived).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
@@ -117,6 +117,6 @@ export function StandaloneConversations({language,connected,onConvert,onBusy,emb
       <button type="button" disabled={disabled||!['starting','ready','running'].includes(view.state)} onClick={()=>void perform({kind:'cancel',key:crypto.randomUUID(),reconciled:false,conversation:structuredClone(view)})}>{t.stop}</button>
 
     </>}
-    {summaryProject!==null&&<><label>{t.summary}<textarea value={summary} maxLength={8192} onChange={e=>setSummary(e.target.value)}/></label><p>{t.project}: {summaryProject}</p><p>{t.conversionHelp}</p>{!fitsSummary(summary)&&<p role="alert">{t.limit}</p>}<button type="button" disabled={!connected||busy||!!pending||!summary.trim()||!fitsSummary(summary)} onClick={event=>onConvert(summary,summaryProject,event.currentTarget)}>{t.convert}</button></>}
+    {summaryProject!==null&&<><label>{t.summary}<textarea value={summary} maxLength={8192} onChange={e=>setSummary(e.target.value)}/></label><p>{t.project}: {summaryProject}</p>{!fitsSummary(summary)&&<p role="alert">{t.limit}</p>}<button type="button" disabled={!connected||busy||!!pending||!summary.trim()||!fitsSummary(summary)} onClick={event=>onConvert(summary,summaryProject,event.currentTarget)}>{t.convert}</button></>}
   </section>;
 }

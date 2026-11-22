@@ -2,7 +2,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 export type InlinePage = 'projects' | 'execution' | 'search' | 'settings' | 'conversion' | 'standalone';
 type Destination = { opener: HTMLElement | null; scrollTop: number };
-type Visit = { page: InlinePage; from: Destination };
+type Visit = { page: InlinePage; showBack: boolean; from: Destination };
 
 export function useInlineNavigation() {
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -17,7 +17,7 @@ export function useInlineNavigation() {
     target?.focus({ preventScroll: true });
   }, []);
 
-  const open = useCallback((page: InlinePage, opener?: HTMLElement) => {
+  const open = useCallback((page: InlinePage, opener?: HTMLElement, primary = false) => {
     if (page === active) {
       focusActivePage();
       return;
@@ -30,7 +30,7 @@ export function useInlineNavigation() {
     }
     const focused = document.activeElement;
     setVisits([...visits, {
-      page, from: {
+      page, showBack: !primary || visits.length > 0, from: {
         opener: opener ?? (focused instanceof HTMLElement ? focused : null),
         scrollTop: scrollRef.current?.scrollTop ?? 0,
       },

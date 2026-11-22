@@ -122,7 +122,7 @@ describe('Task workspace using mocked Tauri transport', () => {
     expect(await screen.findByRole('heading', { name: 'Local daemon unavailable' })).toBeVisible();
     expect(screen.getByRole('alert')).toHaveTextContent('AUTH_REQUIRED');
     expect(screen.getByRole('button', { name: 'Create task' })).toBeDisabled();
-    expect(screen.getByText('No tasks yet. Create a task to record your goal.')).toBeVisible();
+    expect(screen.getByText('No tasks yet.')).toBeVisible();
   });
   it('creates a task through the API and preserves cancellation-request semantics', async () => {
     const user = userEvent.setup();
@@ -134,7 +134,7 @@ describe('Task workspace using mocked Tauri transport', () => {
     await user.click(screen.getByRole('button', { name: 'Create task' }));
     await waitFor(() => expect(api.create).toHaveBeenCalledWith(task.goal, expect.any(String)));
     expect(await screen.findByRole('heading', { name: task.goal })).toBeVisible();
-    expect(screen.getByText('No execution evidence yet. This task has not been dispatched to a Provider.')).toBeVisible();
+    expect(screen.getByText('Not dispatched.')).toBeVisible();
     vi.mocked(api.cancel).mockResolvedValue({ ...task, state: 'cancel_requested', revision: 2 });
     vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'cancel_requested', revision: 2 }], sequence: 2, api_version:1,database_schema_version:17 });
     await user.click(screen.getByRole('tab', { name: 'Details' }));
@@ -162,6 +162,7 @@ describe('Task workspace using mocked Tauri transport', () => {
     vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'provider_extension' }], sequence: 1, api_version:1,database_schema_version:17 });
     render(<App />);
     expect(await screen.findByText('Unknown status: provider_extension')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
     fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'zh' } });
     expect(screen.getByRole('navigation', { name: '主导航' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '能力' }));

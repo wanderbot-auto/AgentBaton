@@ -74,7 +74,8 @@ it('retains source project across App quick-view unmount and different project s
  vi.mocked(api.projectsList).mockResolvedValue([project('project-a'),project('project-b')]);vi.mocked(api.create).mockResolvedValue({...task,id:'new-draft',state:'draft'});
  render(<App/>);await screen.findAllByTestId('task-card');await user.click(screen.getByRole('button',{name:'Quick chat'}));await choose();
  await user.click(screen.getByLabelText('Agent: Chosen reply'));await user.click(screen.getByRole('button',{name:'Use selected context'}));
- await user.click(screen.getByRole('button',{name:'project-b'}));await user.click(screen.getByRole('button',{name:'Quick chat'}));
+ await user.click(screen.getByRole('button',{name:'Projects & workspaces'}));
+ await user.click(screen.getByRole('button',{name:/project-b.*\/generated\/project-b/}));await user.click(screen.getByRole('button',{name:'Quick chat'}));
  expect(screen.getByLabelText('Draft context')).toHaveValue('Agent: Chosen reply');expect(screen.getByText('Draft project: project-a')).toBeInTheDocument();
  await user.click(screen.getByRole('button',{name:'Turn into task'}));expect(api.create).not.toHaveBeenCalled();
  fireEvent.change(screen.getByLabelText('Selected summary'),{target:{value:'Edited selected context'}});await user.click(screen.getByRole('button',{name:'Create task'}));

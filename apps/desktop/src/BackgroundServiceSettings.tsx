@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Icon } from './Icons';
 import type { Language } from './i18n';
 import { actionableBackgroundReceipt, backgroundServiceSession, type BackgroundOperation, type BackgroundReceipt } from './background-login-api';
 import { backgroundServiceMessages } from './background-login-i18n';
@@ -75,7 +76,10 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
   }, [session.pending, observation, failed, switchBeforeRequest]);
   if (embedded) return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
     <div className="management-setting">
-      <h3>{copy.registration}</h3>
+      <strong>{copy.registration}</strong>
+      <div className="management-setting-controls">
+      {actionable && <button type="button" className="icon-button" aria-label={copy.refresh} title={copy.refresh}
+        onClick={() => perform('status')} disabled={session.pending !== null}><Icon name="refresh" /></button>}
       {switchState !== null && <button ref={switchRef} type="button" className="management-switch" role="switch" aria-label={copy.registration}
         aria-checked={switchState} aria-disabled={!actionable || session.pending !== null} onClick={() => {
           if (!actionable || session.pending !== null) return;
@@ -84,17 +88,16 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
         }}>
         <span aria-hidden="true" />
       </button>}
+      </div>
     </div>
-    <div className="management-setting-extra">
-      <p role="status">{session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}</p>
+    <p role="status" className={actionable && session.pending === null ? 'sr-only' : 'management-setting-status'}>
+      {session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}
+    </p>
+    {(!actionable || message || session.needsRefresh) && <div className="management-setting-extra">
       {message && <p role="alert">{message}</p>}
       {session.needsRefresh && !message && <p>{copy.refreshFirst}</p>}
       {!actionable && <button ref={refreshRef} type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>}
-      <details className="management-disclosure"><summary>{copy.confirmation}</summary>
-        <p>{copy.help}</p><p>{copy.boundary}</p><p>{copy.observation}</p>
-        {actionable && <button type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>}
-      </details>
-    </div>
+    </div>}
   </section>;
   return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
     <p>{copy.help}</p>

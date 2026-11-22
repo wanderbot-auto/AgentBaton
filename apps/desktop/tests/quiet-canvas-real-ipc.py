@@ -163,7 +163,7 @@ def main():
                     thread_view.wait_for()
                     task_ids.append(thread_view.get_attribute('data-task-id'))
                     assert page.get_by_role('heading', name=goal, exact=True).is_visible()
-                    assert page.get_by_text('尚无执行证据。本任务尚未派发给 Provider。', exact=True).is_visible()
+                    assert page.get_by_text('尚未派发。', exact=True).is_visible()
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 assert len(set(task_ids)) == 5
                 passed('five actual UI drafts persisted through Unix IPC', task_ids=task_ids)
@@ -199,24 +199,22 @@ def main():
                     layout = page.evaluate("""()=>{const grid=document.querySelector('.task-grid');return{columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth,sidebar:document.querySelector('.sidebar').getBoundingClientRect().width,fonts:[...new Set([...document.querySelectorAll('body *')].filter(e=>e.getClientRects().length&&e.textContent.trim()&&!e.children.length).map(e=>getComputedStyle(e).fontSize))],weights:[...new Set([...document.querySelectorAll('body *')].filter(e=>e.getClientRects().length&&e.textContent.trim()&&!e.children.length).map(e=>Number(getComputedStyle(e).fontWeight)))]}}""")
                     assert layout['columns'] == (1 if width < 760 else 2), layout
                     assert not layout['overflow'], layout
-                    assert set(layout['fonts']) <= {'14px', '18px', '24px'}, layout
+                    assert set(layout['fonts']) <= {'13px', '14px', '18px', '24px'}, layout
                     assert all(weight <= 600 for weight in layout['weights']), layout
                     if width == 1024:
-                        assert layout['sidebar'] == 64, layout
+                        assert layout['sidebar'] == 68, layout
                         assert page.get_by_role('button', name='新任务', exact=True).is_visible()
                         assert page.get_by_role('button', name='搜索', exact=True).is_visible()
-                        assert page.get_by_role('combobox', name='语言', exact=True).is_visible()
-                        passed('collapsed rail controls retain accessible localized names')
+                        assert page.get_by_role('button', name='设置', exact=True).is_visible()
+                        passed('icon rail controls retain accessible localized names')
                     if width == 390:
-                        toggle = page.get_by_role('button', name='切换导航', exact=True)
-                        bounds = toggle.bounding_box()
-                        assert bounds['width'] >= 44 and bounds['height'] >= 44, bounds
-                        toggle.click()
-                        assert page.get_by_role('button', name='新任务', exact=True).is_visible()
-                        assert page.get_by_role('button', name='搜索', exact=True).is_visible()
-                        assert page.get_by_role('combobox', name='语言', exact=True).is_visible()
-                        toggle.click()
-                        passed('mobile navigation exposes named controls and44px toggle target')
+                        assert layout['sidebar'] == 50, layout
+                        for label in ['新任务', '搜索', '任务', '能力', '设置']:
+                            control = page.get_by_role('button', name=label, exact=True)
+                            assert control.is_visible()
+                            bounds = control.bounding_box()
+                            assert bounds['width'] >= 44 and bounds['height'] >= 44, bounds
+                        passed('narrow icon rail retains named controls and usable targets')
                     screenshot = output / f'home-{width}x{height}.png'
                     page.screenshot(path=str(screenshot))
                     report['screenshots'].append(str(screenshot))
@@ -356,7 +354,7 @@ def main():
                 assert summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
                 assert page.get_by_role('dialog').count() == 0
                 assert page.get_by_role('button', name='能力', exact=True).is_enabled()
-                assert back.is_enabled()
+                assert back.count() == 0
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
                 settings_capture = output / 'settings-categories.png'
                 page.screenshot(path=settings_capture)
@@ -367,7 +365,7 @@ def main():
                 before_catalog = ipc('system.snapshot', {})['result']['sequence']
                 page.get_by_role('button', name='能力', exact=True).click()
                 page.get_by_role('combobox', name='能力范围', exact=True).select_option('')
-                page.get_by_text('先登记 Agent 连接，再配置 Skill 或 MCP。', exact=True).wait_for()
+                page.get_by_text('暂无连接。', exact=True).wait_for()
                 assert page.get_by_text('0 项记录', exact=True).is_visible()
                 assert page.get_by_role('button', name='添加能力', exact=True).is_enabled()
                 assert not page.locator('.management-editor').count()
@@ -378,7 +376,7 @@ def main():
                 page.screenshot(path=catalog_capture)
                 report['screenshots'].append(str(catalog_capture))
                 passed('read-only capability catalog uses real daemon and gates empty configuration')
-                page.get_by_role('button', name='空间', exact=True).click()
+                page.get_by_role('button', name='任务', exact=True).click()
                 page.get_by_test_id('task-card').first.click()
                 page.get_by_role('button', name='执行与授权', exact=True).click()
                 execution = page.get_by_role('region', name='执行与授权', exact=True)

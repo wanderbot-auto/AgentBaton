@@ -28,7 +28,7 @@ export function BackgroundService({language,connected,embedded=false,uiState=sha
  },[embedded,connected,busy]);
  useEffect(()=>{setAck(false);},[connected]);
  async function hide(){if(!valid||!ack||reading.current||uiState.hide!=='idle'||!observation)return;const stamp=epoch.current,instance=observation.status.instance_id;reading.current=true;setBusy(true);setAck(false);let dispatched=false;try{const live=await backgroundServiceApi.status();if(!accept(live,stamp)||live.instance_id!==instance)return;if(!mounted.current||stamp!==epoch.current||!connection.current)return;uiState.hide='pending';dispatched=true;await backgroundServiceApi.hide(live);uiState.hide='idle';if(mounted.current&&stamp===epoch.current)setHidden(true);}catch(error){if(dispatched)uiState.hide=error instanceof DaemonError&&error.code!=='OUTCOME_UNKNOWN'&&['none','not_started'].includes(error.sideEffectState)?'idle':'unknown';if(mounted.current&&stamp===epoch.current){setFailed(true);if(!dispatched)setObservation(null);}}finally{reading.current=false;if(mounted.current)setBusy(false);}}
- const facts=valid&&observation?<><dl><dt>{t.instance}</dt><dd>{observation.status.instance_id}</dd><dt>{t.started}</dt><dd>{observation.status.started_at}</dd><dt>{t.observed}</dt><dd>{observation.at}</dd><dt>{t.workers}</dt><dd>{observation.status.owned_provider_workers?t.yes:t.no}</dd></dl><p>{t[observation.relation]}</p><p>{t.workerHelp}</p><p>{t.recovery}</p></>:<p role="status">{t.unknown}</p>;
+ const facts=valid&&observation?<><dl><dt>{t.instance}</dt><dd>{observation.status.instance_id}</dd><dt>{t.started}</dt><dd>{observation.status.started_at}</dd><dt>{t.observed}</dt><dd>{observation.at}</dd><dt>{t.workers}</dt><dd>{observation.status.owned_provider_workers?t.yes:t.no}</dd></dl><p>{t[observation.relation]}</p><p>{t.recovery}</p></>:<p role="status">{t.unknown}</p>;
  const refreshControl=<button disabled={!connected||busy} onClick={()=>void refresh()}>{busy?t.busy:t.refresh}</button>;
  const confirm=<label><input type="checkbox" checked={ack} disabled={!valid||busy||uiState.hide!=='idle'} onChange={event=>setAck(event.target.checked)}/>{t.review}</label>;
  const action=<button disabled={!valid||!ack||busy||uiState.hide!=='idle'} onClick={()=>void hide()}>{t.hide}</button>;
@@ -37,7 +37,7 @@ export function BackgroundService({language,connected,embedded=false,uiState=sha
    const copy=managementMessages[language];
    return <section aria-label={t.title}>
      <details className="management-disclosure management-hide">
-       <summary><span><strong>{copy.hideTitle}</strong><small>{copy.hideHelp}</small></span></summary>
+       <summary><strong>{copy.hideTitle}</strong></summary>
        <div className="management-detail-actions"><p>{t.limits}</p>{confirm}{action}</div>
      </details>
      <details className="management-disclosure"><summary>{copy.evidence}</summary>{facts}{refreshControl}</details>

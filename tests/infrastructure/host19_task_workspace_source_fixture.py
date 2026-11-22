@@ -4,7 +4,8 @@ import hashlib
 DRIVER_PATH = "apps/desktop/tests/task-workspace-binding-real-ipc.py"
 PROJECTOR_PATH = "scripts/record-task-workspace-ci-evidence.py"
 DRIVER_PREVIOUS_SHA256 = "a4c0c4ef49a42c11000c25a135c664e121e47c5d94d3d1c90d5d22a47c5ce4b0"
-DRIVER_CURRENT_SHA256 = "e83fdd4a10b11877a79e11b3691ca96db37460ee897f693eced5d368d44e3bdd"
+DRIVER_CURRENT_SHA256 = "9c5a21b9a1964fb478ef1e0405ef36bf7652c28d658dbaf89c7b5ae20902595d"
+DRIVER_SCHEMA19_MODAL_SHA256 = "e83fdd4a10b11877a79e11b3691ca96db37460ee897f693eced5d368d44e3bdd"
 PROJECTOR_PREVIOUS_SHA256 = "dd602c15aac5429939a768ff5d3ff8cc7eab0d1c2c02fe8bed5ce4437fd9d1da"
 PROJECTOR_CURRENT_SHA256 = "6f40d9aca7afb760f20c96ed9ba704160e8b9a3bbb618ec81a7651a9a8161a3f"
 CURRENT_DRIVER_TABLES = (
@@ -123,6 +124,16 @@ def restore_schema18_source(path, raw):
         )
     if digest(raw) != current:
         raise ValueError("Current Task Workspace source differs from the pinned file")
+    if path == DRIVER_PATH:
+        # Restore the exact schema 19 driver before reversing the schema migration.
+        raw = replace(raw, b"page.get_by_role('region', name='Execution & approval', exact=True)",
+                      b"page.get_by_role('dialog', name='Execution & approval', exact=True)")
+        back = b"dialog.get_by_role('button', name='Back', exact=True).click()"
+        if raw.count(back) != 3:
+            raise ValueError("Unexpected inline Task Workspace return anchors")
+        raw = raw.replace(back, b"dialog.get_by_role('button', name='Close', exact=True).click()")
+        if digest(raw) != DRIVER_SCHEMA19_MODAL_SHA256:
+            raise ValueError("Task Workspace inverse did not restore the complete schema 19 driver")
     for new, old in edits:
         raw = replace(raw, new, old)
     if digest(raw) != previous:

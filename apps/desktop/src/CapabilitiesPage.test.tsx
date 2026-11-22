@@ -40,16 +40,23 @@ it('scopes verified configured rows by recorded sessions and never labels a conf
   vi.mocked(managedSkillsApi.list).mockResolvedValue({
     profiles: [{ ...fixture.profile, managed_skill: fixture.preview.skill }], unavailable: [],
   });
-  render(<CapabilitiesPage language="en" connected projects={[project]} projectId={project.id}
-    sessions={[session]} sessionsFresh refreshScope={vi.fn()} />);
+  const scope = { language: 'en' as const, connected: true, projects: [project], projectId: project.id, sessions: [session], refreshScope: vi.fn() };
+  const { rerender } = render(<CapabilitiesPage {...scope} sessionsFresh />);
   const row = await screen.findByRole('button', { name: /writing.*Configured/ });
   expect(screen.queryByRole('button', { name: /Unrelated Claude/ })).not.toBeInTheDocument();
   fireEvent.click(row);
-  const detail = screen.getByRole('complementary', { name: 'writing' });
+  const detail = screen.getByRole('region', { name: 'writing' });
   expect(within(detail).getByText(/unknown/i)).toBeVisible();
-  expect(row).toHaveAttribute('aria-expanded', 'true');
+  expect(row).not.toBeVisible();
+  expect(within(detail).getByRole('heading', { level: 1, name: 'writing' })).toHaveFocus();
+  rerender(<CapabilitiesPage {...scope} sessionsFresh={false} />);
+  expect(screen.getByRole('region', { name: 'writing' })).toBe(detail);
+  expect(within(detail).getByText('Project session records unavailable.')).toBeVisible();
+  expect(within(detail).getByRole('button', { name: 'Configure Skill' })).toBeDisabled();
+  rerender(<CapabilitiesPage {...scope} sessionsFresh />);
+  expect(within(detail).getByRole('button', { name: 'Configure Skill' })).toBeEnabled();
   fireEvent.keyDown(detail, { key: 'Escape' });
-  expect(row).toHaveFocus();
+  expect(screen.getByRole('button', { name: /writing.*Configured/ })).toHaveFocus();
   fireEvent.change(screen.getByRole('combobox', { name: 'Capability scope' }), { target: { value: '' } });
   expect(await screen.findByRole('button', { name: /Unrelated Claude/ })).toBeVisible();
   expect(managedSkillsApi.preview).not.toHaveBeenCalled();
@@ -68,15 +75,16 @@ it('hides configuration fields until a verified base is available and re-reads w
   const register = await within(panel).findByRole('button', { name: 'Register a base connection' });
   expect(within(panel).queryByRole('textbox')).not.toBeInTheDocument();
   fireEvent.click(register);
-  expect(screen.getByText('Register and run version probe', { selector: 'summary' })).toBeVisible();
+  expect(screen.getByRole('heading', { name: 'Register and run version probe', level: 1 })).toBeVisible();
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([fixture.connection]);
   vi.mocked(managedSkillsApi.list).mockResolvedValue({ profiles: [fixture.profile], unavailable: [] });
-  fireEvent.click(screen.getByRole('button', { name: 'Configure Skill' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(screen.getByRole('heading', { name: 'Configure Skill', level: 1 })).toHaveFocus();
   expect(await within(panel).findByRole('option', { name: 'Approved Codex · ready' })).toBeVisible();
   expect(managedSkillsApi.preview).not.toHaveBeenCalled();
 });
 
-it('expands a selected capability under its own row in a narrow window', async () => {
+it('uses the same focused capability page in a narrow window', async () => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   const fixture = managedSkillFixture();
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([fixture.connection]);
@@ -86,12 +94,12 @@ it('expands a selected capability under its own row in a narrow window', async (
   render(<CapabilitiesPage language="en" connected projects={[]} projectId="" sessions={[]} sessionsFresh refreshScope={vi.fn()} />);
   const row = await screen.findByRole('button', { name: /writing.*Configured/ });
   fireEvent.click(row);
-  const details = screen.getByRole('complementary', { name: 'writing' });
-  expect(row.nextElementSibling).toBe(details);
-  expect(row).toHaveAttribute('aria-controls', details.id);
+  const details = screen.getByRole('region', { name: 'writing' });
+  expect(row).not.toBeVisible();
+  expect(screen.getAllByRole('heading', { level: 1 })).toEqual([within(details).getByRole('heading', { name: 'writing' })]);
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(within(details).getByRole('heading', { name: 'writing' })).toHaveFocus();
-  fireEvent.click(within(details).getByRole('button', { name: 'Close capability details' }));
-  expect(screen.queryByRole('complementary', { name: 'writing' })).not.toBeInTheDocument();
+  fireEvent.click(within(details).getByRole('button', { name: 'Back to capabilities' }));
+  expect(screen.queryByRole('region', { name: 'writing' })).not.toBeInTheDocument();
   expect(row).toHaveFocus();
 });

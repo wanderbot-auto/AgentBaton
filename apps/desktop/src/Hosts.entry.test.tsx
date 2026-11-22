@@ -105,7 +105,7 @@ it('retains the original in-flight Host request when Settings closes before rese
   expect(within(dialog).getByRole('tabpanel', { name: en.title })).toBeVisible();
   expect(within(dialog).queryByRole('region', { name: 'Recover connection creations' })).toBeNull();
   expect(within(dialog).getByRole('tab', { name: 'Background and login' })).toBeVisible();
-  expect(within(dialog).queryByText('Appearance')).not.toBeVisible();
+  expect(within(dialog).queryByRole('combobox', { name: 'Language' })).not.toBeInTheDocument();
   const register = within(dialog).getByText(en.register, { selector: 'summary' });
   expect(register.closest('details')).not.toHaveAttribute('open');
   await user.click(register);
@@ -116,7 +116,7 @@ it('retains the original in-flight Host request when Settings closes before rese
   await waitFor(() => expect(key).toEqual(expect.stringMatching(/^[0-9a-f-]{36}$/)));
   const original = { registration, idempotencyKey: key };
 
-  fireEvent.click(within(dialog).getByRole('button', { name: 'Back' }));
+  await user.keyboard('{Escape}');
   expect(screen.queryByRole('region', { name: 'Settings' })).toBeNull();
   showHosts();
   await waitFor(() => expect(native.mock.calls.filter(([command]) => command === 'hosts_registration_pending')).toHaveLength(2));
