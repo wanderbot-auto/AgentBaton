@@ -165,7 +165,7 @@ describe('Task workspace using mocked Tauri transport', () => {
     fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'zh' } });
     expect(screen.getByRole('navigation', { name: '主导航' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '能力' }));
-    expect(screen.getByRole('heading', { name: '具名连接' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: '能力' })).toBeVisible();
     expect(document.documentElement.lang).toEqual('zh-CN');
   });
   it('renders native event payload as text without interpreting injected markup', async () => {

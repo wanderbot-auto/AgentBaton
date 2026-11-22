@@ -102,6 +102,9 @@ def main():
                             'system_snapshot': ('system.snapshot', {}, set()),
                             'projects_list': ('projects.list', {}, set()),
                             'connections_list': ('connections.list', {}, set()),
+                            'background_status': ('system.background', {}, set()),
+                            'managed_skills_list': ('managed_skills.list', {}, set()),
+                            'managed_mcps_list': ('managed_mcps.list', {}, set()),
                             'sessions_list': ('sessions.list', {}, set()),
                             'validation_policies_list': ('validation_policies.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'validations_list': ('validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
@@ -336,34 +339,47 @@ def main():
                 page.get_by_role('button', name='设置', exact=True).click()
                 settings = page.get_by_role('dialog', name='设置', exact=True)
                 close = settings.get_by_role('button', name='关闭', exact=True)
-                summary = settings.locator('summary').filter(has_text=re.compile('^连接证据$'))
-                background_summary = settings.locator('summary').filter(has_text=re.compile('^后台与登录启动$'))
-                assert summary.count() == 1 and background_summary.count() == 1
-                assert summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
-                assert background_summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
+                general = settings.get_by_role('tab', name='常规', exact=True)
+                background = settings.get_by_role('tab', name='后台与登录', exact=True)
+                diagnostics = settings.get_by_role('tab', name='恢复与诊断', exact=True)
+                assert general.get_attribute('aria-selected') == 'true'
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
                 assert close.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Shift+Tab')
-                assert background_summary.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('Tab')
+                assert general.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('End')
+                assert diagnostics.evaluate('(e)=>e===document.activeElement')
+                assert diagnostics.get_attribute('aria-selected') == 'true'
+                assert background.get_attribute('tabindex') == '-1'
+                summary = settings.locator('summary').filter(has_text=re.compile('^连接证据$'))
+                assert summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
+                close.focus()
                 page.keyboard.press('Shift+Tab')
                 assert summary.evaluate('(e)=>e===document.activeElement')
                 page.keyboard.press('Tab')
-                assert background_summary.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Tab')
                 assert close.evaluate('(e)=>e===document.activeElement')
-                # The composed settings add recovery and daemon controls before the
-                # two closed summaries. Forward tabbing must stay in the dialog.
-                page.keyboard.press('Tab')
-                assert settings.evaluate('(e)=>e.contains(document.activeElement)')
-                assert not background_summary.evaluate('(e)=>e.parentElement.contains(document.activeElement)')
-                page.keyboard.press('Shift+Tab')
-                assert close.evaluate('(e)=>e===document.activeElement')
-                assert summary.evaluate('(e)=>e.parentElement.open===false')
-                assert background_summary.evaluate('(e)=>e.parentElement.open===false')
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
+                settings_capture = output / 'settings-categories.png'
+                page.screenshot(path=settings_capture)
+                report['screenshots'].append(str(settings_capture))
                 page.keyboard.press('Escape')
                 assert page.get_by_role('button', name='设置', exact=True).evaluate('(e)=>e===document.activeElement')
-                passed('actual closed-details summary is included in dialog focus trap')
+                passed('settings categories, closed details focus boundary and opener restoration')
+                before_catalog = ipc('system.snapshot', {})['result']['sequence']
+                page.get_by_role('button', name='能力', exact=True).click()
+                page.get_by_role('combobox', name='能力范围', exact=True).select_option('')
+                page.get_by_text('先登记 Agent 连接，再配置 Skill 或 MCP。', exact=True).wait_for()
+                assert page.get_by_text('0 项记录', exact=True).is_visible()
+                assert page.get_by_role('button', name='添加能力', exact=True).is_enabled()
+                assert not page.locator('.management-editor').count()
+                assert {'connections.list', 'managed_skills.list', 'managed_mcps.list'}.issubset(
+                    {request['method'] for request in report['requests'] if request['error'] is None})
+                assert ipc('system.snapshot', {})['result']['sequence'] == before_catalog
+                catalog_capture = output / 'capabilities-empty.png'
+                page.screenshot(path=catalog_capture)
+                report['screenshots'].append(str(catalog_capture))
+                passed('read-only capability catalog uses real daemon and gates empty configuration')
+                page.get_by_role('button', name='空间', exact=True).click()
                 page.get_by_test_id('task-card').first.click()
                 page.get_by_role('button', name='执行与授权', exact=True).click()
                 execution = page.get_by_role('dialog', name='执行与授权', exact=True)
@@ -391,6 +407,28 @@ def main():
                 assert page.get_by_text('task.created', exact=True).count() == 6
                 assert page.get_by_text('task.cancelled', exact=True).count() == 1
                 passed('history uses actual journal events')
+                page.set_viewport_size({'width': 760, 'height': 580})
+                page.get_by_role('button', name='能力', exact=True).click()
+                page.get_by_role('combobox', name='能力范围', exact=True).select_option('')
+                page.get_by_text('0 项记录', exact=True).wait_for()
+                assert page.locator('.page-scroll').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
+                page.get_by_role('button', name='设置', exact=True).click()
+                settings = page.get_by_role('dialog', name='设置', exact=True)
+                settings.get_by_role('tab', name='后台与登录', exact=True).click()
+                background = settings.get_by_role('region', name='后台服务', exact=True)
+                service = background.get_by_text('服务证据', exact=True)
+                assert service.evaluate('(e)=>e.parentElement.open===false')
+                service.click()
+                background.get_by_text('已认证服务实例', exact=True).wait_for()
+                assert any(request['method'] == 'system.background' and request['error'] is None for request in report['requests'])
+                assert settings.locator('.dialog-content').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
+                assert settings.get_by_role('switch').count() == 0
+                service.click()
+                background_capture = output / 'settings-background-760.png'
+                page.screenshot(path=background_capture)
+                report['screenshots'].append(str(background_capture))
+                page.keyboard.press('Escape')
+                passed('narrow management surfaces read real background evidence without a native login mutation')
                 assert not errors, errors
                 passed('no browser runtime errors')
                 context.close()

@@ -229,7 +229,7 @@ function Mapping({ id, name, index, copy, remove }: {
   </>;
 }
 
-function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; daemonConnected: boolean; session: Session }) {
+function HostSettingsPanel({ copy, daemonConnected, session, embedded = false }: { copy: Copy; daemonConnected: boolean; session: Session; embedded?: boolean }) {
   const recoveryRead = useRef(0);
   const listRead = useRef(0);
   const detailRead = useRef(0);
@@ -489,13 +489,17 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
       {phase === 'cleared' && <p role="status">{copy.acknowledged}</p>}
       {phase === 'verifiedClear' && <p role="status">{copy.verifiedClear}</p>}
     </section>}
-    <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />
+    {embedded ? <details className="management-disclosure">
+      <summary>{copy.register}</summary>
+      <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />
+    </details> : <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />}
   </section>;
 }
 
-export function Hosts({ language, daemonConnected, session }: { language: Language; daemonConnected: boolean; session: Session }) {
+export function Hosts({ language, daemonConnected, session, embedded = false }: { language: Language; daemonConnected: boolean; session: Session; embedded?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const copy = hostMessages[language];
+  if (embedded) return <HostSettingsPanel copy={copy} daemonConnected={daemonConnected} session={session} embedded />;
   return <details className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
     <summary>{copy.title}</summary>
     {expanded && <HostSettingsPanel copy={copy} daemonConnected={daemonConnected} session={session} />}

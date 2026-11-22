@@ -7,7 +7,7 @@ import {connectionDiagnosticMessages} from './connection-diagnostics-i18n';
 import {connectionMeetsFloor} from './connection-diagnostics-api';
 import type { Language } from './i18n';
 
-export function Connections({ language, connected, compact = false }: { language: Language; connected: boolean; compact?: boolean }) {
+export function Connections({ language, connected, compact = false, registrationOnly = false, onChanged }: { language: Language; connected: boolean; compact?: boolean; registrationOnly?: boolean; onChanged?: () => void }) {
   const t = sessionMessages[language];
   const [records, setRecords] = useState<NamedConnection[]>([]);
   const [name, setName] = useState('');
@@ -64,6 +64,7 @@ export function Connections({ language, connected, compact = false }: { language
       keys.current.delete(fingerprint);
       unresolvedImports.current.delete(fingerprint);
       setName(''); setExecutable(''); setArgumentsText(''); setConfigurationFile(''); setConfigurationMode('default');
+      onChanged?.();
       await refresh();
     } catch (e) {
       // A known pre-commit rejection can be reviewed as a fresh proposal on the
@@ -88,10 +89,19 @@ export function Connections({ language, connected, compact = false }: { language
       <p>{t.registerHelp}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p><button className="primary" disabled={!connected || busy || !name.trim() || !executable.trim() || (configurationMode !== 'default' && !configurationFile.trim())}>{busy ? t.working : t.register}</button>
     </form></details>
     <p>{t.noFallback}</p><p className="hint">{t.probeOnly}</p>
-    {!records.length && <p>{t.emptyConnections}</p>}
-    <ul className="connection-list">{records.map(connection => <li key={connection.id}>
-      <details className="connection-evidence" open={!compact}><summary><span>{connection.name}</span><span>{connectionDiagnosticMessages[language].historicalProbe}</span><span className="task-state">{Object.hasOwn(t, connection.probe_state) ? t[connection.probe_state as keyof typeof t] : `${t.unknown}: ${connection.probe_state}`}</span></summary><dl><dt>{t.provider}</dt><dd>{connection.provider}</dd><dt>{t.executable}</dt><dd>{connection.executable}</dd><dt>{t.digest}</dt><dd>{connection.executable_sha256}</dd><dt>{t.version}</dt><dd>{connection.version_evidence?.version_line ?? t.unknown}</dd><dt>{t.probeState}</dt><dd>{connection.probe_state}</dd><dt>{t.source}</dt><dd>{connection.version_evidence ? `${connection.version_evidence.source} · ${new Date(connection.version_evidence.observed_at_unix_ms).toISOString()}` : t.unknown}</dd><dt>{t.host}</dt><dd>{connection.host_id}</dd><dt>{t.environment}</dt><dd>{connection.environment_id}</dd><dt>{t.configOwner}</dt><dd>{connection.config_status}</dd><dt>{t.identity}</dt><dd>{connection.identity_ref} ({connection.identity_status})</dd></dl>
-      <p className="hint">{t.probeOnly}</p></details><ConnectionDiagnostics connection={connection} language={language} connected={connected} onRefresh={()=>void refresh()}/>
-    </li>)}</ul>
+    {!registrationOnly && !records.length && <p>{t.emptyConnections}</p>}
+    {!registrationOnly && <ul className="connection-list">{records.map(connection => <li key={connection.id}>
+      <ConnectionEvidence connection={connection} language={language} connected={connected} onRefresh={()=>void refresh()} expanded={!compact} />
+    </li>)}</ul>}
   </section>;
+}
+
+export function ConnectionEvidence({ connection, language, connected, onRefresh, expanded = false }: {
+  connection: NamedConnection; language: Language; connected: boolean; onRefresh: () => void; expanded?: boolean;
+}) {
+  const t = sessionMessages[language];
+  return <><details className="connection-evidence" open={expanded}><summary><span>{connection.name}</span><span>{connectionDiagnosticMessages[language].historicalProbe}</span><span className="task-state">{Object.hasOwn(t, connection.probe_state) ? t[connection.probe_state as keyof typeof t] : `${t.unknown}: ${connection.probe_state}`}</span></summary><dl><dt>{t.provider}</dt><dd>{connection.provider}</dd><dt>{t.executable}</dt><dd>{connection.executable}</dd><dt>{t.digest}</dt><dd>{connection.executable_sha256}</dd><dt>{t.version}</dt><dd>{connection.version_evidence?.version_line ?? t.unknown}</dd><dt>{t.probeState}</dt><dd>{connection.probe_state}</dd><dt>{t.source}</dt><dd>{connection.version_evidence ? `${connection.version_evidence.source} · ${new Date(connection.version_evidence.observed_at_unix_ms).toISOString()}` : t.unknown}</dd><dt>{t.host}</dt><dd>{connection.host_id}</dd><dt>{t.environment}</dt><dd>{connection.environment_id}</dd><dt>{t.configOwner}</dt><dd>{connection.config_status}</dd><dt>{t.identity}</dt><dd>{connection.identity_ref} ({connection.identity_status})</dd></dl>
+      <p className="hint">{t.probeOnly}</p></details>
+    <ConnectionDiagnostics connection={connection} language={language} connected={connected} onRefresh={onRefresh} />
+  </>;
 }

@@ -18,7 +18,7 @@ export function ContextDialog({ title, closeLabel, onClose, children, wide = fal
       if (event.key !== 'Tab') return;
       const controls = Array.from(root.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, [tabindex="0"]') ?? []).filter(element => {
         const closed = element.closest('details:not([open])');
-        return !element.closest('[hidden], [aria-hidden="true"]') && (!closed || (element.tagName === 'SUMMARY' && element.parentElement === closed)) && element.getAttribute('type') !== 'hidden';
+        return element.getAttribute('tabindex') !== '-1' && !element.closest('[hidden], [aria-hidden="true"]') && (!closed || (element.tagName === 'SUMMARY' && element.parentElement === closed)) && element.getAttribute('type') !== 'hidden';
       });
       if (!controls.length) { event.preventDefault(); root.current?.focus(); return; }
       const first = controls[0], last = controls[controls.length - 1];

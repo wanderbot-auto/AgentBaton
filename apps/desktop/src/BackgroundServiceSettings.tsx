@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Language } from './i18n';
 import { actionableBackgroundReceipt, backgroundServiceSession, type BackgroundOperation, type BackgroundReceipt } from './background-login-api';
 import { backgroundServiceMessages } from './background-login-i18n';
+import { managementMessages } from './management-i18n';
 
 type Copy = typeof backgroundServiceMessages.en | typeof backgroundServiceMessages.zh;
 function receiptMessage(receipt: BackgroundReceipt, copy: Copy): string | null {
@@ -22,13 +23,16 @@ function receiptMessage(receipt: BackgroundReceipt, copy: Copy): string | null {
   }
 }
 
-function BackgroundServicePanel({ language }: { language: Language }) {
+function BackgroundServicePanel({ language, embedded = false }: { language: Language; embedded?: boolean }) {
   const copy = backgroundServiceMessages[language];
   const session = useSyncExternalStore(backgroundServiceSession.subscribe, backgroundServiceSession.getSnapshot);
   const context = useRef<symbol | null>(null);
   const [observation, setObservation] = useState<{ receipt: BackgroundReceipt; generation: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const mounted = useRef(false);
+  const switchRef = useRef<HTMLButtonElement>(null);
+  const refreshRef = useRef<HTMLButtonElement>(null);
+  const [switchBeforeRequest, setSwitchBeforeRequest] = useState<boolean | null>(null);
   const request = async (operation: BackgroundOperation, owner: symbol) => {
     setObservation(null); setFailed(false);
     try {
@@ -62,6 +66,37 @@ function BackgroundServicePanel({ language }: { language: Language }) {
   const message = receipt ? receiptMessage(receipt, copy) : failed ? copy.transport : null;
   const operation = receipt?.login_registration === 'enabled_next_login' ? 'disable' : 'enable';
   const perform = (next: BackgroundOperation) => { const owner = context.current; if (owner !== null) void request(next, owner); };
+  const awaitingSwitchReceipt = switchBeforeRequest !== null && !observation && !failed;
+  const switchState = actionable ? operation === 'disable' : awaitingSwitchReceipt ? switchBeforeRequest : null;
+  useEffect(() => {
+    if (session.pending !== null || switchBeforeRequest === null || (!observation && !failed)) return;
+    setSwitchBeforeRequest(null);
+    const target = switchRef.current ?? refreshRef.current;
+    if (document.activeElement === document.body && target && !target.closest('[hidden]')) target.focus();
+  }, [session.pending, observation, failed, switchBeforeRequest]);
+  if (embedded) return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
+    <div className="management-setting">
+      <div><h3>{copy.registration}</h3><p className="hint">{managementMessages[language].loginHelp}</p></div>
+      {switchState !== null && <button ref={switchRef} type="button" className="management-switch" role="switch" aria-label={copy.registration}
+        aria-checked={switchState} aria-disabled={!actionable || session.pending !== null} onClick={() => {
+          if (!actionable || session.pending !== null) return;
+          setSwitchBeforeRequest(operation === 'disable');
+          perform(operation);
+        }}>
+        <span aria-hidden="true" />
+      </button>}
+    </div>
+    <div className="management-setting-extra">
+      <p role="status">{session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}</p>
+      {message && <p role="alert">{message}</p>}
+      {session.needsRefresh && <p>{copy.refreshFirst}</p>}
+      {!actionable && <button ref={refreshRef} type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>}
+      <details className="management-disclosure"><summary>{copy.confirmation}</summary>
+        <p>{copy.help}</p><p>{copy.boundary}</p><p>{copy.observation}</p>
+        {actionable && <button type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>}
+      </details>
+    </div>
+  </section>;
   return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
     <p>{copy.help}</p>
     <p role="status">{session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}</p>
@@ -79,8 +114,9 @@ function BackgroundServicePanel({ language }: { language: Language }) {
   </section>;
 }
 
-export function BackgroundServiceSettings({ language }: { language: Language }) {
+export function BackgroundServiceSettings({ language, embedded = false }: { language: Language; embedded?: boolean }) {
   const [expanded, setExpanded] = useState(false);
+  if (embedded) return <BackgroundServicePanel language={language} embedded />;
   return <details className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
     <summary>{backgroundServiceMessages[language].title}</summary>
     {expanded && <BackgroundServicePanel language={language} />}

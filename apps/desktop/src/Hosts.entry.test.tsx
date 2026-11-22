@@ -47,9 +47,9 @@ beforeEach(() => {
 function showHosts() {
   fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
   const dialog = screen.getByRole('dialog', { name: 'Settings' });
-  const detail = within(dialog).getByText(en.title, { selector: 'summary' }).closest('details')!;
-  detail.open = true;
-  fireEvent(detail, new Event('toggle'));
+  fireEvent.click(within(dialog).getByRole('tab', { name: en.title }));
+  const summary = within(dialog).getByText(en.register, { selector: 'summary' });
+  fireEvent.click(summary);
   return dialog;
 }
 
@@ -96,17 +96,19 @@ it('retains the original in-flight Host request when Settings closes before rese
   expect(native).not.toHaveBeenCalled();
   await user.click(screen.getByRole('button', { name: 'Settings' }));
   const dialog = screen.getByRole('dialog', { name: 'Settings' });
-  await user.tab({ shift: true });
-  expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toHaveFocus();
-  await user.tab({ shift: true });
-  expect(within(dialog).getByText('Connection evidence', { selector: 'summary' })).toHaveFocus();
-  await user.tab({ shift: true });
-  const hostSummary = within(dialog).getByText(en.title, { selector: 'summary' });
-  expect(hostSummary).toHaveFocus();
-  await user.click(hostSummary);
-  expect(within(dialog).getByRole('region', { name: 'Recover connection creations' })).toBeVisible();
-  expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toBeVisible();
-  expect(within(dialog).getByText('Appearance')).toBeVisible();
+  await user.tab();
+  expect(within(dialog).getByRole('tab', { name: 'General' })).toHaveFocus();
+  await user.keyboard('{ArrowRight}');
+  expect(within(dialog).getByRole('tab', { name: 'Background and login' })).toHaveFocus();
+  await user.keyboard('{ArrowRight}');
+  expect(within(dialog).getByRole('tab', { name: en.title })).toHaveFocus();
+  expect(within(dialog).getByRole('tabpanel', { name: en.title })).toBeVisible();
+  expect(within(dialog).queryByRole('region', { name: 'Recover connection creations' })).toBeNull();
+  expect(within(dialog).getByRole('tab', { name: 'Background and login' })).toBeVisible();
+  expect(within(dialog).queryByText('Appearance')).not.toBeVisible();
+  const register = within(dialog).getByText(en.register, { selector: 'summary' });
+  expect(register.closest('details')).not.toHaveAttribute('open');
+  await user.click(register);
   const submit = await screen.findByRole('button', { name: en.register });
   await waitFor(() => expect(submit).toBeEnabled());
   fill();
