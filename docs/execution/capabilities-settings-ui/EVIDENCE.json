@@ -1,6 +1,6 @@
 {
   "base_sha": "145a5041e93f82778167de28ac8aebbc4b795cd5",
-  "tested_source_sha": "93ef96c66e5dd80bb26106bf548f9b62d556aadc",
+  "tested_source_sha": "a554ebbe82278ae68f4e85bc00f1c7e1ddd14125",
   "host": {
     "os": "macOS 26.6.1",
     "architecture": "arm64"
@@ -22,7 +22,7 @@
       "dimension": "renderer tests with mocked transport"
     },
     {
-      "command": "apps/desktop/tests/quiet-canvas-real-ipc.py --batond <existing ARM64 schema 19 daemon> --output artifacts/ui-checks/submission-browser --chromium <local pinned Chromium executable>",
+      "command": "apps/desktop/tests/quiet-canvas-real-ipc.py --batond <existing ARM64 schema 19 daemon> --output artifacts/ui-checks/delivery-browser --chromium <local pinned Chromium executable>",
       "status": "passed",
       "checks": 40,
       "screenshots": 27,
@@ -32,9 +32,9 @@
       "daemon_source": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
       "daemon_sha256": "f75eca51ec0ab4384e24a42143ac5d455e554bf5be4928428ecb24c39b976d84",
       "screenshot_sha256": {
-        "settings-categories.png": "1b9b1471f287904ca34d2d07960ff69ddab62d41f18ed4e6d3e7d8a13c8bd9db",
+        "settings-categories.png": "25ad7fd5173f356bb94ec4a3ac95188c171e08b8b7acdea53ec2b7c63d2caeca",
         "capabilities-empty.png": "0998ca81c314538dee3b872d16c1db22d1545cd54284076b0c4191dd332725fa",
-        "settings-background-760.png": "fae28359a20c730729e9787ae1467aa9e97b58f6b0aa33d1633890a01b6ff0d7"
+        "settings-background-760.png": "5fef81f0b09d465bd3429fca02bba1ab6de3110901bbde0ae0e34398f61a37e5"
       }
     },
     {
@@ -46,7 +46,7 @@
       "status": "passed"
     }
   ],
-  "local_log_sha256": "8697266acdfecaefa7356d75ad0146f3900596b57105c5af5e9639d036f52a80",
+  "local_log_sha256": "d573f0d9dc4ead5da71665d423e56500838db4c6ca3e695723b09cf759af42db",
   "independent_review": {
     "mode": "read-only native subagent review",
     "status": "passed for developer handoff"
