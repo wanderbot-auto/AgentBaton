@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Language } from './i18n';
 import { actionableBackgroundReceipt, backgroundServiceSession, type BackgroundOperation, type BackgroundReceipt } from './background-login-api';
 import { backgroundServiceMessages } from './background-login-i18n';
-import { managementMessages } from './management-i18n';
 
 type Copy = typeof backgroundServiceMessages.en | typeof backgroundServiceMessages.zh;
 function receiptMessage(receipt: BackgroundReceipt, copy: Copy): string | null {
@@ -76,7 +75,7 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
   }, [session.pending, observation, failed, switchBeforeRequest]);
   if (embedded) return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
     <div className="management-setting">
-      <div><h3>{copy.registration}</h3><p className="hint">{managementMessages[language].loginHelp}</p></div>
+      <h3>{copy.registration}</h3>
       {switchState !== null && <button ref={switchRef} type="button" className="management-switch" role="switch" aria-label={copy.registration}
         aria-checked={switchState} aria-disabled={!actionable || session.pending !== null} onClick={() => {
           if (!actionable || session.pending !== null) return;
@@ -89,7 +88,7 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
     <div className="management-setting-extra">
       <p role="status">{session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}</p>
       {message && <p role="alert">{message}</p>}
-      {session.needsRefresh && <p>{copy.refreshFirst}</p>}
+      {session.needsRefresh && !message && <p>{copy.refreshFirst}</p>}
       {!actionable && <button ref={refreshRef} type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>}
       <details className="management-disclosure"><summary>{copy.confirmation}</summary>
         <p>{copy.help}</p><p>{copy.boundary}</p><p>{copy.observation}</p>

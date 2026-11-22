@@ -23,7 +23,6 @@ export const managementMessages = {
     general: 'General', background: 'Background and login', hosts: 'Remote Hosts', recovery: 'Recovery and diagnostics',
     settingsSections: 'Settings sections', backgroundStatus: 'Local background',
     hideTitle: 'Hide window', hideHelp: 'Return from the menu bar or Dock. The background service continues to run.',
-    loginHelp: 'Start the local background service the next time you sign in to macOS.',
   },
   zh: {
     intro: '查看具名连接，以及为连接配置的 Skill 和 MCP 服务。',
@@ -48,6 +47,5 @@ export const managementMessages = {
     general: '常规', background: '后台与登录', hosts: '远程主机', recovery: '恢复与诊断',
     settingsSections: '设置分类', backgroundStatus: '本地后台',
     hideTitle: '隐藏窗口', hideHelp: '可从菜单栏或 Dock 返回，后台服务继续运行。',
-    loginHelp: '下次登录 macOS 时启动本地后台。',
   },
 } as const;

@@ -221,7 +221,7 @@
 .management-diff > div + div { border-left: 1px solid var(--line); background: var(--soft); }
 .management-diff textarea { margin-top: 5px; }
 
-.management-settings { max-width: 760px; }
+.management-settings { max-width: 760px; margin-inline: auto; }
 .management-settings > .management-tabs { flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-bottom: 15px; }
 .management-settings > .management-tabs > button { min-height: 42px; }
 .management-settings > .management-tabs > button[aria-selected=true] .icon { color: var(--accent); }
