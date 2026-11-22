@@ -1,0 +1,57 @@
+{
+  "base_sha": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+  "tested_source_sha": "93ef96c66e5dd80bb26106bf548f9b62d556aadc",
+  "host": {
+    "os": "macOS 26.6.1",
+    "architecture": "arm64"
+  },
+  "checks": [
+    {
+      "command": "bash scripts/collab.sh run -- npm --prefix apps/desktop run build",
+      "status": "passed",
+      "includes": [
+        "TypeScript typecheck",
+        "Vite production build"
+      ]
+    },
+    {
+      "command": "bash scripts/collab.sh run -- npm --prefix apps/desktop test",
+      "status": "passed",
+      "test_files": 115,
+      "tests": 1607,
+      "dimension": "renderer tests with mocked transport"
+    },
+    {
+      "command": "apps/desktop/tests/quiet-canvas-real-ipc.py --batond <existing ARM64 schema 19 daemon> --output artifacts/ui-checks/submission-browser --chromium <local pinned Chromium executable>",
+      "status": "passed",
+      "checks": 40,
+      "screenshots": 27,
+      "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider",
+      "browser_version": "149.0.7827.55",
+      "playwright_version": "1.62.0",
+      "daemon_source": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+      "daemon_sha256": "f75eca51ec0ab4384e24a42143ac5d455e554bf5be4928428ecb24c39b976d84",
+      "screenshot_sha256": {
+        "settings-categories.png": "1b9b1471f287904ca34d2d07960ff69ddab62d41f18ed4e6d3e7d8a13c8bd9db",
+        "capabilities-empty.png": "0998ca81c314538dee3b872d16c1db22d1545cd54284076b0c4191dd332725fa",
+        "settings-background-760.png": "fae28359a20c730729e9787ae1467aa9e97b58f6b0aa33d1633890a01b6ff0d7"
+      }
+    },
+    {
+      "command": "bash scripts/collab.sh scope",
+      "status": "passed"
+    },
+    {
+      "command": "bash scripts/collab.sh preview origin/main",
+      "status": "passed"
+    }
+  ],
+  "local_log_sha256": "8697266acdfecaefa7356d75ad0146f3900596b57105c5af5e9639d036f52a80",
+  "independent_review": {
+    "mode": "read-only native subagent review",
+    "status": "passed for developer handoff"
+  },
+  "native_candidate": "awaiting PR CI",
+  "real_provider_calls": "not run",
+  "system_login_registration_mutation": "not run"
+}
