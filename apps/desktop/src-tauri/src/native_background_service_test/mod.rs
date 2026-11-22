@@ -177,11 +177,25 @@ if({index}===0){{
  const language=await wait(()=>document.querySelector('.language select'));
  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(language,'en');language.dispatchEvent(new Event('change',{{bubbles:true}}));
  const settings=await wait(()=>document.querySelector('button[title="Settings"]'));settings.click();
- const summary=await wait(()=>[...document.querySelectorAll('summary')].find(e=>e.textContent==='Background and login'));summary.click();
+ const tab=await wait(()=>[...document.querySelectorAll('[role="tab"]')].find(e=>e.textContent.trim()==='Background and login'));tab.click();
 }}else{{
  const panel=await wait(()=>document.querySelector('section[aria-label="Start background work at next login"]'));
- if({direct}){{if(!find(panel,'Enable at next login')?.disabled)throw Error('Conflict UI must remain disabled');await window.__TAURI_INTERNALS__.invoke('background_service_enable');}}
- else{{const text={{status:'Refresh setting',enable:'Enable at next login',disable:'Disable at next login'}}['{action}'];const button=await wait(()=>{{const b=find(panel,text);return b&&!b.disabled?b:null;}});button.click();}}
+ const startup=()=>panel.querySelector('button[role="switch"]');
+ const actionable=b=>b&&!b.disabled&&b.getAttribute('aria-disabled')!=='true';
+ if({direct}){{
+  if(actionable(startup()))throw Error('Conflict UI must remain disabled');
+  await window.__TAURI_INTERNALS__.invoke('background_service_enable');
+ }}else if('{action}'==='status'){{
+  const button=await wait(()=>{{const b=find(panel,'Refresh setting');return actionable(b)?b:null;}});
+  const disclosure=button.closest('details');
+  if(disclosure)disclosure.open=true;
+  if(!button.getClientRects().length)throw Error('Refresh must be visible');
+  button.click();
+ }}else{{
+  const button=await wait(()=>{{const b=startup();return actionable(b)&&b.getClientRects().length?b:null;}});
+  if(button.getAttribute('aria-checked')!==String('{action}'==='disable'))throw Error('Unexpected login switch state');
+  button.click();
+ }}
 }}
 
 }}catch(error){{await window.__TAURI_INTERNALS__.invoke('native_background_service_fixture_report',{{observation:{{index:{index},seen:false}}}});}}}})()"#
@@ -190,7 +204,20 @@ if({index}===0){{
 fn observation_script(index: usize, text: &str, disabled: bool) -> String {
     let text = serde_json::to_string(text).expect("fixed observation string");
     format!(
-        r#"(async()=>{{const until=performance.now()+15000;let seen=false;while(performance.now()<until){{const p=document.querySelector('section[aria-label="Start background work at next login"]');const buttons=p?[...p.querySelectorAll('button')]:[];const action=buttons.find(b=>/^(Enable|Disable) at next login$/.test(b.textContent.trim()));if(p?.getAttribute('aria-busy')==='false'&&p.querySelector('[role="status"]')?.textContent==={text}&&action?.disabled==={disabled}){{seen=true;break;}}await new Promise(r=>setTimeout(r,25));}}await window.__TAURI_INTERNALS__.invoke('native_background_service_fixture_report',{{observation:{{index:{index},seen}}}});}})()"#
+        r#"(async()=>{{
+const until=performance.now()+15000;let seen=false;
+while(performance.now()<until){{
+ const p=document.querySelector('section[aria-label="Start background work at next login"]');
+ const action=p?.querySelector('button[role="switch"]');
+ const blocked=!action||action.disabled||action.getAttribute('aria-disabled')==='true';
+ if(p?.getAttribute('aria-busy')==='false'&&p.querySelector('[role="status"]')?.textContent==={text}
+    &&blocked==={disabled}&&(blocked||action.getAttribute('aria-checked')===String({text}==='Enabled for next login'))){{
+  seen=true;break;
+ }}
+ await new Promise(r=>setTimeout(r,25));
+}}
+await window.__TAURI_INTERNALS__.invoke('native_background_service_fixture_report',{{observation:{{index:{index},seen}}}});
+}})()"#
     )
 }
 fn poll(app: &tauri::AppHandle) -> Result<(), String> {
