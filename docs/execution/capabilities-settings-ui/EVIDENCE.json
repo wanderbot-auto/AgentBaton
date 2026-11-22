@@ -72,5 +72,45 @@
     "unchanged_native_control_dimension": "Native approvals remain separate. No real OS-login change was executed.",
     "browser_760px_screenshot_sha256": "bdb49b05dfd7f9a8963a6daadb82406bafe756997c7bf0401dedf906312f9768",
     "local_log_sha256": "3a897b5db4bd68f6c383c956a3cf4a6ff1a2ce149861e1b39bea39e385dc0302"
+  },
+  "focused_desktop": {
+    "base_sha": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+    "tested_source_sha": "95ac1888789591b87afb16dbcb94bb6a8eec5ca2",
+    "host": {
+      "os": "macOS 26.6.1",
+      "build": "25G76",
+      "architecture": "arm64"
+    },
+    "renderer": {
+      "status": "passed",
+      "files": 115,
+      "tests": 1609,
+      "build": "tsc --noEmit + Vite passed"
+    },
+    "workspace_fixture": {
+      "status": "passed",
+      "tests": 13,
+      "schema19_modal_and_schema18_predecessor_pins_verified": true
+    },
+    "real_core_browser": {
+      "status": "passed",
+      "checks": 40,
+      "screenshots": 27,
+      "daemon_sha256": "d7f0bf65637bbc6364b1aea477f66da217c49adbd85a06db9a2644fb8b8bddc1",
+      "evidence_sha256": "83a488df583f4e651da991be21f0aedc45f326089b67adb8ef44ac828d1ba185"
+    },
+    "native_dev": {
+      "status": "window verified",
+      "renderer_source": "task-local Vite through Tauri dev",
+      "observed": "Chinese task list, icon rail, draft composer and connected local background",
+      "screenshot_sha256": "4a2511f014828786f53229cb269c60cd575910d1f23f4ca0ee631c93c523d4ec"
+    },
+    "native_smoke": "Driver updated for in-settings language and icon refresh; full native smoke belongs to Product CI",
+    "review": "Independent review checked focus, scope refresh, prerequisite reload, native smoke and connection receipt feedback",
+    "outstanding": [
+      "required CI for the new candidate",
+      "real Provider integration",
+      "formal release"
+    ]
   }
 }
