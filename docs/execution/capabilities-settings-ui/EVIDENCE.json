@@ -53,5 +53,24 @@
   },
   "native_candidate": "awaiting PR CI",
   "real_provider_calls": "not run",
-  "system_login_registration_mutation": "not run"
+  "system_login_registration_mutation": "not run",
+  "inline_navigation": {
+    "tested_source_sha": "a957054e10adfb49ab158cc29975cb41350ade7a",
+    "build": "TypeScript and Vite passed",
+    "renderer_tests": 1609,
+    "quiet_canvas_real_ipc_checks": 40,
+    "data_workspace_real_ipc": {
+      "checks": 8,
+      "status": "passed"
+    },
+    "desktop_reopened": {
+      "platform": "macOS 26.6.1",
+      "architecture": "arm64",
+      "window_visibility_verified": true,
+      "daemon_schema": 19
+    },
+    "unchanged_native_control_dimension": "Native approvals remain separate. No real OS-login change was executed.",
+    "browser_760px_screenshot_sha256": "bdb49b05dfd7f9a8963a6daadb82406bafe756997c7bf0401dedf906312f9768",
+    "local_log_sha256": "3a897b5db4bd68f6c383c956a3cf4a6ff1a2ce149861e1b39bea39e385dc0302"
+  }
 }
