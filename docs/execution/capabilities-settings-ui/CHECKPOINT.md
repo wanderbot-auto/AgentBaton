@@ -17,3 +17,7 @@
 - 基线 `145a5041e93f82778167de28ac8aebbc4b795cd5`。已验证前端及原生候选 `80b932b9be1f732fc82d11877e80873abbcebdcb`。后续 `dc23d658b6135a56aefdefefddef62972c62b4a7` 只调整历史文件、执行计划和数据工作区浏览器驱动，前端制品相同。
 - 本机 `bash scripts/collab.sh run -- npm --prefix apps/desktop run build`、前端 Vitest、双引擎真实 IPC 浏览器驱动、`scripts/native-macos-smoke.sh`、原生登录烟测及数据工作区驱动通过。报告及截图在当前工作树的 `artifacts/ui-checks/mantine-final/`。
 - 集成窗口应在实际合并历史导出代码后重测项目页。远程必需检查由 PR #37 验证。
+
+## 2026-11-24 · 下拉菜单验证
+
+- 基线 `caa962d44b833e3ebe65c8c18f8b5219a8ab1d9d`。实际打包及烟测候选 `48a3177d3f08635658e02d91c398bdf6d6308d09`。Chrome 与 WebKit 各 41 项产品检查、1,611 项 Vitest、两套 Apple Silicon 原生活跃流程通过。截图及失败重试记录在 `artifacts/ui-checks/mantine-picker/`。

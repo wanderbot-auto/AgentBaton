@@ -65,8 +65,10 @@ PICKER_LAYERS = {
 
 
 def restore_mantine_picker_source(path, raw, *, error=AssertionError):
+    if type(path) is not str or type(raw) is not bytes:
+        return raw
     layer = PICKER_LAYERS.get(path)
-    if layer is None or type(raw) is not bytes:
+    if layer is None:
         return raw
     current, previous, spans = layer
     if hashlib.sha256(raw).hexdigest() != current:

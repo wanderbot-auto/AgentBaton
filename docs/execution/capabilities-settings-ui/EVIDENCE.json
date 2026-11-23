@@ -211,5 +211,52 @@
     "source_inverse_controls": "Mantine layer is reversed to the exact previous renderer and test SHA-256 before the unchanged historical inverses",
     "independent_review": "read-only review completed; CSS declarations, Factory field contracts, record layout, composer affordances, contrast and login track observations addressed",
     "local_artifacts": "artifacts/ui-checks/mantine-final"
+  },
+  "mantine_picker_followup": {
+    "base_sha": "caa962d44b833e3ebe65c8c18f8b5219a8ab1d9d",
+    "tested_source_sha": "48a3177d3f08635658e02d91c398bdf6d6308d09",
+    "environment": "macOS 26.6.1 / Apple Silicon",
+    "visible_pickers": 53,
+    "renderer_tests": {
+      "passed": 1611,
+      "files": 116
+    },
+    "build": "passed with Vite single-chunk size warning",
+    "browser_real_ipc": {
+      "chromium": {
+        "version": "149.0.7827.55",
+        "checks": 41,
+        "appearance_dropdown_background": {
+          "light": "rgb(255, 255, 255)",
+          "dark": "rgb(46, 46, 46)"
+        },
+        "popup_screenshot_sha256": "44d16af4770c958568ba13c206939be73e33f5b65ee16e8167855af33dd16b92"
+      },
+      "webkit": {
+        "version": "26.5",
+        "checks": 41,
+        "appearance_dropdown_background": {
+          "light": "rgb(255, 255, 255)",
+          "dark": "rgb(46, 46, 46)"
+        },
+        "popup_screenshot_sha256": "9cfd7d4be98d72fe228dbfc033fa547beaa5d2a5a73ab64973d1608aa9442e07"
+      }
+    },
+    "source_pin_tests": 81,
+    "bootstrap_integrity_files": 93,
+    "native_webview": {
+      "status": "passed",
+      "unit_tests": 37,
+      "expected_option_visible_and_clicked": true
+    },
+    "native_login_fixture": {
+      "status": "passed",
+      "cases": [
+        "normal",
+        "race",
+        "conflict"
+      ]
+    },
+    "artifacts": "artifacts/ui-checks/mantine-picker"
   }
 }
