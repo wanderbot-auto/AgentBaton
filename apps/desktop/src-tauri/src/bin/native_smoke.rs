@@ -1012,7 +1012,7 @@ fn verify_mac_window_frame(window: &tauri::WebviewWindow) -> Result<Value, Strin
             || bounds.size.width <= 0.0
             || bounds.origin.x < 0.0
             || bounds.origin.x + bounds.size.width > 76.0
-            || top < 0.0
+            || top < 8.0
             || top + bounds.size.height > 44.0
         {
             return Err(format!(

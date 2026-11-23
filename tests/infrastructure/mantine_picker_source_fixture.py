@@ -4,10 +4,10 @@ import hashlib
 
 PICKER_LAYERS = {
     'apps/desktop/src-tauri/src/bin/native_smoke.rs': (
-        '6eb4c78fc09b6d6aac0926f7067b6de38be9810899ae06af7d5ce3645afebd92',
+        '57cf7b9826c7884bc5c2807f670a31696210702f7317a2880cb5457802e7c6ad',
         '58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c',
         (
-            (977, 1030, 'a76e553a06c2b9c34cb321e4c48f58106150f405646d1a1a381794c116a633ca',
+            (977, 1030, 'fa2999f733175f27b92885f90dd94af4f2c9b68494002423e42ef94d5ad09235',
              b''),
             (1193, 1197, '00ef4fd713fa3825b38df8651b7ed528919f0487371514832429508f4a996137',
              b''),
