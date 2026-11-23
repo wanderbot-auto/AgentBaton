@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "baseline": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+  "baseline_ref": "origin/main",
+  "platform": "macOS arm64",
+  "audit_checks": [
+    {
+      "scope": "existing desktop component tests using mock transport",
+      "command": "npm test -- --maxWorkers=2 src/App.test.tsx src/TaskActions.test.tsx src/ManagedSessionsWorkspaceEntry.test.tsx src/GoalPlanning.navigation.test.tsx src/GoalGraphExecution.task-home.test.tsx src/GoalPlanningRun.integration.test.tsx src/TaskIntegration.test.tsx",
+      "passed": 95,
+      "failed": 0
+    },
+    {
+      "scope": "existing Core Unix IPC tests using a generated local ACP process",
+      "command_prefix": "cargo test --offline --locked -j 2 -p agentbaton-core --test sessions_ipc -- --test-threads=1",
+      "test_cases": [
+        "real_session_turns_survive_ui_requests_and_never_imply_acceptance",
+        "actual_graph_work_captures_owned_versioned_sha_without_task_acceptance",
+        "actual_goal_same_plan_two_independent_nodes_both_execute_before_awaiting_acceptance",
+        "actual_goal_two_roots_share_project_consumption_and_third_root_cannot_reset_it",
+        "lost_task_message_reply_recovers_original_turn_without_dispatching_again",
+        "actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion"
+      ],
+      "passed": 6,
+      "failed": 0
+    }
+  ],
+  "external_verification": {
+    "real_provider": "not_run",
+    "native_approval_interaction": "not_run"
+  }
+}
