@@ -258,5 +258,30 @@
       ]
     },
     "artifacts": "artifacts/ui-checks/mantine-picker"
+  },
+  "mantine_picker_fast_refresh": {
+    "base_sha": "e6c8abf88cc53ec35c99ab07605ea8dc392ef9d8",
+    "tested_source_sha": "d000a27070975f9eecc98e106a66baf827330e68",
+    "platform": "Apple Silicon macOS / active Tauri development WebView",
+    "reproduced": "language target exposed expanded state after a real mouse click; selected labels and option list were absent",
+    "fixed": "option data is derived from element props when React Fast Refresh retains pre-update option components",
+    "native_verification": {
+      "same_process_and_window": true,
+      "visible_dropdowns": [
+        "语言",
+        "外观",
+        "所属项目"
+      ],
+      "visual_artifact_sha256": {
+        "native-before.png": "4fd37b50a15ff4f901598abd40d23f851c7a8eae1d38dd75b5f247d050f7b08f",
+        "native-appearance-after.png": "608cb96b917fbefa5d27d9de53d7fc31e697052eb2855a68d501a12452e05f4d"
+      }
+    },
+    "renderer_tests": {
+      "passed": 1612,
+      "files": 116
+    },
+    "production_build": "passed",
+    "artifacts": "artifacts/ui-checks/mantine-picker-refresh"
   }
 }

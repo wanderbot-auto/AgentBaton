@@ -21,3 +21,7 @@
 ## 2026-11-24 · 下拉菜单验证
 
 - 基线 `caa962d44b833e3ebe65c8c18f8b5219a8ab1d9d`。实际打包及烟测候选 `48a3177d3f08635658e02d91c398bdf6d6308d09`。Chrome 与 WebKit 各 41 项产品检查、1,611 项 Vitest、两套 Apple Silicon 原生活跃流程通过。截图及失败重试记录在 `artifacts/ui-checks/mantine-picker/`。
+
+## 2026-11-24 · 热更新后恢复下拉选项
+
+源码候选 `d000a27070975f9eecc98e106a66baf827330e68`。生产构建及 1,612 项前端测试通过。实际开发窗口恢复语言、外观和所属项目下拉，截图和原生控件观测在 `artifacts/ui-checks/mantine-picker-refresh/`。
