@@ -103,7 +103,10 @@ import json,sys,os,time
 if '--version' in sys.argv:
  print('AgentBaton generated fixture 1.0');sys.exit(0)
 def send(v): print(json.dumps(v),flush=True)
-open('fixture-started','w').write('owned fixture')
+control=os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'task-start-control')
+controlled=os.path.isdir(control)
+marker=os.path.join(control,'fixture-started') if controlled else 'fixture-started'
+open(marker,'w').write('owned fixture')
 pending=None
 native_turn=0
 native_pending=None
@@ -141,9 +144,14 @@ for line in sys.stdin:
    options=r['params']['_meta']['claudeCode']['options']
    assert options['settingSources']==[] and options['allowDangerouslySkipPermissions'] is False and options['strictMcpConfig'] is True
    assert options['settings']['enableAllProjectMcpServers'] is False
+  if controlled:
+   open(os.path.join(control,'session-new'),'w').write('ready gate')
+   while not os.path.exists(os.path.join(control,'release-ready')):time.sleep(.005)
   send({'jsonrpc':'2.0','id':i,'result':{'sessionId':'native-fixture'}})
  elif m=='session/prompt':
   text=r['params']['prompt'][0]['text'];pending=i
+  if controlled:
+   with open(os.path.join(control,'prompts'),'a') as prompts: prompts.write(text+'\n')
   if text.startswith('{'):
    contract=json.loads(text)
    assert contract['kind']=='agentbaton_goal_task_request' and contract['schema_version']==1
@@ -370,6 +378,223 @@ fn real_session_turns_survive_ui_requests_and_never_imply_acceptance() {
     );
     assert_eq!(stopped["last_error"], Value::Null);
 }
+struct TaskStartScenario {
+    scenario: Scenario,
+    control: PathBuf,
+}
+impl TaskStartScenario {
+    fn prepare() -> Self {
+        let mut f = Scenario::new(10_000);
+        let control = f.root.join("task-start-control");
+        std::fs::create_dir(&control).unwrap();
+        let p = result(
+            f.server
+                .request(json!({"method":"workspaces.resolve","params":{
+                    "task_id":f.task["id"],"expected_task_revision":f.task["revision"],
+                    "expected_project_revision":f.project["revision"],"host_id":"local"
+                }})),
+        );
+        let w = result(f.server.request(json!({
+            "method":"workspaces.prepare_task_git","expected_revision":f.task["revision"],"idempotency_key":"prepare-own-workspace",
+            "params":{"task_id":f.task["id"],"expected_spec_revision":p["spec_revision"],"expected_project_revision":p["project_revision"],"host_id":"local",
+                "expected_source_pin":{"canonical_root":p["source"]["canonical_root"],"device":p["source"]["device"],"inode":p["source"]["inode"],"common_dir":p["source"]["kind"]["common_dir"],"head":p["source_head"]},"preparation_key":p["preparation_key"]}
+        })));
+        let new_id = &w["binding"]["receipt"]["workspace_id"];
+        let workspaces =
+            result(f.server.request(
+                json!({"method":"workspaces.list","params":{"project_id":f.project["id"]}}),
+            ));
+        f.workspace = workspaces
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|row| row["id"] == *new_id)
+            .unwrap()
+            .clone();
+        let proposal=result(f.server.request(json!({"method":"grants.propose","params":{"project_id":f.project["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"max_attempts":2,"max_concurrency":1,"max_duration_ms":10_000},"idempotency_key":"task-start-grant"})));
+        f.grant = approve(&f.server, proposal);
+        f.task = result(
+            f.server
+                .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+        );
+        Self {
+            scenario: f,
+            control,
+        }
+    }
+
+    fn request(&self, key: &str) -> Value {
+        let f = &self.scenario;
+        json!({"method":"tasks.start","params":{"task_id":f.task["id"],"workspace_id":f.workspace["id"],"connection_id":f.connection["id"],"grant_id":f.grant["id"]},"expected_revision":f.task["revision"],"idempotency_key":key})
+    }
+
+    fn allow_ready(&self) {
+        std::fs::write(self.control.join("release-ready"), "").unwrap();
+    }
+
+    fn wait_for_new_session(&self) {
+        let start = Instant::now();
+        while !self.control.join("session-new").exists() {
+            assert!(
+                start.elapsed() < Duration::from_secs(3),
+                "generated worker never entered its Ready gate"
+            );
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
+}
+
+#[test]
+fn ordinary_task_start_dispatches_exactly_once_after_ready_and_replays_receipt() {
+    use std::{io::Write, os::unix::net::UnixStream};
+
+    let fixture = TaskStartScenario::prepare();
+    let f = &fixture.scenario;
+    let request = fixture.request("start-once");
+    let mut raw = request.clone();
+    raw["api_version"] = json!(agentbaton_core::ipc::API_VERSION);
+    raw["request_id"] = json!("discard-task-start-reply");
+    raw["token"] = json!(std::fs::read_to_string(f.server.runtime.join("session.token")).unwrap());
+    let mut socket = UnixStream::connect(f.server.runtime.join("batond.sock")).unwrap();
+    serde_json::to_writer(&mut socket, &raw).unwrap();
+    socket.write_all(b"\n").unwrap();
+    socket.shutdown(std::net::Shutdown::Write).unwrap();
+    // An owned subprocess is evidence that admission committed. Deliberately
+    // discard the original acknowledgement while the process waits for Ready.
+    fixture.wait_for_new_session();
+    drop(socket);
+    let receipt = result(f.server.request(request.clone()));
+    let id = receipt["session_id"].clone();
+    assert_eq!(receipt["task_revision"], f.task["revision"]);
+    assert_eq!(receipt["spec_revision"], f.task["spec_revision"]);
+    assert!(!fixture.control.join("prompts").exists());
+    assert_eq!(result(f.server.request(request.clone())), receipt);
+    let mut mismatch = request.clone();
+    mismatch["params"]["connection_id"] = json!("another-connection");
+    assert_eq!(
+        f.server.request(mismatch)["error"]["code"],
+        "CONFIG_CONFLICT"
+    );
+    assert_eq!(
+        f.server.request(fixture.request("another-button-click"))["error"]["code"],
+        "CONFIG_CONFLICT"
+    );
+    fixture.allow_ready();
+    let completed = wait(&f.server, "sessions.get", json!({"session_id":id}), |s| {
+        s["turn_state"] == "completed"
+    });
+    assert_eq!(completed["state"], "ready");
+    assert_eq!(
+        std::fs::read_to_string(fixture.control.join("prompts")).unwrap(),
+        format!("{}\n", f.task["goal"].as_str().unwrap())
+    );
+    assert_eq!(result(f.server.request(request)), receipt);
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let count: i64 = db
+        .query_row(
+            "SELECT count(*) FROM session_turns WHERE session_id=?1",
+            [id.as_str().unwrap()],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(count, 1);
+    let private_key = format!("baton-initial-task-goal:{}", id.as_str().unwrap());
+    assert_eq!(f.server.request(json!({"method":"sessions.send","params":{"session_id":id,"text":"another goal"},"expected_revision":completed["revision"],"idempotency_key":private_key}))["error"]["code"], "AUTH_REQUIRED");
+    f.send(&completed, "follow-up", "ordinary-follow-up");
+    wait(&f.server, "sessions.get", json!({"session_id":id}), |s| {
+        s["turn_state"] == "completed"
+    });
+    assert_eq!(
+        std::fs::read_to_string(fixture.control.join("prompts")).unwrap(),
+        format!("{}\nfollow-up\n", f.task["goal"].as_str().unwrap())
+    );
+}
+
+#[test]
+fn ordinary_task_start_refuses_stale_and_revoked_admission_without_spawning() {
+    let fixture = TaskStartScenario::prepare();
+    let f = &fixture.scenario;
+    let mut stale = fixture.request("stale");
+    stale["expected_revision"] = json!(1);
+    assert_eq!(f.server.request(stale)["error"]["code"], "STALE_REVISION");
+    result(f.server.request(json!({"method":"grants.revoke","params":{"grant_id":f.grant["id"]},"expected_revision":f.grant["revision"],"idempotency_key":"revoke-start-grant"})));
+    assert_eq!(
+        f.server.request(fixture.request("revoked"))["error"]["code"],
+        "PERMISSION_DENIED"
+    );
+    assert!(!fixture.control.join("fixture-started").exists());
+    assert_eq!(
+        result(
+            f.server
+                .request(json!({"method":"sessions.list","params":{}}))
+        ),
+        json!([])
+    );
+}
+
+#[test]
+fn ordinary_task_start_cancel_before_ready_cannot_send_or_resume_after_reopen() {
+    let mut fixture = TaskStartScenario::prepare();
+    let request = fixture.request("cancel-before-ready");
+    let receipt = result(fixture.scenario.server.request(request.clone()));
+    fixture.wait_for_new_session();
+    let f = &mut fixture.scenario;
+    let task = result(
+        f.server
+            .request(json!({"method":"tasks.get","params":{"task_id":f.task["id"]}})),
+    );
+    let cancelled=result(f.server.request(json!({"method":"tasks.cancel","params":{"task_id":f.task["id"]},"expected_revision":task["revision"],"idempotency_key":"cancel-start"})));
+    assert_eq!(cancelled["state"], "cancel_requested");
+    std::fs::write(fixture.control.join("release-ready"), "").unwrap();
+    wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":receipt["session_id"]}),
+        |s| s["state"] == "stopped",
+    );
+    f.server.shutdown();
+    f.server = Server::start(&f.server.runtime);
+    assert_eq!(result(f.server.request(request)), receipt);
+    assert!(!fixture.control.join("prompts").exists());
+    let db = rusqlite::Connection::open(f.server.runtime.join("baton.sqlite3")).unwrap();
+    let count: i64 = db
+        .query_row("SELECT count(*) FROM session_turns", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(count, 0);
+}
+
+#[test]
+fn ordinary_task_start_refuses_managed_worktree_drift_before_first_goal() {
+    let fixture = TaskStartScenario::prepare();
+    let f = &fixture.scenario;
+    let request = fixture.request("drift-before-ready");
+    let receipt = result(f.server.request(request.clone()));
+    fixture.wait_for_new_session();
+    let root = PathBuf::from(f.workspace["root"].as_str().unwrap());
+    std::fs::write(root.join("file"), "changed by caller").unwrap();
+    fixture.allow_ready();
+    let stopped = wait(
+        &f.server,
+        "sessions.get",
+        json!({"session_id":receipt["session_id"]}),
+        |s| s["state"] == "stopped",
+    );
+    assert_eq!(stopped["last_error"], "initial_task_goal_blocked");
+    let events = result(
+        f.server
+            .request(json!({"method":"events.subscribe","params":{"cursor":0,"limit":500}})),
+    );
+    assert!(events["events"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e["kind"] == "session.initial_task_goal_blocked"
+            && e["aggregate_id"] == receipt["session_id"]
+            && e["payload"]["code"] == "INPUT_CHANGED"));
+    assert!(!fixture.control.join("prompts").exists());
+    assert_eq!(result(f.server.request(request)), receipt);
+}
+
 #[test]
 fn lost_task_message_reply_recovers_original_turn_without_dispatching_again() {
     use std::{io::Write, os::unix::net::UnixStream};

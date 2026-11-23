@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "baseline": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+  "baseline_ref": "origin/main",
+  "platform": "macOS arm64",
+  "audit_checks": [
+    {
+      "scope": "existing desktop component tests using mock transport",
+      "command": "npm test -- --maxWorkers=2 src/App.test.tsx src/TaskActions.test.tsx src/ManagedSessionsWorkspaceEntry.test.tsx src/GoalPlanning.navigation.test.tsx src/GoalGraphExecution.task-home.test.tsx src/GoalPlanningRun.integration.test.tsx src/TaskIntegration.test.tsx",
+      "passed": 95,
+      "failed": 0
+    },
+    {
+      "scope": "existing Core Unix IPC tests using a generated local ACP process",
+      "command_prefix": "cargo test --offline --locked -j 2 -p agentbaton-core --test sessions_ipc -- --test-threads=1",
+      "test_cases": [
+        "real_session_turns_survive_ui_requests_and_never_imply_acceptance",
+        "actual_graph_work_captures_owned_versioned_sha_without_task_acceptance",
+        "actual_goal_same_plan_two_independent_nodes_both_execute_before_awaiting_acceptance",
+        "actual_goal_two_roots_share_project_consumption_and_third_root_cannot_reset_it",
+        "lost_task_message_reply_recovers_original_turn_without_dispatching_again",
+        "actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion"
+      ],
+      "passed": 6,
+      "failed": 0
+    }
+  ],
+  "external_verification": {
+    "real_provider": "not_run",
+    "native_approval_interaction": "not_run"
+  },
+  "backend_candidate": {
+    "branch": "collab/task-start-ordinary-dispatch",
+    "source": "234b43866edbeaeaba0c4438d2c479b47b15ba16",
+    "author_evidence_at_source": "docs/execution/task-start-ordinary-dispatch/EVIDENCE.json",
+    "independent_review": "Parent reviewed Core IPC, atomic reservation, ready/lease/permission revalidation, duplicate recovery, and existing session compatibility.",
+    "independent_ipc": {
+      "command": "TMPDIR=/tmp bash scripts/collab.sh run -- cargo test --offline --locked -j 2 -p agentbaton-core --test sessions_ipc -- --test-threads=1 ordinary_task_start real_session_turns_survive_ui_requests_and_never_imply_acceptance lost_task_message_reply_recovers_original_turn_without_dispatching_again actual_graph_work_captures_owned_versioned_sha_without_task_acceptance actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion cancel_live_prompt_does_not_block_daemon_or_claim_stop_early",
+      "duration_seconds": 21.05,
+      "exit": 0,
+      "passed": 9,
+      "failed": 0,
+      "test_cases": [
+        "actual_goal_temporary_global_slot_waits_without_intents_then_executes_after_owned_completion",
+        "actual_graph_work_captures_owned_versioned_sha_without_task_acceptance",
+        "cancel_live_prompt_does_not_block_daemon_or_claim_stop_early",
+        "lost_task_message_reply_recovers_original_turn_without_dispatching_again",
+        "ordinary_task_start_cancel_before_ready_cannot_send_or_resume_after_reopen",
+        "ordinary_task_start_dispatches_exactly_once_after_ready_and_replays_receipt",
+        "ordinary_task_start_refuses_managed_worktree_drift_before_first_goal",
+        "ordinary_task_start_refuses_stale_and_revoked_admission_without_spawning",
+        "real_session_turns_survive_ui_requests_and_never_imply_acceptance"
+      ],
+      "provider": "generated_local_acp"
+    },
+    "format_and_lint": {
+      "commands_inside_collab_run": [
+        "cargo fmt --all --check",
+        "cargo clippy --offline --locked -j 2 -p agentbaton-core --test sessions_ipc -- -D warnings"
+      ],
+      "exit": 0
+    },
+    "scope": "passed",
+    "merge_previews": [
+      {
+        "target": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+        "git_conflict": false
+      },
+      {
+        "target": "48a3177d3f08635658e02d91c398bdf6d6308d09",
+        "git_conflict": false
+      }
+    ],
+    "author_initial_failure": "One existing Graph case refused approval on the first run. It passed the author rerun and independent rerun. Root cause unestablished."
+  }
+}

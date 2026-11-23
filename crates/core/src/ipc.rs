@@ -7,7 +7,7 @@ use crate::{
     CoreError, Result,
 };
 use fs2::FileExt;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
     fs::{self, File, OpenOptions},
@@ -192,7 +192,7 @@ struct SendConversation {
     conversation_id: String,
     text: String,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct CreateSession {
     task_id: String,
@@ -202,7 +202,7 @@ struct CreateSession {
     #[serde(default)]
     require_enforcement: Option<RequiredEnforcement>,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct RequiredEnforcement {
     #[serde(default)]
@@ -213,6 +213,26 @@ struct RequiredEnforcement {
     identity: bool,
     #[serde(default)]
     configuration: bool,
+}
+impl CreateSession {
+    fn verify_required_enforcement(&self, store: &Store) -> Result<()> {
+        if let Some(required) = &self.require_enforcement {
+            let grant = store.get_grant(&self.grant_id)?;
+            crate::policy::require_enforcement(
+                &grant,
+                required.filesystem,
+                required.network,
+                required.identity,
+            )?;
+            if required.configuration {
+                return Err(CoreError::new(
+                    "ENFORCEMENT_UNAVAILABLE",
+                    "Native configuration isolation has not been verified",
+                ));
+            }
+        }
+        Ok(())
+    }
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -956,6 +976,7 @@ impl Daemon {
                     | "factory_runs.start"
                     | "approvals.finalize"
                     | "sessions.create"
+                    | "tasks.start"
                     | "conversations.create"
                     | "command_validation_policies.propose"
             )
@@ -965,6 +986,10 @@ impl Daemon {
 
                 "goal_planning.start"=>{let p:crate::goal_store::GoalPlanningStartRequest=params(r.params.clone())?;match r.idempotency_key.as_deref(){Some(key)=>self.store.goal_planning_start_replay(&p,key)?.is_some(),None=>false}},
                 "conversations.create"=> match r.idempotency_key.as_deref() { Some(key) => self.store.conversation_create_replay(r.params["project_id"].as_str().unwrap_or(""),key)?, None => false },
+                "tasks.start" => {
+                    let p: CreateSession = params(r.params.clone())?;
+                    self.store.has_task_start(&p.task_id)?
+                }
                 "sessions.create"=>r.idempotency_key.as_ref().is_some_and(|key|self.store.conn.query_row("SELECT EXISTS(SELECT 1 FROM sessions WHERE task_id=?1 AND idempotency_key=?2)",rusqlite::params![r.params["task_id"].as_str().unwrap_or(""),key],|row|row.get::<_,bool>(0)).unwrap_or(false)),
                 "approvals.finalize"=>self.store.conn.query_row("SELECT result IS NOT NULL FROM approval_proposals WHERE id=?1",[r.params["proposal_id"].as_str().unwrap_or("")],|row|row.get::<_,bool>(0)).unwrap_or(false),
                 _=>false,
@@ -1351,21 +1376,7 @@ impl Daemon {
                 let p: CreateSession = params(r.params)?;
                 let key = r.idempotency_key.ok_or_else(invalid)?;
                 let revision = r.expected_revision.ok_or_else(invalid)?;
-                if let Some(required) = p.require_enforcement {
-                    let grant = self.store.get_grant(&p.grant_id)?;
-                    crate::policy::require_enforcement(
-                        &grant,
-                        required.filesystem,
-                        required.network,
-                        required.identity,
-                    )?;
-                    if required.configuration {
-                        return Err(CoreError::new(
-                            "ENFORCEMENT_UNAVAILABLE",
-                            "Native configuration isolation has not been verified",
-                        ));
-                    }
-                }
+                p.verify_required_enforcement(&self.store)?;
                 let s = self.store.create_session(
                     &p.task_id,
                     &p.workspace_id,
@@ -1736,6 +1747,28 @@ impl Daemon {
                     &p.goal,
                     &key
                 )?))
+            }
+            "tasks.start" => {
+                let p: CreateSession = params(r.params)?;
+                let revision = r.expected_revision.ok_or_else(invalid)?;
+                let key = r.idempotency_key.as_deref().ok_or_else(invalid)?;
+                let payload = crate::storage::encode(&(revision, &p))?;
+                if let Some(receipt) = self.store.task_start_replay(&p.task_id, key, &payload)? {
+                    return Ok(json!(receipt));
+                }
+                p.verify_required_enforcement(&self.store)?;
+                let receipt = self.store.reserve_task_start(
+                    (&p.task_id, &p.workspace_id, &p.connection_id, &p.grant_id, revision, key),
+                    &payload,
+                )?;
+                if self.supervisor.launch(&mut self.store, &receipt.session_id).is_err() {
+                    self.supervisor.record_local_launch_failure(&mut self.store, &receipt.session_id)
+                        .map_err(|mut error| {
+                            error.side_effect_state = "unknown".into();
+                            error
+                        })?;
+                }
+                Ok(json!(receipt))
             }
             "tasks.list" => {
                 empty(&r.params)?;
@@ -2734,6 +2767,15 @@ impl Daemon {
                         return Ok(vec![]);
                     }
                 }
+                ids.push(p.workspace_id);
+            }
+            "tasks.start" => {
+                let p: CreateSession = params(request.params)?;
+                if self.store.has_task_start(&p.task_id)? {
+                    return Ok(vec![]);
+                }
+                // Follow ordinary Session admission's workspace observation
+                // path; the Store additionally requires the Task's own Git binding.
                 ids.push(p.workspace_id);
             }
             "sessions.create" => {
