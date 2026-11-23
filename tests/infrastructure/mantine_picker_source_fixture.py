@@ -4,10 +4,14 @@ import hashlib
 
 PICKER_LAYERS = {
     'apps/desktop/src-tauri/src/bin/native_smoke.rs': (
-        '25eee6d1495ba49ea928eb6afd50bcbebbe5f324fba827b54688ed8920e464b8',
+        '6eb4c78fc09b6d6aac0926f7067b6de38be9810899ae06af7d5ce3645afebd92',
         '58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c',
         (
-            (1220, 1236, 'f5335081f5ac5110a9fd9c29a3d2464aac65ff7d8449764fcc4209e4b9a0071a',
+            (977, 1030, 'a76e553a06c2b9c34cb321e4c48f58106150f405646d1a1a381794c116a633ca',
+             b''),
+            (1193, 1197, '00ef4fd713fa3825b38df8651b7ed528919f0487371514832429508f4a996137',
+             b''),
+            (1277, 1293, 'f5335081f5ac5110a9fd9c29a3d2464aac65ff7d8449764fcc4209e4b9a0071a',
              b"  let projectSelect;\n  while(!(projectSelect=document.querySelector('.composer-project select'))||![...projectSelect.options].some(option=>option.value===fixtureProject.id)){require(Date.now()<deadline,'real project composer choice did not load');await new Promise(r=>setTimeout(r,25));}\n  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(projectSelect,fixtureProject.id);\n  projectSelect.dispatchEvent(new Event('change',{bubbles:true}));\n"),
         ),
     ),

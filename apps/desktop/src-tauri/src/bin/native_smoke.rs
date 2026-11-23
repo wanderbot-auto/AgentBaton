@@ -975,6 +975,59 @@ fn finalize_native_report(
     report["status"] = json!(if passed { "passed" } else { "failed" });
     passed
 }
+#[cfg(target_os = "macos")]
+fn verify_mac_window_frame(window: &tauri::WebviewWindow) -> Result<Value, String> {
+    use objc2_app_kit::{NSWindow, NSWindowButton, NSWindowStyleMask, NSWindowTitleVisibility};
+
+    let _main_thread =
+        objc2::MainThreadMarker::new().ok_or("Expected native window main thread")?;
+    let pointer = window.ns_window().map_err(|_| "Missing native window")?;
+    if pointer.is_null() {
+        return Err("Missing native window".into());
+    }
+    // SAFETY: Tauri owns a live NSWindow for this WebviewWindow on the main thread.
+    let native = unsafe { &*pointer.cast::<NSWindow>() };
+    let style = native.styleMask();
+    if !style.contains(NSWindowStyleMask::FullSizeContentView | NSWindowStyleMask::Titled)
+        || native.titleVisibility() != NSWindowTitleVisibility::Hidden
+        || !native.titlebarAppearsTransparent()
+    {
+        return Err("Expected the native title bar to overlay the full content view".into());
+    }
+
+    let window_height = native.frame().size.height;
+    let mut positions = Vec::new();
+    for (name, kind) in [
+        ("close", NSWindowButton::CloseButton),
+        ("minimize", NSWindowButton::MiniaturizeButton),
+        ("zoom", NSWindowButton::ZoomButton),
+    ] {
+        let button = native
+            .standardWindowButton(kind)
+            .ok_or("Missing standard window button")?;
+        let bounds = button.convertRect_toView(button.bounds(), None);
+        let top = window_height - bounds.origin.y - bounds.size.height;
+        if button.isHidden()
+            || !button.isEnabled()
+            || bounds.size.width <= 0.0
+            || bounds.origin.x < 0.0
+            || bounds.origin.x + bounds.size.width > 76.0
+            || top < 0.0
+            || top + bounds.size.height > 44.0
+        {
+            return Err(format!(
+                "Invalid native window button {name}: x={}, y={top}, width={}, height={}, hidden={}, enabled={}",
+                bounds.origin.x, bounds.size.width, bounds.size.height, button.isHidden(), button.isEnabled()
+            ));
+        }
+        positions.push(json!({
+            "button": name, "x": bounds.origin.x, "y": top,
+            "width": bounds.size.width, "height": bounds.size.height,
+        }));
+    }
+    Ok(json!({"full_size_content":true,"hidden_title":true,"native_buttons":positions}))
+}
+
 fn capture_screen(output: &Path, window: &tauri::WebviewWindow) -> &'static str {
     let _ = window;
     #[cfg(target_os = "macos")]
@@ -1138,6 +1191,10 @@ fn native_smoke_report(
             let screenshot = capture_screen(&state.output, &window);
             let committed = (|| {
                 let mut report = state.report.lock().unwrap();
+                #[cfg(target_os = "macos")]
+                {
+                    report["macos_window_frame"] = verify_mac_window_frame(&window)?;
+                }
                 let database = &report["goal_readonly_database"];
                 if database["read_only"] != true
                     || database["unchanged"] != true

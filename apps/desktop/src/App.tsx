@@ -350,7 +350,7 @@ export function App() {
     execution: c.execution, search: c.searchTasks, conversion: c.convertTitle, settings: c.settings,
   };
   const eventPager = <>{windowReplacement && <p role="status">{windowReplacement === 'bytes' ? t.windowBudget : t.windowLimit}</p>}{byteLimitedPage && <p role="status">{t.bytePageLimit}</p>}{eventPageMore && <div className="event-page-controls"><p className="hint">{t.eventPageMore}</p><Button onClick={() => void loadNextEvents()} disabled={busy || status !== 'connected'}>{t.nextEvents}</Button></div>}</>;
-  return <AppShell className="shell" navbar={{ width: { base: 50, xs: 68 }, breakpoint: 0 }} padding={0}>
+  return <AppShell className="shell" navbar={{ width: { base: 50, xs: 76 }, breakpoint: 0 }} padding={0}>
     <AppShell.Navbar component="aside" className="sidebar">
       <div className="sidebar-top">
         <Button className="new-button" aria-label={c.newTask} title={c.newTask} aria-keyshortcuts="Meta+N Control+N" onClick={newTask}><Icon name="plus" /></Button>

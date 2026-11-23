@@ -215,7 +215,7 @@ def main():
                     assert set(layout['fonts']) <= {'13px', '14px', '18px', '24px'}, layout
                     assert all(weight <= 600 for weight in layout['weights']), layout
                     if width == 1024:
-                        assert layout['sidebar'] == 68, layout
+                        assert layout['sidebar'] == 76, layout
                         assert page.get_by_role('button', name='新任务', exact=True).is_visible()
                         assert page.get_by_role('button', name='搜索', exact=True).is_visible()
                         assert page.get_by_role('button', name='设置', exact=True).is_visible()
