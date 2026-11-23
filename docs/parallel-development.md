@@ -10,7 +10,14 @@
 | 开发窗口 | 办理任务认领，在自己的 worktree 编辑、提交、验证并移交。PR 可由授权的任务窗口创建或更新；最终合并由集成窗口执行。 |
 | 子代理 | 默认只做调查、测试设计或审阅。同一任务有明确独立文件时才委派写入，给出路径、接口、基准 SHA 和结果格式，主任务暂停在这些文件上的写入；涉及另一模块的独立实现用独立工作树。子代理不接管合并。 |
 
-任务卡写清：任务 ID、负责人、基准 ref 和 SHA、预期 PR base、可写路径、共享接口负责人、依赖、验收命令、状态和 PR。私下进行时可放在该 worktree 的 `artifacts/collab/TASK.md`；要追踪跨机器进度用草稿 PR 描述。统一状态：`active → review → ready → merged`；有依赖则记 `blocked: <PR/接口/环境>`，其余任务继续。已暂停但仍可能修改的任务保留认领。
+用户直接描述要新增、修改或优化的功能。开发窗口负责把需求转成任务卡，自行确认任务 ID、基准 ref 与 SHA、可写路径、依赖和适用的验证命令。私下进行时可放在该 worktree 的 `artifacts/collab/TASK.md`。跨机器进度可记录在草稿 PR 描述中。已暂停但仍可能修改的任务保留认领。
+
+### 收到需求后
+
+1. 先只读检查相关代码、测试和现有认领。对可逆的工程选择自行决定，按用户描述和已有行为确定需要验证的场景。遇到产品取舍、授权问题或关键需求无法判断时，向用户确认具体问题。
+2. 同一个需求的试用与调整继续使用原来的已登记工作树。新任务自行取唯一 ID，默认从最新 `origin/main` 开始，用 `scripts/collab.sh new` 认领具体路径。依赖尚未合入时联系集成窗口核对上游基准。发现路径重叠时，先由集成窗口协调归属。
+3. 从仓库根目录收到任务的本地会话也可以自行登记。登记成功后核对脚本返回的绝对路径、分支和起始 SHA，后续的编辑、构建和测试都在该工作树执行。把可试用的版本和当前验证结果告诉用户，收到调整意见后继续同一个任务。
+4. 用户确认体验后运行 `scope`、`preview` 和适用的回归，向集成窗口交接基准、提交、改动范围、测试结果与未验证事项。最终合并由集成窗口执行。
 
 前端任务认领实际组件、对应测试和 i18n；Rust 任务认领具体模块及测试。公共 IPC／wire 类型、schema 编号和迁移、锁文件、顶层路由、CI、全局状态账本都需指定单一写入者。前后端同改契约时，先合兼容接口或用小的依赖 PR；前端可先针对固定契约写测试，最终用真实 IPC 验证。如果必须同改才能维持兼容，做一个纵向任务和一个 PR。语义耦合即使不在同一文件，也要写进任务依赖。共享文件遇到冲突先暂停其中一处写入、明确由谁收口，再继续旁路任务。
 
@@ -25,7 +32,7 @@ bash scripts/collab.sh new t101-task-ui origin/main apps/desktop/src/ArtifactVal
 bash scripts/collab.sh new t102-provider origin/main crates/providers
 ```
 
-`new` 会打印绝对路径。在 Codex 为每个任务单独选择该目录作为**本地**工作目录；这棵 worktree 已存在，别再叠加一次自动创建。若任务基准早于手册与脚本入主分支，仍用协作分支中脚本的绝对路径，并指示新窗口读该手册。发出第一条任务消息前，用 `git rev-parse --show-toplevel` 和 `git branch --show-current` 确认两者。不要在主 checkout 切到任务分支，也不要给同一 worktree 开两个写窗口。Codex 的 Worktree、本地执行与子代理行为见 [OpenAI 的 Worktrees 文档](https://learn.chatgpt.com/docs/environments/git-worktrees)和[子代理文档](https://learn.chatgpt.com/docs/agent-configuration/subagents)。
+`new` 会打印绝对路径。已登记的任务可以在 Codex 中用 **Local** 打开该目录，复用原工作树。新需求也可以从项目根目录的 **Local** 会话开始，由开发窗口自行登记。开工前由开发窗口用 `git rev-parse --show-toplevel` 和 `git branch --show-current` 确认目录与分支。若任务基准早于手册与脚本入主分支，使用协作分支中脚本的绝对路径。每棵工作树只分配一个写入窗口。Codex 的执行环境见 [Worktrees 文档](https://learn.chatgpt.com/docs/environments/git-worktrees)。
 
 每棵 worktree 使用自己的 `.venv`、`node_modules`、构建目录和测试证据。可共用 Cargo registry 和 npm 下载缓存；避免共用 `CARGO_TARGET_DIR`、运行时 SQLite、IPC 路径和 dev-server 端口。启动桌面测试时按 [桌面 README](../apps/desktop/README.md) 使用 task 专属的短路径（例如新建 `mktemp -d /tmp/ab-t101.XXXXXX`，按测试脚本约定设置 `BATON_RUNTIME_DIR`）；关闭自己启动的进程。并行跑针对性测试，完整 Rust/原生桌面重测试按需错峰，防止本机负载干扰时限测试。
 
@@ -70,6 +77,6 @@ bash scripts/collab.sh rebase --private
 
 已核对 main 的生效规则：Linux 与 Apple Silicon 的两个 Environment 检查必需，要求分支更新，并要求解决审查对话；PR #27 已确认实际 check 名称与 GitHub Actions 来源，并在 2026-11-15 将 `Product / Rust`、`Product / UI`、`Product / macos-15` 追加为必需，保留两个 Environment 检查、严格更新、PR 与审查对话要求、无 bypass。独立审阅仍按任务证据执行；规则不要求额外 GitHub 审批人数。当前是个人名下公开仓库，根据 [GitHub 官方的 Merge Queue 资格](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue)，目前采用单集成窗口。以后若迁到符合资格的组织且 PR 吞吐有需要，先让两份 required-check workflow 支持 `merge_group`，验证合成分支能跑完整检查，再启用队列。
 
-发送给新的任务窗口：
+给新任务窗口的一句话示例：
 
-> 在指定的本地 worktree 处理 <ID>，先核对 branch/base SHA，读 AGENTS.md 和多窗口协作手册。只改 <路径>，依赖 <PR/接口>，完成 <验收>。需要时让子代理做独立审阅；超出路径先回报集成窗口。交付时给出 head SHA、diff 范围、测试/未测项、PR base 和冲突预检结果；最终合并由集成窗口处理。
+> 把设置里的更新状态移到后台服务下面，刷新按钮保留在原面板里。
