@@ -10,18 +10,16 @@ The uploaded style reference contains internal site provenance. Only reusable vi
 
 ## Experience: a task canvas, not a dashboard
 
-- The desktop task list uses two equal columns. At 600px and below it uses one column.
-- The 48px top bar and the icon rail persist across pages. The rail is 68px wide on desktop and 50px at 600px and below. Icon controls have accessible names and tooltips.
-- Pages share a centered, 760px content column. Each route owns its page title. Child routes put one back arrow in the title row. Dedicated rail destinations open directly. Search and editing retain a return path to the source context.
-- Developer-facing copy consists of action names, field labels, observed states, errors, and facts needed for the current operation. Remove page introductions, generic action summaries, duplicate headings and placeholder controls. Put runtime evidence, policy facts and troubleshooting details beside the relevant control or in a disclosure.
+- Desktop landing page: exactly TWO equal-width columns, unlimited rows (2×N). These are actionable TASK cards, never KPI tiles. Do not expand into three/four columns on wide screens. Less than 760px may use one column.
+- One quiet 48px top bar, one lightweight 232px collapsible navigation. At 760–1179px collapse navigation to a 64px icon rail. Main canvas is centered, approximately 1056px wide including padding. At >=1700px it may grow to 1168px, still two columns.
 - Home = concise title, a single status-filter row, task cards, and one bottom goal composer. No permanent right inspector, event log wall, statistics strip, charts, long explanatory text, giant hero, decorative illustration or management-console table on the landing page.
-- The rail exposes Tasks, Capabilities, History, Quick chat, Projects & workspaces, Settings and Search. Project selection can be cleared from Projects & workspaces.
-- Task cards show the title, state, project and recorded connection when available. Artifacts and raw evidence are available from task details.
+- Keep existing navigation semantics: Space/Tasks, Capabilities and History. Project links are contextual. Quick chat remains available without replacing the task organization.
+- Card content budget: one short title, one truthful state, one latest artifact OR recent action, executing connection/agent and project, one contextual action. At most two preview lines. Details, host paths, full IDs, budgets, capabilities and timestamps beyond the latest event are secondary.
 - Flat cards with 6px radius, 1px hairline, no default shadow. Use a common template; different preview types (diff, file, handoff, approval) fit the same space. No fake completion percentage or purely decorative activity animation.
 - Card click transitions to a focused conversation/task page. Default tabs: Conversation, Artifacts, Details. Plans are folded initially. Raw observable events are collapsed, not mixed with conversation. Never display fabricated model reasoning.
-- The bottom composer contains the task goal or message, project, execution choice where applicable, and primary action. The task list creates a local draft. The conversation composer sends only to the authorized task session.
+- The bottom composer remains the common entry: goal/message, optional file reference, project, execution choice, black send control. Sending a goal creates a real draft using the existing core path; it must not falsely indicate dispatch. Follow-ups do not enlarge authorization.
 - Quick chat uses a quiet thread view. Converting to a task previews the selected summary/context and preserves authorization boundaries.
-- Capability rows open one focused page at every width. Back restores the current list, filters and row focus. A capability edit opens within the same column and preserves its return path. Configuration and observed runtime evidence retain separate status labels.
+- Capabilities is a secondary page: concise connection and Skill/MCP rows. Compatibility matrix, provenance, configuration diff and runtime evidence open on demand. Do not collapse configured/available/read/connected/invoked into one green switch.
 - Approvals open a focused dialog showing the exact recipient, selected data, operation and scope; retain the distinction between approval and actual execution. In-scope automation must not gain new confirmation steps just because this UI exists.
 
 ## Visual tokens from design.md
@@ -30,26 +28,25 @@ Use shared CSS/theme tokens, not per-component approximations:
 
 | Token | Value |
 | --- | --- |
-| canvas | #F6F7F8 |
-| surface | #FDFDFE |
-| secondary surface | #F1F2F4 |
+| canvas | #FAFBFC |
+| surface | #FFFFFF |
+| secondary surface | #F4F5F7 |
 | tertiary surface | #ECEEF1 |
-| ink / primary action | #111417 |
-| ordinary body | #354052 |
-| muted / subtle | #566171 / #A4ABB6 |
-| hairline / light / strong | #DCE1E7 / #E8EAED / #C8D0DB |
-| shared space | 4 / 8 / 12 / 16 / 24 / 32 / 40 / 48 px |
+| ink / primary action | #0A0A0B |
+| ordinary body | #4A515C (cool, never warm gray) |
+| muted / subtle | #7A828F / #A4ABB6 |
+| hairline / light / strong | #E4E7EB / #E8EAED / #CFD3D9 |
 | only brand accent | #0F766E |
 | accent hover / soft | #115E59 / #EAF8F5 |
 | focus ring | rgba(15,118,110,.14) |
 | warning / error | #B45309 / #B42318 (semantic use only) |
-| text sizes | 13px metadata, 14px body, 18px section, 24px page |
+| text sizes | 14px / 18px / 24px via tokens |
 | text weights | 400 / 500 / 600; business UI never >600 |
 | title font | Inter Tight, Inter, system sans-serif, PingFang SC |
 | body font | Inter, system sans-serif, PingFang SC |
 | technical text | JetBrains Mono, SFMono-Regular, Consolas, monospace |
-| radii | 4px buttons, 5px navigation, 6px cards and composer, 8px dialog |
-| controls | 36px desktop controls, at least 44px for narrow rail controls |
+| radii | 3–4px buttons, 5px navigation, 6px cards, 8px composer/dialog |
+| controls | 30px visual desktop height; mobile touch target >=44px |
 | icons | consistent 1.5px line icons, 16–18px |
 | feedback | 160–240ms; obey prefers-reduced-motion |
 
@@ -77,8 +74,8 @@ Port the structure and tokens to the existing React/Tauri components; do not emb
 ## Acceptance checks
 
 - At 1488×981 and 1440×900, default is two columns, no permanent right inspector, no KPI strip, no raw event dump. Scrolling may reveal additional rows; composer does not cover the last accessible card.
-- At 1024×768, two columns with the icon rail; at 390×844, one-column fallback, no page-level horizontal overflow. Do not hide critical permission/state information solely to fit width.
-- Tokens match the table; computed page and metadata font sizes use 13/14/18/24 and weights <=600. No network font dependency or bundled restricted font assets.
+- At 1024×768, two columns with collapsed navigation; at 390×844, one-column fallback, no page-level horizontal overflow. Do not hide critical permission/state information solely to fit width.
+- Tokens match the table; computed business font sizes are only 14/18/24 and weights <=600. No network font dependency or bundled restricted font assets.
 - Real draft creation, task filtering/open/back, real error state, artifact preview, selective approval, quick-chat-to-task and contextual capability evidence work with their actual API contracts. No prototype data in the normal product path.
 - Keyboard focus is visible; dialogs trap/restore focus; Escape closes them; inputs and actions are labeled; status is not color-only; reduced-motion is honored. Command search uses the project's existing shortcut conventions.
 - Provide home and task screenshots from the actual implemented desktop/frontend. Browser-rendered prototype screenshots must not be presented as native-app evidence.

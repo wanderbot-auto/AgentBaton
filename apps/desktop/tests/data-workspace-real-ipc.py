@@ -859,8 +859,8 @@ def main():
 
                 def open_project(name):
                     dialog = page.get_by_role('region', name='Projects & workspaces', exact=True)
-                    if dialog.count():
-                        dialog.get_by_role('button', name='Back', exact=True).click()
+                    if dialog.is_visible():
+                        page.get_by_role('navigation', name='Main navigation').get_by_role('button', name='Tasks', exact=True).click()
                     page.get_by_role('button', name='Projects & workspaces', exact=True).click()
                     dialog.get_by_role('button', name=re.compile('^Generated data ' + re.escape(name))).click()
                     panel = dialog.get_by_test_id('data-workspaces')
