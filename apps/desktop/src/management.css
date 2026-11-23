@@ -25,7 +25,7 @@
 .management-add { justify-content: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
 .management-filters { min-width: 0; gap: 8px; }
 .management-filters > label { min-width: 0; }
-.management-filters select { height: var(--control); max-width: 190px; }
+.management-filters .mantine-Select-input { height: var(--control); max-width: 190px; }
 .management-search { position: relative; }
 .management-search input { padding-left: 32px; width: 170px; min-height: var(--control); }
 .management-search > .icon {
@@ -228,7 +228,7 @@
   .management-search { flex: 1; min-width: 0; }
   .management-search input { width: 100%; }
   .management-filters > label { max-width: 55%; }
-  .management-filters select { max-width: 100%; }
+  .management-filters .mantine-Select-input { max-width: 100%; }
   .management-grid { grid-template-columns: minmax(0, 1fr) minmax(74px, max-content) 14px; gap: var(--space-8); padding-inline: var(--space-8); }
   .management-grid > :nth-child(3) { display: none; }
   .management-diff { grid-template-columns: minmax(0, 1fr); }

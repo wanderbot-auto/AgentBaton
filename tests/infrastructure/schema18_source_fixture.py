@@ -36,6 +36,8 @@ def normalize_schema18_input(path, text, *, error=AssertionError):
     if path == 'tests/infrastructure/test_child_goal_diagnostics_v4.py':
         from tests.infrastructure.mantine_child_goal_source_fixture import restore_mantine_guard
         text = restore_mantine_guard(text, error=error)
+    from tests.infrastructure.mantine_picker_source_fixture import restore_mantine_picker_source
+    text = restore_mantine_picker_source(path, text.encode(), error=error).decode()
     return normalize_child_goal_outer_layer(path, text, error=error)
 
 
@@ -73,9 +75,7 @@ def child_planning_before_schema19(text):
     layer = LAYERS[CHILD_PLANNING_PATH]
     historical = layer['historical_followup']
     assert type(text) is str, 'Unknown driver source: Child Planning input'
-    from tests.infrastructure.host19_child_goal_source_fixture import normalize_child_goal_outer_layer
-
-    text = normalize_child_goal_outer_layer(CHILD_PLANNING_PATH, text)
+    text = normalize_schema18_input(CHILD_PLANNING_PATH, text)
     digest = hashlib.sha256(text.encode()).hexdigest()
     if digest == historical['after']:
         restore(text, historical['edits'], layer['after'], AssertionError)

@@ -1,3 +1,4 @@
+import { editField } from './test-picker';
 import { useState } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -23,7 +24,7 @@ beforeEach(()=>{
  vi.mocked(api.snapshot).mockResolvedValue({tasks:[task],sequence:1,api_version:1,database_schema_version:17});vi.mocked(api.events).mockResolvedValue({events:[event],sequence:1,next_cursor:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(api.workspacesList).mockResolvedValue([]);
  vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([connection]);
 });
-async function choose(){fireEvent.change(screen.getByLabelText('Existing task conversation'),{target:{value:session.id}});await waitFor(()=>expect(sessionApi.sessionsGet).toHaveBeenCalledWith(session.id));}
+async function choose(){editField(screen.getByLabelText('Existing task conversation'), session.id);await waitFor(()=>expect(sessionApi.sessionsGet).toHaveBeenCalledWith(session.id));}
 it('requires explicit session selection and sends exact observed revision once',async()=>{
  vi.mocked(sessionApi.sessionsSend).mockResolvedValue({...session,revision:4,state:'running'});
  render(<Harness/>);expect(sessionApi.sessionsGet).not.toHaveBeenCalled();await choose();
@@ -86,7 +87,7 @@ it('ignores a late fresh-session response after selecting another session',async
  vi.mocked(sessionApi.sessionsGet).mockImplementation(id=>id===session.id?new Promise(r=>{resolve=r;}):Promise.resolve(second));
  vi.mocked(sessionApi.sessionsSend).mockResolvedValue({...second,revision:9,state:'running'});
  render(<Harness sessions={[session,second]}/>);await choose();
- fireEvent.change(screen.getByLabelText('Existing task conversation'),{target:{value:second.id}});
+ editField(screen.getByLabelText('Existing task conversation'), second.id);
  fireEvent.change(screen.getByLabelText('Message'),{target:{value:'Message B'}});
  await waitFor(()=>expect(screen.getByRole('button',{name:'Send to existing session'})).toBeEnabled());
  await act(async()=>resolve(session));fireEvent.click(screen.getByRole('button',{name:'Send to existing session'}));

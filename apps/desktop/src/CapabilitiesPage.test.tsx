@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { editField, openPicker } from './test-picker';
+import { fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { Project } from './api';
 import { CapabilitiesPage } from './CapabilitiesPage';
@@ -57,7 +58,7 @@ it('scopes verified configured rows by recorded sessions and never labels a conf
   expect(within(detail).getByRole('button', { name: 'Configure Skill' })).toBeEnabled();
   fireEvent.keyDown(detail, { key: 'Escape' });
   expect(screen.getByRole('button', { name: /writing.*Configured/ })).toHaveFocus();
-  fireEvent.change(screen.getByRole('combobox', { name: 'Capability scope' }), { target: { value: '' } });
+  editField(screen.getByRole('combobox', { name: 'Capability scope' }), '');
   expect(await screen.findByRole('button', { name: /Unrelated Claude/ })).toBeVisible();
   expect(managedSkillsApi.preview).not.toHaveBeenCalled();
   expect(managedSkillsApi.create).not.toHaveBeenCalled();
@@ -80,7 +81,10 @@ it('hides configuration fields until a verified base is available and re-reads w
   vi.mocked(managedSkillsApi.list).mockResolvedValue({ profiles: [fixture.profile], unavailable: [] });
   fireEvent.click(screen.getByRole('button', { name: 'Back' }));
   expect(screen.getByRole('heading', { name: 'Configure Skill', level: 1 })).toHaveFocus();
-  expect(await within(panel).findByRole('option', { name: 'Approved Codex · ready' })).toBeVisible();
+  const base = within(panel).getByLabelText('Base Codex connection');
+  await waitFor(() => expect(base).toBeEnabled());
+  openPicker(base);
+  expect(await screen.findByRole('option', { name: 'Approved Codex · ready' })).toBeVisible();
   expect(managedSkillsApi.preview).not.toHaveBeenCalled();
 });
 

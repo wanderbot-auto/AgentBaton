@@ -23,6 +23,7 @@ import time
 import uuid
 from functools import partial
 from playwright.sync_api import expect, sync_playwright
+from mantine_picker import choose_picker_option, open_picker
 
 
 def main():
@@ -159,7 +160,7 @@ def main():
                 page.get_by_text('本地后台已连接', exact=True).wait_for()
                 assert page.get_by_test_id('task-card').count() == 0
                 passed('empty state contains no demonstration task')
-                page.locator('.composer-project select').select_option(fixture_project['id'])
+                choose_picker_option(page.locator('.composer-project').get_by_role('combobox'), fixture_project['id'])
                 goals = ['梳理工作区权限边界', '整理已记录的测试证据', '检查取消与恢复状态', '准备开发安装包验收清单', '检查项目配置的来源']
                 task_ids = []
                 for goal in goals:
@@ -371,7 +372,7 @@ def main():
                 passed('inline settings categories, closed evidence and opener restoration')
                 before_catalog = ipc('system.snapshot', {})['result']['sequence']
                 page.get_by_role('button', name='能力', exact=True).click()
-                page.get_by_role('combobox', name='能力范围', exact=True).select_option('')
+                choose_picker_option(page.get_by_role('combobox', name='能力范围', exact=True), '')
                 page.get_by_text('暂无连接。', exact=True).wait_for()
                 assert page.get_by_text('0 项记录', exact=True).is_visible()
                 assert page.get_by_role('button', name='添加能力', exact=True).is_enabled()
@@ -413,7 +414,7 @@ def main():
                 passed('history uses actual journal events')
                 page.set_viewport_size({'width': 760, 'height': 580})
                 page.get_by_role('button', name='能力', exact=True).click()
-                page.get_by_role('combobox', name='能力范围', exact=True).select_option('')
+                choose_picker_option(page.get_by_role('combobox', name='能力范围', exact=True), '')
                 page.get_by_text('0 项记录', exact=True).wait_for()
                 assert page.locator('.page-scroll').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
                 page.get_by_role('button', name='设置', exact=True).click()
@@ -443,14 +444,30 @@ def main():
                 surfaces = '''() => {
                     const color = (selector, prop) => getComputedStyle(document.querySelector(selector))[prop];
                     return [color('body', 'backgroundColor'), color('.appbar', 'backgroundColor'),
-                            color('[data-page="settings"] select', 'backgroundColor'),
-                            color('[data-page="settings"] select', 'color')];
+                            color('[data-page="settings"] .mantine-Select-input', 'backgroundColor'),
+                            color('[data-page="settings"] .mantine-Select-input', 'color')];
                 }'''
                 light = page.evaluate(surfaces)
-                appearance.select_option('dark')
+                assert page.locator('select').count() == 0
+                appearance.press('ArrowDown')
+                expect(appearance).to_have_attribute('aria-expanded', 'true')
+                light_dropdown = open_picker(appearance)
+                light_color = light_dropdown.evaluate("e => getComputedStyle(e.closest('.mantine-Select-dropdown')).backgroundColor")
+                appearance.press('Escape')
+                expect(appearance).to_have_attribute('aria-expanded', 'false')
+                expect(settings).to_be_visible()
+                choose_picker_option(appearance, 'dark')
                 expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
                 dark = page.evaluate(surfaces)
                 assert all(a != b for a, b in zip(light, dark)), (light, dark)
+                dark_dropdown = open_picker(appearance)
+                dark_color = dark_dropdown.evaluate("e => getComputedStyle(e.closest('.mantine-Select-dropdown')).backgroundColor")
+                assert dark_color != light_color, (light_color, dark_color)
+                dark_popup_capture = output / 'appearance-open-dark.png'
+                page.screenshot(path=dark_popup_capture)
+                report['screenshots'].append(str(dark_popup_capture))
+                appearance.press('Escape')
+                expect(settings).to_be_visible()
                 for name in ('settings-dark', 'resources-dark', 'tasks-dark', 'notifications-dark'):
                     if name == 'resources-dark':
                         page.get_by_role('button', name='能力', exact=True).click()
@@ -462,6 +479,7 @@ def main():
                         dialog = page.get_by_role('dialog')
                         expect(dialog).to_be_visible()
                         checkbox = dialog.get_by_role('checkbox')
+                        assert checkbox.evaluate("e => getComputedStyle(e).appearance") == 'none'
                         bounds = checkbox.bounding_box()
                         assert bounds and bounds['width'] >= 16 and bounds['height'] >= 16, bounds
                     capture = output / (name + '.png')
@@ -471,16 +489,16 @@ def main():
                 expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
                 page.get_by_role('button', name='设置', exact=True).click()
                 appearance = page.get_by_role('combobox', name='外观', exact=True)
-                expect(appearance).to_have_value('dark')
+                expect(appearance).to_have_attribute('data-picker-value', 'dark')
                 page.emulate_media(color_scheme='light')
-                appearance.select_option('auto')
+                choose_picker_option(appearance, 'auto')
                 expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
                 page.emulate_media(color_scheme='dark')
                 expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
-                appearance.select_option('light')
+                choose_picker_option(appearance, 'light')
                 expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
                 passed('appearance recolors shell and controls, survives reload and follows system changes',
-                       light=light, dark=dark)
+                       light=light, dark=dark, light_dropdown=light_color, dark_dropdown=dark_color)
                 assert not errors, errors
                 passed('no browser runtime errors')
                 context.close()

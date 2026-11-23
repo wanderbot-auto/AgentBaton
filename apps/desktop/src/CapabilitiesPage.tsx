@@ -1,4 +1,4 @@
-import { Button, Code, Input, Select, Title } from './ui';
+import { Button, Code, Input, Select, SelectOption, Title } from './ui';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { Project } from './api';
 import { Connections, ConnectionEvidence } from './Connections';
@@ -261,9 +261,9 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
             <Input type="search" value={query} placeholder={m.search} onChange={event => { setSelection(null); setQuery(event.target.value); }} />
           </label>
           {liveProjects.length > 0 && <label><span className="sr-only">{m.scope}</span>
-            <Select value={scope} onChange={event => { setScopeOverride(event.target.value); changeFilter(filter); }}>
-              <option value="">{m.global}</option>
-              {liveProjects.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+            <Select value={scope} onChange={selectedValue => { setScopeOverride(selectedValue); changeFilter(filter); }}>
+              <SelectOption value="">{m.global}</SelectOption>
+              {liveProjects.map(item => <SelectOption key={item.id} value={item.id}>{item.name}</SelectOption>)}
             </Select>
           </label>}
         </div>

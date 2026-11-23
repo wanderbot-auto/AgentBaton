@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Textarea } from './ui';
+import { Button, Form, Input, Select, SelectOption, Textarea } from './ui';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { api, acknowledgeTaskMessage, DaemonError, taskAllowsExecution, type Task, type JournalEvent } from './api';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
@@ -57,7 +57,7 @@ export function QuickConversation(props: Props) {
     props.onSummary(summary,session.project_id); setError('');
   }
   return <section className="quick-thread" aria-label={t.title}>
-    <label>{t.choose}<Select value={id} disabled={props.busy} onChange={event => { setId(event.target.value); setText(''); setChosen(new Map()); setIncludeGoal(false); setFresh(null); }}><option value="">{t.placeholder}</option>{sessions.filter(s => tasks.some(task => task.id === s.task_id)).map(s => <option key={s.id} value={s.id}>{connections.find(c => c.id === s.connection_id)?.name ?? s.connection_id} · {tasks.find(task => task.id === s.task_id)?.goal} · {s.id}</option>)}</Select></label>
+    <label>{t.choose}<Select value={id} disabled={props.busy} onChange={selectedValue => { setId(selectedValue); setText(''); setChosen(new Map()); setIncludeGoal(false); setFresh(null); }}><SelectOption value="">{t.placeholder}</SelectOption>{sessions.filter(s => tasks.some(task => task.id === s.task_id)).map(s => <SelectOption key={s.id} value={s.id}>{connections.find(c => c.id === s.connection_id)?.name ?? s.connection_id} · {tasks.find(task => task.id === s.task_id)?.goal} · {s.id}</SelectOption>)}</Select></label>
     {!sessions.length && <p>{t.empty}</p>}{!session && <Button type="button" disabled>{t.noSessionSend}</Button>}
     {session && <><p>{t.context}: {task?.goal}</p><p>{t.connection}: {connection?.name ?? t.missing}</p><p>{t.session}: {session.id} · {fresh?.session.id === session.id ? fresh.session.state : session.state}</p><Button type="button" disabled={!connected||props.busy||loading} onClick={() => { setTick(n=>n+1); void props.refresh(); }}>{t.refresh}</Button>
       <p className="hint">{t.window}</p>{!conversation.length && <p>{t.noMessages}</p>}<ol>{conversation.map(event => { const body = sessionEventText(event)!; const excerpt = `${event.kind === 'session.message_queued' ? t.user : t.agent}: ${body}`; return <li key={event.event_id}><label><Input type="checkbox" checked={chosen.has(event.event_id)} onChange={change => setChosen(previous => { const next = new Map(previous); if(change.target.checked)next.set(event.event_id,excerpt);else next.delete(event.event_id);return next; })} />{excerpt}</label></li>; })}</ol>

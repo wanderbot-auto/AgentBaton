@@ -1,3 +1,4 @@
+import { openPicker } from './test-picker';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -69,7 +70,7 @@ describe('Artifact integrity UI using mocked Tauri-facing transport (not native/
   });
   it('excludes running/foreign-task/foreign-project sessions and refuses traversal before invoking native approval', async () => {
     const user = userEvent.setup(), f = fixture(); const sessions = [f.session, { ...f.session, id: 'running', state: 'running' as const }, { ...f.session, id: 'other-task', task_id: 'foreign' }, { ...f.session, id: 'other-project', project_id: 'foreign' }];
-    render(<ArtifactValidation task={f.task} sessions={sessions} language="en" connected />); await openForm(user); expect(screen.getByRole('option', { name: new RegExp(f.session.id) })).toBeVisible(); for (const id of ['running', 'other-task', 'other-project']) expect(screen.queryByRole('option', { name: new RegExp(id) })).toBeNull();
+    render(<ArtifactValidation task={f.task} sessions={sessions} language="en" connected />); await openForm(user); openPicker(screen.getByRole('combobox')); expect(screen.getByRole('option', { name: new RegExp(f.session.id) })).toBeVisible(); for (const id of ['running', 'other-task', 'other-project']) expect(screen.queryByRole('option', { name: new RegExp(id) })).toBeNull();
     await user.type(screen.getByLabelText('Output paths'), '../private'); await user.click(screen.getByRole('button', { name: 'Review in native owner dialog' })); expect(await screen.findByRole('alert')).toHaveTextContent('relative paths'); expect(validationApi.policiesApprove).not.toHaveBeenCalled();
   });
   it('renders failed server evidence and malicious path text without interpreting markup or opening files', async () => {

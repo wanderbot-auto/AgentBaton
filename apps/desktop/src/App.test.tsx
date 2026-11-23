@@ -1,3 +1,4 @@
+import { choosePickerOption, editField, openPicker } from './test-picker';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -102,11 +103,12 @@ describe('Task workspace using mocked Tauri transport', () => {
     vi.mocked(api.create).mockResolvedValue({ ...task, project_id: project.id });
     render(<App />);
     await screen.findByText('Local daemon connected');
+    openPicker(screen.getByLabelText('Project'));
     const active = await screen.findByRole('option', { name: project.name });
-    expect(active).toBeEnabled();
-    await user.selectOptions(screen.getByLabelText('Project'), project.id);
-    expect(screen.getByLabelText('Project')).toHaveValue(project.id);
-    expect(screen.getByRole('option', { name: 'Archive (Archived)' })).toBeDisabled();
+    expect(active).not.toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: 'Archive (Archived)' })).toHaveAttribute('aria-disabled', 'true');
+    await choosePickerOption(user, screen.getByLabelText('Project'), project.id);
+    expect(screen.getByLabelText('Project')).toHaveAttribute('data-picker-value', project.id);
     // This case checks project binding; keyboard-by-keyboard creation remains
     // covered below. Paste the goal through the actual input/onChange path.
     const goal = screen.getByLabelText('Task goal');
@@ -163,7 +165,7 @@ describe('Task workspace using mocked Tauri transport', () => {
     render(<App />);
     expect(await screen.findByText('Unknown status: provider_extension')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Settings' }));
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'zh' } });
+    editField(screen.getByLabelText('Language'), 'zh');
     expect(screen.getByRole('navigation', { name: '主导航' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '能力' }));
     expect(screen.getByRole('heading', { name: '能力' })).toBeVisible();

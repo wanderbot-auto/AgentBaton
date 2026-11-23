@@ -1,3 +1,4 @@
+import { choosePickerOption, openPicker } from './test-picker';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,13 +25,13 @@ beforeEach(()=>{vi.resetAllMocks();vi.mocked(api.grantsList).mockResolvedValue([
 async function open(user:ReturnType<typeof userEvent.setup>){await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));await waitFor(()=>expect(screen.getByRole('button',{name:'Refresh Goal records'})).toBeEnabled());}
 const refresh=()=>screen.getByRole('button',{name:'Refresh Goal records'});
 const approve=()=>screen.getByRole('button',{name:'Review Goal scope in native dialog'});
-async function fillScope(user:ReturnType<typeof userEvent.setup>,f:ReturnType<typeof fixture>){await user.selectOptions(screen.getByLabelText('Existing root grant'),f.grant.id);fireEvent.change(screen.getByLabelText('Output relative path 1'),{target:{value:'outputs/report.txt'}});fireEvent.change(screen.getByLabelText('Owner acceptance criteria'),{target:{value:'Review report against exact outcome'}});fireEvent.change(screen.getByLabelText('Writable relative prefixes (one per line)'),{target:{value:'outputs'}});}
+async function fillScope(user:ReturnType<typeof userEvent.setup>,f:ReturnType<typeof fixture>){await choosePickerOption(user, screen.getByLabelText('Existing root grant'),f.grant.id);fireEvent.change(screen.getByLabelText('Output relative path 1'),{target:{value:'outputs/report.txt'}});fireEvent.change(screen.getByLabelText('Owner acceptance criteria'),{target:{value:'Review report against exact outcome'}});fireEvent.change(screen.getByLabelText('Writable relative prefixes (one per line)'),{target:{value:'outputs'}});}
 async function openPlan(user:ReturnType<typeof userEvent.setup>){await user.click(screen.getByText('Versioned plan proposal',{selector:'summary'}));}
 function ready(f:ReturnType<typeof fixture>,plans:GoalPlan[]=[]){vi.mocked(api.grantsList).mockResolvedValue([f.currentGrant]);vi.mocked(api.scopesList).mockResolvedValue([f.scope]);vi.mocked(api.plansList).mockResolvedValue(plans);}
 describe('Goal UI with mocked native transport; not Core9/native dialog/dispatch proof',()=>{
   it('is folded, selects only a real root grant, uses separate native Goal approval and never dispatches on approval',async()=>{
     const user=userEvent.setup(),f=fixture();vi.mocked(api.grantsList).mockResolvedValue([f.grant,{...f.grant,id:'child',parent_id:f.grant.id},{...f.grant,id:'revoked',revoked:true}]);vi.mocked(api.approve).mockResolvedValue(f.scope);
-    render(<GoalPlanning task={f.task} language="en" connected/>);expect(screen.getByTestId('goal-planning').querySelector('details')).not.toHaveAttribute('open');await open(user);expect(screen.queryByRole('option',{name:/child/})).toBeNull();expect(screen.queryByRole('option',{name:/revoked/})).toBeNull();await fillScope(user,f);
+    render(<GoalPlanning task={f.task} language="en" connected/>);expect(screen.getByTestId('goal-planning').querySelector('details')).not.toHaveAttribute('open');await open(user);openPicker(screen.getByLabelText('Existing root grant')); expect(screen.queryByRole('option',{name:/child/})).toBeNull();expect(screen.queryByRole('option',{name:/revoked/})).toBeNull();await fillScope(user,f);
     ready(f);await user.click(approve());await waitFor(()=>expect(api.approve).toHaveBeenCalledOnce());const selection=vi.mocked(api.approve).mock.calls[0][0];expect(selection.expected_task_revision).toBe(1);expect(selection.expected_grant_revision).toBe(1);expect(selection.new_max_children).toBe(3);expect(selection.new_max_depth).toBe(1);expect(selection.root_budget.tokens).toBeNull();expect(api.propose).not.toHaveBeenCalled();expect(api.preview).not.toHaveBeenCalled();expect(await screen.findByText('Goal scope approved; planning only',{selector:'p'})).toBeVisible();
   });
   it('stores exact raw plan, revises with explicit next CAS and preserves readonly history',async()=>{
@@ -116,7 +117,8 @@ describe('Goal UI with mocked native transport; not Core9/native dialog/dispatch
   it('preserves unresolved approval and its exact key when navigation reopens the mounted panel',async()=>{
     const user=userEvent.setup(),f=fixture();vi.mocked(api.grantsList).mockResolvedValue([f.grant]);vi.mocked(api.approve).mockRejectedValueOnce(new Error('Lost approval response'));
     const view=render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'first'}}/>);
-    await screen.findByRole('option',{name:new RegExp(f.grant.id)});await fillScope(user,f);await user.click(approve());await screen.findByRole('alert');const original=vi.mocked(api.approve).mock.calls[0];
+    await waitFor(() => expect(screen.getByLabelText('Existing root grant')).toHaveAttribute('data-picker-count', '2'));
+    openPicker(screen.getByLabelText('Existing root grant')); await screen.findByRole('option',{name:new RegExp(f.grant.id)});await fillScope(user,f);await user.click(approve());await screen.findByRole('alert');const original=vi.mocked(api.approve).mock.calls[0];
     await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));view.rerender(<GoalPlanning task={f.task} language="en" connected navigation={{target:'execution',requestId:'again'}}/>);
     await waitFor(()=>expect(screen.getByRole('alert')).toBeVisible());expect(api.approve).toHaveBeenCalledTimes(1);expect(screen.getByLabelText('Owner acceptance criteria')).toHaveValue('Review report against exact outcome');expect(vi.mocked(api.approve).mock.calls[0]).toEqual(original);expect(api.propose).not.toHaveBeenCalled();expect(api.revise).not.toHaveBeenCalled();expect(api.revoke).not.toHaveBeenCalled();
   });

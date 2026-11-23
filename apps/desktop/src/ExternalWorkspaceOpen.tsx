@@ -1,4 +1,4 @@
-import { Button, Select, Title } from './ui';
+import { Button, Select, SelectOption, Title } from './ui';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { Task } from './api';
 import type { Language } from './i18n';
@@ -77,11 +77,11 @@ export function ExternalWorkspaceOpen(props: Props) {
     {unknown && !busy && <p role={props.open ? 'status' : undefined}>{t.unknown}</p>}
     {capacity && <p>{t.capacity}</p>}
     {failed && <p role={props.open ? 'alert' : undefined}>{t.readFailed}</p>}
-    <label>{t.target}<Select aria-label={t.target} value={selected} disabled={disabled} onChange={event => {
+    <label>{t.target}<Select aria-label={t.target} value={selected} disabled={disabled} onChange={selectedValue => {
       if (busy || writing.current || loading) return;
-      ++epoch.current; setSelected(event.target.value); setResult(null);
-    }}><option value="">{t.target}</option>{choices.map(choice => <option key={JSON.stringify(choice.selection)} value={JSON.stringify(choice.selection)}>{t[choice.label]} · {choice.recordedPath}</option>)}</Select></label>
-    <p>{t.recorded}</p><label>{t.terminal}<Select aria-label={t.terminal} value="macos_terminal" disabled><option value="macos_terminal">{t.terminalName}</option></Select></label>
+      ++epoch.current; setSelected(selectedValue); setResult(null);
+    }}><SelectOption value="">{t.target}</SelectOption>{choices.map(choice => <SelectOption key={JSON.stringify(choice.selection)} value={JSON.stringify(choice.selection)}>{t[choice.label]} · {choice.recordedPath}</SelectOption>)}</Select></label>
+    <p>{t.recorded}</p><label>{t.terminal}<Select aria-label={t.terminal} value="macos_terminal" disabled><SelectOption value="macos_terminal">{t.terminalName}</SelectOption></Select></label>
     <Button type="button" disabled={disabled || !selected || unknown && !retryChecked} onClick={() => void openDirectory()}>{t.open}</Button>
     {result && <p role={props.open ? result.status === 'refused' ? 'alert' : 'status' : undefined}>{result.status === 'handoff_accepted' ? t.accepted : result.status === 'refused' ? t.refused : t.unknown} {result.code !== 'accepted' && t[result.code]}</p>}
   </section>;

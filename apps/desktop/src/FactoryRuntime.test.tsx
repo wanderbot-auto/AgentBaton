@@ -1,3 +1,4 @@
+import { choosePickerOption } from './test-picker';
 import { act,fireEvent,render,screen,waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach,describe,it,expect,vi } from 'vitest';
@@ -15,7 +16,7 @@ const t=factoryMessages.en;type Fixture=ReturnType<typeof factoryFixture>;
 function setup(f:Fixture,scopes:FactoryScope[]=[],detail:FactoryRunDetails|null=null){vi.mocked(sessionApi.grantsList).mockResolvedValue([f.grant]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([f.connection]);vi.mocked(api.workspacesList).mockResolvedValue([f.workspace]);vi.mocked(factoryApi.list).mockResolvedValue(scopes);vi.mocked(factoryApi.run).mockImplementation(async()=>{if(!detail)throw new DaemonError('NOT_FOUND','No run','not_started');return detail;});}
 const props=(f:Fixture)=>({task:f.task,language:'en' as const,connected:true});
 async function open(user:ReturnType<typeof userEvent.setup>){await user.click(screen.getByRole('heading',{name:t.title}));await waitFor(()=>expect(screen.getByRole('button',{name:t.refresh})).toBeEnabled());}
-async function select(user:ReturnType<typeof userEvent.setup>,f:Fixture){await user.selectOptions(screen.getByLabelText(t.selectGrant),f.grant.id);await user.selectOptions(screen.getByLabelText(t.connections),f.connection.id);await user.selectOptions(screen.getByLabelText(t.workspaces),f.workspace.id);fireEvent.change(screen.getByLabelText(t.inputs),{target:{value:f.form.inputs}});fireEvent.change(screen.getByLabelText(t.outputs),{target:{value:f.form.outputs}});}
+async function select(user:ReturnType<typeof userEvent.setup>,f:Fixture){await choosePickerOption(user, screen.getByRole('combobox', { name: t.selectGrant }),f.grant.id);await choosePickerOption(user, screen.getByRole('combobox', { name: t.connections }),f.connection.id);await choosePickerOption(user, screen.getByRole('combobox', { name: t.workspaces }),f.workspace.id);fireEvent.change(screen.getByLabelText(t.inputs),{target:{value:f.form.inputs}});fireEvent.change(screen.getByLabelText(t.outputs),{target:{value:f.form.outputs}});}
 beforeEach(()=>{vi.resetAllMocks();});
 describe('Factory details UI, mocked transport only',()=>{
  it('is folded and makes no Factory/read setup requests before expansion',async()=>{const f=factoryFixture(),user=userEvent.setup();setup(f);render(<FactoryRuntime {...props(f)}/>);expect(factoryApi.list).not.toHaveBeenCalled();expect(sessionApi.grantsList).not.toHaveBeenCalled();await open(user);expect(factoryApi.list).toHaveBeenCalledOnce();expect(factoryApi.approve).not.toHaveBeenCalled();expect(factoryApi.start).not.toHaveBeenCalled();});

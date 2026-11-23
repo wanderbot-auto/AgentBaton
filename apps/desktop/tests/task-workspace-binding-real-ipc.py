@@ -56,6 +56,28 @@ tasks validation_policies validation_runs workspace_leases'''.split())
 READS = {'system_snapshot': 'system.snapshot', 'projects_list': 'projects.list',
          'connections_list': 'connections.list', 'sessions_list': 'sessions.list'}
 
+def choose_picker_option(control, value):
+    import runpy
+    helper = Path(__file__).with_name('mantine_picker.py')
+    if hashlib.sha256(helper.read_bytes()).hexdigest() != '3fd49076770fbac883d781a5a9bb51a28975921a242086251c858d5206afc1ab':
+        raise AssertionError('Unknown picker driver source')
+    runpy.run_path(str(helper))['choose_picker_option'](control, value)
+
+
+def assert_placeholder_only(control):
+    import runpy
+    helper = Path(__file__).with_name('mantine_picker.py')
+    if hashlib.sha256(helper.read_bytes()).hexdigest() != '3fd49076770fbac883d781a5a9bb51a28975921a242086251c858d5206afc1ab':
+        raise AssertionError('Unknown picker driver source')
+    if control.is_disabled():
+        expect(control).to_have_attribute('data-picker-count', '1')
+        expect(control).to_have_attribute('aria-expanded', 'false')
+        return
+    popup = runpy.run_path(str(helper))['open_picker'](control)
+    expect(popup.get_by_role('option')).to_have_count(1)
+    expect(popup.get_by_role('option')).to_have_attribute('value', ':')
+    control.press('Escape')
+
 
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
@@ -920,16 +942,16 @@ def run(args, binary, frontend, attribution, output):
             proof = wait(lambda: confirmed_dialog_task_read(report['http'], start, current_task), lambda value: value is not None)
             workspace_id = current_task['code_workspace_binding']['receipt']['workspace_id']
             require(workspace_id != other_workspace and proof['workspace_id'] == workspace_id)
-            expect(dialog.locator('#session-task')).to_have_value(current_task['id'])
-            expect(dialog.locator('#session-project')).to_have_value(project['id'])
-            expect(dialog.locator('#session-workspace')).to_have_value(workspace_id)
+            expect(dialog.locator('#session-task')).to_have_attribute('data-picker-value', current_task['id'])
+            expect(dialog.locator('#session-project')).to_have_attribute('data-picker-value', project['id'])
+            expect(dialog.locator('#session-workspace')).to_have_attribute('data-picker-value', workspace_id)
             expect(dialog.locator('#session-workspace')).to_be_disabled()
             expect(dialog.get_by_text('The task’s stored binding locates this workspace.', exact=False)).to_be_visible()
             expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core’s current admission checks still apply.', exact=False)).to_be_visible()
-            expect(dialog.locator('#session-connection')).to_have_value('')
-            expect(dialog.locator('#session-connection option')).to_have_count(1)
-            expect(dialog.locator('#session-grant')).to_have_value('')
-            expect(dialog.locator('#session-grant option')).to_have_count(1)
+            expect(dialog.locator('#session-connection')).to_have_attribute('data-picker-value', '')
+            assert_placeholder_only(dialog.locator('#session-connection'))
+            expect(dialog.locator('#session-grant')).to_have_attribute('data-picker-value', '')
+            assert_placeholder_only(dialog.locator('#session-grant'))
             expect(dialog.get_by_role('button', name='Create bounded execution grant', exact=True)).to_be_disabled()
             expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()
             expect(dialog.get_by_role('alert')).to_have_count(0)
@@ -944,10 +966,10 @@ def run(args, binary, frontend, attribution, output):
         # Switch the real Task selector in this same mounted dialog; do not
         # preserve Task2's workspace for Task1 or authorize either recipient.
         read_start = len(report['http'])
-        dialog.locator('#session-task').select_option(tasks[0]['id'])
+        choose_picker_option(dialog.locator('#session-task'), tasks[0]['id'])
         verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])
         read_start = len(report['http'])
-        dialog.locator('#session-task').select_option(tasks[1]['id'])
+        choose_picker_option(dialog.locator('#session-task'), tasks[1]['id'])
         verify_dialog(dialog, read_start, t2_after, b1['receipt']['workspace_id'])
         dialog.get_by_role('button', name='Back', exact=True).click()
         expect(dialog).to_have_count(0)
@@ -957,7 +979,7 @@ def run(args, binary, frontend, attribution, output):
         dialog, read_start = open_execution()
         verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])
         page.set_viewport_size({'width': 390, 'height': 844})
-        expect(dialog.locator('#session-workspace')).to_have_value(b1['receipt']['workspace_id'])
+        expect(dialog.locator('#session-workspace')).to_have_attribute('data-picker-value', b1['receipt']['workspace_id'])
         dialog.locator('#session-workspace').scroll_into_view_if_needed()
         shot('06-task1-bound-execution-mobile', dialog)
         dialog.get_by_role('button', name='Back', exact=True).click()
@@ -1054,7 +1076,7 @@ def run(args, binary, frontend, attribution, output):
         fresh_proof = wait(lambda: confirmed_dialog_task_read(report['http'], recovery_start, third_ready), lambda v: v is not None)
         scope_proof = wait(lambda: confirmed_dialog_scope_reads(report['http'], recovery_start, project['id'], b3['receipt']['workspace_id']), lambda v: v is not None)
         expect(dialog.get_by_test_id('session-task-workspace-entry')).to_have_count(0)
-        expect(dialog.locator('#session-workspace')).to_have_value(b3['receipt']['workspace_id'])
+        expect(dialog.locator('#session-workspace')).to_have_attribute('data-picker-value', b3['receipt']['workspace_id'])
         expect(dialog.locator('#session-workspace')).to_be_disabled()
         expect(dialog.get_by_text('The task’s stored binding locates this workspace.', exact=False)).to_be_visible()
         expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core’s current admission checks still apply.', exact=False)).to_be_visible()

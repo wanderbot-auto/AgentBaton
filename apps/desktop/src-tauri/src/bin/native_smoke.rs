@@ -1218,10 +1218,22 @@ const FIRST: &str = r#"
   const projects=result(await invoke('projects_list'));
   require(Array.isArray(projects)&&projects.length===1&&projects[0].name==='Native readonly Goal project'&&!projects[0].archived,'generated registered readonly project fixture is absent');
   const fixtureProject=projects[0];
-  let projectSelect;
-  while(!(projectSelect=document.querySelector('.composer-project select'))||![...projectSelect.options].some(option=>option.value===fixtureProject.id)){require(Date.now()<deadline,'real project composer choice did not load');await new Promise(r=>setTimeout(r,25));}
-  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(projectSelect,fixtureProject.id);
-  projectSelect.dispatchEvent(new Event('change',{bubbles:true}));
+  let projectSelect, projectOption;
+  while(!projectOption){
+   require(Date.now()<deadline,'the actual Mantine project option did not load');
+   projectSelect=document.querySelector('.composer-project [role="combobox"]');
+   if(projectSelect&&!projectSelect.disabled){
+    if(projectSelect.getAttribute('aria-expanded')!=='true')projectSelect.click();
+    const list=document.getElementById(projectSelect.getAttribute('aria-controls')||'');
+    const matches=[...list?.querySelectorAll('[role="option"]')||[]].filter(option=>option.getAttribute('value')===':'+fixtureProject.id);
+    require(matches.length<=1,'duplicate project option');
+    projectOption=matches[0];
+   }
+   if(!projectOption)await new Promise(r=>setTimeout(r,25));
+  }
+  require(projectOption.getClientRects().length>0,'project option must be visible in the WebView');
+  projectOption.click();
+  require(document.querySelector('.composer-project select')===null,'unexpected native project selector');
   const goal='原生 WebView → IPC persistent task';
   const input=document.querySelector('[data-testid="goal-input"],#goal');
   const form=document.querySelector('[data-testid="goal-composer"],form.create-task');

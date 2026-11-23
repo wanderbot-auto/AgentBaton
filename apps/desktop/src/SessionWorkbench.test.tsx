@@ -1,3 +1,4 @@
+import { choosePickerOption, openPicker } from './test-picker';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -54,16 +55,20 @@ describe('Named connection and managed-session UI using mocked transport', () =>
     expect(screen.getByRole('button', { name: 'Create bounded execution grant' })).toBeDisabled();
     expect(sessionApi.grantsCreate).not.toHaveBeenCalled();
     await act(async () => { finishScope([workspace]); });
-    expect(screen.getByRole('option', { name: '/managed/workspace (ready)' })).toBeVisible();
+    await waitFor(() => expect(screen.getByLabelText('Managed workspace')).toBeEnabled());
+    openPicker(screen.getByLabelText('Managed workspace'));
+    expect(await screen.findByRole('option', { name: '/managed/workspace (ready)' })).toBeVisible();
   });
 
   it('rejects execution durations beyond the core one-hour limit and submits the exact accepted boundary', async () => {
     const user = userEvent.setup();
     vi.mocked(sessionApi.grantsCreate).mockResolvedValue({ ...grant, expires_at_ms: Date.now() + 3_600_000, scope: { ...grant.scope, max_duration_ms: 3_600_000 } });
     await showSessions();
+    await waitFor(() => expect(screen.getByLabelText('Managed workspace')).toBeEnabled());
+    openPicker(screen.getByLabelText('Managed workspace'));
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
-    await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
-    await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
+    await choosePickerOption(user, screen.getByLabelText('Managed workspace'), workspace.id);
+    await choosePickerOption(user, screen.getByLabelText('Named connection'), connection.id);
     const duration = screen.getByLabelText('Execution duration limit (seconds)');
     expect(duration).toHaveAttribute('max', '3600');
     await user.clear(duration); await user.type(duration, '3601');
@@ -110,7 +115,7 @@ describe('Named connection and managed-session UI using mocked transport', () =>
     await user.type(screen.getByLabelText('Connection name'), 'Chosen native engine');
     await user.type(screen.getByLabelText('Canonical executable path'), '/selected/native');
     await user.type(screen.getByLabelText('Launch arguments (one per line)'), '--custom-fixture-only');
-    await user.selectOptions(screen.getByLabelText('Protocol route'), 'codex');
+    await choosePickerOption(user, screen.getByLabelText('Protocol route'), 'codex');
     expect(screen.getByLabelText('Launch arguments (one per line)')).toBeDisabled();
     expect(screen.getByLabelText('Launch arguments (one per line)')).toHaveValue('');
     await user.click(screen.getByRole('button', { name: 'Register and run version probe' }));
@@ -120,9 +125,11 @@ describe('Named connection and managed-session UI using mocked transport', () =>
     const user = userEvent.setup();
     vi.mocked(sessionApi.grantsCreate).mockResolvedValue(grant);
     await showSessions();
+    await waitFor(() => expect(screen.getByLabelText('Managed workspace')).toBeEnabled());
+    openPicker(screen.getByLabelText('Managed workspace'));
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
-    await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
-    await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
+    await choosePickerOption(user, screen.getByLabelText('Managed workspace'), workspace.id);
+    await choosePickerOption(user, screen.getByLabelText('Named connection'), connection.id);
     expect(screen.getByRole('button', { name: 'Create bounded execution grant' })).toBeDisabled();
     expect(screen.getByText(/Selected local agent · custom_acp · identity-unverified/)).toBeVisible();
     expect(screen.getAllByText(/do not enforce an operating system or network sandbox/).length).toBeGreaterThan(0);
@@ -134,11 +141,13 @@ describe('Named connection and managed-session UI using mocked transport', () =>
     const user = userEvent.setup();
     vi.mocked(sessionApi.sessionsCreate).mockResolvedValue({ ...session, state: 'starting', revision: 1 });
     await showSessions();
+    await waitFor(() => expect(screen.getByLabelText('Managed workspace')).toBeEnabled());
+    openPicker(screen.getByLabelText('Managed workspace'));
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
-    await user.selectOptions(screen.getByLabelText('Task binding'), task.id);
-    await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
-    await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
-    await user.selectOptions(screen.getByLabelText('Execution grant'), grant.id);
+    await choosePickerOption(user, screen.getByLabelText('Task binding'), task.id);
+    await choosePickerOption(user, screen.getByLabelText('Managed workspace'), workspace.id);
+    await choosePickerOption(user, screen.getByLabelText('Named connection'), connection.id);
+    await choosePickerOption(user, screen.getByLabelText('Execution grant'), grant.id);
     await user.click(screen.getByRole('button', { name: 'Create managed session' }));
     expect(sessionApi.sessionsCreate).toHaveBeenCalledWith(task.id, task.revision, workspace.id, connection.id, grant.id, expect.any(String));
     expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
@@ -174,9 +183,11 @@ describe('Named connection and managed-session UI using mocked transport', () =>
     const user = userEvent.setup();
     vi.mocked(sessionApi.grantsList).mockResolvedValue([{ ...grant, expires_at_ms: 1 }, { ...grant, id: 'revoked', revoked: true }, { ...grant, id: 'wrong', scope: { ...grant.scope, connection_ids: ['other'] } }]);
     await showSessions();
+    await waitFor(() => expect(screen.getByLabelText('Managed workspace')).toBeEnabled());
+    openPicker(screen.getByLabelText('Managed workspace'));
     await screen.findByRole('option', { name: '/managed/workspace (ready)' });
-    await user.selectOptions(screen.getByLabelText('Managed workspace'), workspace.id);
-    await user.selectOptions(screen.getByLabelText('Named connection'), connection.id);
+    await choosePickerOption(user, screen.getByLabelText('Managed workspace'), workspace.id);
+    await choosePickerOption(user, screen.getByLabelText('Named connection'), connection.id);
     expect(screen.getByRole('button', { name: 'Create managed session' })).toBeDisabled();
     expect(screen.queryByRole('option', { name: grant.id })).not.toBeInTheDocument();
   });

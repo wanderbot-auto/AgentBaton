@@ -2,7 +2,13 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { createElement, type ComponentType, type ReactNode } from 'react';
 import { afterEach, vi } from 'vitest';
-import { DesktopTheme } from './desktop-theme';
+import { MantineProvider, Popover } from '@mantine/core';
+import { appearance, desktopTheme } from './desktop-theme';
+
+const jsdomTheme = {
+  ...desktopTheme,
+  components: { Popover: Popover.extend({ defaultProps: { hideDetached: false } }) },
+};
 
 if (typeof window !== 'undefined' && !window.matchMedia) {
   window.matchMedia = (query: string) => ({
@@ -10,6 +16,17 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {},
     dispatchEvent: () => true,
   });
+}
+
+if (typeof window !== 'undefined') {
+  if (!window.ResizeObserver) {
+    window.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  }
+  if (!HTMLElement.prototype.scrollIntoView) HTMLElement.prototype.scrollIntoView = () => {};
 }
 
 vi.mock('@testing-library/react', async importOriginal => {
@@ -20,7 +37,10 @@ vi.mock('@testing-library/react', async importOriginal => {
       const Wrapper: ComponentType<{ children: ReactNode }> | undefined = options?.wrapper;
       return library.render(ui, {
         ...options,
-        wrapper: ({ children }) => createElement(DesktopTheme, { children: Wrapper ? createElement(Wrapper, { children }) : children }),
+        wrapper: ({ children }) => createElement(MantineProvider, {
+          theme: jsdomTheme, defaultColorScheme: 'light', colorSchemeManager: appearance,
+          children: Wrapper ? createElement(Wrapper, { children }) : children,
+        }),
       });
     },
   };

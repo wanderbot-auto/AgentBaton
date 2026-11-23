@@ -1,4 +1,4 @@
-import { Button, Form, Select, Textarea, Title } from './ui';
+import { Button, Form, Select, SelectOption, Textarea, Title } from './ui';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import type { Project, Task } from './api';
 import type { Language } from './i18n';
@@ -26,7 +26,7 @@ function ExperienceEditor({ source, goal, language }: { source: ExperienceSource
   const [view, setView] = useState<View>({ phase: 'closed' });
   const [invalid, setInvalid] = useState<'summary' | 'content'>();
   const entry = useRef<HTMLButtonElement>(null);
-  const kindSelect = useRef<HTMLSelectElement>(null);
+  const kindSelect = useRef<HTMLInputElement>(null);
   const previewHeading = useRef<HTMLHeadingElement>(null);
   const restoreEntryFocus = useRef(false);
 
@@ -73,8 +73,8 @@ function ExperienceEditor({ source, goal, language }: { source: ExperienceSource
     {draft && <Form className="connection-form" onSubmit={event => preview(event, draft, content)}>
       <label htmlFor={`${id}-kind`}>{t.kind}</label>
       <Select id={`${id}-kind`} ref={kindSelect} value={draft.kind}
-        onChange={event => update({ ...draft, kind: event.target.value as ExperienceKind })}>
-        {experienceKinds.map(kind => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}
+        onChange={selectedValue => update({ ...draft, kind: selectedValue as ExperienceKind })}>
+        {experienceKinds.map(kind => <SelectOption key={kind} value={kind}>{t.kinds[kind]}</SelectOption>)}
       </Select>
       <label htmlFor={`${id}-summary`}>{t.summary}</label>
       <Textarea id={`${id}-summary`} name="summary" rows={2} value={draft.summary}

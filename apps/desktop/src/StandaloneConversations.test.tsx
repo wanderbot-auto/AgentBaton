@@ -1,3 +1,4 @@
+import { editField, openPicker } from './test-picker';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { api, DaemonError, type Project, type ManagedWorkspace, type JournalEvent } from './api';
@@ -22,12 +23,13 @@ beforeEach(()=>{vi.resetAllMocks();vi.mocked(conversationHistoryApi.page).mockRe
 function mount(){return render(<StandaloneConversations language="en" connected onConvert={convert} uiState={state}/>);}
 async function setup(){
  fireEvent.click(screen.getByText('New independent conversation',{selector:'summary'}));
- await waitFor(()=>expect(screen.getByLabelText('Conversation project')).toBeEnabled());fireEvent.change(screen.getByLabelText('Conversation project'),{target:{value:project.id}});
- await waitFor(()=>expect(screen.getByRole('option',{name:workspace.root})).toBeInTheDocument());
- fireEvent.change(screen.getByLabelText('Managed workspace'),{target:{value:workspace.id}});fireEvent.change(screen.getByLabelText('Agent connection'),{target:{value:connection.id}});
- fireEvent.change(screen.getByLabelText('Execution grant'),{target:{value:grant.id}});fireEvent.change(screen.getByLabelText('Conversation name'),{target:{value:conversation.title}});
+ await waitFor(()=>expect(screen.getByLabelText('Conversation project')).toBeEnabled());editField(screen.getByLabelText('Conversation project'), project.id);
+ await waitFor(() => expect(screen.getByLabelText('Managed workspace')).toHaveAttribute('data-picker-count','2'));
+ openPicker(screen.getByLabelText('Managed workspace')); await screen.findByRole('option',{name:workspace.root});
+ editField(screen.getByLabelText('Managed workspace'), workspace.id);editField(screen.getByLabelText('Agent connection'), connection.id);
+ editField(screen.getByLabelText('Execution grant'), grant.id);fireEvent.change(screen.getByLabelText('Conversation name'),{target:{value:conversation.title}});
 }
-async function select(){vi.mocked(conversationApi.list).mockResolvedValue([conversation]);mount();await screen.findByRole('option',{name:'Discuss design · Ready'});fireEvent.change(screen.getByLabelText('Selected conversation'),{target:{value:conversation.id}});await screen.findByRole('heading',{name:conversation.title});}
+async function select(){vi.mocked(conversationApi.list).mockResolvedValue([conversation]);mount();openPicker(screen.getByLabelText('Selected conversation')); await screen.findByRole('option',{name:'Discuss design · Ready'});editField(screen.getByLabelText('Selected conversation'), conversation.id);await screen.findByRole('heading',{name:conversation.title});}
 it('starts a taskless conversation only after explicit scope and start action',async()=>{
  vi.mocked(conversationApi.create).mockImplementation(async()=>{const row={...conversation,state:'starting',revision:1};vi.mocked(conversationApi.list).mockResolvedValue([row]);vi.mocked(conversationApi.get).mockResolvedValue(row);return row;});
  mount();await setup();expect(conversationApi.create).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Start conversation'}));
@@ -43,7 +45,7 @@ it('retains unknown creation across unmount and only explicitly replays the exac
 });
 it('disables expired grants and non-Git workspaces',async()=>{
  vi.mocked(sessionApi.grantsList).mockResolvedValue([{...grant,expires_at_ms:0}]);vi.mocked(api.workspacesList).mockResolvedValue([{...workspace,identity:{...project.identity,kind:{kind:'directory'}}}]);
- mount();fireEvent.click(screen.getByText('New independent conversation',{selector:'summary'}));await waitFor(()=>expect(screen.getByLabelText('Conversation project')).toBeEnabled());fireEvent.change(screen.getByLabelText('Conversation project'),{target:{value:project.id}});
+ mount();fireEvent.click(screen.getByText('New independent conversation',{selector:'summary'}));await waitFor(()=>expect(screen.getByLabelText('Conversation project')).toBeEnabled());editField(screen.getByLabelText('Conversation project'), project.id);
  await screen.findByText('No ready managed Git workspace is available for this project. Prepare one in project settings.');expect(screen.getByRole('button',{name:'Start conversation'})).toBeDisabled();
 });
 it('uses native grant authorization without launching a conversation',async()=>{
@@ -64,10 +66,10 @@ it('projects cancellation as a request rather than confirmed stop',async()=>{
  await waitFor(()=>expect(conversationApi.cancel).toHaveBeenCalledWith(conversation,expect.any(String)));await screen.findByText('Stop requested');expect(screen.queryByText('Stopped')).not.toBeInTheDocument();
 });
 it('converts only chosen excerpts with fixed source project and no hidden Task creation',async()=>{
- await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));fireEvent.change(screen.getByLabelText('Selected conversation summary'),{target:{value:'Reviewed selected option'}});fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id,expect.any(HTMLButtonElement));expect(api.create).not.toHaveBeenCalled();
+ await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));editField(screen.getByLabelText('Selected conversation summary'), 'Reviewed selected option');fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id,expect.any(HTMLButtonElement));expect(api.create).not.toHaveBeenCalled();
 });
 it('rejects details that regress below the observed conversation revision',async()=>{
- vi.mocked(conversationApi.list).mockResolvedValue([conversation]);vi.mocked(conversationApi.get).mockResolvedValue({...conversation,revision:1});mount();await screen.findByRole('option',{name:'Discuss design · Ready'});fireEvent.change(screen.getByLabelText('Selected conversation'),{target:{value:conversation.id}});await screen.findByRole('alert');expect(screen.queryByRole('button',{name:'Send message'})).not.toBeInTheDocument();
+ vi.mocked(conversationApi.list).mockResolvedValue([conversation]);vi.mocked(conversationApi.get).mockResolvedValue({...conversation,revision:1});mount();openPicker(screen.getByLabelText('Selected conversation')); await screen.findByRole('option',{name:'Discuss design · Ready'});editField(screen.getByLabelText('Selected conversation'), conversation.id);await screen.findByRole('alert');expect(screen.queryByRole('button',{name:'Send message'})).not.toBeInTheDocument();
 });
 it('never sends automatically after a cancelled native grant confirmation',async()=>{
  vi.mocked(sessionApi.grantsCreate).mockRejectedValue(new DaemonError('PERMISSION_DENIED','cancelled','not_started'));mount();await setup();fireEvent.click(screen.getByText('Authorize this scope'));fireEvent.click(screen.getByLabelText('I have reviewed the connection, workspace and execution limits.'));fireEvent.click(screen.getByRole('button',{name:'Approve execution grant'}));await waitFor(()=>expect(sessionApi.grantsCreate).toHaveBeenCalledTimes(1));await waitFor(()=>expect(state.inFlight).toBe(false));expect(state.pending).toBeNull();expect(conversationApi.create).not.toHaveBeenCalled();
@@ -102,8 +104,8 @@ it('returns from conversion to the edited independent conversation summary witho
   await screen.findByText('Local daemon connected');
   fireEvent.click(screen.getByRole('button', { name: 'Quick chat' }));
   fireEvent.click(screen.getByRole('button', { name: 'New independent conversation' }));
-  await screen.findByRole('option', { name: 'Discuss design · Ready' });
-  fireEvent.change(screen.getByLabelText('Selected conversation'), { target: { value: conversation.id } });
+  openPicker(screen.getByLabelText('Selected conversation')); await screen.findByRole('option', { name: 'Discuss design · Ready' });
+  editField(screen.getByLabelText('Selected conversation'), conversation.id);
   fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));
   fireEvent.click(screen.getByRole('button', { name: 'Use selected excerpts' }));
   const summary = screen.getByLabelText('Selected conversation summary');

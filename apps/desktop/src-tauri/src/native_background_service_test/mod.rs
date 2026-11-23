@@ -175,8 +175,11 @@ const wait=async f=>{{while(performance.now()<until){{const v=f();if(v)return v;
 const find=(parent,text)=>[...parent.querySelectorAll('button')].find(b=>b.textContent.trim()===text||b.getAttribute('aria-label')===text);
 if({index}===0){{
  const settings=await wait(()=>document.querySelector('[data-testid="settings-nav"]'));settings.click();
- const language=await wait(()=>document.querySelector('[data-page="settings"] [role="tabpanel"]:not([hidden]) select'));
- Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(language,'en');language.dispatchEvent(new Event('change',{{bubbles:true}}));
+ const language=await wait(()=>document.querySelector('[data-page="settings"] [role="tabpanel"]:not([hidden]) [role="combobox"][id$="-language"]'));
+ language.click();
+ const english=await wait(()=>document.getElementById(language.getAttribute('aria-controls')||'')?.querySelector('[role="option"][value=":en"]'));
+ if(!english.getClientRects().length)throw Error('Language option must be visible');
+ english.click();
  const tab=await wait(()=>[...document.querySelectorAll('[role="tab"]')].find(e=>e.textContent.trim()==='Background and login'));tab.click();
 }}else{{
  const panel=await wait(()=>document.querySelector('section[aria-label="Start background work at next login"]'));

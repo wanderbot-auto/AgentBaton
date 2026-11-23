@@ -22,7 +22,8 @@ class ExactSourceInverse(unittest.TestCase):
         ):
             with self.subTest(path=path):
                 raw = (ROOT / path).read_bytes()
-                self.assertEqual(I.digest(raw), current)
+                from tests.infrastructure.mantine_picker_source_fixture import restore_mantine_picker_source
+                self.assertEqual(I.digest(restore_mantine_picker_source(path, raw)), current)
                 restored = inverse(path, raw)
                 self.assertEqual(I.digest(restored), previous)
                 self.assertEqual((ROOT / path).read_bytes(), raw)

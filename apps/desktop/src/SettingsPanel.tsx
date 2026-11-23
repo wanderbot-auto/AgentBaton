@@ -1,5 +1,5 @@
 import { Tabs, useMantineColorScheme, type MantineColorScheme } from '@mantine/core';
-import { Disclosure, DisclosureLabel, Select } from './ui';
+import { Disclosure, DisclosureLabel, Select, SelectOption } from './ui';
 import { useId, useState } from 'react';
 import { BackgroundService } from './BackgroundService';
 import { BackgroundServiceSettings } from './BackgroundServiceSettings';
@@ -44,18 +44,18 @@ export function SettingsPanel({ language, onLanguage, status, initialSection, re
         <div className="settings-group">
           <div className="management-setting">
             <label htmlFor={id + '-language'}>{t.language}</label>
-            <Select id={id + '-language'} value={language} onChange={event => onLanguage(event.currentTarget.value as Language)}>
-              <option value="en">English</option>
-              <option value="zh">简体中文</option>
+            <Select id={id + '-language'} value={language} onChange={selectedValue => onLanguage(selectedValue as Language)}>
+              <SelectOption value="en">English</SelectOption>
+              <SelectOption value="zh">简体中文</SelectOption>
             </Select>
           </div>
           <div className="management-setting">
             <label htmlFor={id + '-appearance'}>{m.appearance}</label>
             <Select id={id + '-appearance'} value={colorScheme}
-              onChange={event => setColorScheme(event.currentTarget.value as MantineColorScheme)}>
-              <option value="light">{m.light}</option>
-              <option value="dark">{m.dark}</option>
-              <option value="auto">{m.system}</option>
+              onChange={selectedValue => setColorScheme(selectedValue as MantineColorScheme)}>
+              <SelectOption value="light">{m.light}</SelectOption>
+              <SelectOption value="dark">{m.dark}</SelectOption>
+              <SelectOption value="auto">{m.system}</SelectOption>
             </Select>
           </div>
         </div>

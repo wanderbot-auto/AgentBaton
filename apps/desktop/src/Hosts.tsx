@@ -1,4 +1,4 @@
-import { Button, Disclosure, DisclosureLabel, Fieldset, Form, Input, Select, Title } from './ui';
+import { Button, Disclosure, DisclosureLabel, Fieldset, Form, Input, Select, SelectOption, Title } from './ui';
 import { useCallback, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import { DaemonError } from './api';
 import { hostsApi } from './hosts-api';
@@ -186,7 +186,7 @@ function HostForm({ copy, disabled, onRegister }: {
       <legend>{copy.register}</legend>
       <label htmlFor={`${prefix}-platform`}>{copy.platform}</label>
       <Select id={`${prefix}-platform`} name="platform" defaultValue="" required>
-        <option value="">{copy.choice}</option><option value="linux">Linux</option><option value="macos">macOS</option>
+        <SelectOption value="">{copy.choice}</SelectOption><SelectOption value="linux">Linux</SelectOption><SelectOption value="macos">macOS</SelectOption>
       </Select>
       {inputs.map(([key, label, maximum]) => <HostInput key={key} id={`${prefix}-${key}`}
         name={key} label={label} maximum={maximum} describedBy={key === 'checksum' ? `${prefix}-checksum-help` : undefined} />)}
@@ -195,9 +195,9 @@ function HostForm({ copy, disabled, onRegister }: {
       <Input id={`${prefix}-port`} name="port" type="number" min={1} max={65_535} step={1} defaultValue={22} required />
       <label htmlFor={`${prefix}-ownership`}>{copy.ownership}</label>
       <Select id={`${prefix}-ownership`} name="ownership" defaultValue="" required>
-        <option value="">{copy.choice}</option>
-        <option value="baton_managed">{copy.baton_managed}</option>
-        <option value="external_read_only">{copy.external_read_only}</option>
+        <SelectOption value="">{copy.choice}</SelectOption>
+        <SelectOption value="baton_managed">{copy.baton_managed}</SelectOption>
+        <SelectOption value="external_read_only">{copy.external_read_only}</SelectOption>
       </Select>
       {mappings.map((key, index) => <Mapping key={key} id={`${prefix}-mapping-${key}`} name={key} index={index}
         copy={copy} remove={() => setMappings(current => current.filter(item => item !== key))} />)}

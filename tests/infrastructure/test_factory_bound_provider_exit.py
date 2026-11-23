@@ -649,7 +649,8 @@ class CancelProcFdSourcePins(unittest.TestCase):
                          'e81410e1224a9fb1449a2e264f35eeb6ab5d5d42ad0b41ecd2c8b1fbfc6db464')
         for path, (now, old, _) in CANCEL_PROC_FD_LAYERS.items():
             with self.subTest(path=path):
-                current=(ROOT/path).read_text()
+                from tests.infrastructure.mantine_picker_source_fixture import restore_mantine_picker_source
+                current=restore_mantine_picker_source(path,(ROOT/path).read_bytes()).decode()
                 digest=lambda text:hashlib.sha256(text.encode()).hexdigest()
                 self.assertEqual(digest(current),now)
                 restored=restore_cancel_proc_fd_layer(path,current)

@@ -1,3 +1,4 @@
+import { choosePickerOption, openPicker } from './test-picker';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
@@ -12,8 +13,8 @@ async function selectedImport() {
   render(<Connections language="en" connected />);
   await user.type(screen.getByLabelText('Connection name'), 'restricted');
   await user.type(screen.getByLabelText('Canonical executable path'), '/generated/adapter');
-  await user.selectOptions(screen.getByLabelText('Protocol route'), 'claude_code');
-  await user.selectOptions(screen.getByLabelText('Configuration source'), 'claude_restrictions');
+  await choosePickerOption(user, screen.getByLabelText('Protocol route'), 'claude_code');
+  await choosePickerOption(user, screen.getByLabelText('Configuration source'), 'claude_restrictions');
   await user.type(screen.getByLabelText('Canonical Claude settings file'), '/selected/settings.json');
   return user;
 }
@@ -23,10 +24,10 @@ it('offers only the supported explicit source and sends its file through native 
   expect(screen.getByText(/Only disabledMcpjsonServers is imported/)).toBeVisible();
   await user.click(screen.getByRole('button', { name: 'Register and run version probe' }));
   await waitFor(() => expect(sessionApi.connectionsRegister).toHaveBeenCalledWith('restricted', '/generated/adapter', [], expect.any(String), 'claude_code', '/selected/settings.json'));
-  await user.selectOptions(screen.getByLabelText('Protocol route'), 'codex');
+  await choosePickerOption(user, screen.getByLabelText('Protocol route'), 'codex');
   expect(screen.queryByLabelText('Canonical Claude settings file')).not.toBeInTheDocument();
-  expect(screen.queryByRole('option', { name: 'Import Claude MCP restrictions' })).not.toBeInTheDocument();
-  expect(screen.getByLabelText('Configuration source')).toHaveValue('default');
+  openPicker(screen.getByLabelText('Configuration source')); expect(screen.queryByRole('option', { name: 'Import Claude MCP restrictions' })).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Configuration source')).toHaveAttribute('data-picker-value', 'default');
 });
 it('keeps the original import key after an uncertain commit followed by native cancellation', async () => {
   vi.mocked(sessionApi.connectionsRegister)
@@ -68,8 +69,8 @@ it('selects only Codex top-level policy fields through the same native review an
   render(<Connections language="en" connected />);
   await user.type(screen.getByLabelText('Connection name'), 'policy');
   await user.type(screen.getByLabelText('Canonical executable path'), '/generated/codex');
-  await user.selectOptions(screen.getByLabelText('Protocol route'), 'codex');
-  await user.selectOptions(screen.getByLabelText('Configuration source'), 'codex_policy');
+  await choosePickerOption(user, screen.getByLabelText('Protocol route'), 'codex');
+  await choosePickerOption(user, screen.getByLabelText('Configuration source'), 'codex_policy');
   expect(screen.getByText(/all other settings are not imported/)).toBeVisible();
   await user.type(screen.getByLabelText('Canonical Codex TOML file'), '/selected/config.toml');
   const button = screen.getByRole('button', { name: 'Register and run version probe' });
@@ -79,7 +80,7 @@ it('selects only Codex top-level policy fields through the same native review an
   expect(calls).toHaveLength(2); expect(calls[1]).toEqual(calls[0]);
   expect(calls[0]).toEqual(['policy', '/generated/codex', [], expect.any(String), 'codex', '/selected/config.toml']);
   expect(screen.getByRole('alert')).toHaveTextContent(sessionMessages.en.uncertain);
-  await user.selectOptions(screen.getByLabelText('Protocol route'), 'custom_acp');
+  await choosePickerOption(user, screen.getByLabelText('Protocol route'), 'custom_acp');
   expect(screen.queryByLabelText('Canonical Codex TOML file')).not.toBeInTheDocument();
-  expect(screen.queryByRole('option', { name: 'Import Codex execution policy' })).not.toBeInTheDocument();
+  openPicker(screen.getByLabelText('Configuration source')); expect(screen.queryByRole('option', { name: 'Import Codex execution policy' })).not.toBeInTheDocument();
 });

@@ -2,7 +2,7 @@ import { createTheme, localStorageColorSchemeManager, MantineProvider } from '@m
 import type { ReactNode } from 'react';
 import '@mantine/core/styles.css';
 
-const theme = createTheme({
+export const desktopTheme = createTheme({
   fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", sans-serif',
   fontSizes: { xs: '12px', sm: '13px', md: '14px', lg: '18px', xl: '24px' },
   primaryColor: 'teal',
@@ -22,10 +22,10 @@ const theme = createTheme({
   },
 });
 
-const appearance = localStorageColorSchemeManager({ key: 'agentbaton.appearance' });
+export const appearance = localStorageColorSchemeManager({ key: 'agentbaton.appearance' });
 
 export function DesktopTheme({ children }: { children: ReactNode }) {
-  return <MantineProvider theme={theme} defaultColorScheme="light" colorSchemeManager={appearance}>
+  return <MantineProvider theme={desktopTheme} defaultColorScheme="light" colorSchemeManager={appearance}>
     {children}
   </MantineProvider>;
 }

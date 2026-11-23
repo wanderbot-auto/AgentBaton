@@ -65,6 +65,14 @@ WRITES = {'integration_policies_revoke': ('integration_policies.revoke', 'policy
 class Refusal(ValueError):
     pass
 
+def choose_picker_option(control, value):
+    import runpy
+    helper = Path(__file__).with_name('mantine_picker.py')
+    if hashlib.sha256(helper.read_bytes()).hexdigest() != '3fd49076770fbac883d781a5a9bb51a28975921a242086251c858d5206afc1ab':
+        raise AssertionError('Unknown picker driver source')
+    runpy.run_path(str(helper))['choose_picker_option'](control, value)
+
+
 
 def require(value, message='Fixed integration fixture refused'):
     if not value:
@@ -1163,7 +1171,7 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         panel = page.get_by_test_id('task-integration')
         panel.locator(':scope > summary').click()
         expect(panel.get_by_role('button', name='Refresh integration records')).to_be_enabled()
-        panel.get_by_label('Existing local target branch').select_option(TARGET)
+        choose_picker_option(panel.get_by_label('Existing local target branch'), TARGET)
         expect(panel.get_by_text(fixture['target'], exact=True)).to_be_visible()
         panel.get_by_text('Fresh candidate correctness checks', exact=True).click()
         panel.get_by_role('checkbox', name=re.compile('Add check command:')).check()

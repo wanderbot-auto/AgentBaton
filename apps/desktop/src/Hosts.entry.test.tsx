@@ -1,3 +1,4 @@
+import { editField } from './test-picker';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
@@ -60,7 +61,7 @@ function fill() {
     [en.known, 'known:fixture'], [en.checksum, 'a'.repeat(64)], [en.identity, 'identity:fixture'],
     [en.config, 'config:fixture'], [en.ownership, 'external_read_only'],
   ];
-  for (const [label, value] of entries) fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  for (const [label, value] of entries) editField(screen.getByLabelText(label), value);
 }
 
 it('retains the original in-flight Host request when Settings closes before reservation', async () => {

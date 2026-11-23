@@ -1,4 +1,4 @@
-import { Button, Disclosure, DisclosureLabel, Select, Title } from './ui';
+import { Button, Disclosure, DisclosureLabel, Select, SelectOption, Title } from './ui';
 import { useEffect, useRef, useState } from 'react';
 import type { Task } from './api';
 import type { Language } from './i18n';
@@ -84,9 +84,9 @@ function PlanSummary({ task, language, connected }: Props) {
     {!connected ? <p>{t.unavailable}</p> : catalog === 'error' || failed ? <p role="alert">{t.error}</p> : <>
       {catalog === 'loading' && <p>{t.loading}</p>}
       {catalog === 'ready' && !scopes.length && <p>{t.empty}</p>}
-      {catalog === 'ready' && !!scopes.length && <label>{t.scope}<Select value={scopeId} onChange={event => { setScopeId(event.target.value); setRunId(''); }}>{scopes.map(item => <option key={item.id} value={item.id}>{item.id}</option>)}</Select></label>}
+      {catalog === 'ready' && !!scopes.length && <label>{t.scope}<Select value={scopeId} onChange={selectedValue => { setScopeId(selectedValue); setRunId(''); }}>{scopes.map(item => <SelectOption key={item.id} value={item.id}>{item.id}</SelectOption>)}</Select></label>}
       {scope && (scope.revoked || scope.goal.spec_revision !== task.spec_revision) && <p>{t.stale}</p>}
-      {!!scopeRuns.length && <label>{t.run}<Select value={selectedRunId} onChange={event => setRunId(event.target.value)}>{scopeRuns.map(item => <option key={item.id} value={item.id}>{scopeGraphs.some(g => g.run.id === item.id) ? t.graph : t.legacy} · {item.id}</option>)}</Select></label>}
+      {!!scopeRuns.length && <label>{t.run}<Select value={selectedRunId} onChange={selectedValue => setRunId(selectedValue)}>{scopeRuns.map(item => <SelectOption key={item.id} value={item.id}>{scopeGraphs.some(g => g.run.id === item.id) ? t.graph : t.legacy} · {item.id}</SelectOption>)}</Select></label>}
       {catalog === 'ready' && scope && !current && <p>{t.loading}</p>}
       {current && <>{current.plan ? <><p>{t.proposal} · {t.revision} {current.plan.proposal.revision}</p><ol>{current.plan.proposal.nodes.map(node => <li key={node.id}>{node.goal}</li>)}</ol></> : <p>{t.empty}</p>}
         {current.view ? <><p>{current.graph ? t.graph : t.legacy}</p><p>{t.run} · {t.revision} {current.view.run.plan_revision}: {state(current.view.run.state)}</p><ul>{current.view.nodes.map((record,index) => <li key={index}>{record.node.goal} · {t.revision} {record.plan_revision}: {state(record.state)}</li>)}</ul><Title order={3}>{t.pending}</Title>{needsAttention && <p>{state(current.view.run.state)}</p>}{pending.length ? <ul>{pending.map((record,index) => <li key={index}>{record.node.goal}: {state(record.state)}</li>)}</ul> : !needsAttention && <p>{t.none}</p>}<p className="hint">{current.graph && current.view.task_accepted ? t.accepted : t.acceptance}</p></> : <p>{t.noRun}</p>}

@@ -580,6 +580,17 @@ def review_self_check(path):
         'dimension':'pure finite recovery/cleanup controls using a synthetic Owner receipt derived from recorded Core model; NO Core/browser/socket/thread execution'}
 
 
+def choose_fixed_picker(container, caption, value):
+    """Select only an exact named combobox through its unique visible option."""
+    import runpy
+    helper = Path(__file__).with_name('mantine_picker.py')
+    assert sha(helper.read_bytes()) == '3fd49076770fbac883d781a5a9bb51a28975921a242086251c858d5206afc1ab', 'Unknown picker driver source'
+    control = container.get_by_role('combobox', name=caption, exact=True)
+    control.wait_for(state='visible')
+    assert control.count() == 1
+    runpy.run_path(str(helper))['choose_picker_option'](control, value)
+
+
 def require_fixed_field(descriptor, caption, tag):
     assert tag in {'select','textarea'}
     assert type(descriptor) is dict and set(descriptor)=={'caption','direct_controls'}
@@ -1190,9 +1201,9 @@ def runtime_driver(args, output, prepared):
         assert not panel.locator(':scope > details').evaluate('e=>e.open')
         panel.locator(':scope > details > summary').click()
         form = panel.locator('form')
-        fixed_form_control(form,'Existing root Grant','select').select_option(grant['id'])
-        fixed_form_control(form,'Existing connections','select').select_option([cid])
-        fixed_form_control(form,'Existing workspaces','select').select_option([workspace['id']])
+        choose_fixed_picker(form,'Existing root Grant',grant['id'])
+        choose_fixed_picker(form,'Existing connections',[cid])
+        choose_fixed_picker(form,'Existing workspaces',[workspace['id']])
         form.locator('details').filter(has=page.get_by_text('Selected inputs / Declared outputs', exact=True)).locator('summary').click()
         form.get_by_label('Selected inputs', exact=True).fill('input | input.txt | 1024 | ' + sha(b'fixed input\n'))
         form.get_by_label('Declared outputs', exact=True).fill('\n'.join(a['artifact_id'] + ' | ' + a['relative_path'] + ' | 4096' for a in outputs))

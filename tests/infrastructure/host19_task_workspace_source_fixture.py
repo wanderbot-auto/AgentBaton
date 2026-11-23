@@ -93,6 +93,8 @@ def replace(raw, current, previous):
 def restore_schema18_source(path, raw):
     if type(path) is not str or type(raw) is not bytes or path not in (DRIVER_PATH, PROJECTOR_PATH):
         raise ValueError("Expected raw Task Workspace bytes at a canonical source path")
+    from tests.infrastructure.mantine_picker_source_fixture import restore_mantine_picker_source
+    raw = restore_mantine_picker_source(path, raw, error=ValueError)
     if path == DRIVER_PATH:
         current, previous = DRIVER_CURRENT_SHA256, DRIVER_PREVIOUS_SHA256
         edits = (
