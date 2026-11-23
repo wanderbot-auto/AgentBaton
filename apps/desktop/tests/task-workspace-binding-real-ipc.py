@@ -1015,7 +1015,7 @@ def run(args, binary, frontend, attribution, output):
         # poll. Use its existing readonly Refresh before expecting the new card.
         canvas_start = len(report['http'])
         canvas_deadline = time.monotonic() + 15
-        click(page.locator('.appbar'), 'Refresh')
+        click(page.locator('.sidebar'), 'Refresh')
         wait(lambda: confirmed_canvas_snapshot(report['http'], canvas_start, third), lambda value: value is not None,
              seconds=max(0, canvas_deadline - time.monotonic()))
         canvas_remaining = canvas_deadline - time.monotonic()

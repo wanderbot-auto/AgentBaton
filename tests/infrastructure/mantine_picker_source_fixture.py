@@ -22,7 +22,7 @@ PICKER_LAYERS = {
         ),
     ),
     'apps/desktop/tests/task-workspace-binding-real-ipc.py': (
-        '5323ce6cc0364912b23b6ced5deb6b88150a2bd64d4f48cebd50acb25d8c0860',
+        '70a863151723706e26616a378b4d0d1572fcbbea4f907a7927b0b2ba278d0b51',
         '9c5a21b9a1964fb478ef1e0405ef36bf7652c28d658dbaf89c7b5ae20902595d',
         (
             (57, 79, 'cff017d0ed24201b7a2e98056d2abccbf71d10961bd6568334f8ac4f70fc0bbf',
@@ -37,6 +37,8 @@ PICKER_LAYERS = {
              b"        dialog.locator('#session-task').select_option(tasks[1]['id'])\n"),
             (981, 982, 'b69806c5f6ec2cccf7e8617d699807032cccd3534c02258f7d501e5da18fe429',
              b"        expect(dialog.locator('#session-workspace')).to_have_value(b1['receipt']['workspace_id'])\n"),
+            (1017, 1018, 'a2763ca942384cf22eb0b7b41f6326ad29a204cf863a332a5b194c47734f86be',
+             b"        click(page.locator('.appbar'), 'Refresh')\n"),
             (1078, 1079, 'cb5aff24b4ac0440351d507569079fc9b9f51761d86f61e835031c66a4bb3007',
              b"        expect(dialog.locator('#session-workspace')).to_have_value(b3['receipt']['workspace_id'])\n"),
         ),

@@ -350,14 +350,7 @@ export function App() {
     execution: c.execution, search: c.searchTasks, conversion: c.convertTitle, settings: c.settings,
   };
   const eventPager = <>{windowReplacement && <p role="status">{windowReplacement === 'bytes' ? t.windowBudget : t.windowLimit}</p>}{byteLimitedPage && <p role="status">{t.bytePageLimit}</p>}{eventPageMore && <div className="event-page-controls"><p className="hint">{t.eventPageMore}</p><Button onClick={() => void loadNextEvents()} disabled={busy || status !== 'connected'}>{t.nextEvents}</Button></div>}</>;
-  return <AppShell className="shell" header={{ height: 48 }} navbar={{ width: { base: 50, xs: 68 }, breakpoint: 0 }} padding={0}>
-    <AppShell.Header className="appbar">
-      <div className="brand" aria-label="AgentBaton" role="img"><svg className="brandmark" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 19 11 4h5L8 19Zm9 1 7-13h4l-7 13Z" /></svg></div>
-      <div className="location"><Button className="text-button" onClick={event => openPage('projects', event.currentTarget, !selected)}><Icon name="folder" /><span>{projectId ? projectName(projectId) : c.allProjects}</span></Button></div>
-      <span className={`connection task-notifications-connection ${status}`} role="status" title={t[status]}><span className="status-dot" /><span className="connection-label">{t[status]}</span></span>
-      <TaskNotifications tasks={tasks} sessions={sessions} events={events} language={language} observation={{ connected: status === 'connected', tasksFresh, sessionsFresh, eventsFresh, eventSequence, eventLimited: eventGapObserved || earliestCursor > 0 || eventPageMore || byteLimitedPage || windowReplacement !== null }} onOpenTask={openTask} onViewEvent={viewNotificationEvent} />
-      <Button className="icon-button" aria-label={t.refresh} title={t.refresh} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></Button>
-    </AppShell.Header>
+  return <AppShell className="shell" navbar={{ width: { base: 50, xs: 68 }, breakpoint: 0 }} padding={0}>
     <AppShell.Navbar component="aside" className="sidebar">
       <div className="sidebar-top">
         <Button className="new-button" aria-label={c.newTask} title={c.newTask} aria-keyshortcuts="Meta+N Control+N" onClick={newTask}><Icon name="plus" /></Button>
@@ -368,7 +361,15 @@ export function App() {
         <Button className="nav-item" aria-label={c.quick} title={c.quick} aria-current={view === 'quick' && !page ? 'page' : undefined} onClick={() => navigate('quick')}><Icon name="chat" /></Button>
       </nav>
       <div className="sidebar-bottom">
-        <Button className="nav-item" aria-label={c.projectSettings} title={c.projectSettings} aria-current={page === 'projects' ? 'page' : undefined} onClick={event => openPage('projects', event.currentTarget, !selected)}><Icon name="folder" /></Button>
+        <TaskNotifications tasks={tasks} sessions={sessions} events={events} language={language} observation={{ connected: status === 'connected', tasksFresh, sessionsFresh, eventsFresh, eventSequence, eventLimited: eventGapObserved || earliestCursor > 0 || eventPageMore || byteLimitedPage || windowReplacement !== null }} onOpenTask={openTask} onViewEvent={viewNotificationEvent} />
+        <div className="sidebar-refresh">
+          <Button type="button" className="nav-item" aria-label={t.refresh} aria-describedby="connection-status"
+            title={t.refresh + ' · ' + t[status]} disabled={busy} onClick={() => void refresh()}><Icon name="refresh" /></Button>
+          <span role="status" id="connection-status" className={'connection ' + status}>
+            <span className="status-dot" aria-hidden="true" /><span className="sr-only">{t[status]}</span>
+          </span>
+        </div>
+        <Button className="nav-item" aria-label={c.projectSettings} title={projectId ? c.projectSettings + ' · ' + projectName(projectId) : c.projectSettings} aria-current={page === 'projects' ? 'page' : undefined} onClick={event => openPage('projects', event.currentTarget, !selected)}><Icon name="folder" /></Button>
         <Button className="nav-item" data-testid="settings-nav" aria-label={c.settings} title={c.settings} aria-current={page === 'settings' ? 'page' : undefined} onClick={event => { setSettingsSection('general'); openPage('settings', event.currentTarget, true); }}><Icon name="settings" /></Button>
       </div>
     </AppShell.Navbar>

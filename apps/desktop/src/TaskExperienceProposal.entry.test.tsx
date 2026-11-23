@@ -155,7 +155,7 @@ it('clears a draft on a project selector change while retaining the existing tas
   await openEditor();
   fireEvent.change(editor().getByLabelText('Summary'), { target: { value: 'Private Atlas draft' } });
   previewCandidate();
-  await userEvent.click(screen.getByRole('button', { name: 'All projects' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Projects & workspaces' }));
   const dialog = within(screen.getByRole('region', { name: 'Projects & workspaces' }));
   await userEvent.click(dialog.getByRole('button', { name: /Boreal.*\/work\/project-boreal/i }));
   await userEvent.click(dialog.getByRole('button', { name: 'Back' }));

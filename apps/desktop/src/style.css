@@ -35,8 +35,6 @@
   --space-32: var(--mantine-spacing-xl);
   --space-40: calc(var(--mantine-spacing-xl) + var(--mantine-spacing-xs));
   --space-48: calc(2 * var(--mantine-spacing-lg));
-  --sidebar: 68px;
-  --topbar: 48px;
   --control: 36px;
   --content: 760px;
   --gutter: var(--space-48);
@@ -74,17 +72,6 @@ summary.mantine-UnstyledButton-root { display: list-item; }
   height: 100dvh;
   min-height: 320px;
 }
-.appbar {
-  display: grid;
-  grid-template-columns: var(--sidebar) minmax(0, 1fr) auto auto auto;
-  align-items: center;
-  padding-inline-end: var(--space-16);
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
-  z-index: 20;
-}
-.brand { display: grid; place-items: center; color: var(--ink); }
-.brandmark { width: 24px; height: 24px; }
 .icon-button {
   display: inline-grid;
   place-items: center;
@@ -96,10 +83,14 @@ summary.mantine-UnstyledButton-root { display: list-item; }
   background: transparent;
 }
 .icon-button:hover:not(:disabled) { border-color: transparent; background: var(--soft); }
-.location { min-width: 0; padding-inline: var(--space-12); }
-.location button { max-width: 100%; }
-.location button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.connection { display: flex; align-items: center; gap: var(--space-8); margin-inline-end: var(--space-8); color: var(--muted); font-size: var(--fs-meta); }
+.sidebar-refresh { position: relative; }
+.connection {
+  position: absolute;
+  inset: 8px 10px auto auto;
+  display: flex;
+  color: var(--muted);
+  pointer-events: none;
+}
 .status-dot { display: inline-block; width: 6px; height: 6px; border: 1px solid currentColor; border-radius: 50%; flex: none; }
 .connection.connected, .state-running, .state-ready { color: var(--accent); }
 .connection.disconnected, .state-failed { color: var(--error); }
@@ -109,13 +100,14 @@ summary.mantine-UnstyledButton-root { display: list-item; }
   flex-direction: column;
   gap: var(--space-16);
   min-height: 0;
-  padding: var(--space-16) var(--space-8) var(--space-12);
+  padding: calc(var(--space-32) + var(--space-12)) var(--space-8) var(--space-12);
   border-right: 1px solid var(--line);
+  background: var(--surface);
   overflow-y: auto;
 }
 .sidebar-top, .sidebar nav, .sidebar-bottom { display: grid; gap: var(--space-4); }
 .sidebar-bottom { margin-top: auto; }
-.new-button, .nav-item {
+.new-button, .nav-item, .sidebar .task-notifications-trigger {
   display: grid;
   place-items: center;
   width: 100%;
@@ -272,13 +264,9 @@ summary.mantine-UnstyledButton-root { display: list-item; }
   :root { --gutter: var(--space-24); --page-top: var(--space-32); }
 }
 @media (max-width: 600px) {
-  :root { --sidebar: 50px; --gutter: var(--space-12); --page-top: var(--space-24); --control: 44px; --record: 56px; }
-  .appbar { padding-inline-end: var(--space-4); }
-  .brandmark { width: 21px; height: 21px; }
-  .location { padding-inline: var(--space-4); }
-  .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  :root { --gutter: var(--space-12); --page-top: var(--space-24); --control: 44px; --record: 56px; }
   .sidebar { padding-inline: 2px; }
-  .sidebar :is(.new-button, .nav-item) { min-height: var(--control); }
+  .sidebar :is(.new-button, .nav-item, .task-notifications-trigger) { min-height: var(--control); }
   .page-heading { margin-bottom: var(--space-16); }
   .task-grid { grid-template-columns: minmax(0, 1fr); }
   .task-card { min-height: 108px; padding: var(--space-16); }

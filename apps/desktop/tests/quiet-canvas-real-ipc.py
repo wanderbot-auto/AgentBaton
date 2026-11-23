@@ -200,6 +200,12 @@ def main():
                 page.get_by_role('button', name='刷新', exact=True).click()
                 page.get_by_text('本地后台已连接', exact=True).wait_for()
                 passed('real core rejects oversized UTF-8 goal without inserting a task')
+                assert page.locator('.mantine-AppShell-header, .appbar').count() == 0
+                assert page.locator('.sidebar').bounding_box()['y'] == 0
+                assert page.get_by_role('main').locator('.page-scroll').bounding_box()['y'] == 0
+                assert page.locator('.sidebar').get_by_role('button', name='刷新', exact=True).is_visible()
+                assert page.locator('.sidebar .task-notifications-trigger').is_visible()
+                passed('headerless canvas and rail reach the top of the window')
                 for width, height in [(1488, 981), (1440, 900), (1024, 768), (390, 844)]:
                     page.set_viewport_size({'width': width, 'height': height})
                     page.wait_for_timeout(50)
@@ -443,7 +449,7 @@ def main():
                 expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
                 surfaces = '''() => {
                     const color = (selector, prop) => getComputedStyle(document.querySelector(selector))[prop];
-                    return [color('body', 'backgroundColor'), color('.appbar', 'backgroundColor'),
+                    return [color('body', 'backgroundColor'), color('.sidebar', 'backgroundColor'),
                             color('[data-page="settings"] .mantine-Select-input', 'backgroundColor'),
                             color('[data-page="settings"] .mantine-Select-input', 'color')];
                 }'''
