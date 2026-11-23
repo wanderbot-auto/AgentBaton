@@ -1,3 +1,4 @@
+import { Button, Form, Input, Title } from './ui';
 import { useEffect, useRef, useState } from 'react';
 import { api, DaemonError, type ManagedWorkspace, type Project } from './api';
 import { messages, type Language } from './i18n';
@@ -65,31 +66,31 @@ export function Projects({ projects, selectedId, onSelect, refresh, connected, l
     });
   }
   return <section className="projects" aria-labelledby="projects-heading">
-    <h2 id="projects-heading">{t.projects}</h2>
+    <Title order={2} id="projects-heading">{t.projects}</Title>
     {error && <div className="error" role="alert"><strong>{t.error}</strong><p>{error}</p></div>}
-    <form className="project-import" onSubmit={importProject}>
-      <label htmlFor="project-name">{t.projectName}</label><input id="project-name" disabled={busy} value={name} onChange={event => setName(event.target.value)} maxLength={200} required />
-      <label htmlFor="project-path">{t.projectPath}</label><input id="project-path" disabled={busy} value={path} onChange={event => setPath(event.target.value)} maxLength={4096} required placeholder="/absolute/path" />
-      <p>{t.importHelp}</p><button disabled={!connected || busy || !name.trim() || !path.trim()}>{busy ? t.working : t.importProject}</button>
-    </form>
+    <Form className="project-import" onSubmit={importProject}>
+      <label htmlFor="project-name">{t.projectName}</label><Input id="project-name" disabled={busy} value={name} onChange={event => setName(event.target.value)} maxLength={200} required />
+      <label htmlFor="project-path">{t.projectPath}</label><Input id="project-path" disabled={busy} value={path} onChange={event => setPath(event.target.value)} maxLength={4096} required placeholder="/absolute/path" />
+      <p>{t.importHelp}</p><Button disabled={!connected || busy || !name.trim() || !path.trim()}>{busy ? t.working : t.importProject}</Button>
+    </Form>
     <div className="workspace"><section>
       {!projects.length && <p>{t.noProjects}</p>}
-      <ul className="task-list">{projects.map(project => <li key={project.id}><button disabled={busy} aria-pressed={selectedId === project.id} onClick={() => onSelect(project.id)}><strong>{project.name}</strong><span>{project.archived ? t.archived : t.active}</span><small>{project.identity.canonical_root}</small></button></li>)}</ul>
+      <ul className="task-list">{projects.map(project => <li key={project.id}><Button className="record-button" disabled={busy} aria-pressed={selectedId === project.id} onClick={() => onSelect(project.id)}><strong>{project.name}</strong><span>{project.archived ? t.archived : t.active}</span><small>{project.identity.canonical_root}</small></Button></li>)}</ul>
     </section>{selected && <section className="inspector">
-      <h3>{selected.name}</h3><p>{selected.archived ? t.archived : t.active}</p>
+      <Title order={3}>{selected.name}</Title><p>{selected.archived ? t.archived : t.active}</p>
       <dl><dt>{t.root}</dt><dd>{selected.identity.canonical_root}</dd><dt>{t.projectRevision}</dt><dd>{selected.revision}</dd><dt>{t.observedAt}</dt><dd>{selected.updated_at}</dd>{git && <><dt>{t.head}</dt><dd>{git.head}</dd></>}</dl>
       <p>{git ? (git.dirty ? t.dirty : t.clean) : t.directory}</p>
       <p className="hint">{t.identitySnapshot}</p>
-      <p className="hint">{t.archiveHelp}</p><button disabled={busy || !connected || selected.archived} onClick={() => void mutate(JSON.stringify(['archive',selected.id]), key => api.projectsArchive(selected, key))}>{t.archiveProject}</button>
-      <form className="reassociate" onSubmit={event => {
+      <p className="hint">{t.archiveHelp}</p><Button disabled={busy || !connected || selected.archived} onClick={() => void mutate(JSON.stringify(['archive',selected.id]), key => api.projectsArchive(selected, key))}>{t.archiveProject}</Button>
+      <Form className="reassociate" onSubmit={event => {
         event.preventDefault();
         if (replacement.trim()) void mutate(JSON.stringify(['reassociate',selected.id,replacement.trim()]), key => api.projectsReassociate(selected, replacement.trim(), key), () => setReplacement(''));
-      }}><label htmlFor="replacement-path">{t.reassociatePath}</label><input id="replacement-path" disabled={busy} value={replacement} onChange={event => setReplacement(event.target.value)} maxLength={4096} required /><p className="hint">{t.reassociateHelp}</p><button disabled={busy || !connected || selected.archived || !replacement.trim()}>{t.reassociate}</button></form>
+      }}><label htmlFor="replacement-path">{t.reassociatePath}</label><Input id="replacement-path" disabled={busy} value={replacement} onChange={event => setReplacement(event.target.value)} maxLength={4096} required /><p className="hint">{t.reassociateHelp}</p><Button disabled={busy || !connected || selected.archived || !replacement.trim()}>{t.reassociate}</Button></Form>
       <DataWorkspaces key={selected.id} project={selected} connected={connected} language={language} onReady={()=>setDataVersion(value=>value+1)}/>
-      <section aria-labelledby="workspaces-heading"><h3 id="workspaces-heading">{t.isolatedWorkspace}</h3><p className="hint">{t.workspaceHelp}</p>
-        <button disabled={busy || !connected || workspaceLoad !== 'loaded' || selected.archived || !git?.head || workspaces.some(workspace => workspace.state !== 'ready')} onClick={() => {
+      <section aria-labelledby="workspaces-heading"><Title order={3} id="workspaces-heading">{t.isolatedWorkspace}</Title><p className="hint">{t.workspaceHelp}</p>
+        <Button disabled={busy || !connected || workspaceLoad !== 'loaded' || selected.archived || !git?.head || workspaces.some(workspace => workspace.state !== 'ready')} onClick={() => {
           if (git?.head) void mutate(JSON.stringify(['workspace',selected.id,git.head]), key => api.workspacesCreate(selected, git.head, key), workspace => setWorkspaces(current => [...current, workspace]));
-        }}>{t.createWorkspace}</button>
+        }}>{t.createWorkspace}</Button>
         {(selected.archived || !git?.head) && <p className="hint">{t.workspaceUnavailable}</p>}
         {workspaceLoad === 'loading' && <p role="status">{t.loadingWorkspaces}</p>}
         {workspaceLoad === 'loaded' && !workspaces.length && <p>{t.noWorkspaces}</p>}

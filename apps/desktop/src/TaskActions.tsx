@@ -1,3 +1,4 @@
+import { Button, Disclosure, DisclosureLabel } from './ui';
 import type { Task } from './api';
 import type { Language } from './i18n';
 import { taskActionsMessages } from './task-actions-i18n';
@@ -8,11 +9,11 @@ export function TaskActions({task,language,busy,sendBusy,connected,canSend,recip
  const feedback = receiptReviewHint ?? (uncertain ? t.uncertain : multipleSessions ? t.multiple : undefined);
  return <section className="task-actions" aria-label={t.title}>
    <div className="task-action-buttons">{(['workspace','plan','review'] as const).map(action => (
-     <button type="button" key={action} disabled={busy} onClick={event => onNavigate(task,action,event.currentTarget)}>{t[action]}</button>
+     <Button type="button" key={action} disabled={busy} onClick={event => onNavigate(task,action,event.currentTarget)}>{t[action]}</Button>
    ))}</div>
-   <details><summary>{t.preview}</summary><blockquote>{task.goal}</blockquote></details>
+   <Disclosure><DisclosureLabel>{t.preview}</DisclosureLabel><blockquote>{task.goal}</blockquote></Disclosure>
    {recipient && <p>{t.recipient}: {recipient}</p>}
-   <button type="button" disabled={busy||sendBusy||!connected||!canSend||uncertain} onClick={() => onSend(task)}>{t.send}</button>
+   <Button type="button" disabled={busy||sendBusy||!connected||!canSend||uncertain} onClick={() => onSend(task)}>{t.send}</Button>
    {feedback && <p className="operation-note" role="status">{feedback}</p>}
  </section>;
 }

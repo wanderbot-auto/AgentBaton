@@ -1,3 +1,4 @@
+import { Button, Disclosure, DisclosureLabel, Input, Title } from './ui';
 import {useEffect,useRef,useState} from 'react';
 import {DaemonError} from './api';
 import { managementMessages } from './management-i18n';
@@ -29,20 +30,20 @@ export function BackgroundService({language,connected,embedded=false,uiState=sha
  useEffect(()=>{setAck(false);},[connected]);
  async function hide(){if(!valid||!ack||reading.current||uiState.hide!=='idle'||!observation)return;const stamp=epoch.current,instance=observation.status.instance_id;reading.current=true;setBusy(true);setAck(false);let dispatched=false;try{const live=await backgroundServiceApi.status();if(!accept(live,stamp)||live.instance_id!==instance)return;if(!mounted.current||stamp!==epoch.current||!connection.current)return;uiState.hide='pending';dispatched=true;await backgroundServiceApi.hide(live);uiState.hide='idle';if(mounted.current&&stamp===epoch.current)setHidden(true);}catch(error){if(dispatched)uiState.hide=error instanceof DaemonError&&error.code!=='OUTCOME_UNKNOWN'&&['none','not_started'].includes(error.sideEffectState)?'idle':'unknown';if(mounted.current&&stamp===epoch.current){setFailed(true);if(!dispatched)setObservation(null);}}finally{reading.current=false;if(mounted.current)setBusy(false);}}
  const facts=valid&&observation?<><dl><dt>{t.instance}</dt><dd>{observation.status.instance_id}</dd><dt>{t.started}</dt><dd>{observation.status.started_at}</dd><dt>{t.observed}</dt><dd>{observation.at}</dd><dt>{t.workers}</dt><dd>{observation.status.owned_provider_workers?t.yes:t.no}</dd></dl><p>{t[observation.relation]}</p><p>{t.recovery}</p></>:<p role="status">{t.unknown}</p>;
- const refreshControl=<button disabled={!connected||busy} onClick={()=>void refresh()}>{busy?t.busy:t.refresh}</button>;
- const confirm=<label><input type="checkbox" checked={ack} disabled={!valid||busy||uiState.hide!=='idle'} onChange={event=>setAck(event.target.checked)}/>{t.review}</label>;
- const action=<button disabled={!valid||!ack||busy||uiState.hide!=='idle'} onClick={()=>void hide()}>{t.hide}</button>;
+ const refreshControl=<Button disabled={!connected||busy} onClick={()=>void refresh()}>{busy?t.busy:t.refresh}</Button>;
+ const confirm=<label><Input type="checkbox" checked={ack} disabled={!valid||busy||uiState.hide!=='idle'} onChange={event=>setAck(event.target.checked)}/>{t.review}</label>;
+ const action=<Button disabled={!valid||!ack||busy||uiState.hide!=='idle'} onClick={()=>void hide()}>{t.hide}</Button>;
  const notices=<>{storageFailed&&<p>{t.storage}</p>}{hidden&&<p role="status">{t.hidden}</p>}{uiState.hide==='unknown'&&<p role="alert">{t.hideUnknown}</p>}</>;
  if(embedded){
    const copy=managementMessages[language];
    return <section aria-label={t.title}>
-     <details className="management-disclosure management-hide">
-       <summary><strong>{copy.hideTitle}</strong></summary>
+     <Disclosure className="management-disclosure management-hide">
+       <DisclosureLabel><strong>{copy.hideTitle}</strong></DisclosureLabel>
        <div className="management-detail-actions"><p>{t.limits}</p>{confirm}{action}</div>
-     </details>
-     <details className="management-disclosure"><summary>{copy.evidence}</summary>{facts}{refreshControl}</details>
+     </Disclosure>
+     <Disclosure className="management-disclosure"><DisclosureLabel>{copy.evidence}</DisclosureLabel>{facts}{refreshControl}</Disclosure>
      {notices}
    </section>;
  }
- return <section aria-label={t.title}><h3>{t.title}</h3><p>{t.limits}</p>{facts}{refreshControl}{confirm}{action}{notices}</section>;
+ return <section aria-label={t.title}><Title order={3}>{t.title}</Title><p>{t.limits}</p>{facts}{refreshControl}{confirm}{action}{notices}</section>;
 }

@@ -22,7 +22,7 @@ import threading
 import time
 import uuid
 from functools import partial
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 
 def main():
@@ -30,7 +30,10 @@ def main():
     parser.add_argument('--batond', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--chromium', help='Explicit local Chromium, otherwise the pinned Playwright browser')
+    parser.add_argument('--engine', choices=('chromium', 'webkit'), default='chromium')
     args = parser.parse_args()
+    if args.engine == 'webkit' and args.chromium:
+        parser.error('--chromium requires the Chromium engine')
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     binary = args.batond.resolve(strict=True)
@@ -140,7 +143,10 @@ def main():
             thread.start()
             url = f'http://127.0.0.1:{server.server_port}'
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--disable-dev-shm-usage'])
+                browser = (playwright.webkit.launch(headless=True) if args.engine == 'webkit'
+                           else playwright.chromium.launch(executable_path=args.chromium, headless=True,
+                                                           args=['--disable-dev-shm-usage']))
+                report['engine'] = args.engine
                 report['browser_version'] = browser.version
                 report['playwright_version'] = importlib.metadata.version('playwright')
                 context = browser.new_context(viewport={'width': 1488, 'height': 981}, locale='zh-CN')
@@ -214,6 +220,7 @@ def main():
                             assert control.is_visible()
                             bounds = control.bounding_box()
                             assert bounds['width'] >= 44 and bounds['height'] >= 44, bounds
+                        expect(page.locator('.task-notifications-trigger svg')).to_be_visible()
                         passed('narrow icon rail retains named controls and usable targets')
                     screenshot = output / f'home-{width}x{height}.png'
                     page.screenshot(path=str(screenshot))
@@ -426,6 +433,54 @@ def main():
                 report['screenshots'].append(str(background_capture))
                 page.keyboard.press('Escape')
                 passed('narrow management surfaces read real background evidence without a native login mutation')
+                page.set_viewport_size({'width': 1180, 'height': 800})
+                page.get_by_role('button', name='设置', exact=True).click()
+                settings = page.get_by_role('region', name='设置', exact=True)
+                settings.get_by_role('tab', name='常规', exact=True).click()
+                appearance = settings.get_by_role('combobox', name='外观', exact=True)
+                html = page.locator('html')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
+                surfaces = '''() => {
+                    const color = (selector, prop) => getComputedStyle(document.querySelector(selector))[prop];
+                    return [color('body', 'backgroundColor'), color('.appbar', 'backgroundColor'),
+                            color('[data-page="settings"] select', 'backgroundColor'),
+                            color('[data-page="settings"] select', 'color')];
+                }'''
+                light = page.evaluate(surfaces)
+                appearance.select_option('dark')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
+                dark = page.evaluate(surfaces)
+                assert all(a != b for a, b in zip(light, dark)), (light, dark)
+                for name in ('settings-dark', 'resources-dark', 'tasks-dark', 'notifications-dark'):
+                    if name == 'resources-dark':
+                        page.get_by_role('button', name='能力', exact=True).click()
+                    elif name == 'tasks-dark':
+                        page.get_by_role('button', name='任务', exact=True).click()
+                        page.get_by_test_id('task-card').first.wait_for()
+                    elif name == 'notifications-dark':
+                        page.get_by_role('button', name=re.compile('通知')).click()
+                        dialog = page.get_by_role('dialog')
+                        expect(dialog).to_be_visible()
+                        checkbox = dialog.get_by_role('checkbox')
+                        bounds = checkbox.bounding_box()
+                        assert bounds and bounds['width'] >= 16 and bounds['height'] >= 16, bounds
+                    capture = output / (name + '.png')
+                    page.screenshot(path=capture)
+                    report['screenshots'].append(str(capture))
+                page.reload()
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
+                page.get_by_role('button', name='设置', exact=True).click()
+                appearance = page.get_by_role('combobox', name='外观', exact=True)
+                expect(appearance).to_have_value('dark')
+                page.emulate_media(color_scheme='light')
+                appearance.select_option('auto')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
+                page.emulate_media(color_scheme='dark')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
+                appearance.select_option('light')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
+                passed('appearance recolors shell and controls, survives reload and follows system changes',
+                       light=light, dark=dark)
                 assert not errors, errors
                 passed('no browser runtime errors')
                 context.close()

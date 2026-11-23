@@ -1,3 +1,4 @@
+import { Button, Disclosure, DisclosureLabel, Input, Title } from './ui';
 import { useEffect,useRef,useState } from 'react';
 import type { JournalEvent } from './api';
 import type { Conversation } from './conversation-api';
@@ -41,13 +42,13 @@ function ConversationHistoryPanel({conversation,language,connected,disabled,onSu
   const next=new Map(selected);if(checked)next.set(event.event_id,{id:event.event_id,sequence:event.sequence,raw:conversationEventText(event)!,kind:event.kind,text:`${event.kind==='conversation.message_queued'?t.user:t.agent}: ${conversationEventText(event)}`});else next.delete(event.event_id);
   const joined=[...next.values()].sort((a,b)=>a.sequence-b.sequence).map(e=>e.text).join('\n\n');if(next.size>500||joined.length>8192||utf8(joined)>8192){setSelectionError(true);return;}setSelected(next);setSelectionError(false);
  }
- return <section aria-label={t.title} aria-busy={loading}><h3>{t.title}</h3><p>{t.partial}</p><p>{t.source}: {conversation.id}</p>
-  <button type="button" disabled={!connected||loading} onClick={()=>void read(null)}>{t.latest}</button>
-  {page?.next_cursor&&<button type="button" disabled={!connected||loading} onClick={()=>void read(page.next_cursor)}>{page.scan_limited||page.byte_limited?t.next:t.older}</button>}
-  {!connected&&<p>{t.disconnected}</p>}{loading&&<p role="status">{t.loading}</p>}{error&&<div role="alert"><p>{t.error}</p><button type="button" disabled={!connected||loading} onClick={()=>void read(failedCursor.current)}>{t.retry}</button></div>}
+ return <section aria-label={t.title} aria-busy={loading}><Title order={3}>{t.title}</Title><p>{t.partial}</p><p>{t.source}: {conversation.id}</p>
+  <Button type="button" disabled={!connected||loading} onClick={()=>void read(null)}>{t.latest}</Button>
+  {page?.next_cursor&&<Button type="button" disabled={!connected||loading} onClick={()=>void read(page.next_cursor)}>{page.scan_limited||page.byte_limited?t.next:t.older}</Button>}
+  {!connected&&<p>{t.disconnected}</p>}{loading&&<p role="status">{t.loading}</p>}{error&&<div role="alert"><p>{t.error}</p><Button type="button" disabled={!connected||loading} onClick={()=>void read(failedCursor.current)}>{t.retry}</Button></div>}
   {page&&conversation.revision>page.snapshot_revision&&<p role="status">{t.updated}</p>}{replacement&&<p role="status">{t.replaced}</p>}{page?.coverage==='gap'&&<p role="status">{t.gap}</p>}{page?.coverage==='complete'&&<p>{t.end}</p>}{page?.has_more&&<p>{t.more}</p>}{(page?.scan_limited||page?.byte_limited)&&<p>{t.limited}</p>}
-  {page&&!excerpts.length&&<p>{t.empty}</p>}<ol>{excerpts.map(event=><li key={event.event_id}><label><input type="checkbox" checked={selected.has(event.event_id)} disabled={disabled} onChange={e=>choose(event,e.target.checked)}/>{event.kind==='conversation.message_queued'?t.user:t.agent}: {conversationEventText(event)}</label><small>#{event.sequence} · {event.occurred_at}</small></li>)}</ol>
-  <details open={selection.length>0}><summary>{t.selected} ({selection.length})</summary>{!selection.length&&<p>{t.noneSelected}</p>}<ol>{selection.map(excerpt=><li key={excerpt.id}><p>{excerpt.text}</p><small>#{excerpt.sequence} · {conversation.id}</small><button type="button" disabled={disabled} aria-label={`${t.remove} #${excerpt.sequence}`} onClick={()=>{setSelected(old=>{const next=new Map(old);next.delete(excerpt.id);return next;});setSelectionError(false);}}>{t.remove}</button></li>)}</ol></details>
-  {selectionError&&<p role="alert">{t.selectionLimit}</p>}<button type="button" disabled={disabled||!selection.length} onClick={()=>onSummary(selectionText,conversation.project_id)}>{t.use}</button>
+  {page&&!excerpts.length&&<p>{t.empty}</p>}<ol>{excerpts.map(event=><li key={event.event_id}><label><Input type="checkbox" checked={selected.has(event.event_id)} disabled={disabled} onChange={e=>choose(event,e.target.checked)}/>{event.kind==='conversation.message_queued'?t.user:t.agent}: {conversationEventText(event)}</label><small>#{event.sequence} · {event.occurred_at}</small></li>)}</ol>
+  <Disclosure open={selection.length>0}><DisclosureLabel>{t.selected} ({selection.length})</DisclosureLabel>{!selection.length&&<p>{t.noneSelected}</p>}<ol>{selection.map(excerpt=><li key={excerpt.id}><p>{excerpt.text}</p><small>#{excerpt.sequence} · {conversation.id}</small><Button type="button" disabled={disabled} aria-label={`${t.remove} #${excerpt.sequence}`} onClick={()=>{setSelected(old=>{const next=new Map(old);next.delete(excerpt.id);return next;});setSelectionError(false);}}>{t.remove}</Button></li>)}</ol></Disclosure>
+  {selectionError&&<p role="alert">{t.selectionLimit}</p>}<Button type="button" disabled={disabled||!selection.length} onClick={()=>onSummary(selectionText,conversation.project_id)}>{t.use}</Button>
  </section>;
 }

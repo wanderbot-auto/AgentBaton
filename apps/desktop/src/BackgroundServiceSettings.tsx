@@ -1,3 +1,5 @@
+import { Switch } from '@mantine/core';
+import { Button, Disclosure, DisclosureLabel } from './ui';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Icon } from './Icons';
 import type { Language } from './i18n';
@@ -30,7 +32,7 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
   const [observation, setObservation] = useState<{ receipt: BackgroundReceipt; generation: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const mounted = useRef(false);
-  const switchRef = useRef<HTMLButtonElement>(null);
+  const switchRef = useRef<HTMLInputElement>(null);
   const refreshRef = useRef<HTMLButtonElement>(null);
   const [switchBeforeRequest, setSwitchBeforeRequest] = useState<boolean | null>(null);
   const request = async (operation: BackgroundOperation, owner: symbol) => {
@@ -78,16 +80,14 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
     <div className="management-setting">
       <strong>{copy.registration}</strong>
       <div className="management-setting-controls">
-      {actionable && <button type="button" className="icon-button" aria-label={copy.refresh} title={copy.refresh}
-        onClick={() => perform('status')} disabled={session.pending !== null}><Icon name="refresh" /></button>}
-      {switchState !== null && <button ref={switchRef} type="button" className="management-switch" role="switch" aria-label={copy.registration}
-        aria-checked={switchState} aria-disabled={!actionable || session.pending !== null} onClick={() => {
+      {actionable && <Button type="button" className="icon-button" aria-label={copy.refresh} title={copy.refresh}
+        onClick={() => perform('status')} disabled={session.pending !== null}><Icon name="refresh" /></Button>}
+      {switchState !== null && <Switch ref={switchRef} checked={switchState} aria-label={copy.registration}
+        aria-checked={switchState} aria-disabled={!actionable || session.pending !== null} onChange={() => {
           if (!actionable || session.pending !== null) return;
           setSwitchBeforeRequest(operation === 'disable');
           perform(operation);
-        }}>
-        <span aria-hidden="true" />
-      </button>}
+        }} />}
       </div>
     </div>
     <p role="status" className={actionable && session.pending === null ? 'sr-only' : 'management-setting-status'}>
@@ -96,7 +96,7 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
     {(!actionable || message || session.needsRefresh) && <div className="management-setting-extra">
       {message && <p role="alert">{message}</p>}
       {session.needsRefresh && !message && <p>{copy.refreshFirst}</p>}
-      {!actionable && <button ref={refreshRef} type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>}
+      {!actionable && <Button ref={refreshRef} type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</Button>}
     </div>}
   </section>;
   return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
@@ -105,10 +105,10 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
     {message && <p role="alert">{message}</p>}
     {session.needsRefresh && <p>{copy.refreshFirst}</p>}
     <div className="dialog-actions">
-      <button onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>
-      <button onClick={() => perform(operation)} disabled={session.pending !== null || !actionable}>
+      <Button onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</Button>
+      <Button onClick={() => perform(operation)} disabled={session.pending !== null || !actionable}>
         {operation === 'enable' ? copy.enable : copy.disable}
-      </button>
+      </Button>
     </div>
     <p className="hint">{copy.confirmation}</p>
     <p className="hint">{copy.boundary}</p>
@@ -119,8 +119,8 @@ function BackgroundServicePanel({ language, embedded = false }: { language: Lang
 export function BackgroundServiceSettings({ language, embedded = false }: { language: Language; embedded?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   if (embedded) return <BackgroundServicePanel language={language} embedded />;
-  return <details className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
-    <summary>{backgroundServiceMessages[language].title}</summary>
+  return <Disclosure className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
+    <DisclosureLabel>{backgroundServiceMessages[language].title}</DisclosureLabel>
     {expanded && <BackgroundServicePanel language={language} />}
-  </details>;
+  </Disclosure>;
 }

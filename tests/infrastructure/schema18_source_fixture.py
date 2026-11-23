@@ -30,12 +30,19 @@ LAYERS['tests/infrastructure/test_factory_rework_attempt_budget.py']['followup']
 }
 
 
+def normalize_schema18_input(path, text, *, error=AssertionError):
+    from tests.infrastructure.host19_child_goal_source_fixture import normalize_child_goal_outer_layer
+
+    if path == 'tests/infrastructure/test_child_goal_diagnostics_v4.py':
+        from tests.infrastructure.mantine_child_goal_source_fixture import restore_mantine_guard
+        text = restore_mantine_guard(text, error=error)
+    return normalize_child_goal_outer_layer(path, text, error=error)
+
+
 def strip_schema18_source(path, text, *, legacy=(), error=AssertionError):
     if type(path) is not str or path not in LAYERS or type(text) is not str:
         raise error('Unknown driver source: schema18 inverse arguments')
-    from tests.infrastructure.host19_child_goal_source_fixture import normalize_child_goal_outer_layer
-
-    text = normalize_child_goal_outer_layer(path, text, error=error)
+    text = normalize_schema18_input(path, text, error=error)
     layer = LAYERS[path]
     digest = hashlib.sha256(text.encode()).hexdigest()
     if digest == layer['before'] or digest in legacy:

@@ -180,7 +180,7 @@ if({index}===0){{
  const tab=await wait(()=>[...document.querySelectorAll('[role="tab"]')].find(e=>e.textContent.trim()==='Background and login'));tab.click();
 }}else{{
  const panel=await wait(()=>document.querySelector('section[aria-label="Start background work at next login"]'));
- const startup=()=>panel.querySelector('button[role="switch"]');
+ const startup=()=>panel.querySelector('[role="switch"]');
  const actionable=b=>b&&!b.disabled&&b.getAttribute('aria-disabled')!=='true';
  if({direct}){{
   if(actionable(startup()))throw Error('Conflict UI must remain disabled');
@@ -192,9 +192,12 @@ if({index}===0){{
   if(!button.getClientRects().length)throw Error('Refresh must be visible');
   button.click();
  }}else{{
-  const button=await wait(()=>{{const b=startup();return actionable(b)&&b.getClientRects().length?b:null;}});
-  if(button.getAttribute('aria-checked')!==String('{action}'==='disable'))throw Error('Unexpected login switch state');
-  button.click();
+  const track=await wait(()=>{{const input=startup(),target=input?.parentElement?.querySelector('.mantine-Switch-track');
+    const bounds=target?.getBoundingClientRect();
+    return actionable(input)&&bounds?.width>0&&bounds?.height>0&&getComputedStyle(target).visibility==='visible'?target:null;
+  }});
+  if(startup().getAttribute('aria-checked')!==String('{action}'==='disable'))throw Error('Unexpected login switch state');
+  track.click();
  }}
 }}
 
@@ -208,7 +211,7 @@ fn observation_script(index: usize, text: &str, disabled: bool) -> String {
 const until=performance.now()+15000;let seen=false;
 while(performance.now()<until){{
  const p=document.querySelector('section[aria-label="Start background work at next login"]');
- const action=p?.querySelector('button[role="switch"]');
+ const action=p?.querySelector('[role="switch"]');
  const blocked=!action||action.disabled||action.getAttribute('aria-disabled')==='true';
  if(p?.getAttribute('aria-busy')==='false'&&p.querySelector('[role="status"]')?.textContent==={text}
     &&blocked==={disabled}&&(blocked||action.getAttribute('aria-checked')===String({text}==='Enabled for next login'))){{

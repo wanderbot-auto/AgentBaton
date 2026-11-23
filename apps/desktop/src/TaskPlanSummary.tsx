@@ -1,3 +1,4 @@
+import { Button, Disclosure, DisclosureLabel, Select, Title } from './ui';
 import { useEffect, useRef, useState } from 'react';
 import type { Task } from './api';
 import type { Language } from './i18n';
@@ -19,7 +20,7 @@ function planMatches(plan: GoalPlan, scope: GoalScope) {
 }
 export function TaskPlanSummary(props: Props) {
   const [open, setOpen] = useState(false);
-  return <details className="folded-plan" onToggle={event => setOpen(event.currentTarget.open)}><summary>{taskPlanSummaryMessages[props.language].title}</summary>{open && <PlanSummary key={`${props.task.id}:${props.task.project_id}:${props.task.spec_revision}`} {...props} />}</details>;
+  return <Disclosure className="folded-plan" onToggle={event => setOpen(event.currentTarget.open)}><DisclosureLabel>{taskPlanSummaryMessages[props.language].title}</DisclosureLabel>{open && <PlanSummary key={`${props.task.id}:${props.task.project_id}:${props.task.spec_revision}`} {...props} />}</Disclosure>;
 }
 function PlanSummary({ task, language, connected }: Props) {
   const t = taskPlanSummaryMessages[language];
@@ -79,16 +80,16 @@ function PlanSummary({ task, language, connected }: Props) {
   const pending = current?.view?.nodes.filter(node => node.plan_revision === current.view!.run.plan_revision && !['candidate','cancelled','accepted','validated'].includes(node.state)) ?? [];
   const needsAttention = current?.view && (!Object.hasOwn(t.states,current.view.run.state) || ['awaiting_acceptance','blocked','failed','outcome_unknown','cancel_requested'].includes(current.view.run.state));
   return <section aria-label={t.title} aria-busy={connected && (catalog === 'loading' || (catalog === 'ready' && !!scope && !current && !failed))}>
-    <button type="button" disabled={!connected} onClick={() => setRefresh(n => n+1)}>{t.refresh}</button>
+    <Button type="button" disabled={!connected} onClick={() => setRefresh(n => n+1)}>{t.refresh}</Button>
     {!connected ? <p>{t.unavailable}</p> : catalog === 'error' || failed ? <p role="alert">{t.error}</p> : <>
       {catalog === 'loading' && <p>{t.loading}</p>}
       {catalog === 'ready' && !scopes.length && <p>{t.empty}</p>}
-      {catalog === 'ready' && !!scopes.length && <label>{t.scope}<select value={scopeId} onChange={event => { setScopeId(event.target.value); setRunId(''); }}>{scopes.map(item => <option key={item.id} value={item.id}>{item.id}</option>)}</select></label>}
+      {catalog === 'ready' && !!scopes.length && <label>{t.scope}<Select value={scopeId} onChange={event => { setScopeId(event.target.value); setRunId(''); }}>{scopes.map(item => <option key={item.id} value={item.id}>{item.id}</option>)}</Select></label>}
       {scope && (scope.revoked || scope.goal.spec_revision !== task.spec_revision) && <p>{t.stale}</p>}
-      {!!scopeRuns.length && <label>{t.run}<select value={selectedRunId} onChange={event => setRunId(event.target.value)}>{scopeRuns.map(item => <option key={item.id} value={item.id}>{scopeGraphs.some(g => g.run.id === item.id) ? t.graph : t.legacy} · {item.id}</option>)}</select></label>}
+      {!!scopeRuns.length && <label>{t.run}<Select value={selectedRunId} onChange={event => setRunId(event.target.value)}>{scopeRuns.map(item => <option key={item.id} value={item.id}>{scopeGraphs.some(g => g.run.id === item.id) ? t.graph : t.legacy} · {item.id}</option>)}</Select></label>}
       {catalog === 'ready' && scope && !current && <p>{t.loading}</p>}
       {current && <>{current.plan ? <><p>{t.proposal} · {t.revision} {current.plan.proposal.revision}</p><ol>{current.plan.proposal.nodes.map(node => <li key={node.id}>{node.goal}</li>)}</ol></> : <p>{t.empty}</p>}
-        {current.view ? <><p>{current.graph ? t.graph : t.legacy}</p><p>{t.run} · {t.revision} {current.view.run.plan_revision}: {state(current.view.run.state)}</p><ul>{current.view.nodes.map((record,index) => <li key={index}>{record.node.goal} · {t.revision} {record.plan_revision}: {state(record.state)}</li>)}</ul><h3>{t.pending}</h3>{needsAttention && <p>{state(current.view.run.state)}</p>}{pending.length ? <ul>{pending.map((record,index) => <li key={index}>{record.node.goal}: {state(record.state)}</li>)}</ul> : !needsAttention && <p>{t.none}</p>}<p className="hint">{current.graph && current.view.task_accepted ? t.accepted : t.acceptance}</p></> : <p>{t.noRun}</p>}
+        {current.view ? <><p>{current.graph ? t.graph : t.legacy}</p><p>{t.run} · {t.revision} {current.view.run.plan_revision}: {state(current.view.run.state)}</p><ul>{current.view.nodes.map((record,index) => <li key={index}>{record.node.goal} · {t.revision} {record.plan_revision}: {state(record.state)}</li>)}</ul><Title order={3}>{t.pending}</Title>{needsAttention && <p>{state(current.view.run.state)}</p>}{pending.length ? <ul>{pending.map((record,index) => <li key={index}>{record.node.goal}: {state(record.state)}</li>)}</ul> : !needsAttention && <p>{t.none}</p>}<p className="hint">{current.graph && current.view.task_accepted ? t.accepted : t.acceptance}</p></> : <p>{t.noRun}</p>}
       </>}
     </>}
   </section>;

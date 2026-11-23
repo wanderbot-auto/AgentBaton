@@ -1,3 +1,4 @@
+import { Button, Code, Input, Select, Title } from './ui';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { Project } from './api';
 import { Connections, ConnectionEvidence } from './Connections';
@@ -111,10 +112,10 @@ function RecordDetails({ row, language, connected, onRefresh }: { row: Row; lang
   if (row.kind === 'connection') return <ConnectionEvidence connection={row.connection} language={language} connected={connected} onRefresh={onRefresh} focused />;
   return <div className="management-record">
     <dl><dt>{m.base}</dt><dd>{row.connection.name}</dd>
-      {'code' in row.profile ? <><dt>{m.recordedEvidence}</dt><dd><code>{row.profile.code}</code></dd></> : <>
-        <dt>{m.source}</dt><dd>{m.managed}</dd><dt>{m.revision}</dt><dd><code>{row.profile.config_revision}</code></dd>
+      {'code' in row.profile ? <><dt>{m.recordedEvidence}</dt><dd><Code>{row.profile.code}</Code></dd></> : <>
+        <dt>{m.source}</dt><dd>{m.managed}</dd><dt>{m.revision}</dt><dd><Code>{row.profile.config_revision}</Code></dd>
         {row.kind === 'skill' && 'managed_skill' in row.profile && row.profile.managed_skill &&
-          <><dt>{managedSkillMessages[language].hash}</dt><dd><code>{row.profile.managed_skill.sha256}</code></dd></>}
+          <><dt>{managedSkillMessages[language].hash}</dt><dd><Code>{row.profile.managed_skill.sha256}</Code></dd></>}
         {row.kind === 'mcp' && 'managed_mcp' in row.profile && row.profile.managed_mcp &&
           <><dt>{managedMcpMessages[language].tools}</dt><dd>{row.profile.managed_mcp.enabled_tools.join(', ')}</dd></>}
       </>}
@@ -238,32 +239,32 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
 
   return <section className="management-page">
     <div hidden={!showList}>
-      <header className="page-heading management-header"><h1>{t.capabilities}</h1>
-        <button ref={addControl} type="button" className="primary" disabled={!connected} aria-expanded={filter === 'all' ? addChoices : undefined}
+      <header className="page-heading management-header"><Title order={1}>{t.capabilities}</Title>
+        <Button ref={addControl} type="button" className="primary" disabled={!connected} aria-expanded={filter === 'all' ? addChoices : undefined}
           onClick={event => filter === 'all' ? setAddChoices(!addChoices) : openEditor(filter, '', event.currentTarget)}>
           <Icon name="plus" />{addLabel}
-        </button>
+        </Button>
       </header>
       {addChoices && filter === 'all' && <div className="management-add" role="group" aria-label={m.add}>
-        <button onClick={event => openEditor('connection', '', event.currentTarget)}>{connectionCopy.register}</button>
-        <button onClick={event => openEditor('skill', '', event.currentTarget)}>{m.editSkill}</button>
-        <button onClick={event => openEditor('mcp', '', event.currentTarget)}>{m.editMcp}</button>
+        <Button onClick={event => openEditor('connection', '', event.currentTarget)}>{connectionCopy.register}</Button>
+        <Button onClick={event => openEditor('skill', '', event.currentTarget)}>{m.editSkill}</Button>
+        <Button onClick={event => openEditor('mcp', '', event.currentTarget)}>{m.editMcp}</Button>
       </div>}
       <div className="management-toolbar">
         <div className="management-tabs" role="group" aria-label={t.capabilities}>
-          {filters.map(type => <button key={type} type="button" aria-pressed={filter === type} onClick={() => changeFilter(type)}>
+          {filters.map(type => <Button key={type} type="button" aria-pressed={filter === type} onClick={() => changeFilter(type)}>
             {m[type]}{catalog && <small aria-hidden="true">{type === 'all' ? scoped.length : scoped.filter(row => row.kind === type).length}</small>}
-          </button>)}
+          </Button>)}
         </div>
         <div className="management-filters">
           <label className="management-search"><span className="sr-only">{m.search}</span><Icon name="search" />
-            <input type="search" value={query} placeholder={m.search} onChange={event => { setSelection(null); setQuery(event.target.value); }} />
+            <Input type="search" value={query} placeholder={m.search} onChange={event => { setSelection(null); setQuery(event.target.value); }} />
           </label>
           {liveProjects.length > 0 && <label><span className="sr-only">{m.scope}</span>
-            <select value={scope} onChange={event => { setScopeOverride(event.target.value); changeFilter(filter); }}>
+            <Select value={scope} onChange={event => { setScopeOverride(event.target.value); changeFilter(filter); }}>
               <option value="">{m.global}</option>
               {liveProjects.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
-            </select>
+            </Select>
           </label>}
         </div>
       </div>
@@ -274,7 +275,7 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
         {shown.length > 0 && <div className="management-grid management-list-head" aria-hidden="true">
           <span>{m.name}</span><span>{m.status}</span><span>{m.source}</span><span />
         </div>}
-        {shown.map(row => <button key={row.key} type="button" className="management-grid management-list-row"
+        {shown.map(row => <Button key={row.key} type="button" className="management-grid management-list-row"
             ref={node => { if (node) rowControls.current.set(row.key, node); else rowControls.current.delete(row.key); }}
             onClick={() => setSelection({ key: row.key, scope })}>
             <span className="management-row-name"><span className="management-row-icon"><Icon name={icons[row.kind]} /></span><span>
@@ -284,7 +285,7 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
             <span className="management-source">{row.kind === 'connection' ? row.connection.config_status === 'private_environment_not_sandbox' ? m.privateEnvironment : t.unknown
               : 'code' in row.profile ? t.unknown : m.managed}</span>
             <Icon name="arrow" />
-          </button>)}
+          </Button>)}
         {!shown.length && !reading && <div className="management-empty">
           <p>{!connected ? t.disconnected : catalog?.unavailable ? m.unavailable : query || attention ? m.noResults : scope ? m.noProject : rows.length ? m.noCapabilities : m.noConnections}</p>
         </div>}
@@ -292,10 +293,10 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
       <div className="management-list-foot">
         <span role="status">{catalog && m.results(shown.length)}</span>
         <div>
-          {(attentionCount > 0 || attention) && <button type="button" aria-pressed={attention}
-            className="management-attention" onClick={() => { setAttention(!attention); setSelection(null); }}>{m.attention(attentionCount)}</button>}
-          <button type="button" className="icon-button" title={m.refresh} aria-label={m.refresh}
-            disabled={!connected || reading} onClick={() => { refresh(); if (scope) refreshScope(); }}><Icon name="refresh" /></button>
+          {(attentionCount > 0 || attention) && <Button type="button" aria-pressed={attention}
+            className="management-attention" onClick={() => { setAttention(!attention); setSelection(null); }}>{m.attention(attentionCount)}</Button>}
+          <Button type="button" className="icon-button" title={m.refresh} aria-label={m.refresh}
+            disabled={!connected || reading} onClick={() => { refresh(); if (scope) refreshScope(); }}><Icon name="refresh" /></Button>
         </div>
       </div>
     </div>
@@ -303,8 +304,8 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
       onKeyDown={event => backOnEscape(event, closeDetails)}>
       <header className="page-heading">
         <div className="page-title">
-          <button type="button" className="icon-button" aria-label={m.backToList} title={m.backToList} onClick={closeDetails}><Icon name="back" /></button>
-          <h1 id={`${id}-record-title`} tabIndex={-1} ref={detailsTitle}>{rowName(selected)}</h1>
+          <Button type="button" className="icon-button" aria-label={m.backToList} title={m.backToList} onClick={closeDetails}><Icon name="back" /></Button>
+          <Title order={1} id={`${id}-record-title`} tabIndex={-1} ref={detailsTitle}>{rowName(selected)}</Title>
         </div>
         <span className={`management-status ${needsReview(selected) ? 'warning' : selected.kind === 'connection' && selected.connection.probe_state === 'ready' ? 'good' : ''}`}>{rowStatus(selected, m)}</span>
       </header>
@@ -312,9 +313,9 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
       <div className="management-detail-body">
         <RecordDetails row={selected} language={language} connected={connected && !scopePending} onRefresh={refresh} />
         {selected.kind !== 'connection' && !('code' in selected.profile) && (
-          <button type="button" disabled={!connected || scopePending} onClick={event => openEditor(selected.kind, selected.connection.id, event.currentTarget)}>
+          <Button type="button" disabled={!connected || scopePending} onClick={event => openEditor(selected.kind, selected.connection.id, event.currentTarget)}>
             {selected.kind === 'skill' ? m.editSkill : m.editMcp}
-          </button>
+          </Button>
         )}
       </div>
     </section>}
@@ -322,8 +323,8 @@ export function CapabilitiesPage({ language, connected, projects, projectId, ses
       onKeyDown={event => backOnEscape(event, closeEditor)}>
       <header className="page-heading">
         <div className="page-title">
-          <button type="button" className="icon-button" aria-label={m.backToEditor} title={m.backToEditor} onClick={closeEditor}><Icon name="back" /></button>
-          <h1 ref={editor === kind ? editorTitle : undefined} tabIndex={-1}>{kind === 'connection' ? connectionCopy.register : kind === 'skill' ? m.editSkill : m.editMcp}</h1>
+          <Button type="button" className="icon-button" aria-label={m.backToEditor} title={m.backToEditor} onClick={closeEditor}><Icon name="back" /></Button>
+          <Title order={1} ref={editor === kind ? editorTitle : undefined} tabIndex={-1}>{kind === 'connection' ? connectionCopy.register : kind === 'skill' ? m.editSkill : m.editMcp}</Title>
         </div>
       </header>
       {kind === 'connection' ? <Connections language={language} connected={connected} registrationOnly onChanged={refresh} />

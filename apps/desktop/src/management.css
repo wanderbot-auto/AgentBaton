@@ -1,8 +1,8 @@
 .management-page [hidden], .management-settings [hidden] { display: none !important; }
 
 .management-page, .management-settings {
-  --management-muted: #616976;
-  --management-warning-wash: #fff8ee;
+  --management-muted: var(--muted);
+  --management-warning-wash: var(--warning-bg);
 }
 
 .management-header > button {
@@ -35,7 +35,7 @@
   pointer-events: none;
 }
 .management-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-12); }
-.management-tabs > button {
+.management-tabs > button[aria-pressed] {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -47,12 +47,12 @@
   background: transparent;
   white-space: nowrap;
 }
-.management-tabs > button:hover { background: var(--soft); }
-.management-tabs > button:is([aria-pressed=true], [aria-selected=true]) {
+.management-tabs > button[aria-pressed]:hover { background: var(--soft); }
+.management-tabs > button[aria-pressed]:is([aria-pressed=true], [aria-selected=true]) {
   color: var(--ink);
   font-weight: 600;
 }
-.management-tabs > button:is([aria-pressed=true], [aria-selected=true])::after {
+.management-tabs > button[aria-pressed]:is([aria-pressed=true], [aria-selected=true])::after {
   content: '';
   position: absolute;
   inset: auto 0 0;
@@ -169,7 +169,7 @@
 .management-attention { color: var(--warning); background: transparent; border-color: transparent; white-space: nowrap; }
 .management-attention:hover:not(:disabled), .management-attention[aria-pressed=true] {
   background: var(--management-warning-wash);
-  border-color: #efddc8;
+  border-color: var(--warning-border);
 }
 
 .management-record dl { grid-template-columns: minmax(104px, max-content) minmax(0, 1fr); gap: var(--space-8) var(--space-16); }
@@ -220,29 +220,6 @@
 .management-disclosure summary { min-height: var(--control); padding-block: var(--space-8); cursor: pointer; color: var(--ink); }
 .management-hide { border: 1px solid var(--line); border-radius: 6px; background: var(--canvas); padding-inline: var(--space-16); margin-bottom: var(--space-16); }
 .management-hide > summary { display: list-item; min-height: var(--record); align-content: center; }
-.management-switch {
-  display: flex;
-  align-items: center;
-  width: 42px;
-  min-height: var(--control);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  flex: none;
-}
-.management-switch > span {
-  display: flex;
-  align-items: center;
-  width: 42px;
-  height: 24px;
-  padding: 3px;
-  border-radius: 12px;
-  background: #767f8d;
-}
-.management-switch > span::before { content: ''; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); }
-.management-switch[aria-checked=true] > span { justify-content: flex-end; background: var(--ink); }
-.management-switch:hover:not(:disabled) { background: transparent; }
-.management-switch:hover:not(:disabled) > span { filter: brightness(.9); }
 
 @media (max-width: 860px) {
   .management-toolbar { align-items: stretch; flex-direction: column; }

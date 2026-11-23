@@ -9,6 +9,7 @@ import unittest
 from tests.infrastructure.child_goal_capture_source_fixture import LAYERS as CAPTURE_LAYERS, strip_capture_failure_layer
 
 ROOT=Path(__file__).resolve().parents[2]
+from tests.infrastructure.mantine_child_goal_source_fixture import restore_mantine_renderer
 P=types.ModuleType('v4_projection');P.__file__=str(ROOT/'scripts/record-child-goal-ci-evidence.py')
 exec(compile(Path(P.__file__).read_bytes(),P.__file__,'exec'),P.__dict__)
 SECRET='PRIVATE_CANARY_TOKEN_PATH_ID_TEXT'
@@ -55,6 +56,7 @@ def strip_context_serialization_layer(text, manifest_raw=None):
         manifest_raw = (ROOT/CONTEXT_SERIALIZATION_MANIFEST_PATH).read_bytes()
     if type(manifest_raw) is not bytes or hashlib.sha256(manifest_raw).hexdigest() != CONTEXT_SERIALIZATION_MANIFEST_SHA256:
         raise AssertionError('Unknown child Context serialization manifest')
+    text = restore_mantine_renderer(text)
     digest = source_sha(text)
     if digest in (PLAN_READ_REUSE_UI_SHA256, PLAN_READ_REUSE_BASE_UI_SHA256):
         return text
@@ -373,7 +375,7 @@ class V4DiagnosticsTests(unittest.TestCase):
         path='apps/desktop/src/FactoryChildGoals.tsx'
         text=(ROOT/path).read_text()
         manifest=(ROOT/CONTEXT_SERIALIZATION_MANIFEST_PATH).read_bytes()
-        self.assertEqual(source_sha(text),CONTEXT_SERIALIZATION_UI_SHA256)
+        self.assertEqual(source_sha(restore_mantine_renderer(text)),CONTEXT_SERIALIZATION_UI_SHA256)
         restored=strip_context_serialization_layer(text,manifest)
         self.assertEqual(source_sha(restored),PLAN_READ_REUSE_UI_SHA256)
         self.assertEqual(inverse(path,text),inverse(path,restored))

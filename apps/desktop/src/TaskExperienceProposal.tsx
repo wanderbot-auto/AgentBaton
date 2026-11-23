@@ -1,3 +1,4 @@
+import { Button, Form, Select, Textarea, Title } from './ui';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import type { Project, Task } from './api';
 import type { Language } from './i18n';
@@ -65,34 +66,34 @@ function ExperienceEditor({ source, goal, language }: { source: ExperienceSource
   const content = draft ? draft.content ?? t.starters[draft.kind] : '';
   const candidate = view.phase === 'preview' ? view.candidate : null;
   return <section aria-labelledby={`${id}-title`}>
-    <h2 id={`${id}-title`}>{t.title}</h2>
+    <Title order={2} id={`${id}-title`}>{t.title}</Title>
     <p className="hint">{t.help}</p>
-    {view.phase === 'closed' && <button type="button" ref={entry}
-      onClick={() => update(initialExperienceDraft(goal))}>{t.open}</button>}
-    {draft && <form className="connection-form" onSubmit={event => preview(event, draft, content)}>
+    {view.phase === 'closed' && <Button type="button" ref={entry}
+      onClick={() => update(initialExperienceDraft(goal))}>{t.open}</Button>}
+    {draft && <Form className="connection-form" onSubmit={event => preview(event, draft, content)}>
       <label htmlFor={`${id}-kind`}>{t.kind}</label>
-      <select id={`${id}-kind`} ref={kindSelect} value={draft.kind}
+      <Select id={`${id}-kind`} ref={kindSelect} value={draft.kind}
         onChange={event => update({ ...draft, kind: event.target.value as ExperienceKind })}>
         {experienceKinds.map(kind => <option key={kind} value={kind}>{t.kinds[kind]}</option>)}
-      </select>
+      </Select>
       <label htmlFor={`${id}-summary`}>{t.summary}</label>
-      <textarea id={`${id}-summary`} name="summary" rows={2} value={draft.summary}
+      <Textarea id={`${id}-summary`} name="summary" rows={2} value={draft.summary}
         aria-invalid={invalid === 'summary' || undefined}
         aria-describedby={invalid === 'summary' ? `${id}-error` : undefined}
         onChange={event => update({ ...draft, summary: event.target.value })} />
       <label htmlFor={`${id}-content`}>{t.content}</label>
-      <textarea id={`${id}-content`} name="content" rows={6} value={content}
+      <Textarea id={`${id}-content`} name="content" rows={6} value={content}
         aria-invalid={invalid === 'content' || undefined}
         aria-describedby={invalid === 'content' ? `${id}-error` : undefined}
         onChange={event => update({ ...draft, content: event.target.value })} />
       {invalid && <p id={`${id}-error`} role="alert">{t.invalid[invalid]}</p>}
       <div className="dialog-actions" style={{ gridColumn: '1 / -1' }}>
-        <button type="button" onClick={discard}>{t.cancel}</button>
-        <button type="submit" className="primary">{t.review}</button>
+        <Button type="button" onClick={discard}>{t.cancel}</Button>
+        <Button type="submit" className="primary">{t.review}</Button>
       </div>
-    </form>}
+    </Form>}
     {candidate && <div style={{ overflowWrap: 'anywhere' }}>
-      <h3 ref={previewHeading} tabIndex={-1}>{t.preview}</h3>
+      <Title order={3} ref={previewHeading} tabIndex={-1}>{t.preview}</Title>
       <dl>
         <dt>{t.kind}</dt><dd>{t.kinds[candidate.kind]}</dd>
         <dt>{t.project}</dt><dd>{candidate.source.projectName} ({candidate.source.projectId})</dd>
@@ -102,15 +103,15 @@ function ExperienceEditor({ source, goal, language }: { source: ExperienceSource
         <dt>{t.acceptance}</dt><dd>{candidate.source.acceptanceRef}</dd>
         <dt>{t.sequence}</dt><dd>{candidate.source.acceptanceSequence}</dd>
       </dl>
-      <h4>{t.summary}</h4>
+      <Title order={4}>{t.summary}</Title>
       <p style={{ whiteSpace: 'pre-wrap' }}>{candidate.summary}</p>
-      <h4>{t.content}</h4>
+      <Title order={4}>{t.content}</Title>
       <p style={{ whiteSpace: 'pre-wrap' }}>{candidate.content}</p>
       <div className="dialog-actions">
-        <button type="button" onClick={discard}>{t.cancel}</button>
-        <button type="button" onClick={() => update({
+        <Button type="button" onClick={discard}>{t.cancel}</Button>
+        <Button type="button" onClick={() => update({
           kind: candidate.kind, summary: candidate.summary, content: candidate.content,
-        })}>{t.edit}</button>
+        })}>{t.edit}</Button>
       </div>
     </div>}
   </section>;
