@@ -283,5 +283,57 @@
     },
     "production_build": "passed",
     "artifacts": "artifacts/ui-checks/mantine-picker-refresh"
+  },
+  "headerless_macos_window": {
+    "base_sha": "26a443e2db1faf06f07ce6bf87b96524273ca4e1",
+    "renderer_tested_sha": "43f54a971a297d644db1863c31f7c3fac711c932",
+    "native_tested_sha": "1b31f09190f314583a58276fa461820a26d8bee4",
+    "renderer_tests": {
+      "passed": 1612,
+      "files": 116
+    },
+    "browser_real_ipc": {
+      "webkit": {
+        "checks": 42,
+        "version": "26.5"
+      },
+      "chromium": {
+        "checks": 42,
+        "version": "149.0.7827.55"
+      }
+    },
+    "source_and_compatibility_tests": 23,
+    "native_frame": {
+      "full_size_content": true,
+      "hidden_title": true,
+      "native_buttons": [
+        {
+          "button": "close",
+          "height": 14.0,
+          "width": 14.0,
+          "x": 12.0,
+          "y": 11.0
+        },
+        {
+          "button": "minimize",
+          "height": 14.0,
+          "width": 14.0,
+          "x": 35.0,
+          "y": 11.0
+        },
+        {
+          "button": "zoom",
+          "height": 14.0,
+          "width": 14.0,
+          "x": 58.0,
+          "y": 11.0
+        }
+      ]
+    },
+    "native_smoke": "passed",
+    "native_image": "capture_unavailable_not_passed",
+    "frontmost_window_verification": "unavailable while the local macOS session was locked",
+    "layout_screenshot_sha256": "51dfdac22c025554b9aea901e0465f0f72d1cf941b53a1e38d512217392c73e4",
+    "artifacts": "artifacts/ui-checks/headerless-window"
   }
 }

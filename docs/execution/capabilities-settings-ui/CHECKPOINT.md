@@ -25,3 +25,7 @@
 ## 2026-11-24 · 热更新后恢复下拉选项
 
 源码候选 `d000a27070975f9eecc98e106a66baf827330e68`。生产构建及 1,612 项前端测试通过。实际开发窗口恢复语言、外观和所属项目下拉，截图和原生控件观测在 `artifacts/ui-checks/mantine-picker-refresh/`。
+
+## 2026-11-24 · 无顶栏窗口
+
+前端候选 `43f54a971a297d644db1863c31f7c3fac711c932` 通过 1,612 项前端测试及双引擎各 42 项真实 IPC 检查。原生候选 `1b31f09190f314583a58276fa461820a26d8bee4` 通过 AppKit 窗口装饰、三个系统按钮的位置、实际 WebView 及真实 daemon 验证。Mac 锁屏期间前台点击和原生截图不可用。详情在 `artifacts/ui-checks/headerless-window/`。
