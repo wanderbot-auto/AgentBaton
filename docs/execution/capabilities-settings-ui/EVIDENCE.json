@@ -112,5 +112,104 @@
       "real Provider integration",
       "formal release"
     ]
+  },
+  "mantine_migration": {
+    "base_sha": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+    "renderer_source_sha": "80b932b9be1f732fc82d11877e80873abbcebdcb",
+    "workspace_driver_source_sha": "dc23d658b6135a56aefdefefddef62972c62b4a7",
+    "platform": "macOS 26.6.1 / Apple Silicon arm64",
+    "node": "26.7.0",
+    "npm": "11.19.0",
+    "mantine": "9.8.1",
+    "build": "passed with Vite single-chunk size warning",
+    "renderer_tests": {
+      "passed": 1610,
+      "files": 116
+    },
+    "browser_real_ipc": {
+      "chromium": {
+        "version": "149.0.7827.55",
+        "playwright_version": "1.61.0",
+        "check_count": 41,
+        "screenshots": 31,
+        "daemon_sha256": "d7f0bf65637bbc6364b1aea477f66da217c49adbd85a06db9a2644fb8b8bddc1",
+        "theme": {
+          "name": "appearance recolors shell and controls, survives reload and follows system changes",
+          "status": "passed",
+          "light": [
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(0, 0, 0)"
+          ],
+          "dark": [
+            "rgb(36, 36, 36)",
+            "rgb(36, 36, 36)",
+            "rgb(46, 46, 46)",
+            "rgb(201, 201, 201)"
+          ]
+        },
+        "sample_screenshot_sha256": {
+          "home-1440x900.png": "3a5f80e89286afb28ef25b248d623ae07483f37c923301e08a487cc26aa964ef",
+          "settings-dark.png": "f4deacbc400fbb1d1f861a62ab853ac163806db5c460f22d9adaf09e88821113",
+          "notifications-dark.png": "76dd2df9143f61e5e009afe955f52f0d7409a79fa95276597f29c589d5048f70"
+        }
+      },
+      "webkit": {
+        "version": "26.5",
+        "playwright_version": "1.61.0",
+        "check_count": 41,
+        "screenshots": 31,
+        "daemon_sha256": "d7f0bf65637bbc6364b1aea477f66da217c49adbd85a06db9a2644fb8b8bddc1",
+        "theme": {
+          "name": "appearance recolors shell and controls, survives reload and follows system changes",
+          "status": "passed",
+          "light": [
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(0, 0, 0)"
+          ],
+          "dark": [
+            "rgb(36, 36, 36)",
+            "rgb(36, 36, 36)",
+            "rgb(46, 46, 46)",
+            "rgb(201, 201, 201)"
+          ]
+        },
+        "sample_screenshot_sha256": {
+          "home-1440x900.png": "9252eed305799af0601b7cac2d1d0264ed7916866b555a5be0470b7c045643de",
+          "settings-dark.png": "899936829c438314ce3bfba920c8d8cb210ac30c2865dbd0a0755ac965750e68",
+          "notifications-dark.png": "2302bac6df9962524f84f2eab494c49dd7f7033a8f4fa3e7da5ccd603f1a74a7"
+        }
+      }
+    },
+    "macos_native": {
+      "status": "passed",
+      "fixture_unit_tests": 37,
+      "real_webview_goal_and_persisted_reopen": true,
+      "report_sha256": "e36ff9c25082c3989d24fc83161b1d748bb70262221d4cbf6fd6872c42bdb0ba"
+    },
+    "macos_login_registration": {
+      "status": "passed",
+      "cases": [
+        "normal",
+        "race",
+        "conflict"
+      ],
+      "actual_os_login": "not_run",
+      "report_sha256": "fceb3c1253266b96925600f09c9c1d13314074ac042188379600c94c2ad74e2b"
+    },
+    "data_workspace_browser": {
+      "status": "passed",
+      "passed": 8
+    },
+    "bootstrap_integrity": {
+      "status": "passed",
+      "files": 93
+    },
+    "source_inverse_controls": "Mantine layer is reversed to the exact previous renderer and test SHA-256 before the unchanged historical inverses",
+    "independent_review": "read-only review completed; CSS declarations, Factory field contracts, record layout, composer affordances, contrast and login track observations addressed",
+    "local_artifacts": "artifacts/ui-checks/mantine-final"
   }
 }

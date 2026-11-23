@@ -11,3 +11,9 @@
 ## 方案 B 交接
 
 实现及测试对象为 `95ac1888789591b87afb16dbcb94bb6a8eec5ca2`，目标为 `145a5041e93f82778167de28ac8aebbc4b795cd5`。115 个渲染测试文件、1609 个用例、生产前端构建、真实 Core 浏览器流程的 40 项检查、13 项工作区夹具回归和设计校验通过。Apple Silicon 上实际开发窗口显示新版任务界面，连接本地后台。浏览器覆盖 1488、1440、1024 和 390px，原生窗口截图单列。全套原生操作与包验证等待对应候选 CI。详见 EVIDENCE.json。
+
+## 2026-11-24 · Mantine
+
+- 基线 `145a5041e93f82778167de28ac8aebbc4b795cd5`。已验证前端及原生候选 `80b932b9be1f732fc82d11877e80873abbcebdcb`。后续 `dc23d658b6135a56aefdefefddef62972c62b4a7` 只调整历史文件、执行计划和数据工作区浏览器驱动，前端制品相同。
+- 本机 `bash scripts/collab.sh run -- npm --prefix apps/desktop run build`、前端 Vitest、双引擎真实 IPC 浏览器驱动、`scripts/native-macos-smoke.sh`、原生登录烟测及数据工作区驱动通过。报告及截图在当前工作树的 `artifacts/ui-checks/mantine-final/`。
+- 集成窗口应在实际合并历史导出代码后重测项目页。远程必需检查由 PR #37 验证。
