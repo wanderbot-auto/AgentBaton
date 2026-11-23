@@ -1,0 +1,40 @@
+{
+  "base": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+  "branch": "collab/task-start-ordinary-dispatch",
+  "platform": "macOS 26.6.1 (25G76), Apple Silicon arm64",
+  "rustc": "1.91.1",
+  "dimension": "Actual local Unix IPC, SQLite, managed Git worktree and generated ACP subprocess",
+  "review": "Implementation author verification. Independent review pending at handoff.",
+  "source_sha256": {
+    "crates/core/src/ipc.rs": "ea48ae876b05c81d12dd130e53c25c32e2f44eb6f5709edec7bf5fffc2d5ce62",
+    "crates/core/src/sessions.rs": "ea88b78423b5a47542374718c162ceb823aa07afb6b3427fc9208831a9c9ef0f",
+    "crates/core/tests/sessions_ipc.rs": "1308646c10ec22d0c613a95295183c07c99f5ca3598d5a144ac35256880da72a"
+  },
+  "checks": [
+    {
+      "command": "bash scripts/collab.sh run -- cargo test --offline --locked -j 2 -p agentbaton-core --test sessions_ipc -- --test-threads=1 ordinary_task_start real_session_turns_survive_ui_requests_and_never_imply_acceptance lost_task_message_reply_recovers_original_turn_without_dispatching_again actual_graph_work_captures_owned_versioned_sha_without_task_acceptance",
+      "exit": 101,
+      "passed": 6,
+      "failed": 1,
+      "duration_seconds": 33.13,
+      "failure": "Existing actual_graph_work_captures_owned_versioned_sha_without_task_acceptance. approvals.finalize at sequence 19 returned PERMISSION_DENIED after 3131 ms: A live, separate native Goal approval and its unchanged execution capabilities are required. Prior to Goal dispatch. Root cause unestablished."
+    },
+    {
+      "command": "TMPDIR=/tmp bash scripts/collab.sh run -- cargo test --offline --locked -j 2 -p agentbaton-core --test sessions_ipc -- --test-threads=1 ordinary_task_start real_session_turns_survive_ui_requests_and_never_imply_acceptance lost_task_message_reply_recovers_original_turn_without_dispatching_again actual_graph_work_captures_owned_versioned_sha_without_task_acceptance",
+      "exit": 0,
+      "passed": 7,
+      "failed": 0,
+      "duration_seconds": 12.10
+    },
+    {"command": "bash scripts/collab.sh run -- cargo fmt --all --check", "exit": 0},
+    {"command": "git diff --check", "exit": 0},
+    {"command": "bash scripts/collab.sh scope", "exit": 0}
+  ],
+  "deferred_verification": [
+    "Tauri or desktop normal entry point",
+    "Live vendor Provider account",
+    "Hosted product CI",
+    "Remote Host",
+    "Process kill and recovery while the new initial turn is in flight"
+  ]
+}

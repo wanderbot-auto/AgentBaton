@@ -153,6 +153,43 @@ pub struct ManagedSession {
     pub runtime_snapshot: Option<crate::RuntimeBinding>,
 }
 
+/// Immutable acknowledgement of admission. Read the managed session for its
+/// current process and turn state.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct TaskStartReceipt {
+    pub session_id: String,
+    task_id: String,
+    attempt_id: String,
+    task_revision: u64,
+    spec_revision: u64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct TaskStartIntent {
+    receipt: TaskStartReceipt,
+    workspace_binding_id: String,
+    workspace_binding_revision: u64,
+    grant_revision: u64,
+    goal_sha256: String,
+}
+
+fn task_start_scope(task_id: &str) -> String {
+    format!("local:{task_id}:tasks.start")
+}
+
+fn initial_task_goal_key(session_id: &str) -> String {
+    format!("baton-initial-task-goal:{session_id}")
+}
+
+fn task_start_conflict() -> CoreError {
+    CoreError::new(
+        "CONFIG_CONFLICT",
+        "This task already has a start receipt; recover the original request",
+    )
+}
+
 /// The caller resolves this session-specific observation independently from an
 /// authorized native verifier. Version output, a saved native ID and a claim by
 /// the Provider do not establish identity or permission to load a session.
@@ -606,6 +643,39 @@ fn session_turn_record(conn: &Connection, id: &str, key: &str) -> Result<Option<
     .map_err(db_error)
 }
 
+fn has_task_start(conn: &Connection, task_id: &str) -> Result<bool> {
+    conn.query_row(
+        "SELECT EXISTS(SELECT 1 FROM idempotency WHERE scope=?1)",
+        [task_start_scope(task_id)],
+        |row| row.get(0),
+    )
+    .map_err(db_error)
+}
+
+fn task_start_record(
+    conn: &Connection,
+    task_id: &str,
+) -> Result<Option<(String, String, TaskStartIntent)>> {
+    let mut rows = conn
+        .prepare("SELECT key,payload,result FROM idempotency WHERE scope=?1 LIMIT 2")
+        .map_err(db_error)?;
+    let mut rows = rows.query([task_start_scope(task_id)]).map_err(db_error)?;
+    let Some(row) = rows.next().map_err(db_error)? else {
+        return Ok(None);
+    };
+    let key = row.get(0).map_err(db_error)?;
+    let payload = row.get(1).map_err(db_error)?;
+    let result: String = row.get(2).map_err(db_error)?;
+    let intent: TaskStartIntent = decode(&result)?;
+    if rows.next().map_err(db_error)?.is_some() || intent.receipt.task_id != task_id {
+        return Err(CoreError::new(
+            "OUTCOME_UNKNOWN",
+            "Task start receipt is inconsistent",
+        ));
+    }
+    Ok(Some((key, payload, intent)))
+}
+
 fn session_from(conn: &Connection, id: &str) -> Result<ManagedSession> {
     let raw: Option<String> = conn
         .query_row("SELECT document FROM sessions WHERE id=?1", [id], |r| {
@@ -810,6 +880,52 @@ impl Store {
             .map_err(db_error)?;
         rows.map(|r| decode(&r.map_err(db_error)?)).collect()
     }
+    pub(crate) fn has_task_start(&self, task_id: &str) -> Result<bool> {
+        has_task_start(&self.conn, task_id)
+    }
+
+    pub(crate) fn task_start_replay(
+        &self,
+        task_id: &str,
+        key: &str,
+        payload: &str,
+    ) -> Result<Option<TaskStartReceipt>> {
+        key_valid(key)?;
+        let Some((original_key, original_payload, intent)) =
+            task_start_record(&self.conn, task_id)?
+        else {
+            return Ok(None);
+        };
+        if original_key != key || original_payload != payload {
+            return Err(task_start_conflict());
+        }
+        Ok(Some(intent.receipt))
+    }
+
+    pub(crate) fn reserve_task_start(
+        &mut self,
+        request: (&str, &str, &str, &str, u64, &str),
+        payload: &str,
+    ) -> Result<TaskStartReceipt> {
+        let (task_id, workspace, connection, grant, revision, key) = request;
+        key_valid(key)?;
+        let session_key = format!("baton-task-start:{}", Uuid::new_v4());
+        let (_, receipt) = self.create_session_inner(
+            (
+                task_id,
+                workspace,
+                connection,
+                grant,
+                revision,
+                &session_key,
+            ),
+            None,
+            None,
+            Some((key, payload)),
+        )?;
+        receipt.ok_or_else(|| CoreError::new("INTERNAL_ERROR", "Task start receipt is missing"))
+    }
+
     pub fn create_session(
         &mut self,
         task_id: &str,
@@ -830,28 +946,33 @@ impl Store {
             ),
             None,
             None,
+            None,
         )
+        .map(|(session, _)| session)
     }
     pub(crate) fn create_session_for_goal(
         &mut self,
         request: (&str, &str, &str, &str, u64, &str),
         context: crate::goal_store::GoalDispatchContext,
     ) -> Result<ManagedSession> {
-        self.create_session_inner(request, Some(context), None)
+        self.create_session_inner(request, Some(context), None, None)
+            .map(|(session, _)| session)
     }
     pub(crate) fn create_session_for_factory(
         &mut self,
         request: (&str, &str, &str, &str, u64, &str),
         context: crate::factory::FactoryDispatchContext,
     ) -> Result<ManagedSession> {
-        self.create_session_inner(request, None, Some(context))
+        self.create_session_inner(request, None, Some(context), None)
+            .map(|(session, _)| session)
     }
     fn create_session_inner(
         &mut self,
         request: (&str, &str, &str, &str, u64, &str),
         goal: Option<crate::goal_store::GoalDispatchContext>,
         factory: Option<crate::factory::FactoryDispatchContext>,
-    ) -> Result<ManagedSession> {
+        task_start: Option<(&str, &str)>,
+    ) -> Result<(ManagedSession, Option<TaskStartReceipt>)> {
         #[cfg(debug_assertions)]
         let mut factory_phase_clock = factory.as_ref().map(|_| Instant::now());
         let (task_id, workspace_id, connection_id, grant_id, expected_revision, key) = request;
@@ -878,7 +999,13 @@ impl Store {
                     "Session key already used with another request",
                 ));
             }
-            return decode(&document);
+            if task_start.is_some() {
+                return Err(task_start_conflict());
+            }
+            return Ok((decode(&document)?, None));
+        }
+        if task_start.is_some() && has_task_start(&tx, task_id)? {
+            return Err(task_start_conflict());
         }
         let command_fenced: bool = tx
             .query_row(
@@ -934,6 +1061,24 @@ impl Store {
                 "PERMISSION_DENIED",
                 "Only a draft task or current privately bound Goal node can start a managed session",
             ));
+        }
+        if task_start.is_some() {
+            if task.code_workspace_binding.is_none() {
+                return Err(CoreError::new(
+                    "AUTH_REQUIRED",
+                    "Prepare this task's isolated Git workspace before starting it",
+                ));
+            }
+            let has_prior_execution: bool = tx.query_row(
+                "SELECT EXISTS(SELECT 1 FROM attempts WHERE task_id=?1) OR EXISTS(SELECT 1 FROM goal_runs WHERE task_id=?1)",
+                [task_id], |row| row.get(0),
+            ).map_err(db_error)?;
+            if has_prior_execution {
+                return Err(CoreError::new(
+                    "CONFIG_CONFLICT",
+                    "This task already has execution history; review it before starting another attempt",
+                ));
+            }
         }
         // Old idempotent Session receipts above remain historical reads. Only a
         // new admission must obey the Task's optional physical workspace binding.
@@ -1234,6 +1379,32 @@ impl Store {
                 self.data_input.as_ref(),
             )?;
         }
+        let start_receipt = task_start
+            .map(|(key, request)| -> Result<_> {
+                let binding = task.code_workspace_binding.as_ref().ok_or_else(|| {
+                    CoreError::new("INPUT_CHANGED", "Task workspace binding is missing")
+                })?;
+                let intent = TaskStartIntent {
+                    receipt: TaskStartReceipt {
+                        session_id: session.id.clone(),
+                        task_id: task_id.into(),
+                        attempt_id: session.attempt_id.clone(),
+                        task_revision: expected_revision,
+                        spec_revision: task.spec_revision,
+                    },
+                    workspace_binding_id: binding.receipt.binding_id.clone(),
+                    workspace_binding_revision: binding.revision,
+                    grant_revision: grant.revision,
+                    goal_sha256: agentbaton_workspaces::validation::sha256(task.goal.as_bytes()),
+                };
+                tx.execute(
+                    "INSERT INTO idempotency(scope,key,payload,result) VALUES(?1,?2,?3,?4)",
+                    params![task_start_scope(task_id), key, request, encode(&intent)?],
+                )
+                .map_err(db_error)?;
+                Ok(intent.receipt)
+            })
+            .transpose()?;
         tx.commit().map_err(db_error)?;
         #[cfg(debug_assertions)]
         if let Some(clock) = factory_phase_clock {
@@ -1245,7 +1416,7 @@ impl Store {
                 None,
             );
         }
-        Ok(session)
+        Ok((session, start_receipt))
     }
     // Read a committed ordinary task turn by its original send intent. A
     // missing row is not evidence that an in-flight request will never commit.
@@ -1258,6 +1429,7 @@ impl Store {
     ) -> Result<Option<(String, ManagedSession)>> {
         key_valid(key)?;
         self.require_ordinary_session(id)?;
+        self.require_manual_turn_key(id, key)?;
         let turn_id = recorded_session_turn(&self.conn, id, text, revision, key)?;
         turn_id
             .map(|turn_id| Ok((turn_id, session_from(&self.conn, id)?)))
@@ -1270,6 +1442,7 @@ impl Store {
     ) -> Result<Value> {
         intent.validate()?;
         self.require_ordinary_session(&intent.session_id)?;
+        self.require_manual_turn_key(&intent.session_id, &intent.request_key)?;
         let Some((turn_id, payload)) =
             session_turn_record(&self.conn, &intent.session_id, &intent.request_key)?
         else {
@@ -1303,6 +1476,19 @@ impl Store {
         Ok(())
     }
 
+    fn require_manual_turn_key(&self, id: &str, key: &str) -> Result<()> {
+        if key == initial_task_goal_key(id)
+            && task_start_record(&self.conn, &self.get_session(id)?.task_id)?
+                .is_some_and(|(_, _, intent)| intent.receipt.session_id == id)
+        {
+            return Err(CoreError::new(
+                "AUTH_REQUIRED",
+                "The recorded initial goal is owned by the daemon",
+            ));
+        }
+        Ok(())
+    }
+
     pub fn send_session(
         &mut self,
         id: &str,
@@ -1310,8 +1496,98 @@ impl Store {
         revision: u64,
         key: &str,
     ) -> Result<(ManagedSession, bool)> {
+        self.require_manual_turn_key(id, key)?;
         self.send_session_inner(id, text, revision, key, false, false)
     }
+    fn initial_task_goal(
+        &self,
+        session: &ManagedSession,
+        intent: &TaskStartIntent,
+    ) -> Result<String> {
+        let task = self.get(&session.task_id)?;
+        let binding = task
+            .code_workspace_binding
+            .as_ref()
+            .ok_or_else(|| CoreError::new("INPUT_CHANGED", "Task workspace binding is missing"))?;
+        let dispatch = self.intent(&session.intent_id)?;
+        let grant = validate_grant_from_with_data(
+            &self.conn,
+            &session.grant_id,
+            &session.project_id,
+            &session.workspace_id,
+            &session.connection_id,
+            self.data_input.as_ref(),
+        )?;
+        if task.state != TaskState::Running
+            || task.project_id != session.project_id
+            || intent.receipt.task_revision.checked_add(2) != Some(task.revision)
+            || task.spec_revision != intent.receipt.spec_revision
+            || agentbaton_workspaces::validation::sha256(task.goal.as_bytes()) != intent.goal_sha256
+            || session.attempt_id != intent.receipt.attempt_id
+            || grant.revision != intent.grant_revision
+            || dispatch.state != IntentState::Sent
+            || dispatch.executor_instance.as_deref() != Some(&session.id)
+            || dispatch.attempt_id != session.attempt_id
+            || dispatch.task_id != session.task_id
+            || dispatch.binding.workspace_id != session.workspace_id
+            || dispatch.binding.connection_id != session.connection_id
+            || binding.state != crate::task_workspace_binding::TaskWorkspaceBindingState::Ready
+            || binding.receipt.binding_id != intent.workspace_binding_id
+            || binding.revision != intent.workspace_binding_revision
+            || binding.receipt.workspace_id != session.workspace_id
+            || binding.receipt.spec_revision != task.spec_revision
+            || binding.receipt.source_pin.head != dispatch.binding.input_revision
+            || self.get_project(&task.project_id)?.revision != binding.receipt.project_revision
+        {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Task start binding changed before the first goal",
+            ));
+        }
+        let connection = self.get_connection(&session.connection_id)?;
+        let runtime = self.runtime_binding(&session.id)?;
+        let plan = crate::runtime_config::approved_task_plan(
+            &self.conn,
+            &task.id,
+            &task.project_id,
+            &connection,
+        )?
+        .plan_digest()
+        .map_err(crate::runtime_config::config_error)?;
+        if !runtime.as_ref().is_some_and(|runtime| {
+            runtime.session_id == session.id
+                && runtime.attempt_id == session.attempt_id
+                && runtime.connection_config_revision == connection.config_revision
+                && runtime.plan_digest == plan
+                && session.runtime_snapshot.as_ref() == Some(runtime)
+                && dispatch.binding.config_revision == connection.config_revision
+                && dispatch.binding.environment_id == connection.environment_id
+                && dispatch.binding.identity_ref == connection.identity_ref
+                && dispatch.binding.host_id == connection.host_id
+        }) {
+            return Err(CoreError::new(
+                "INPUT_CHANGED",
+                "Approved runtime binding changed before the first goal",
+            ));
+        }
+        Ok(task.goal)
+    }
+
+    fn record_initial_goal_blocked(&mut self, id: &str, code: &str) -> Result<()> {
+        let mut session = self.get_session(id)?;
+        session.state = "cancel_requested".into();
+        session.last_error = Some("initial_task_goal_blocked".into());
+        let tx = self.conn.transaction().map_err(db_error)?;
+        save_session(
+            &tx,
+            &mut session,
+            "session.initial_task_goal_blocked",
+            json!({"code":code,"stop_confirmed":false}),
+            "baton_supervisor",
+        )?;
+        tx.commit().map_err(db_error)
+    }
+
     pub(crate) fn send_goal_session(
         &mut self,
         id: &str,
@@ -2058,6 +2334,7 @@ impl Supervisor {
             if !progress.task {
                 let task = store.get(&s.task_id)?;
                 if (receipt.reason == "cancelled" || s.state == "cancel_requested")
+                    && s.last_error.as_deref() != Some("initial_task_goal_blocked")
                     && task.state != TaskState::CancelRequested
                     && !crate::goal_store::owns_session(&store.conn, id)?
                     && !store.factory_internal_stop_is_current(id)?
@@ -2154,6 +2431,71 @@ impl Supervisor {
         }
         Ok(())
     }
+    fn dispatch_initial_task_goal(
+        &mut self,
+        store: &mut Store,
+        session: &ManagedSession,
+    ) -> Result<()> {
+        let id = &session.id;
+        if !self.workers.get(id).is_some_and(|worker| {
+            !worker.cancel.load(Ordering::Relaxed) && !worker.thread.is_finished()
+        }) {
+            return Ok(());
+        }
+        let Some((_, _, intent)) = task_start_record(&store.conn, &session.task_id)? else {
+            return Ok(());
+        };
+        if intent.receipt.session_id != *id {
+            return Ok(());
+        }
+        let prepared = (|| {
+            let text = store.initial_task_goal(session, &intent)?;
+            let binding = session.runtime_snapshot.as_ref().ok_or_else(|| {
+                CoreError::new("INPUT_CHANGED", "Approved runtime snapshot is missing")
+            })?;
+            let snapshot = self
+                .configuration_root()?
+                .verify_before_launch(&binding.snapshot, RuntimeRequirements::default())
+                .map_err(crate::runtime_config::config_error)?;
+            if snapshot.plan_digest() != binding.plan_digest {
+                return Err(CoreError::new(
+                    "INPUT_CHANGED",
+                    "Approved runtime snapshot changed before the first goal",
+                ));
+            }
+            Ok(text)
+        })();
+        let text = match prepared {
+            Ok(text) => text,
+            Err(error) => {
+                self.cancel(id);
+                return store.record_initial_goal_blocked(id, &error.code);
+            }
+        };
+        let (_, dispatch) = match store.send_session_inner(
+            id,
+            &text,
+            session.revision,
+            &initial_task_goal_key(id),
+            false,
+            false,
+        ) {
+            Ok(send) => send,
+            Err(error) => {
+                self.cancel(id);
+                if error.side_effect_state == "unknown" {
+                    return store.record_turn_queue_failure(id);
+                }
+                return store.record_initial_goal_blocked(id, &error.code);
+            }
+        };
+        if dispatch && self.send(id, &text).is_err() {
+            self.cancel(id);
+            store.record_turn_queue_failure(id)?;
+        }
+        Ok(())
+    }
+
     pub fn tick(&mut self, store: &mut Store) -> Result<()> {
         self.tick_retry_probes(store)?;
         let complete: Vec<String> = self
@@ -2197,7 +2539,8 @@ impl Supervisor {
             match self.events.try_recv() {
                 Ok(Outcome::Ready(id, native)) => {
                     let mut s = store.get_session(&id)?;
-                    if s.state == "starting" {
+                    let first_ready = s.state == "starting";
+                    if first_ready {
                         s.state = "ready".into();
                     }
                     s.native_session_id = Some(native);
@@ -2210,6 +2553,9 @@ impl Supervisor {
                         "provider_runtime",
                     )?;
                     tx.commit().map_err(db_error)?;
+                    if first_ready {
+                        self.dispatch_initial_task_goal(store, &s)?;
+                    }
                 }
                 Ok(Outcome::Update(id, update)) => {
                     let mut s = store.get_session(&id)?;
