@@ -47,6 +47,22 @@ it('opens Mantine dropdowns, submits the original value and keeps the textarea l
   expect(data.get('draft')).toBe('bounded plan');
 });
 
+it('keeps option declarations retained from before Fast Refresh', async () => {
+  const user = userEvent.setup();
+  const RetainedOption = SelectOption.bind(null);
+  render(<Select defaultValue="zh" label="Language">
+    <RetainedOption value="en">English</RetainedOption>
+    <RetainedOption value="zh">简体中文</RetainedOption>
+  </Select>);
+
+  const language = screen.getByRole('combobox', { name: 'Language' });
+  expect(language).toHaveValue('简体中文');
+  await user.click(language);
+  expect(screen.getByRole('option', { name: 'English' })).toBeVisible();
+  await choosePickerOption(user, language, 'en');
+  expect(language).toHaveValue('English');
+});
+
 it('does not open dropdowns in a disabled fieldset', async () => {
   const user = userEvent.setup();
   render(<Fieldset disabled><Select label="Scoped target"><SelectOption>Target</SelectOption></Select></Fieldset>);

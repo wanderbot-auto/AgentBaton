@@ -52,7 +52,9 @@ function optionKey(value: string) {
 function selectData(children: ReactNode) {
   const choices = new Map<string, { value: string; label: string; disabled?: boolean }>();
   for (const child of Children.toArray(children)) {
-    if (!isValidElement<ChoiceProps>(child) || child.type !== SelectOption) continue;
+    // Fast Refresh can retain option elements created by the previous module.
+    // Their declarations are the props, independent of the component instance.
+    if (!isValidElement<ChoiceProps>(child)) continue;
     const label = Children.toArray(child.props.children).join('').replace(/\s+/g, ' ').trim();
     const value = optionKey(String(child.props.value ?? label));
     const existing = choices.get(value);
