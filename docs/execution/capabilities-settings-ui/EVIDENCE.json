@@ -1,0 +1,339 @@
+{
+  "base_sha": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+  "tested_source_sha": "a554ebbe82278ae68f4e85bc00f1c7e1ddd14125",
+  "host": {
+    "os": "macOS 26.6.1",
+    "architecture": "arm64"
+  },
+  "checks": [
+    {
+      "command": "bash scripts/collab.sh run -- npm --prefix apps/desktop run build",
+      "status": "passed",
+      "includes": [
+        "TypeScript typecheck",
+        "Vite production build"
+      ]
+    },
+    {
+      "command": "bash scripts/collab.sh run -- npm --prefix apps/desktop test",
+      "status": "passed",
+      "test_files": 115,
+      "tests": 1607,
+      "dimension": "renderer tests with mocked transport"
+    },
+    {
+      "command": "apps/desktop/tests/quiet-canvas-real-ipc.py --batond <existing ARM64 schema 19 daemon> --output artifacts/ui-checks/delivery-browser --chromium <local pinned Chromium executable>",
+      "status": "passed",
+      "checks": 40,
+      "screenshots": 27,
+      "dimension": "actual built React frontend + test-only localhost adapter + real Unix daemon/SQLite; not native GUI or real Provider",
+      "browser_version": "149.0.7827.55",
+      "playwright_version": "1.62.0",
+      "daemon_source": "86c7cd20a7528d5b7e3dabcfd9738a64dd60275c",
+      "daemon_sha256": "f75eca51ec0ab4384e24a42143ac5d455e554bf5be4928428ecb24c39b976d84",
+      "screenshot_sha256": {
+        "settings-categories.png": "25ad7fd5173f356bb94ec4a3ac95188c171e08b8b7acdea53ec2b7c63d2caeca",
+        "capabilities-empty.png": "0998ca81c314538dee3b872d16c1db22d1545cd54284076b0c4191dd332725fa",
+        "settings-background-760.png": "5fef81f0b09d465bd3429fca02bba1ab6de3110901bbde0ae0e34398f61a37e5"
+      }
+    },
+    {
+      "command": "bash scripts/collab.sh scope",
+      "status": "passed"
+    },
+    {
+      "command": "bash scripts/collab.sh preview origin/main",
+      "status": "passed"
+    }
+  ],
+  "local_log_sha256": "d573f0d9dc4ead5da71665d423e56500838db4c6ca3e695723b09cf759af42db",
+  "independent_review": {
+    "mode": "read-only native subagent review",
+    "status": "passed for developer handoff"
+  },
+  "native_candidate": "awaiting PR CI",
+  "real_provider_calls": "not run",
+  "system_login_registration_mutation": "not run",
+  "inline_navigation": {
+    "tested_source_sha": "a957054e10adfb49ab158cc29975cb41350ade7a",
+    "build": "TypeScript and Vite passed",
+    "renderer_tests": 1609,
+    "quiet_canvas_real_ipc_checks": 40,
+    "data_workspace_real_ipc": {
+      "checks": 8,
+      "status": "passed"
+    },
+    "desktop_reopened": {
+      "platform": "macOS 26.6.1",
+      "architecture": "arm64",
+      "window_visibility_verified": true,
+      "daemon_schema": 19
+    },
+    "unchanged_native_control_dimension": "Native approvals remain separate. No real OS-login change was executed.",
+    "browser_760px_screenshot_sha256": "bdb49b05dfd7f9a8963a6daadb82406bafe756997c7bf0401dedf906312f9768",
+    "local_log_sha256": "3a897b5db4bd68f6c383c956a3cf4a6ff1a2ce149861e1b39bea39e385dc0302"
+  },
+  "focused_desktop": {
+    "base_sha": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+    "tested_source_sha": "95ac1888789591b87afb16dbcb94bb6a8eec5ca2",
+    "host": {
+      "os": "macOS 26.6.1",
+      "build": "25G76",
+      "architecture": "arm64"
+    },
+    "renderer": {
+      "status": "passed",
+      "files": 115,
+      "tests": 1609,
+      "build": "tsc --noEmit + Vite passed"
+    },
+    "workspace_fixture": {
+      "status": "passed",
+      "tests": 13,
+      "schema19_modal_and_schema18_predecessor_pins_verified": true
+    },
+    "real_core_browser": {
+      "status": "passed",
+      "checks": 40,
+      "screenshots": 27,
+      "daemon_sha256": "d7f0bf65637bbc6364b1aea477f66da217c49adbd85a06db9a2644fb8b8bddc1",
+      "evidence_sha256": "83a488df583f4e651da991be21f0aedc45f326089b67adb8ef44ac828d1ba185"
+    },
+    "native_dev": {
+      "status": "window verified",
+      "renderer_source": "task-local Vite through Tauri dev",
+      "observed": "Chinese task list, icon rail, draft composer and connected local background",
+      "screenshot_sha256": "4a2511f014828786f53229cb269c60cd575910d1f23f4ca0ee631c93c523d4ec"
+    },
+    "native_smoke": "Driver updated for in-settings language and icon refresh; full native smoke belongs to Product CI",
+    "review": "Independent review checked focus, scope refresh, prerequisite reload, native smoke and connection receipt feedback",
+    "outstanding": [
+      "required CI for the new candidate",
+      "real Provider integration",
+      "formal release"
+    ]
+  },
+  "mantine_migration": {
+    "base_sha": "145a5041e93f82778167de28ac8aebbc4b795cd5",
+    "renderer_source_sha": "80b932b9be1f732fc82d11877e80873abbcebdcb",
+    "workspace_driver_source_sha": "dc23d658b6135a56aefdefefddef62972c62b4a7",
+    "platform": "macOS 26.6.1 / Apple Silicon arm64",
+    "node": "26.7.0",
+    "npm": "11.19.0",
+    "mantine": "9.8.1",
+    "build": "passed with Vite single-chunk size warning",
+    "renderer_tests": {
+      "passed": 1610,
+      "files": 116
+    },
+    "browser_real_ipc": {
+      "chromium": {
+        "version": "149.0.7827.55",
+        "playwright_version": "1.61.0",
+        "check_count": 41,
+        "screenshots": 31,
+        "daemon_sha256": "d7f0bf65637bbc6364b1aea477f66da217c49adbd85a06db9a2644fb8b8bddc1",
+        "theme": {
+          "name": "appearance recolors shell and controls, survives reload and follows system changes",
+          "status": "passed",
+          "light": [
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(0, 0, 0)"
+          ],
+          "dark": [
+            "rgb(36, 36, 36)",
+            "rgb(36, 36, 36)",
+            "rgb(46, 46, 46)",
+            "rgb(201, 201, 201)"
+          ]
+        },
+        "sample_screenshot_sha256": {
+          "home-1440x900.png": "3a5f80e89286afb28ef25b248d623ae07483f37c923301e08a487cc26aa964ef",
+          "settings-dark.png": "f4deacbc400fbb1d1f861a62ab853ac163806db5c460f22d9adaf09e88821113",
+          "notifications-dark.png": "76dd2df9143f61e5e009afe955f52f0d7409a79fa95276597f29c589d5048f70"
+        }
+      },
+      "webkit": {
+        "version": "26.5",
+        "playwright_version": "1.61.0",
+        "check_count": 41,
+        "screenshots": 31,
+        "daemon_sha256": "d7f0bf65637bbc6364b1aea477f66da217c49adbd85a06db9a2644fb8b8bddc1",
+        "theme": {
+          "name": "appearance recolors shell and controls, survives reload and follows system changes",
+          "status": "passed",
+          "light": [
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(0, 0, 0)"
+          ],
+          "dark": [
+            "rgb(36, 36, 36)",
+            "rgb(36, 36, 36)",
+            "rgb(46, 46, 46)",
+            "rgb(201, 201, 201)"
+          ]
+        },
+        "sample_screenshot_sha256": {
+          "home-1440x900.png": "9252eed305799af0601b7cac2d1d0264ed7916866b555a5be0470b7c045643de",
+          "settings-dark.png": "899936829c438314ce3bfba920c8d8cb210ac30c2865dbd0a0755ac965750e68",
+          "notifications-dark.png": "2302bac6df9962524f84f2eab494c49dd7f7033a8f4fa3e7da5ccd603f1a74a7"
+        }
+      }
+    },
+    "macos_native": {
+      "status": "passed",
+      "fixture_unit_tests": 37,
+      "real_webview_goal_and_persisted_reopen": true,
+      "report_sha256": "e36ff9c25082c3989d24fc83161b1d748bb70262221d4cbf6fd6872c42bdb0ba"
+    },
+    "macos_login_registration": {
+      "status": "passed",
+      "cases": [
+        "normal",
+        "race",
+        "conflict"
+      ],
+      "actual_os_login": "not_run",
+      "report_sha256": "fceb3c1253266b96925600f09c9c1d13314074ac042188379600c94c2ad74e2b"
+    },
+    "data_workspace_browser": {
+      "status": "passed",
+      "passed": 8
+    },
+    "bootstrap_integrity": {
+      "status": "passed",
+      "files": 93
+    },
+    "source_inverse_controls": "Mantine layer is reversed to the exact previous renderer and test SHA-256 before the unchanged historical inverses",
+    "independent_review": "read-only review completed; CSS declarations, Factory field contracts, record layout, composer affordances, contrast and login track observations addressed",
+    "local_artifacts": "artifacts/ui-checks/mantine-final"
+  },
+  "mantine_picker_followup": {
+    "base_sha": "caa962d44b833e3ebe65c8c18f8b5219a8ab1d9d",
+    "tested_source_sha": "48a3177d3f08635658e02d91c398bdf6d6308d09",
+    "environment": "macOS 26.6.1 / Apple Silicon",
+    "visible_pickers": 53,
+    "renderer_tests": {
+      "passed": 1611,
+      "files": 116
+    },
+    "build": "passed with Vite single-chunk size warning",
+    "browser_real_ipc": {
+      "chromium": {
+        "version": "149.0.7827.55",
+        "checks": 41,
+        "appearance_dropdown_background": {
+          "light": "rgb(255, 255, 255)",
+          "dark": "rgb(46, 46, 46)"
+        },
+        "popup_screenshot_sha256": "44d16af4770c958568ba13c206939be73e33f5b65ee16e8167855af33dd16b92"
+      },
+      "webkit": {
+        "version": "26.5",
+        "checks": 41,
+        "appearance_dropdown_background": {
+          "light": "rgb(255, 255, 255)",
+          "dark": "rgb(46, 46, 46)"
+        },
+        "popup_screenshot_sha256": "9cfd7d4be98d72fe228dbfc033fa547beaa5d2a5a73ab64973d1608aa9442e07"
+      }
+    },
+    "source_pin_tests": 81,
+    "bootstrap_integrity_files": 93,
+    "native_webview": {
+      "status": "passed",
+      "unit_tests": 37,
+      "expected_option_visible_and_clicked": true
+    },
+    "native_login_fixture": {
+      "status": "passed",
+      "cases": [
+        "normal",
+        "race",
+        "conflict"
+      ]
+    },
+    "artifacts": "artifacts/ui-checks/mantine-picker"
+  },
+  "mantine_picker_fast_refresh": {
+    "base_sha": "e6c8abf88cc53ec35c99ab07605ea8dc392ef9d8",
+    "tested_source_sha": "d000a27070975f9eecc98e106a66baf827330e68",
+    "platform": "Apple Silicon macOS / active Tauri development WebView",
+    "reproduced": "language target exposed expanded state after a real mouse click; selected labels and option list were absent",
+    "fixed": "option data is derived from element props when React Fast Refresh retains pre-update option components",
+    "native_verification": {
+      "same_process_and_window": true,
+      "visible_dropdowns": [
+        "语言",
+        "外观",
+        "所属项目"
+      ],
+      "visual_artifact_sha256": {
+        "native-before.png": "4fd37b50a15ff4f901598abd40d23f851c7a8eae1d38dd75b5f247d050f7b08f",
+        "native-appearance-after.png": "608cb96b917fbefa5d27d9de53d7fc31e697052eb2855a68d501a12452e05f4d"
+      }
+    },
+    "renderer_tests": {
+      "passed": 1612,
+      "files": 116
+    },
+    "production_build": "passed",
+    "artifacts": "artifacts/ui-checks/mantine-picker-refresh"
+  },
+  "headerless_macos_window": {
+    "base_sha": "26a443e2db1faf06f07ce6bf87b96524273ca4e1",
+    "renderer_tested_sha": "43f54a971a297d644db1863c31f7c3fac711c932",
+    "native_tested_sha": "1b31f09190f314583a58276fa461820a26d8bee4",
+    "renderer_tests": {
+      "passed": 1612,
+      "files": 116
+    },
+    "browser_real_ipc": {
+      "webkit": {
+        "checks": 42,
+        "version": "26.5"
+      },
+      "chromium": {
+        "checks": 42,
+        "version": "149.0.7827.55"
+      }
+    },
+    "source_and_compatibility_tests": 23,
+    "native_frame": {
+      "full_size_content": true,
+      "hidden_title": true,
+      "native_buttons": [
+        {
+          "button": "close",
+          "height": 14.0,
+          "width": 14.0,
+          "x": 12.0,
+          "y": 11.0
+        },
+        {
+          "button": "minimize",
+          "height": 14.0,
+          "width": 14.0,
+          "x": 35.0,
+          "y": 11.0
+        },
+        {
+          "button": "zoom",
+          "height": 14.0,
+          "width": 14.0,
+          "x": 58.0,
+          "y": 11.0
+        }
+      ]
+    },
+    "native_smoke": "passed",
+    "native_image": "capture_unavailable_not_passed",
+    "frontmost_window_verification": "unavailable while the local macOS session was locked",
+    "layout_screenshot_sha256": "51dfdac22c025554b9aea901e0465f0f72d1cf941b53a1e38d512217392c73e4",
+    "artifacts": "artifacts/ui-checks/headerless-window"
+  }
+}

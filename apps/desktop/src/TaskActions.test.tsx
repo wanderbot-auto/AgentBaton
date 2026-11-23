@@ -51,8 +51,8 @@ it('requires an unambiguous matching project session rather than silently choosi
  vi.mocked(sessionApi.sessionsList).mockResolvedValue([session,{...session,id:'second'}]);render(<App/>);fireEvent.click(await screen.findByRole('button',{name:`Open task: ${task.goal}`}));expect(screen.getByRole('button',{name:'Send task goal'})).toBeDisabled();expect(screen.getByText(/Multiple sessions are ready/)).toBeVisible();expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
 });
 
-it('shares unknown sends with execution settings in both directions across dialog close',async()=>{
- await open();fireEvent.click(screen.getByRole('button',{name:'Workspace and authorization'}));fireEvent.click(screen.getByRole('button',{name:'Report uncertain send'}));fireEvent.click(screen.getByRole('button',{name:'Close'}));
+it('shares unknown sends with execution settings in both directions across return from execution settings',async()=>{
+ await open();fireEvent.click(screen.getByRole('button',{name:'Workspace and authorization'}));fireEvent.click(screen.getByRole('button',{name:'Report uncertain send'}));fireEvent.click(screen.getByRole('button',{name:'Back'}));
  expect(screen.getByRole('button',{name:'Send task goal'})).toBeDisabled();fireEvent.click(screen.getByRole('button',{name:'Workspace and authorization'}));expect(screen.getByText('Uncertain sessions session-one')).toBeVisible();expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
 });
 it('passes a failed goal send to execution settings without clearing the unknown block',async()=>{
@@ -74,9 +74,13 @@ it('requires a new click after leaving and returning to the same task during a p
  await act(async()=>resolve(task));expect(sessionApi.sessionsSend).not.toHaveBeenCalled();expect(screen.queryByRole('alert')).not.toBeInTheDocument();expect(screen.getByRole('button',{name:'Send task goal'})).toBeEnabled();
 });
 
-it('keeps a pending managed send locked after dialog close, including Quick chat, then binds late unknown to its source',async()=>{
- let reject!:(reason:unknown)=>void;vi.mocked(sessionApi.sessionsSend).mockImplementation(()=>new Promise((_,r)=>reject=r));await open();fireEvent.click(screen.getByRole('button',{name:'Workspace and authorization'}));fireEvent.click(screen.getByRole('button',{name:'Managed send'}));fireEvent.click(screen.getByRole('button',{name:'Close'}));expect(screen.getByRole('button',{name:'Send task goal'})).toBeDisabled();expect(screen.getByRole('button',{name:'Workspace and authorization'})).toBeEnabled();
- fireEvent.click(screen.getByRole('button',{name:'Quick chat'}));fireEvent.change(screen.getByLabelText('Existing task conversation'),{target:{value:session.id}});fireEvent.change(screen.getByLabelText('Message'),{target:{value:'Would duplicate'}});await waitFor(()=>expect(sessionApi.sessionsGet).toHaveBeenCalled());expect(screen.getByRole('button',{name:'Send to existing session'})).toBeDisabled();
+it('keeps a pending managed send locked after returning from execution settings, including Quick chat, then binds late unknown to its source',async()=>{
+ let reject!:(reason:unknown)=>void;vi.mocked(sessionApi.sessionsSend).mockImplementation(()=>new Promise((_,r)=>reject=r));await open();fireEvent.click(screen.getByRole('button',{name:'Workspace and authorization'}));fireEvent.click(screen.getByRole('button',{name:'Managed send'}));fireEvent.click(screen.getByRole('button',{name:'Back'}));expect(screen.getByRole('button',{name:'Send task goal'})).toBeDisabled();expect(screen.getByRole('button',{name:'Workspace and authorization'})).toBeEnabled();
+ fireEvent.click(screen.getByRole('button',{name:'Quick chat'}));
+ const picker=screen.getByRole('combobox',{name:'Existing task conversation'});
+ expect(picker).toBeDisabled();fireEvent.click(picker);
+ expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+ expect(screen.getByRole('button',{name:/^Send message/})).toBeDisabled();
  await act(async()=>reject(new DaemonError('OUTCOME_UNKNOWN','unknown','unknown')));fireEvent.click(screen.getByRole('button',{name:'Tasks'}));fireEvent.click(await screen.findByRole('button',{name:`Open task: ${task.goal}`}));expect(screen.getByRole('button',{name:'Send task goal'})).toBeDisabled();expect(sessionApi.sessionsSend).toHaveBeenCalledTimes(1);
 });
 it('passes an App pending send lock into newly opened execution settings without blocking navigation or stop',async()=>{

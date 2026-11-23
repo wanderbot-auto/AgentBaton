@@ -1,3 +1,4 @@
+import { editField } from './test-picker';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StrictMode } from 'react';
@@ -62,7 +63,7 @@ function fill() {
     [en.identity, metadata.transport_identity_ref], [en.config, metadata.configuration.reference],
     [en.ownership, metadata.configuration.declared_ownership],
   ];
-  for (const [label, value] of values) fireEvent.change(screen.getByLabelText(String(label)), { target: { value } });
+  for (const [label, value] of values) editField(screen.getByLabelText(String(label)), value);
 }
 
 function deferred<T>() {

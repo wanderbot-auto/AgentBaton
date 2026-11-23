@@ -1,3 +1,4 @@
+import { Button, Disclosure, DisclosureLabel, Fieldset, Form, Input, Select, SelectOption, Title } from './ui';
 import { useCallback, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import { DaemonError } from './api';
 import { hostsApi } from './hosts-api';
@@ -180,42 +181,42 @@ function HostForm({ copy, disabled, onRegister }: {
     onRegister(registration);
   }
 
-  return <form onSubmit={submit}>
-    <fieldset className="connection-form" disabled={disabled}>
+  return <Form onSubmit={submit}>
+    <Fieldset className="connection-form" disabled={disabled}>
       <legend>{copy.register}</legend>
       <label htmlFor={`${prefix}-platform`}>{copy.platform}</label>
-      <select id={`${prefix}-platform`} name="platform" defaultValue="" required>
-        <option value="">{copy.choice}</option><option value="linux">Linux</option><option value="macos">macOS</option>
-      </select>
-      {inputs.map(([key, label, maximum]) => <Input key={key} id={`${prefix}-${key}`}
+      <Select id={`${prefix}-platform`} name="platform" defaultValue="" required>
+        <SelectOption value="">{copy.choice}</SelectOption><SelectOption value="linux">Linux</SelectOption><SelectOption value="macos">macOS</SelectOption>
+      </Select>
+      {inputs.map(([key, label, maximum]) => <HostInput key={key} id={`${prefix}-${key}`}
         name={key} label={label} maximum={maximum} describedBy={key === 'checksum' ? `${prefix}-checksum-help` : undefined} />)}
       <p className="hint" id={`${prefix}-checksum-help`}>{copy.checksumHint}</p>
       <label htmlFor={`${prefix}-port`}>{copy.port}</label>
-      <input id={`${prefix}-port`} name="port" type="number" min={1} max={65_535} step={1} defaultValue={22} required />
+      <Input id={`${prefix}-port`} name="port" type="number" min={1} max={65_535} step={1} defaultValue={22} required />
       <label htmlFor={`${prefix}-ownership`}>{copy.ownership}</label>
-      <select id={`${prefix}-ownership`} name="ownership" defaultValue="" required>
-        <option value="">{copy.choice}</option>
-        <option value="baton_managed">{copy.baton_managed}</option>
-        <option value="external_read_only">{copy.external_read_only}</option>
-      </select>
+      <Select id={`${prefix}-ownership`} name="ownership" defaultValue="" required>
+        <SelectOption value="">{copy.choice}</SelectOption>
+        <SelectOption value="baton_managed">{copy.baton_managed}</SelectOption>
+        <SelectOption value="external_read_only">{copy.external_read_only}</SelectOption>
+      </Select>
       {mappings.map((key, index) => <Mapping key={key} id={`${prefix}-mapping-${key}`} name={key} index={index}
         copy={copy} remove={() => setMappings(current => current.filter(item => item !== key))} />)}
-      <button type="button" disabled={mappings.length >= maxHostMappings} onClick={() => {
+      <Button type="button" disabled={mappings.length >= maxHostMappings} onClick={() => {
         const key = nextMapping.current++;
         setMappings(current => current.length >= maxHostMappings ? current : [...current, key]);
-      }}>{copy.add}</button>
+      }}>{copy.add}</Button>
       {invalid && <p role="alert">{copy.issues.badInput}</p>}
-      <button type="submit">{copy.register}</button>
-    </fieldset>
-  </form>;
+      <Button type="submit">{copy.register}</Button>
+    </Fieldset>
+  </Form>;
 }
 
-function Input({ id, name, label, maximum, describedBy }: {
+function HostInput({ id, name, label, maximum, describedBy }: {
   id: string; name: string; label: string; maximum: number; describedBy?: string;
 }) {
   return <>
     <label htmlFor={id}>{label}</label>
-    <input id={id} name={name} maxLength={maximum} aria-describedby={describedBy} required />
+    <Input id={id} name={name} maxLength={maximum} aria-describedby={describedBy} required />
   </>;
 }
 
@@ -223,13 +224,13 @@ function Mapping({ id, name, index, copy, remove }: {
   id: string; name: number; index: number; copy: Copy; remove: () => void;
 }) {
   return <>
-    <Input id={`${id}-id`} name={`mapping-${name}`} label={`${copy.mappingId} ${index + 1}`} maximum={64} />
-    <Input id={`${id}-root`} name={`root-${name}`} label={`${copy.root} ${index + 1}`} maximum={512} />
-    <button type="button" onClick={remove}>{copy.remove} {index + 1}</button>
+    <HostInput id={`${id}-id`} name={`mapping-${name}`} label={`${copy.mappingId} ${index + 1}`} maximum={64} />
+    <HostInput id={`${id}-root`} name={`root-${name}`} label={`${copy.root} ${index + 1}`} maximum={512} />
+    <Button type="button" onClick={remove}>{copy.remove} {index + 1}</Button>
   </>;
 }
 
-function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; daemonConnected: boolean; session: Session }) {
+function HostSettingsPanel({ copy, daemonConnected, session, embedded = false }: { copy: Copy; daemonConnected: boolean; session: Session; embedded?: boolean }) {
   const recoveryRead = useRef(0);
   const listRead = useRef(0);
   const detailRead = useRef(0);
@@ -450,17 +451,17 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
     (phase === 'empty' || phase === 'cleared' || phase === 'verifiedClear');
   return <section aria-label={copy.title}>
     {!daemonConnected && <p role="status">{copy.disconnected}</p>}
-    <h3>{copy.inventory}</h3>
-    <button type="button" disabled={phase === 'reading' || listing} onClick={refresh}>{copy.refresh}</button>
+    <Title order={3}>{copy.inventory}</Title>
+    <Button type="button" disabled={phase === 'reading' || listing} onClick={refresh}>{copy.refresh}</Button>
     {listing && <p role="status">{copy.reading}</p>}
     {listIssue && <p role="alert">{copy.inventoryFailed} {copy.issues[listIssue]}</p>}
     {inventory && (listIssue || !daemonConnected) && <p className="hint">{copy.stale}</p>}
     {inventory?.hosts.length === 0 && !listIssue && daemonConnected && <p>{copy.noHosts}</p>}
     {inventory && <ul className="connection-list">{inventory.hosts.map(record => <li key={record.id}>
-      <h4>{record.registration.name}</h4>
+      <Title order={4}>{record.registration.name}</Title>
       <p>{copy.registered} · {copy.platform} {record.registration.declared_platform === 'macos' ? 'macOS' : 'Linux'}</p>
-      <button type="button" disabled={!daemonConnected} onClick={() => void inspect(record)}
-        aria-label={`${copy.details} · ${record.registration.name}`}>{copy.details}</button>
+      <Button type="button" disabled={!daemonConnected} onClick={() => void inspect(record)}
+        aria-label={`${copy.details} · ${record.registration.name}`}>{copy.details}</Button>
       {detail?.record.id === record.id && <>
         {detail.loading && <p role="status">{copy.reading}</p>}
         {detail.failure && <p role="alert">{copy.detailFailed} {copy.issues[detail.failure]}</p>}
@@ -468,36 +469,40 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
           registration={detail.record.registration} copy={copy} />
       </>}
     </li>)}</ul>}
-    {inventory?.next_created_sequence != null && <button type="button" disabled={!daemonConnected || listing}
-      onClick={() => void loadInventory(inventory.next_created_sequence, inventory)}>{copy.more}</button>}
+    {inventory?.next_created_sequence != null && <Button type="button" disabled={!daemonConnected || listing}
+      onClick={() => void loadInventory(inventory.next_created_sequence, inventory)}>{copy.more}</Button>}
 
     {phase === 'reading' && <p role="status">{captured ? copy.working : copy.checking}</p>}
     {problem && <p role="alert">{problem === 'recheck' ? copy.recheck : copy.issues[problem]}</p>}
     {(intent || captured) && <section aria-label={copy.pending}>
-      <h3>{copy.pending}</h3>
+      <Title order={3}>{copy.pending}</Title>
       <dl className="settings-list"><dt>{copy.key}</dt><dd>{captured?.key ?? intent?.request_key}</dd></dl>
       {!confirmed && original && <Metadata registration={original} copy={copy} />}
       {phase === 'unresolved' && <p role="status">{copy.unresolved}</p>}
-      <button type="button" disabled={!daemonConnected || phase === 'reading'} onClick={() => void loadRecovery(true)}>{copy.check}</button>
-      {intent && phase === 'unresolved' && <button type="button" disabled={!daemonConnected}
-        onClick={() => retry(intent)}>{copy.retry}</button>}
+      <Button type="button" disabled={!daemonConnected || phase === 'reading'} onClick={() => void loadRecovery(true)}>{copy.check}</Button>
+      {intent && phase === 'unresolved' && <Button type="button" disabled={!daemonConnected}
+        onClick={() => retry(intent)}>{copy.retry}</Button>}
     </section>}
     {confirmed && <section aria-label={copy.registered}>
       <RegisteredHost id={confirmed.receipt.host_id} sequence={confirmed.receipt.created_sequence}
         created={confirmed.receipt.created_at} registration={confirmed.receipt.registration} copy={copy} />
-      {phase === 'confirmed' && <button type="button" disabled={!daemonConnected} onClick={() => acknowledge(confirmed)}>{copy.acknowledge}</button>}
+      {phase === 'confirmed' && <Button type="button" disabled={!daemonConnected} onClick={() => acknowledge(confirmed)}>{copy.acknowledge}</Button>}
       {phase === 'cleared' && <p role="status">{copy.acknowledged}</p>}
       {phase === 'verifiedClear' && <p role="status">{copy.verifiedClear}</p>}
     </section>}
-    <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />
+    {embedded ? <Disclosure className="management-disclosure">
+      <DisclosureLabel>{copy.register}</DisclosureLabel>
+      <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />
+    </Disclosure> : <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />}
   </section>;
 }
 
-export function Hosts({ language, daemonConnected, session }: { language: Language; daemonConnected: boolean; session: Session }) {
+export function Hosts({ language, daemonConnected, session, embedded = false }: { language: Language; daemonConnected: boolean; session: Session; embedded?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const copy = hostMessages[language];
-  return <details className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
-    <summary>{copy.title}</summary>
+  if (embedded) return <HostSettingsPanel copy={copy} daemonConnected={daemonConnected} session={session} embedded />;
+  return <Disclosure className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
+    <DisclosureLabel>{copy.title}</DisclosureLabel>
     {expanded && <HostSettingsPanel copy={copy} daemonConnected={daemonConnected} session={session} />}
-  </details>;
+  </Disclosure>;
 }

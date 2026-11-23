@@ -1,3 +1,4 @@
+import { choosePickerOption } from './test-picker';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -93,7 +94,7 @@ describe('reserved personal project Goal prerequisites, mocked transport', () =>
     let view = render(<GoalPlanning task={registered} language="en" connected />);
     await open(user);
     await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh Goal records' })).toBeEnabled());
-    await user.selectOptions(screen.getByLabelText('Existing root grant'), grant.id);
+    await choosePickerOption(user, screen.getByLabelText('Existing root grant'), grant.id);
     fireEvent.change(screen.getByLabelText('Output relative path 1'), { target: { value: 'outputs/report.txt' } });
     fireEvent.change(screen.getByLabelText('Writable relative prefixes (one per line)'), { target: { value: 'outputs' } });
     fireEvent.change(screen.getByLabelText('Owner acceptance criteria'), { target: { value: 'Review exact report' } });

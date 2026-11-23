@@ -1,3 +1,4 @@
+import { choosePickerOption, openPicker } from './test-picker';
 /** Requires Root mount076fcb1: real TaskCodeWorkspace -> real ExternalWorkspaceOpen/API.
  * Only daemon record methods and Tauri transport are mocked; no OS/IPC proof. */
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -53,7 +54,7 @@ const target = () => screen.getByRole('combobox', { name: openText.en.target });
 const open = () => screen.getByRole('button', { name: openText.en.open });
 const sourceSelection = (projectId = PROJECT, revision = 3): WorkspaceOpenSelection => ({ kind: 'project_source', project_id: projectId, expected_project_revision: revision });
 const dataSelection = (projectId = PROJECT, revision = 3, workspaceId = DATA): WorkspaceOpenSelection => ({ kind: 'managed_workspace', project_id: projectId, expected_project_revision: revision, workspace_id: workspaceId, expected_workspace_revision: 5 });
-async function select(selection: WorkspaceOpenSelection) { await waitFor(() => expect(target()).toBeEnabled()); await userEvent.selectOptions(target(), JSON.stringify(selection)); }
+async function select(selection: WorkspaceOpenSelection) { await waitFor(() => expect(target()).toBeEnabled()); await choosePickerOption(userEvent, target(), JSON.stringify(selection)); }
 function codePreparationStillClosed() {
   const prepare = screen.queryByRole('button', { name: codeText.en.prepare });
   if (prepare) { expect(prepare).toBeDisabled(); fireEvent.click(prepare); }
@@ -75,7 +76,7 @@ describe('Root076 TaskCodeWorkspace mount / independent directory-only action, m
     else await screen.findByText(codeText.en.pending);
     codePreparationStillClosed(); expect(invoke).not.toHaveBeenCalled();
     await select(mode === 'dirty_resolver_refused' ? sourceSelection() : dataSelection());
-    expect(screen.queryByRole('option', { name: new RegExp(PENDING) })).toBeNull();
+    openPicker(screen.getByRole('combobox', { name: 'Directory to open' })); expect(screen.queryByRole('option', { name: new RegExp(PENDING) })).toBeNull();
     await userEvent.click(open()); await screen.findByText(openText.en.accepted);
     expect(invoke).toHaveBeenCalledExactlyOnceWith('open_workspace_terminal', { request: { selection: mode === 'dirty_resolver_refused' ? sourceSelection() : dataSelection(), terminal: 'macos_terminal' } });
     codePreparationStillClosed(); expect(f.task.state).toBe('draft');
@@ -96,7 +97,7 @@ describe('Root076 TaskCodeWorkspace mount / independent directory-only action, m
     await waitFor(() => expect(api.workspacesList).toHaveBeenCalledWith(NEW_PROJECT));
     await act(async () => old.resolve(f.rows));
     await select(dataSelection(NEW_PROJECT, 4, NEW_DATA));
-    expect(screen.queryByRole('option', { name: new RegExp('Project source · /source data') })).toBeNull();
+    openPicker(screen.getByRole('combobox', { name: 'Directory to open' })); expect(screen.queryByRole('option', { name: new RegExp('Project source · /source data') })).toBeNull();
     expect(invoke).not.toHaveBeenCalled(); codePreparationStillClosed();
     await userEvent.click(open()); await screen.findByText(openText.en.accepted);
     expect(invoke).toHaveBeenCalledExactlyOnceWith('open_workspace_terminal', { request: { selection: dataSelection(NEW_PROJECT, 4, NEW_DATA), terminal: 'macos_terminal' } });

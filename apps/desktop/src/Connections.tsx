@@ -1,14 +1,17 @@
+import { Button, Disclosure, DisclosureLabel, Form, Input, Select, SelectOption, Textarea, Title } from './ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DaemonError } from './api';
 import { sessionApi, type NamedConnection, type ProviderChoice } from './session-api';
 import { sessionMessages } from './session-i18n';
+import { managementMessages } from './management-i18n';
 import {ConnectionDiagnostics} from './ConnectionDiagnostics';
 import {connectionDiagnosticMessages} from './connection-diagnostics-i18n';
 import {connectionMeetsFloor} from './connection-diagnostics-api';
 import type { Language } from './i18n';
 
-export function Connections({ language, connected, compact = false }: { language: Language; connected: boolean; compact?: boolean }) {
-  const t = sessionMessages[language];
+export function Connections({ language, connected, compact = false, registrationOnly = false, onChanged }: { language: Language; connected: boolean; compact?: boolean; registrationOnly?: boolean; onChanged?: () => void }) {
+  const t = sessionMessages[language], m = managementMessages[language];
+  const [registered, setRegistered] = useState<NamedConnection | null>(null);
   const [records, setRecords] = useState<NamedConnection[]>([]);
   const [name, setName] = useState('');
   const [executable, setExecutable] = useState('');
@@ -57,13 +60,16 @@ export function Connections({ language, connected, compact = false }: { language
     const fingerprint = JSON.stringify([name.trim(), executable.trim(), provider, args, source]);
     const key = keys.current.get(fingerprint) ?? crypto.randomUUID();
     keys.current.set(fingerprint, key);
-    setBusy(true); setError('');
+    setBusy(true); setError(''); setRegistered(null);
     try {
-      if (source === undefined) await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider);
-      else await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider, source);
+      const receipt = source === undefined
+        ? await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider)
+        : await sessionApi.connectionsRegister(name.trim(), executable.trim(), args, key, provider, source);
+      setRegistered(receipt);
       keys.current.delete(fingerprint);
       unresolvedImports.current.delete(fingerprint);
       setName(''); setExecutable(''); setArgumentsText(''); setConfigurationFile(''); setConfigurationMode('default');
+      onChanged?.();
       await refresh();
     } catch (e) {
       // A known pre-commit rejection can be reviewed as a fresh proposal on the
@@ -74,24 +80,38 @@ export function Connections({ language, connected, compact = false }: { language
       setError((e instanceof Error ? e.message : String(e)) + ((e instanceof DaemonError && e.sideEffectState === 'unknown') || unresolvedImports.current.has(fingerprint) ? ` ${t.uncertain}` : ''));
     } finally { setBusy(false); }
   }
-  return <section aria-labelledby="connections-title">
-    <div className="section-heading"><h2 id="connections-title">{t.connections}</h2><button onClick={() => void refresh()} disabled={!connected || busy}>{t.refreshConnections}</button></div>
+  const latestRegistration = registered ? records.find(record => record.id === registered.id) ?? registered : null;
+  const probe = latestRegistration?.probe_state;
+  const registration = <Form className="connection-form" onSubmit={register}>
+      <label htmlFor="connection-name">{t.label}</label><Input id="connection-name" value={name} onChange={event => setName(event.target.value)} maxLength={128} disabled={busy} required />
+      <label htmlFor="connection-executable">{t.executable}</label><Input id="connection-executable" value={executable} onChange={event => setExecutable(event.target.value)} maxLength={4096} disabled={busy} required />
+      <label htmlFor="connection-route">{t.route}</label><Select id="connection-route" value={provider} onChange={selectedValue => { setProvider(selectedValue as ProviderChoice); setConfigurationMode('default'); setConfigurationFile(''); }} disabled={busy}><SelectOption value="custom_acp">Custom ACP</SelectOption><SelectOption value="codex">Codex App Server</SelectOption><SelectOption value="qoder">Qoder ACP</SelectOption><SelectOption value="claude_code">Claude Agent ACP adapter</SelectOption></Select>
+      <label htmlFor="connection-arguments">{t.arguments}</label><Textarea id="connection-arguments" value={provider === 'custom_acp' ? argumentsText : ''} onChange={event => setArgumentsText(event.target.value)} disabled={busy || provider !== 'custom_acp'} maxLength={8192} rows={3} aria-describedby="arguments-help" /><p id="arguments-help" className="hint">{provider === 'custom_acp' ? t.argumentsHelp : t.generatedArguments}</p>
+      <label htmlFor="connection-config-source">{t.configSource}</label><Select id="connection-config-source" value={configurationMode} disabled={busy} onChange={selectedValue => setConfigurationMode(selectedValue as 'default' | 'claude_restrictions' | 'codex_policy')}><SelectOption value="default">{t.configDefault}</SelectOption>{provider === 'claude_code' && <SelectOption value="claude_restrictions">{t.configSelected}</SelectOption>}{provider === 'codex' && <SelectOption value="codex_policy">{t.codexConfigSelected}</SelectOption>}</Select>
+      {configurationMode !== 'default' && <><label htmlFor="connection-config-file">{provider === 'codex' ? t.codexConfigFile : t.configFile}</label><Input id="connection-config-file" value={configurationFile} onChange={event => setConfigurationFile(event.target.value)} maxLength={4096} required disabled={busy} aria-describedby="connection-config-help" /><p id="connection-config-help" className="hint">{provider === 'codex' ? t.codexConfigImportHelp : t.configImportHelp}</p></>}
+      <p className="operation-note">{t.registerHelp}</p><Button className="primary" disabled={!connected || busy || !name.trim() || !executable.trim() || (configurationMode !== 'default' && !configurationFile.trim())}>{busy ? t.working : t.register}</Button>
+    </Form>;
+  return <section aria-label={registrationOnly ? t.connections : undefined} aria-labelledby={registrationOnly ? undefined : "connections-title"}>
+    {!registrationOnly && <div className="section-heading"><Title order={2} id="connections-title">{t.connections}</Title><Button onClick={() => void refresh()} disabled={!connected || busy}>{t.refreshConnections}</Button></div>}
     {error && <div className="error" role="alert"><strong>{t.error}</strong><p>{error}</p></div>}
     {!connected && <p>{t.unavailable}</p>}
-    <details className="connection-registration" open={!compact}><summary>{t.register}</summary><form className="connection-form" onSubmit={register}>
-      <label htmlFor="connection-name">{t.label}</label><input id="connection-name" value={name} onChange={event => setName(event.target.value)} maxLength={128} disabled={busy} required />
-      <label htmlFor="connection-executable">{t.executable}</label><input id="connection-executable" value={executable} onChange={event => setExecutable(event.target.value)} maxLength={4096} disabled={busy} required />
-      <label htmlFor="connection-route">{t.route}</label><select id="connection-route" value={provider} onChange={event => { setProvider(event.target.value as ProviderChoice); setConfigurationMode('default'); setConfigurationFile(''); }} disabled={busy}><option value="custom_acp">Custom ACP</option><option value="codex">Codex App Server</option><option value="qoder">Qoder ACP</option><option value="claude_code">Claude Agent ACP adapter</option></select>
-      <label htmlFor="connection-arguments">{t.arguments}</label><textarea id="connection-arguments" value={provider === 'custom_acp' ? argumentsText : ''} onChange={event => setArgumentsText(event.target.value)} disabled={busy || provider !== 'custom_acp'} maxLength={8192} rows={3} aria-describedby="arguments-help" /><p id="arguments-help" className="hint">{provider === 'custom_acp' ? t.argumentsHelp : t.generatedArguments}</p>
-      <label htmlFor="connection-config-source">{t.configSource}</label><select id="connection-config-source" value={configurationMode} disabled={busy} onChange={event => setConfigurationMode(event.target.value as 'default' | 'claude_restrictions' | 'codex_policy')}><option value="default">{t.configDefault}</option>{provider === 'claude_code' && <option value="claude_restrictions">{t.configSelected}</option>}{provider === 'codex' && <option value="codex_policy">{t.codexConfigSelected}</option>}</select>
-      {configurationMode !== 'default' && <><label htmlFor="connection-config-file">{provider === 'codex' ? t.codexConfigFile : t.configFile}</label><input id="connection-config-file" value={configurationFile} onChange={event => setConfigurationFile(event.target.value)} maxLength={4096} required disabled={busy} aria-describedby="connection-config-help" /><p id="connection-config-help" className="hint">{provider === 'codex' ? t.codexConfigImportHelp : t.configImportHelp}</p></>}
-      <p>{t.registerHelp}</p><p>{t.nativeConfirmation}</p><p className="hint">{t.noCredentials}</p><button className="primary" disabled={!connected || busy || !name.trim() || !executable.trim() || (configurationMode !== 'default' && !configurationFile.trim())}>{busy ? t.working : t.register}</button>
-    </form></details>
-    <p>{t.noFallback}</p><p className="hint">{t.probeOnly}</p>
-    {!records.length && <p>{t.emptyConnections}</p>}
-    <ul className="connection-list">{records.map(connection => <li key={connection.id}>
-      <details className="connection-evidence" open={!compact}><summary><span>{connection.name}</span><span>{connectionDiagnosticMessages[language].historicalProbe}</span><span className="task-state">{Object.hasOwn(t, connection.probe_state) ? t[connection.probe_state as keyof typeof t] : `${t.unknown}: ${connection.probe_state}`}</span></summary><dl><dt>{t.provider}</dt><dd>{connection.provider}</dd><dt>{t.executable}</dt><dd>{connection.executable}</dd><dt>{t.digest}</dt><dd>{connection.executable_sha256}</dd><dt>{t.version}</dt><dd>{connection.version_evidence?.version_line ?? t.unknown}</dd><dt>{t.probeState}</dt><dd>{connection.probe_state}</dd><dt>{t.source}</dt><dd>{connection.version_evidence ? `${connection.version_evidence.source} · ${new Date(connection.version_evidence.observed_at_unix_ms).toISOString()}` : t.unknown}</dd><dt>{t.host}</dt><dd>{connection.host_id}</dd><dt>{t.environment}</dt><dd>{connection.environment_id}</dd><dt>{t.configOwner}</dt><dd>{connection.config_status}</dd><dt>{t.identity}</dt><dd>{connection.identity_ref} ({connection.identity_status})</dd></dl>
-      <p className="hint">{t.probeOnly}</p></details><ConnectionDiagnostics connection={connection} language={language} connected={connected} onRefresh={()=>void refresh()}/>
-    </li>)}</ul>
+    {registrationOnly && latestRegistration && <p role="status" className="operation-note">
+      {m.registered} · {latestRegistration.name} · {probe === 'ready' ? m.versionChecked : probe === 'pending' ? m.versionPending : probe === 'failed' ? m.versionFailed : t.unknown}
+    </p>}
+    {registrationOnly ? registration : <Disclosure className="connection-registration" open={!compact}><DisclosureLabel>{t.register}</DisclosureLabel>{registration}</Disclosure>}
+    {!registrationOnly && !records.length && <p>{t.emptyConnections}</p>}
+    {!registrationOnly && <ul className="connection-list">{records.map(connection => <li key={connection.id}>
+      <ConnectionEvidence connection={connection} language={language} connected={connected} onRefresh={()=>void refresh()} expanded={!compact} />
+    </li>)}</ul>}
   </section>;
+}
+
+export function ConnectionEvidence({ connection, language, connected, onRefresh, expanded = false, focused = false }: {
+  connection: NamedConnection; language: Language; connected: boolean; onRefresh: () => void; expanded?: boolean; focused?: boolean;
+}) {
+  const t = sessionMessages[language];
+  return <><Disclosure className="connection-evidence" open={expanded}><DisclosureLabel>{!focused && <span>{connection.name}</span>}<span>{connectionDiagnosticMessages[language].historicalProbe}</span>{!focused && <span className="task-state">{Object.hasOwn(t, connection.probe_state) ? t[connection.probe_state as keyof typeof t] : `${t.unknown}: ${connection.probe_state}`}</span>}</DisclosureLabel><dl><dt>{t.provider}</dt><dd>{connection.provider}</dd><dt>{t.executable}</dt><dd>{connection.executable}</dd><dt>{t.digest}</dt><dd>{connection.executable_sha256}</dd><dt>{t.version}</dt><dd>{connection.version_evidence?.version_line ?? t.unknown}</dd><dt>{t.probeState}</dt><dd>{connection.probe_state}</dd><dt>{t.source}</dt><dd>{connection.version_evidence ? `${connection.version_evidence.source} · ${new Date(connection.version_evidence.observed_at_unix_ms).toISOString()}` : t.unknown}</dd><dt>{t.host}</dt><dd>{connection.host_id}</dd><dt>{t.environment}</dt><dd>{connection.environment_id}</dd><dt>{t.configOwner}</dt><dd>{connection.config_status}</dd><dt>{t.identity}</dt><dd>{connection.identity_ref} ({connection.identity_status})</dd></dl>
+      <p className="hint">{t.probeOnly}</p></Disclosure>
+    <ConnectionDiagnostics connection={connection} language={language} connected={connected} onRefresh={onRefresh} />
+  </>;
 }

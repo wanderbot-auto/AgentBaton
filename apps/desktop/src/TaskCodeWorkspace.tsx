@@ -1,3 +1,4 @@
+import { Button, Code, Disclosure, DisclosureLabel, Title } from './ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, DaemonError, type Project, type Task } from './api';
 import type { Language } from './i18n';
@@ -32,10 +33,10 @@ type Read = { task: Task; project: Project | null; preparation: CodeWorkspacePre
 
 export function TaskCodeWorkspace(props: Props) {
   const [open, setOpen] = useState(props.autoOpen ?? false), [started, setStarted] = useState(props.autoOpen ?? false);
-  return <details className="task-code-workspace" data-testid="task-code-workspace" open={open} onToggle={event => { setOpen(event.currentTarget.open); if (event.currentTarget.open) setStarted(true); }}>
-    <summary>{taskCodeWorkspaceMessages[props.language].title}</summary>
+  return <Disclosure className="task-code-workspace" data-testid="task-code-workspace" open={open} onToggle={event => { setOpen(event.currentTarget.open); if (event.currentTarget.open) setStarted(true); }}>
+    <DisclosureLabel>{taskCodeWorkspaceMessages[props.language].title}</DisclosureLabel>
     {started && <WorkspacePanel key={props.task.id} {...props} open={open} />}
-  </details>;
+  </Disclosure>;
 }
 function WorkspacePanel(props: Props & { open: boolean }) {
   const t = taskCodeWorkspaceMessages[props.language];
@@ -138,23 +139,23 @@ function WorkspacePanel(props: Props & { open: boolean }) {
     try { props.onBindingReady(read.task.id); } catch { setError(t.unavailable); }
   }, [props.onBindingReady, revalidated, read, observed, pending, busy, saved, currentBinding, t.unavailable]);
   return <section aria-label={t.title} aria-busy={loading || busy}>
-    <p>{t.intro}</p><button type="button" disabled={!props.connected || loading || busy || saved.writing} onClick={() => void refresh()}>{t.refresh}</button>
+    <p>{t.intro}</p><Button type="button" disabled={!props.connected || loading || busy || saved.writing} onClick={() => void refresh()}>{t.refresh}</Button>
     {!props.connected && <p>{t.disconnected}</p>}{loading && <p role={props.open ? 'status' : undefined}>{t.loading}</p>}{error && <p className="error" role={props.open ? 'alert' : undefined}>{error}</p>}{capacity && <p>{t.capacity}</p>}
     {pending && <p role={props.open ? 'status' : undefined}>{pending.uncertain ? t.uncertain : t.acknowledged}</p>}
-    {pending && <button type="button" disabled={disabled || !pending.reconciled} onClick={() => void perform(pending, true)}>{t.recover}</button>}
+    {pending && <Button type="button" disabled={disabled || !pending.reconciled} onClick={() => void perform(pending, true)}>{t.recover}</Button>}
     {read && <>
       <dl><dt>{t.project}</dt><dd>{read.project?.name ?? read.task.project_id}</dd><dt>{t.host}</dt><dd>{t.local}</dd><dt>{t.currentRevision}</dt><dd>{read.task.revision}</dd></dl>
       {read.project?.archived && <p>{t.archived}</p>}
       {read.preparation?.state === 'needs_registered_project' && <p>{t.personal}</p>}
-      {read.preparation?.source && <dl><dt>{t.source}</dt><dd><code>{read.preparation.source.canonical_root}</code></dd>{read.preparation.source_head && <><dt>{t.head}</dt><dd><code>{read.preparation.source_head}</code></dd></>}</dl>}
+      {read.preparation?.source && <dl><dt>{t.source}</dt><dd><Code>{read.preparation.source.canonical_root}</Code></dd>{read.preparation.source_head && <><dt>{t.head}</dt><dd><Code>{read.preparation.source_head}</Code></dd></>}</dl>}
       {read.preparation?.source?.kind.kind === 'git' && read.preparation.source.kind.dirty && <p>{t.dirty}</p>}
       {read.preparation?.state === 'needs_dataset_selection' && <p>{t.directory}</p>}
       {read.preparation?.state === 'blocked' && <p>{t.blocked}</p>}
-      {!currentBinding && <><p>{t.none}</p><p>{t.confirm}</p><button className="primary" type="button" disabled={!canPrepare} onClick={prepare}>{t.prepare}</button></>}
-      {read.preparation && read.preparation.candidates.length > 0 && <details><summary>{t.candidates}</summary><p>{t.candidatesHint}</p><ul>{read.preparation.candidates.map(row => <li key={row.workspace_id}><code>{row.root}</code> · {row.recorded_state}{row.has_unreconciled_lease && <span> · {t.lease}</span>}</li>)}</ul></details>}
-      {currentBinding && <><h4>{t.current}</h4><p>{currentBinding.state === 'ready' ? t.ready : currentBinding.state === 'pending' ? t.pending : t.unknown}</p><p>{revalidated ? t.identity : t.recordedOnly}</p>{staleBinding && <p>{t.stale}</p>}<button type="button" disabled={disabled || !!pending} onClick={revalidate}>{t.revalidate}</button></>}
+      {!currentBinding && <><p>{t.none}</p><p>{t.confirm}</p><Button className="primary" type="button" disabled={!canPrepare} onClick={prepare}>{t.prepare}</Button></>}
+      {read.preparation && read.preparation.candidates.length > 0 && <Disclosure><DisclosureLabel>{t.candidates}</DisclosureLabel><p>{t.candidatesHint}</p><ul>{read.preparation.candidates.map(row => <li key={row.workspace_id}><Code>{row.root}</Code> · {row.recorded_state}{row.has_unreconciled_lease && <span> · {t.lease}</span>}</li>)}</ul></Disclosure>}
+      {currentBinding && <><Title order={4}>{t.current}</Title><p>{currentBinding.state === 'ready' ? t.ready : currentBinding.state === 'pending' ? t.pending : t.unknown}</p><p>{revalidated ? t.identity : t.recordedOnly}</p>{staleBinding && <p>{t.stale}</p>}<Button type="button" disabled={disabled || !!pending} onClick={revalidate}>{t.revalidate}</Button></>}
     </>}
-    {receipt && <details><summary>{t.details}</summary><h4>{t.receipt}</h4><dl><dt>{t.bindingId}</dt><dd>{receipt.binding_id}</dd><dt>{t.workspaceId}</dt><dd>{receipt.workspace_id}</dd><dt>{t.host}</dt><dd>{receipt.host_id === 'local' ? t.local : receipt.host_id}</dd><dt>{t.originalRevision}</dt><dd>{receipt.original_task_revision}</dd><dt>{t.reservedRevision}</dt><dd>{receipt.reserved_task_revision}</dd><dt>{t.spec}</dt><dd>{receipt.spec_revision}</dd><dt>{t.projectRevision}</dt><dd>{receipt.project_revision}</dd><dt>{t.destination}</dt><dd><code>{receipt.managed_root.replace(/\/$/, '') + '/' + receipt.workspace_id}</code></dd><dt>{t.source}</dt><dd><code>{receipt.source_pin.canonical_root}</code></dd><dt>{t.head}</dt><dd><code>{receipt.source_pin.head}</code></dd><dt>{t.sourceDevice}</dt><dd><code>{receipt.source_pin.device}</code></dd><dt>{t.sourceInode}</dt><dd><code>{receipt.source_pin.inode}</code></dd><dt>{t.requestDigest}</dt><dd><code>{receipt.request_digest}</code></dd><dt>{t.key}</dt><dd><code>{receipt.request_key}</code></dd><dt>{t.preparationKey}</dt><dd><code>{receipt.preparation_key}</code></dd>{currentBinding && <><dt>{t.bindingRevision}</dt><dd>{currentBinding.revision}</dd></>}{observed && <><dt>{t.observed}</dt><dd>{observed.at}</dd><dt>{t.observedRoot}</dt><dd><code>{observed.value.observed_managed_pin.canonical_root}</code></dd><dt>{t.managedHead}</dt><dd><code>{observed.value.observed_managed_pin.head}</code></dd></>}</dl></details>}
+    {receipt && <Disclosure><DisclosureLabel>{t.details}</DisclosureLabel><Title order={4}>{t.receipt}</Title><dl><dt>{t.bindingId}</dt><dd>{receipt.binding_id}</dd><dt>{t.workspaceId}</dt><dd>{receipt.workspace_id}</dd><dt>{t.host}</dt><dd>{receipt.host_id === 'local' ? t.local : receipt.host_id}</dd><dt>{t.originalRevision}</dt><dd>{receipt.original_task_revision}</dd><dt>{t.reservedRevision}</dt><dd>{receipt.reserved_task_revision}</dd><dt>{t.spec}</dt><dd>{receipt.spec_revision}</dd><dt>{t.projectRevision}</dt><dd>{receipt.project_revision}</dd><dt>{t.destination}</dt><dd><Code>{receipt.managed_root.replace(/\/$/, '') + '/' + receipt.workspace_id}</Code></dd><dt>{t.source}</dt><dd><Code>{receipt.source_pin.canonical_root}</Code></dd><dt>{t.head}</dt><dd><Code>{receipt.source_pin.head}</Code></dd><dt>{t.sourceDevice}</dt><dd><Code>{receipt.source_pin.device}</Code></dd><dt>{t.sourceInode}</dt><dd><Code>{receipt.source_pin.inode}</Code></dd><dt>{t.requestDigest}</dt><dd><Code>{receipt.request_digest}</Code></dd><dt>{t.key}</dt><dd><Code>{receipt.request_key}</Code></dd><dt>{t.preparationKey}</dt><dd><Code>{receipt.preparation_key}</Code></dd>{currentBinding && <><dt>{t.bindingRevision}</dt><dd>{currentBinding.revision}</dd></>}{observed && <><dt>{t.observed}</dt><dd>{observed.at}</dd><dt>{t.observedRoot}</dt><dd><Code>{observed.value.observed_managed_pin.canonical_root}</Code></dd><dt>{t.managedHead}</dt><dd><Code>{observed.value.observed_managed_pin.head}</Code></dd></>}</dl></Disclosure>}
     <ExternalWorkspaceOpen task={props.task} language={props.language} connected={props.connected} open={props.open} />
     {!fresh && !loading && read && <p>{t.unavailable}</p>}<p className="hint">{t.noAuthority}</p>
   </section>;

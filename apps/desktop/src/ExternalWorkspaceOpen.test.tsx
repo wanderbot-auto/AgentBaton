@@ -1,3 +1,4 @@
+import { choosePickerOption } from './test-picker';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,7 +19,7 @@ function fixture() {
 function deferred<T>() { let resolve!: (v: T) => void; const promise = new Promise<T>(done => { resolve = done; }); return { promise, resolve }; }
 const button = () => screen.getByRole('button', { name: messages.en.open });
 const refresh = () => screen.getByRole('button', { name: messages.en.refresh });
-async function choose(f: ReturnType<typeof fixture>, which = 0) { const select = await screen.findByRole('combobox', { name: messages.en.target }); await waitFor(() => expect(select).toBeEnabled()); await userEvent.selectOptions(select, JSON.stringify(f.choices[which].selection)); }
+async function choose(f: ReturnType<typeof fixture>, which = 0) { const select = await screen.findByRole('combobox', { name: messages.en.target }); await waitFor(() => expect(select).toBeEnabled()); await choosePickerOption(userEvent, select, JSON.stringify(f.choices[which].selection)); }
 beforeEach(() => vi.resetAllMocks());
 describe('Directory handoff component / mocked Native, never actual Terminal evidence', () => {
   it('does nothing while folded, disconnected, blocked or without a registered project', () => {
@@ -79,7 +80,7 @@ describe('Directory handoff component / mocked Native, never actual Terminal evi
   it('renders exact finite refusal and Chinese labels without claiming terminal cwd or a session', async () => {
     const f = fixture(); vi.mocked(workspaceOpenApi.open).mockResolvedValue({ status: 'refused', code: 'unsupported_platform' });
     render(<ExternalWorkspaceOpen task={f.task} language="zh" connected open />);
-    const select = screen.getByRole('combobox', { name: messages.zh.target }); await waitFor(() => expect(select).toBeEnabled()); await userEvent.selectOptions(select, JSON.stringify(f.choices[0].selection));
+    const select = screen.getByRole('combobox', { name: messages.zh.target }); await waitFor(() => expect(select).toBeEnabled()); await choosePickerOption(userEvent, select, JSON.stringify(f.choices[0].selection));
     await userEvent.click(screen.getByRole('button', { name: messages.zh.open })); expect(await screen.findByRole('alert')).toHaveTextContent(messages.zh.unsupported_platform); expect(screen.queryByText(messages.zh.accepted)).toBeNull();
   });
   it('keeps read failures closed and permits only explicit refresh', async () => {

@@ -1,0 +1,262 @@
+.management-page [hidden], .management-settings [hidden] { display: none !important; }
+
+.management-page, .management-settings {
+  --management-muted: var(--muted);
+  --management-warning-wash: var(--warning-bg);
+}
+
+.management-header > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: var(--control);
+}
+.management-header > button .icon { width: 16px; height: 16px; }
+
+.management-toolbar, .management-filters, .management-add {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-8);
+}
+.management-toolbar { align-items: flex-end; margin-bottom: var(--space-12); }
+.management-toolbar .management-tabs { flex: 1; border-bottom: 1px solid var(--line); }
+.management-add { justify-content: flex-start; flex-wrap: wrap; margin-bottom: 14px; }
+.management-filters { min-width: 0; gap: 8px; }
+.management-filters > label { min-width: 0; }
+.management-filters .mantine-Select-input { height: var(--control); max-width: 190px; }
+.management-search { position: relative; }
+.management-search input { padding-left: 32px; width: 170px; min-height: var(--control); }
+.management-search > .icon {
+  position: absolute;
+  inset: 8px auto auto 9px;
+  color: var(--management-muted);
+  pointer-events: none;
+}
+.management-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-12); }
+.management-tabs > button[aria-pressed] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: var(--space-4) 1px var(--space-8);
+  min-height: var(--control);
+  border: 0;
+  border-radius: 4px 4px 0 0;
+  background: transparent;
+  white-space: nowrap;
+}
+.management-tabs > button[aria-pressed]:hover { background: var(--soft); }
+.management-tabs > button[aria-pressed]:is([aria-pressed=true], [aria-selected=true]) {
+  color: var(--ink);
+  font-weight: 600;
+}
+.management-tabs > button[aria-pressed]:is([aria-pressed=true], [aria-selected=true])::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--ink);
+}
+.management-tabs small {
+  color: var(--management-muted);
+  font-size: var(--fs-meta);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.management-scope { margin: 0 0 9px; }
+.management-notice {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--management-warning-wash);
+  padding: 8px 12px;
+  margin: 0 0 10px;
+  color: var(--warning);
+}
+.management-list, .management-detail-body, .settings-group {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 6px;
+}
+.management-detail-body, .settings-group { background: var(--canvas); }
+.management-detail-body { padding: var(--space-16); overflow-wrap: anywhere; }
+.management-list:empty { display: none; }
+.management-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(108px, .87fr) minmax(0, .9fr) 16px;
+  align-items: center;
+  gap: var(--space-12);
+  padding-inline: var(--space-16);
+  text-align: left;
+}
+.management-list-head {
+  min-height: var(--control);
+  background: var(--soft);
+  border-bottom: 1px solid var(--line);
+  color: var(--management-muted);
+  font-size: var(--fs-meta);
+}
+.management-list-row {
+  width: 100%;
+  min-height: var(--record);
+  border: 0;
+  border-radius: 0;
+  padding-block: 8px;
+  background: var(--surface);
+}
+.management-list-row + .management-list-row { border-top: 1px solid var(--line); }
+.management-list-row:hover:not(:disabled) { background: var(--canvas); }
+.management-list-row:focus-visible { outline-offset: -3px; }
+.management-list-row > .icon { width: 15px; height: 15px; color: var(--management-muted); }
+.management-row-name { min-width: 0; display: flex; align-items: center; gap: var(--space-8); }
+.management-row-name > span:last-child { min-width: 0; }
+.management-row-name strong, .management-row-name small, .management-source { overflow-wrap: anywhere; }
+.management-row-name strong { display: block; color: var(--ink); }
+.management-row-name small, .management-source { color: var(--management-muted); font-size: var(--fs-meta); }
+.management-row-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--canvas);
+}
+.management-row-icon > .icon { width: 16px; height: 16px; }
+.management-status {
+  display: inline-flex;
+  align-items: baseline;
+  justify-self: start;
+  gap: 6px;
+  min-width: 0;
+  color: var(--management-muted);
+  font-size: var(--fs-meta);
+  overflow-wrap: anywhere;
+}
+.management-status::before {
+  content: '';
+  display: inline-block;
+  flex: 0 0 6px;
+  height: 6px;
+  border-radius: 100%;
+  background: currentColor;
+}
+.management-status.good { color: var(--accent); }
+.management-status.warning {
+  padding: 2px 6px;
+  background: var(--management-warning-wash);
+  color: var(--warning);
+  border-radius: 4px;
+}
+.management-empty { padding: 22px 16px; }
+.management-empty > p { margin: 0 0 10px; }
+.management-list-foot, .management-list-foot > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.management-list-foot {
+  justify-content: space-between;
+  min-height: var(--control);
+  margin-top: 6px;
+  color: var(--management-muted);
+  font-size: var(--fs-meta);
+}
+.management-attention { color: var(--warning); background: transparent; border-color: transparent; white-space: nowrap; }
+.management-attention:hover:not(:disabled), .management-attention[aria-pressed=true] {
+  background: var(--management-warning-wash);
+  border-color: var(--warning-border);
+}
+
+.management-record dl { grid-template-columns: minmax(104px, max-content) minmax(0, 1fr); gap: var(--space-8) var(--space-16); }
+.management-record dl dd { margin: 0; }
+.management-detail-body .connection-evidence summary { cursor: pointer; overflow-wrap: anywhere; }
+.management-editor .connection-form { margin-block: 0; }
+.management-editor-form > label, .management-detail-actions > label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-block: 12px;
+}
+.management-fields { display: grid; gap: 12px; margin-block: 15px; }
+.management-fields > label { display: grid; gap: 4px; color: var(--ink); }
+.management-fields > p { margin: 0; }
+.management-fields > button { justify-self: start; }
+.management-diff {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: clip;
+}
+.management-diff > div { padding: 12px; min-width: 0; overflow-wrap: anywhere; }
+.management-diff > div + div { border-left: 1px solid var(--line); background: var(--soft); }
+.management-diff textarea { margin-top: 5px; }
+
+.management-settings > .management-tabs { border-bottom: 1px solid var(--line); margin-bottom: var(--space-24); }
+.management-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  min-height: var(--record);
+  padding: var(--space-12) var(--space-16);
+}
+.management-setting-controls { display: flex; align-items: center; gap: var(--space-8); }
+.management-service-heading { border-bottom: 1px solid var(--line); }
+.management-setting-status { margin: 0; padding: 0 var(--space-16) var(--space-12); }
+.management-setting-extra { padding: 0 var(--space-16) var(--space-12); }
+.management-setting-extra p:first-child { margin-top: 0; }
+.management-settings-pane > section { min-width: 0; margin-bottom: var(--space-16); }
+.management-settings-pane > .settings-group + section { margin-top: var(--space-16); }
+.management-settings-pane :is([id], dd, [aria-labelledby], [aria-label]) { overflow-wrap: anywhere; }
+.management-disclosure { border-top: 1px solid var(--line); padding: 0 0 var(--space-12); }
+.management-disclosure:not([open]) { padding-bottom: 0; }
+.management-disclosure summary { min-height: var(--control); padding-block: var(--space-8); cursor: pointer; color: var(--ink); }
+.management-hide { border: 1px solid var(--line); border-radius: 6px; background: var(--canvas); padding-inline: var(--space-16); margin-bottom: var(--space-16); }
+.management-hide > summary { display: list-item; min-height: var(--record); align-content: center; }
+
+@media (max-width: 860px) {
+  .management-toolbar { align-items: stretch; flex-direction: column; }
+}
+@media (max-width: 600px) {
+  .management-search { flex: 1; min-width: 0; }
+  .management-search input { width: 100%; }
+  .management-filters > label { max-width: 55%; }
+  .management-filters .mantine-Select-input { max-width: 100%; }
+  .management-grid { grid-template-columns: minmax(0, 1fr) minmax(74px, max-content) 14px; gap: var(--space-8); padding-inline: var(--space-8); }
+  .management-grid > :nth-child(3) { display: none; }
+  .management-diff { grid-template-columns: minmax(0, 1fr); }
+  .management-diff > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .management-setting { padding-inline: var(--space-12); }
+}
+@media (max-width: 390px) {
+  .management-row-icon { display: none; }
+}
+
+.inline-base[hidden], .inline-page[hidden], .composer-wrap[hidden] { display: none; }
+.inline-page, .inline-page-content { min-width: 0; }
+.inline-page-content > label:not(.sr-only) { display: block; margin-bottom: var(--space-8); }
+.inline-page-content > .dialog-actions { justify-content: flex-start; margin-top: var(--space-16); }
+
+/* Projects keeps its region label for assistive tech. The inline route owns the visible title. */
+.inline-page[data-page="projects"] .projects > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.inline-page[data-page="projects"] .projects > .workspace,
+.inline-page[data-page="execution"] .managed-sessions .workspace {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-16);
+}
+.inline-page .session-scope { padding: var(--space-16); gap: var(--space-8) var(--space-16); }
+.operation-note { color: var(--muted); font-size: var(--fs-meta); }

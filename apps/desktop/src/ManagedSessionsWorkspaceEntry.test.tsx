@@ -1,3 +1,4 @@
+import { choosePickerOption } from './test-picker';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
@@ -61,28 +62,28 @@ describe('Execution workspace entry: real preparation component with mocked fixe
   it('reads the authoritative resolver and opens the reused entry without preparing or granting', async () => {
     const f = fixture(); setup(f); render(element(f)); await entryReady();
     expect(api.workspacesResolve).toHaveBeenCalledWith({ task_id: f.task.id, expected_task_revision: 1, expected_project_revision: 3, host_id: 'local' });
-    expect(screen.getByTestId('task-code-workspace')).toHaveAttribute('open'); expect(workspace()).toBeDisabled(); expect(workspace()).toHaveValue(''); expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled(); noExecution();
+    expect(screen.getByTestId('task-code-workspace')).toHaveAttribute('open'); expect(workspace()).toBeDisabled(); expect(workspace()).toHaveAttribute('data-picker-value', ''); expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled(); noExecution();
   });
   it('refreshes Task and scope lists only after real component preparation and then locks to its own ready workspace', async () => {
     const user = userEvent.setup(), f = fixture(), state = setup(f); vi.mocked(api.workspacesPrepareTaskGit).mockImplementation(async (selection, key) => state.commit(selection, key));
     render(element(f)); await entryReady(); const beforeTask = vi.mocked(api.taskGet).mock.calls.length, beforeLists = vi.mocked(api.workspacesList).mock.calls.length;
-    await user.click(prepare()); await waitFor(() => expect(workspace()).toHaveValue(f.own.id));
+    await user.click(prepare()); await waitFor(() => expect(workspace()).toHaveAttribute('data-picker-value', f.own.id));
     expect(workspace()).toBeDisabled(); expect(screen.queryByTestId('session-task-workspace-entry')).toBeNull(); expect(vi.mocked(api.taskGet).mock.calls.length).toBeGreaterThan(beforeTask); expect(vi.mocked(api.workspacesList).mock.calls.length).toBeGreaterThan(beforeLists); expect(vi.mocked(sessionApi.grantsList).mock.calls.length).toBeGreaterThan(1);
     expect(api.workspacesPrepareTaskGit).toHaveBeenCalledExactlyOnceWith({ task_id: f.task.id, expected_task_revision: 1, expected_spec_revision: 1, expected_project_revision: 3, host_id: 'local', expected_source_pin: f.pin, preparation_key: f.preparation.preparation_key }, expect.any(String));
-    expect(screen.getByLabelText('Execution grant')).toHaveValue(''); expect(session()).toBeDisabled(); noExecution();
+    expect(screen.getByLabelText('Execution grant')).toHaveAttribute('data-picker-value', ''); expect(session()).toBeDisabled(); noExecution();
   });
   it('keeps a known not-started failure visible and needs an explicit refresh and user retry', async () => {
     const user = userEvent.setup(), f = fixture(), state = setup(f); vi.mocked(api.workspacesPrepareTaskGit).mockRejectedValueOnce(new DaemonError('WORKSPACE_BUSY', 'Writer still active', 'not_started')).mockImplementationOnce(async (selection, key) => state.commit(selection, key));
     render(element(f)); await entryReady(); await user.click(prepare()); expect(await screen.findByRole('alert')).toHaveTextContent('Writer still active'); expect(workspace()).toBeDisabled(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce();
-    await user.click(screen.getByRole('button', { name: 'Check workspace preparation' })); await entryReady(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce(); await user.click(prepare()); await waitFor(() => expect(workspace()).toHaveValue(f.own.id)); noExecution();
+    await user.click(screen.getByRole('button', { name: 'Check workspace preparation' })); await entryReady(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce(); await user.click(prepare()); await waitFor(() => expect(workspace()).toHaveAttribute('data-picker-value', f.own.id)); noExecution();
   });
   it('uses the original component’s lost-reply reconciliation and same-key recovery before unlocking', async () => {
     const user = userEvent.setup(), f = fixture(), state = setup(f); let created = 0;
     vi.mocked(api.workspacesPrepareTaskGit).mockImplementationOnce(async (selection, key) => { ++created; state.commit(selection, key); throw new Error('actual response deliberately lost by mocked transport'); }).mockImplementationOnce(async (selection, key) => f.view(selection, key));
     render(element(f)); await entryReady(); await user.click(prepare()); await screen.findByText(/Request outcome unknown/); const original = vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0];
-    expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(workspace()).toHaveValue('');
+    expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(workspace()).toHaveAttribute('data-picker-value', '');
     await user.click(screen.getByRole('button', { name: 'Check workspace preparation' })); const recover = screen.getByRole('button', { name: 'Recover the exact preparation' }); await waitFor(() => expect(recover).toBeEnabled());
-    expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce(); expect(workspace()).toHaveValue(''); await user.click(recover); await waitFor(() => expect(workspace()).toHaveValue(f.own.id)); expect(created).toBe(1); expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[1]).toEqual(original); noExecution();
+    expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce(); expect(workspace()).toHaveAttribute('data-picker-value', ''); await user.click(recover); await waitFor(() => expect(workspace()).toHaveAttribute('data-picker-value', f.own.id)); expect(created).toBe(1); expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[1]).toEqual(original); noExecution();
   });
   it.each(['ready', 'pending', 'outcome_unknown'] as const)('keeps original recovery through parent Refresh when the lost preparation is stored %s', async stored => {
     const user = userEvent.setup(), f = fixture(), state = setup(f);
@@ -97,13 +98,13 @@ describe('Execution workspace entry: real preparation component with mocked fixe
       if (stored !== 'ready') throw new DaemonError('OUTCOME_UNKNOWN', 'Original preparation remains unresolved', 'unknown');
       return f.view(selection, key);
     });
-    render(element(f)); await entryReady(); await user.selectOptions(screen.getByLabelText('Named connection'), f.connection.id); await user.click(prepare()); await screen.findByText(/Request outcome unknown/);
+    render(element(f)); await entryReady(); await choosePickerOption(user, screen.getByLabelText('Named connection'), f.connection.id); await user.click(prepare()); await screen.findByText(/Request outcome unknown/);
     const original = vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0];
     // Deliberately use the outer refresh, not the component's own Check button.
     await user.click(refresh()); const recover = await screen.findByRole('button', { name: 'Recover the exact preparation' }); await waitFor(() => expect(recover).toBeEnabled());
     expect(screen.getByLabelText('I authorize this exact recipient, workspace and bounded execution scope.')).toBeDisabled(); expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(api.workspacesPrepareTaskGit).toHaveBeenCalledOnce();
     await user.click(recover); await waitFor(() => expect(api.workspacesPrepareTaskGit).toHaveBeenCalledTimes(2)); expect(vi.mocked(api.workspacesPrepareTaskGit).mock.calls[1]).toEqual(original);
-    if (stored === 'ready') await waitFor(() => expect(workspace()).toHaveValue(f.own.id));
+    if (stored === 'ready') await waitFor(() => expect(workspace()).toHaveAttribute('data-picker-value', f.own.id));
     else { await screen.findByText(/Original preparation remains unresolved/); expect(grant()).toBeDisabled(); expect(session()).toBeDisabled(); expect(screen.getByRole('button', { name: 'Recover the exact preparation' })).toBeDisabled(); }
     noExecution();
   });
@@ -119,7 +120,7 @@ describe('Execution workspace entry: real preparation component with mocked fixe
   });
   it('keeps directory/data explicit workspace selection and never mounts the Git preparation entry', async () => {
     const user = userEvent.setup(), f = fixture(); f.project.identity.kind = { kind: 'directory' }; setup(f); vi.mocked(api.workspacesResolve).mockResolvedValue({ ...f.preparation, source: { ...f.preparation.source!, kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required' }); render(element(f));
-    await waitFor(() => expect(workspace()).toBeEnabled()); expect(screen.queryByTestId('task-code-workspace')).toBeNull(); await user.selectOptions(workspace(), f.other.id); expect(workspace()).toHaveValue(f.other.id); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled(); noExecution();
+    await waitFor(() => expect(workspace()).toBeEnabled()); expect(screen.queryByTestId('task-code-workspace')).toBeNull(); await choosePickerOption(user, workspace(), f.other.id); expect(workspace()).toHaveAttribute('data-picker-value', f.other.id); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled(); noExecution();
   });
   it('does not use a personal placeholder as a Git source, host or implicit copy', async () => {
     const f = fixture(); f.task = { ...f.task, project_id: 'local' }; setup(f); vi.mocked(api.projectsList).mockResolvedValue([]); vi.mocked(api.workspacesList).mockResolvedValue([]); vi.mocked(api.workspacesResolve).mockResolvedValue({ ...f.preparation, project_id: 'local', project_revision: null, source: null, source_head: null, preparation_key: null, state: 'needs_registered_project', reason: 'registered_project_required' }); render(element(f, { projects: [], projectId: 'local' }));
@@ -130,15 +131,15 @@ describe('Execution workspace entry: real preparation component with mocked fixe
     await waitFor(() => expect(api.taskGet).toHaveBeenCalledWith(f.task.id)); await waitFor(() => expect(workspace()).toBeEnabled()); expect(api.workspacesResolve).not.toHaveBeenCalled(); expect(screen.queryByTestId('task-code-workspace')).toBeNull(); expect(session()).toBeDisabled(); noExecution();
   });
   it('preserves global manual Grant scope when no Task is selected', async () => {
-    const user = userEvent.setup(), f = fixture(); setup(f); render(element(f, { initialTaskId: undefined })); await waitFor(() => expect(workspace()).toBeEnabled()); await user.selectOptions(workspace(), f.other.id);
-    expect(workspace()).toHaveValue(f.other.id); expect(api.taskGet).not.toHaveBeenCalled(); expect(api.workspacesResolve).not.toHaveBeenCalled(); expect(screen.queryByTestId('task-code-workspace')).toBeNull(); noExecution();
+    const user = userEvent.setup(), f = fixture(); setup(f); render(element(f, { initialTaskId: undefined })); await waitFor(() => expect(workspace()).toBeEnabled()); await choosePickerOption(user, workspace(), f.other.id);
+    expect(workspace()).toHaveAttribute('data-picker-value', f.other.id); expect(api.taskGet).not.toHaveBeenCalled(); expect(api.workspacesResolve).not.toHaveBeenCalled(); expect(screen.queryByTestId('task-code-workspace')).toBeNull(); noExecution();
   });
   it('rejects an old TaskA preparation callback after parent A-B-A selection epochs', async () => {
     const user = userEvent.setup(), a = fixture(), b = fixture(); b.task = { ...b.task, project_id: a.project.id }; b.project = a.project;
     const state = setup(a); const directory: CodeWorkspacePreparation = { ...b.preparation, task_id: b.task.id, project_id: a.project.id, source: { ...b.preparation.source!, kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required' };
     vi.mocked(api.taskGet).mockImplementation(async id => id === a.task.id ? state.server.task : b.task); vi.mocked(api.workspacesResolve).mockImplementation(async selected => selected.task_id === a.task.id ? a.preparation : directory);
     const page = render(element(a, { tasks: [a.task, b.task] })); await entryReady(); const old = notifications.filter(row => row.taskId === a.task.id).at(-1)!.ready!;
-    page.rerender(element(a, { initialTaskId: b.task.id, tasks: [a.task, b.task] })); await waitFor(() => expect(workspace()).toBeEnabled()); await user.selectOptions(workspace(), a.other.id);
+    page.rerender(element(a, { initialTaskId: b.task.id, tasks: [a.task, b.task] })); await waitFor(() => expect(workspace()).toBeEnabled()); await choosePickerOption(user, workspace(), a.other.id);
     page.rerender(element(a, { initialTaskId: a.task.id, tasks: [a.task, b.task] })); await entryReady(); const gets = vi.mocked(api.taskGet).mock.calls.length, lists = vi.mocked(api.workspacesList).mock.calls.length;
     await act(async () => { old(a.task.id); }); expect(vi.mocked(api.taskGet).mock.calls.length).toBe(gets); expect(vi.mocked(api.workspacesList).mock.calls.length).toBe(lists); expect(workspace()).toBeDisabled(); noExecution();
   });
@@ -146,8 +147,8 @@ describe('Execution workspace entry: real preparation component with mocked fixe
     const user = userEvent.setup(), a = fixture(), b = fixture(); b.task = { ...b.task, project_id: a.project.id }; b.project = a.project; const state = setup(a), gate = deferred<TaskWorkspaceBindingView>();
     vi.mocked(api.taskGet).mockImplementation(async id => id === a.task.id ? state.server.task : b.task); vi.mocked(api.workspacesResolve).mockImplementation(async selection => selection.task_id === a.task.id ? a.preparation : { ...a.preparation, task_id: b.task.id, source: { ...a.preparation.source!, kind: { kind: 'directory' } }, source_head: null, preparation_key: null, state: 'needs_dataset_selection', reason: 'selected_dataset_required' });
     vi.mocked(api.workspacesPrepareTaskGit).mockReturnValue(gate.promise); render(element(a, { tasks: [a.task, b.task] })); await entryReady(); await user.click(prepare()); const original = vi.mocked(api.workspacesPrepareTaskGit).mock.calls[0];
-    await user.selectOptions(screen.getByLabelText('Task binding'), b.task.id); await waitFor(() => expect(workspace()).toBeEnabled()); await user.selectOptions(workspace(), a.other.id);
-    await act(async () => { gate.resolve(state.commit(...original)); }); expect(workspace()).toHaveValue(a.other.id); expect(screen.getByLabelText('Task binding')).toHaveValue(b.task.id); noExecution();
+    await choosePickerOption(user, screen.getByLabelText('Task binding'), b.task.id); await waitFor(() => expect(workspace()).toBeEnabled()); await choosePickerOption(user, workspace(), a.other.id);
+    await act(async () => { gate.resolve(state.commit(...original)); }); expect(workspace()).toHaveAttribute('data-picker-value', a.other.id); expect(screen.getByLabelText('Task binding')).toHaveAttribute('data-picker-value', b.task.id); noExecution();
   });
   it('keeps short Chinese preparation copy in the reused entry', async () => {
     const f = fixture(); setup(f); render(element(f, { language: 'zh' })); expect(await screen.findByText('执行授权前，请先准备此任务独立的代码工作区。')).toBeVisible(); expect(await screen.findByRole('button', { name: '为此任务准备隔离 Git 工作区' })).toBeVisible(); noExecution();

@@ -1,3 +1,4 @@
+import { editField } from './test-picker';
 import { useState } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -23,7 +24,7 @@ beforeEach(()=>{
  vi.mocked(api.snapshot).mockResolvedValue({tasks:[task],sequence:1,api_version:1,database_schema_version:17});vi.mocked(api.events).mockResolvedValue({events:[event],sequence:1,next_cursor:1,gap:false});vi.mocked(api.projectsList).mockResolvedValue([]);vi.mocked(api.workspacesList).mockResolvedValue([]);
  vi.mocked(sessionApi.sessionsList).mockResolvedValue([session]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([connection]);
 });
-async function choose(){fireEvent.change(screen.getByLabelText('Existing task conversation'),{target:{value:session.id}});await waitFor(()=>expect(sessionApi.sessionsGet).toHaveBeenCalledWith(session.id));}
+async function choose(){editField(screen.getByLabelText('Existing task conversation'), session.id);await waitFor(()=>expect(sessionApi.sessionsGet).toHaveBeenCalledWith(session.id));}
 it('requires explicit session selection and sends exact observed revision once',async()=>{
  vi.mocked(sessionApi.sessionsSend).mockResolvedValue({...session,revision:4,state:'running'});
  render(<Harness/>);expect(sessionApi.sessionsGet).not.toHaveBeenCalled();await choose();
@@ -58,7 +59,7 @@ it('copies only selected excerpts with pinned project and leaves conversion unex
  render(<Harness events={[event,{...event,event_id:'foreign',aggregate_id:'other',payload:{text:'Foreign secret'},kind:'session.message_queued'}]}/>);await choose();
  expect(screen.queryByText('Foreign secret')).not.toBeInTheDocument();fireEvent.click(screen.getByLabelText('Agent: Chosen reply'));fireEvent.click(screen.getByRole('button',{name:'Use selected context'}));
  expect(screen.getByLabelText('Draft context')).toHaveValue('Agent: Chosen reply');fireEvent.click(screen.getByRole('button',{name:'Turn into task'}));
- expect(convert).toHaveBeenCalledWith('Agent: Chosen reply','project-a');expect(api.create).not.toHaveBeenCalled();expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
+ expect(convert).toHaveBeenCalledWith('Agent: Chosen reply','project-a',expect.any(HTMLButtonElement));expect(api.create).not.toHaveBeenCalled();expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
 });
 it('refuses oversized selected context without truncating',async()=>{
  render(<Harness events={[{...event,payload:{update:{kind:{kind:'agent_text',text:'x'.repeat(8193)}}}}]}/>);await choose();
@@ -67,14 +68,15 @@ it('refuses oversized selected context without truncating',async()=>{
 });
 it('preserves manual draft conversion without a managed session',()=>{
  render(<Harness sessions={[]}/>);expect(screen.getByRole('button',{name:'Send message · Unavailable'})).toBeDisabled();
- fireEvent.change(screen.getByLabelText('Draft context'),{target:{value:'Manual summary'}});fireEvent.click(screen.getByRole('button',{name:'Turn into task'}));expect(convert).toHaveBeenCalledWith('Manual summary',undefined);
+ fireEvent.change(screen.getByLabelText('Draft context'),{target:{value:'Manual summary'}});fireEvent.click(screen.getByRole('button',{name:'Turn into task'}));expect(convert).toHaveBeenCalledWith('Manual summary',undefined,expect.any(HTMLButtonElement));
 });
 it('retains source project across App quick-view unmount and different project selection',async()=>{
  const user=userEvent.setup();const project=(id:string):Project=>({id,name:id,identity:{canonical_root:'/generated/'+id,device:1,inode:1,kind:{kind:'directory'}},revision:1,archived:false,created_at:'date',updated_at:'date'});
  vi.mocked(api.projectsList).mockResolvedValue([project('project-a'),project('project-b')]);vi.mocked(api.create).mockResolvedValue({...task,id:'new-draft',state:'draft'});
  render(<App/>);await screen.findAllByTestId('task-card');await user.click(screen.getByRole('button',{name:'Quick chat'}));await choose();
  await user.click(screen.getByLabelText('Agent: Chosen reply'));await user.click(screen.getByRole('button',{name:'Use selected context'}));
- await user.click(screen.getByRole('button',{name:'project-b'}));await user.click(screen.getByRole('button',{name:'Quick chat'}));
+ await user.click(screen.getByRole('button',{name:'Projects & workspaces'}));
+ await user.click(screen.getByRole('button',{name:/project-b.*\/generated\/project-b/}));await user.click(screen.getByRole('button',{name:'Quick chat'}));
  expect(screen.getByLabelText('Draft context')).toHaveValue('Agent: Chosen reply');expect(screen.getByText('Draft project: project-a')).toBeInTheDocument();
  await user.click(screen.getByRole('button',{name:'Turn into task'}));expect(api.create).not.toHaveBeenCalled();
  fireEvent.change(screen.getByLabelText('Selected summary'),{target:{value:'Edited selected context'}});await user.click(screen.getByRole('button',{name:'Create task'}));
@@ -85,7 +87,7 @@ it('ignores a late fresh-session response after selecting another session',async
  vi.mocked(sessionApi.sessionsGet).mockImplementation(id=>id===session.id?new Promise(r=>{resolve=r;}):Promise.resolve(second));
  vi.mocked(sessionApi.sessionsSend).mockResolvedValue({...second,revision:9,state:'running'});
  render(<Harness sessions={[session,second]}/>);await choose();
- fireEvent.change(screen.getByLabelText('Existing task conversation'),{target:{value:second.id}});
+ editField(screen.getByLabelText('Existing task conversation'), second.id);
  fireEvent.change(screen.getByLabelText('Message'),{target:{value:'Message B'}});
  await waitFor(()=>expect(screen.getByRole('button',{name:'Send to existing session'})).toBeEnabled());
  await act(async()=>resolve(session));fireEvent.click(screen.getByRole('button',{name:'Send to existing session'}));

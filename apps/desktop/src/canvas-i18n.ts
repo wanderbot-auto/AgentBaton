@@ -2,7 +2,7 @@ export const canvasMessages = {
   en: {
     space: 'Space', yourTasks: 'Your tasks', all: 'All', active: 'In progress', attention: 'Needs attention', drafts: 'Drafts', done: 'Finished',
     personal: 'Personal space', allProjects: 'All projects', newTask: 'New task', search: 'Search', searchTasks: 'Search tasks', searchPlaceholder: 'Find a recorded goal…', noMatches: 'No matching tasks.',
-    toggleNav: 'Toggle navigation', close: 'Close', back: 'Back to tasks', openTask: 'Open task', recent: 'Goal recorded', recordedAction: 'Action recorded', noConnection: 'Not dispatched',
+    backPage: 'Back', toggleNav: 'Toggle navigation', close: 'Close', back: 'Back to tasks', openTask: 'Open task', recent: 'Goal recorded', recordedAction: 'Action recorded', noConnection: 'Not dispatched',
     conversation: 'Conversation', artifacts: 'Artifacts', details: 'Details', plans: 'Plan', noPlan: 'No executable plan has been recorded.',
     noArtifacts: 'No verified artifacts are available for this task.', artifactUnavailable: 'Artifact registration and preview are not provided by the current daemon API.',
     execution: 'Execution & approval', projectSettings: 'Projects & workspaces', local: 'Local', configure: 'Configure execution', message: 'Task message',
@@ -20,7 +20,7 @@ export const canvasMessages = {
   zh: {
     space: '空间', yourTasks: '你的任务', all: '全部', active: '进行中', attention: '待处理', drafts: '草稿', done: '已结束',
     personal: '个人空间', allProjects: '全部项目', newTask: '新任务', search: '搜索', searchTasks: '搜索任务', searchPlaceholder: '查找已记录的目标…', noMatches: '没有匹配的任务。',
-    toggleNav: '切换导航', close: '关闭', back: '返回任务', openTask: '打开任务', recent: '已记录目标', recordedAction: '已记录操作', noConnection: '尚未派发',
+    backPage: '返回', toggleNav: '切换导航', close: '关闭', back: '返回任务', openTask: '打开任务', recent: '已记录目标', recordedAction: '已记录操作', noConnection: '尚未派发',
     conversation: '对话', artifacts: '产物', details: '详情', plans: '计划', noPlan: '尚未记录可执行计划。',
     noArtifacts: '此任务尚无已验证的产物。', artifactUnavailable: '当前后台 API 尚未提供产物登记与预览。',
     execution: '执行与授权', projectSettings: '项目与工作区', local: '本地', configure: '配置执行', message: '任务消息',

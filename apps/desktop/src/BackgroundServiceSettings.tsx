@@ -1,4 +1,7 @@
+import { Switch } from '@mantine/core';
+import { Button, Disclosure, DisclosureLabel } from './ui';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { Icon } from './Icons';
 import type { Language } from './i18n';
 import { actionableBackgroundReceipt, backgroundServiceSession, type BackgroundOperation, type BackgroundReceipt } from './background-login-api';
 import { backgroundServiceMessages } from './background-login-i18n';
@@ -22,13 +25,16 @@ function receiptMessage(receipt: BackgroundReceipt, copy: Copy): string | null {
   }
 }
 
-function BackgroundServicePanel({ language }: { language: Language }) {
+function BackgroundServicePanel({ language, embedded = false }: { language: Language; embedded?: boolean }) {
   const copy = backgroundServiceMessages[language];
   const session = useSyncExternalStore(backgroundServiceSession.subscribe, backgroundServiceSession.getSnapshot);
   const context = useRef<symbol | null>(null);
   const [observation, setObservation] = useState<{ receipt: BackgroundReceipt; generation: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const mounted = useRef(false);
+  const switchRef = useRef<HTMLInputElement>(null);
+  const refreshRef = useRef<HTMLButtonElement>(null);
+  const [switchBeforeRequest, setSwitchBeforeRequest] = useState<boolean | null>(null);
   const request = async (operation: BackgroundOperation, owner: symbol) => {
     setObservation(null); setFailed(false);
     try {
@@ -62,16 +68,47 @@ function BackgroundServicePanel({ language }: { language: Language }) {
   const message = receipt ? receiptMessage(receipt, copy) : failed ? copy.transport : null;
   const operation = receipt?.login_registration === 'enabled_next_login' ? 'disable' : 'enable';
   const perform = (next: BackgroundOperation) => { const owner = context.current; if (owner !== null) void request(next, owner); };
+  const awaitingSwitchReceipt = switchBeforeRequest !== null && !observation && !failed;
+  const switchState = actionable ? operation === 'disable' : awaitingSwitchReceipt ? switchBeforeRequest : null;
+  useEffect(() => {
+    if (session.pending !== null || switchBeforeRequest === null || (!observation && !failed)) return;
+    setSwitchBeforeRequest(null);
+    const target = switchRef.current ?? refreshRef.current;
+    if (document.activeElement === document.body && target && !target.closest('[hidden]')) target.focus();
+  }, [session.pending, observation, failed, switchBeforeRequest]);
+  if (embedded) return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
+    <div className="management-setting">
+      <strong>{copy.registration}</strong>
+      <div className="management-setting-controls">
+      {actionable && <Button type="button" className="icon-button" aria-label={copy.refresh} title={copy.refresh}
+        onClick={() => perform('status')} disabled={session.pending !== null}><Icon name="refresh" /></Button>}
+      {switchState !== null && <Switch ref={switchRef} checked={switchState} aria-label={copy.registration}
+        aria-checked={switchState} aria-disabled={!actionable || session.pending !== null} onChange={() => {
+          if (!actionable || session.pending !== null) return;
+          setSwitchBeforeRequest(operation === 'disable');
+          perform(operation);
+        }} />}
+      </div>
+    </div>
+    <p role="status" className={actionable && session.pending === null ? 'sr-only' : 'management-setting-status'}>
+      {session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}
+    </p>
+    {(!actionable || message || session.needsRefresh) && <div className="management-setting-extra">
+      {message && <p role="alert">{message}</p>}
+      {session.needsRefresh && !message && <p>{copy.refreshFirst}</p>}
+      {!actionable && <Button ref={refreshRef} type="button" onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</Button>}
+    </div>}
+  </section>;
   return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
     <p>{copy.help}</p>
     <p role="status">{session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}</p>
     {message && <p role="alert">{message}</p>}
     {session.needsRefresh && <p>{copy.refreshFirst}</p>}
     <div className="dialog-actions">
-      <button onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</button>
-      <button onClick={() => perform(operation)} disabled={session.pending !== null || !actionable}>
+      <Button onClick={() => perform('status')} disabled={session.pending !== null}>{copy.refresh}</Button>
+      <Button onClick={() => perform(operation)} disabled={session.pending !== null || !actionable}>
         {operation === 'enable' ? copy.enable : copy.disable}
-      </button>
+      </Button>
     </div>
     <p className="hint">{copy.confirmation}</p>
     <p className="hint">{copy.boundary}</p>
@@ -79,10 +116,11 @@ function BackgroundServicePanel({ language }: { language: Language }) {
   </section>;
 }
 
-export function BackgroundServiceSettings({ language }: { language: Language }) {
+export function BackgroundServiceSettings({ language, embedded = false }: { language: Language; embedded?: boolean }) {
   const [expanded, setExpanded] = useState(false);
-  return <details className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
-    <summary>{backgroundServiceMessages[language].title}</summary>
+  if (embedded) return <BackgroundServicePanel language={language} embedded />;
+  return <Disclosure className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
+    <DisclosureLabel>{backgroundServiceMessages[language].title}</DisclosureLabel>
     {expanded && <BackgroundServicePanel language={language} />}
-  </details>;
+  </Disclosure>;
 }

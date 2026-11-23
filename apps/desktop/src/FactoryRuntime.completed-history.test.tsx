@@ -38,7 +38,7 @@ it.each(['live','expired','revoked'])('retains completed no-Factory-attempt chil
   if(mode!=='live')expect(child).toHaveAttribute('data-ready','false');
   expect(screen.queryByRole('alert')).toBeNull();expect(screen.getByRole('region',{name:t.run})).toHaveTextContent('completed');
   expect(screen.getByRole('button',{name:t.start})).toBeDisabled();expect(screen.getByRole('button',{name:t.approve})).toBeDisabled();expect(screen.getByRole('button',{name:t.cancel})).toBeDisabled();
-  if(mode==='expired')expect(screen.getByLabelText(t.selectGrant).querySelectorAll('option')).toHaveLength(1); // Only the empty choice, not missing history.
+  if(mode==='expired')expect(screen.getByRole('combobox', { name: t.selectGrant })).toHaveAttribute('data-picker-count','1'); // Only the empty choice, not missing history.
   await user.click(screen.getByRole('button',{name:t.refresh}));await waitFor(()=>expect(screen.getAllByTestId('persisted-child-slot')).toHaveLength(2));
   expect(factoryApi.start).not.toHaveBeenCalled();expect(factoryApi.approve).not.toHaveBeenCalled();expect(factoryApi.revoke).not.toHaveBeenCalled();expect(factoryApi.cancel).not.toHaveBeenCalled();
  }finally{clock.mockRestore();}

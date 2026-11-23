@@ -1,3 +1,4 @@
+import { choosePickerOption, editField } from './test-picker';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -37,7 +38,7 @@ describe('Data contract UI with mocked native transport; no real Provider/native
   it('retains form on native denial, and rejects unsafe integer form values without a second invoke', async () => {
     const user = userEvent.setup(), f = fixture(); vi.mocked(dataValidationApi.approve).mockRejectedValue(new DaemonError('PERMISSION_DENIED', 'Native owner declined', 'not_started'));
     render(<DataContractValidation task={f.task} sessions={[f.session]} language="en" connected />); await open(user); fill(); await user.click(approve()); expect(await screen.findByRole('alert')).toHaveTextContent('declined'); expect(screen.getByLabelText('JSON table path')).toHaveValue('table.json');
-    fireEvent.change(screen.getByLabelText('Scalar type 1'), { target: { value: 'integer' } }); fireEvent.change(screen.getByLabelText('Minimum 1'), { target: { value: '9007199254740993' } }); await user.click(approve()); expect(screen.getByRole('alert')).toHaveTextContent('safe integers'); expect(dataValidationApi.approve).toHaveBeenCalledTimes(1); expect(dataValidationApi.run).not.toHaveBeenCalled();
+    editField(screen.getByLabelText('Scalar type 1'), 'integer'); fireEvent.change(screen.getByLabelText('Minimum 1'), { target: { value: '9007199254740993' } }); await user.click(approve()); expect(screen.getByRole('alert')).toHaveTextContent('safe integers'); expect(dataValidationApi.approve).toHaveBeenCalledTimes(1); expect(dataValidationApi.run).not.toHaveBeenCalled();
   });
   it('rejects traversal and missing metadata before proposing any authority', async () => {
     const user = userEvent.setup(), f = fixture(); render(<DataContractValidation task={f.task} sessions={[f.session]} language="en" connected />); await open(user); fill();
@@ -98,8 +99,8 @@ describe('Data contract UI with mocked native transport; no real Provider/native
   it('allows labelled column editing and keeps sample scope and limitation explicit in the submitted contract', async () => {
     const user = userEvent.setup(), f = fixture(); vi.mocked(dataValidationApi.approve).mockRejectedValue(new DaemonError('PERMISSION_DENIED', 'Not approved', 'not_started'));
     render(<DataContractValidation task={f.task} sessions={[f.session]} language="en" connected />); await open(user); fill();
-    await user.selectOptions(screen.getByLabelText('Check scope'), 'sample'); fireEvent.change(screen.getByLabelText('Declared dataset rows'), { target: { value: '100' } }); fireEvent.change(screen.getByLabelText('Sample rows'), { target: { value: '2' } }); fireEvent.change(screen.getByLabelText('Sample limitation'), { target: { value: 'Selected subset only' } });
-    await user.click(screen.getByRole('button', { name: 'Add column' })); fireEvent.change(screen.getByLabelText('Column name 2'), { target: { value: 'label' } }); await user.selectOptions(screen.getByLabelText('Scalar type 2'), 'string'); fireEvent.change(screen.getByLabelText('String bytes 2'), { target: { value: '32' } }); await user.click(screen.getByLabelText('Nullable 2')); await user.click(approve());
+    await choosePickerOption(user, screen.getByLabelText('Check scope'), 'sample'); fireEvent.change(screen.getByLabelText('Declared dataset rows'), { target: { value: '100' } }); fireEvent.change(screen.getByLabelText('Sample rows'), { target: { value: '2' } }); fireEvent.change(screen.getByLabelText('Sample limitation'), { target: { value: 'Selected subset only' } });
+    await user.click(screen.getByRole('button', { name: 'Add column' })); fireEvent.change(screen.getByLabelText('Column name 2'), { target: { value: 'label' } }); await choosePickerOption(user, screen.getByLabelText('Scalar type 2'), 'string'); fireEvent.change(screen.getByLabelText('String bytes 2'), { target: { value: '32' } }); await user.click(screen.getByLabelText('Nullable 2')); await user.click(approve());
     await waitFor(() => expect(dataValidationApi.approve).toHaveBeenCalledOnce()); const selection = vi.mocked(dataValidationApi.approve).mock.calls[0][0]; expect(selection.table.dataset_rows).toBe(100); expect(selection.table.analysis.scope).toEqual({ kind: 'sample', rows: 2, limitation: 'Selected subset only' }); expect(selection.table.columns[1]).toEqual({ name: 'label', required: true, nullable: true, scalar: { type: 'string', max_bytes: 32 } }); expect(dataValidationApi.run).not.toHaveBeenCalled();
   });
   it('disables all mutations while disconnected and localizes the default-folded warnings', async () => {

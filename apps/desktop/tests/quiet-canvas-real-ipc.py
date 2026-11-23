@@ -22,7 +22,8 @@ import threading
 import time
 import uuid
 from functools import partial
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
+from mantine_picker import choose_picker_option, open_picker
 
 
 def main():
@@ -30,7 +31,10 @@ def main():
     parser.add_argument('--batond', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--chromium', help='Explicit local Chromium, otherwise the pinned Playwright browser')
+    parser.add_argument('--engine', choices=('chromium', 'webkit'), default='chromium')
     args = parser.parse_args()
+    if args.engine == 'webkit' and args.chromium:
+        parser.error('--chromium requires the Chromium engine')
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     binary = args.batond.resolve(strict=True)
@@ -102,6 +106,9 @@ def main():
                             'system_snapshot': ('system.snapshot', {}, set()),
                             'projects_list': ('projects.list', {}, set()),
                             'connections_list': ('connections.list', {}, set()),
+                            'background_status': ('system.background', {}, set()),
+                            'managed_skills_list': ('managed_skills.list', {}, set()),
+                            'managed_mcps_list': ('managed_mcps.list', {}, set()),
                             'sessions_list': ('sessions.list', {}, set()),
                             'validation_policies_list': ('validation_policies.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'validations_list': ('validations.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
@@ -137,7 +144,10 @@ def main():
             thread.start()
             url = f'http://127.0.0.1:{server.server_port}'
             with sync_playwright() as playwright:
-                browser = playwright.chromium.launch(executable_path=args.chromium, headless=True, args=['--disable-dev-shm-usage'])
+                browser = (playwright.webkit.launch(headless=True) if args.engine == 'webkit'
+                           else playwright.chromium.launch(executable_path=args.chromium, headless=True,
+                                                           args=['--disable-dev-shm-usage']))
+                report['engine'] = args.engine
                 report['browser_version'] = browser.version
                 report['playwright_version'] = importlib.metadata.version('playwright')
                 context = browser.new_context(viewport={'width': 1488, 'height': 981}, locale='zh-CN')
@@ -150,7 +160,7 @@ def main():
                 page.get_by_text('本地后台已连接', exact=True).wait_for()
                 assert page.get_by_test_id('task-card').count() == 0
                 passed('empty state contains no demonstration task')
-                page.locator('.composer-project select').select_option(fixture_project['id'])
+                choose_picker_option(page.locator('.composer-project').get_by_role('combobox'), fixture_project['id'])
                 goals = ['梳理工作区权限边界', '整理已记录的测试证据', '检查取消与恢复状态', '准备开发安装包验收清单', '检查项目配置的来源']
                 task_ids = []
                 for goal in goals:
@@ -160,7 +170,7 @@ def main():
                     thread_view.wait_for()
                     task_ids.append(thread_view.get_attribute('data-task-id'))
                     assert page.get_by_role('heading', name=goal, exact=True).is_visible()
-                    assert page.get_by_text('尚无执行证据。本任务尚未派发给 Provider。', exact=True).is_visible()
+                    assert page.get_by_text('尚未派发。', exact=True).is_visible()
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 assert len(set(task_ids)) == 5
                 passed('five actual UI drafts persisted through Unix IPC', task_ids=task_ids)
@@ -168,7 +178,7 @@ def main():
                 assert page.get_by_role('button', name='发送消息 · 暂不可用', exact=True).is_disabled()
                 page.get_by_label('草稿上下文', exact=True).fill('检查只读配置输入')
                 page.get_by_role('button', name='转为任务', exact=True).click()
-                dialog = page.get_by_role('dialog', name='从此摘要创建任务')
+                dialog = page.get_by_role('region', name='从此摘要创建任务')
                 assert dialog.is_visible()
                 page.get_by_label('选定摘要', exact=True).fill('仅将此审核摘要保存为任务')
                 dialog.get_by_role('button', name='创建任务', exact=True).click()
@@ -190,30 +200,35 @@ def main():
                 page.get_by_role('button', name='刷新', exact=True).click()
                 page.get_by_text('本地后台已连接', exact=True).wait_for()
                 passed('real core rejects oversized UTF-8 goal without inserting a task')
+                assert page.locator('.mantine-AppShell-header, .appbar').count() == 0
+                assert page.locator('.sidebar').bounding_box()['y'] == 0
+                assert page.get_by_role('main').locator('.page-scroll').bounding_box()['y'] == 0
+                assert page.locator('.sidebar').get_by_role('button', name='刷新', exact=True).is_visible()
+                assert page.locator('.sidebar .task-notifications-trigger').is_visible()
+                passed('headerless canvas and rail reach the top of the window')
                 for width, height in [(1488, 981), (1440, 900), (1024, 768), (390, 844)]:
                     page.set_viewport_size({'width': width, 'height': height})
                     page.wait_for_timeout(50)
                     layout = page.evaluate("""()=>{const grid=document.querySelector('.task-grid');return{columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth,sidebar:document.querySelector('.sidebar').getBoundingClientRect().width,fonts:[...new Set([...document.querySelectorAll('body *')].filter(e=>e.getClientRects().length&&e.textContent.trim()&&!e.children.length).map(e=>getComputedStyle(e).fontSize))],weights:[...new Set([...document.querySelectorAll('body *')].filter(e=>e.getClientRects().length&&e.textContent.trim()&&!e.children.length).map(e=>Number(getComputedStyle(e).fontWeight)))]}}""")
                     assert layout['columns'] == (1 if width < 760 else 2), layout
                     assert not layout['overflow'], layout
-                    assert set(layout['fonts']) <= {'14px', '18px', '24px'}, layout
+                    assert set(layout['fonts']) <= {'13px', '14px', '18px', '24px'}, layout
                     assert all(weight <= 600 for weight in layout['weights']), layout
                     if width == 1024:
-                        assert layout['sidebar'] == 64, layout
+                        assert layout['sidebar'] == 76, layout
                         assert page.get_by_role('button', name='新任务', exact=True).is_visible()
                         assert page.get_by_role('button', name='搜索', exact=True).is_visible()
-                        assert page.get_by_role('combobox', name='语言', exact=True).is_visible()
-                        passed('collapsed rail controls retain accessible localized names')
+                        assert page.get_by_role('button', name='设置', exact=True).is_visible()
+                        passed('icon rail controls retain accessible localized names')
                     if width == 390:
-                        toggle = page.get_by_role('button', name='切换导航', exact=True)
-                        bounds = toggle.bounding_box()
-                        assert bounds['width'] >= 44 and bounds['height'] >= 44, bounds
-                        toggle.click()
-                        assert page.get_by_role('button', name='新任务', exact=True).is_visible()
-                        assert page.get_by_role('button', name='搜索', exact=True).is_visible()
-                        assert page.get_by_role('combobox', name='语言', exact=True).is_visible()
-                        toggle.click()
-                        passed('mobile navigation exposes named controls and44px toggle target')
+                        assert layout['sidebar'] == 50, layout
+                        for label in ['新任务', '搜索', '任务', '能力', '设置']:
+                            control = page.get_by_role('button', name=label, exact=True)
+                            assert control.is_visible()
+                            bounds = control.bounding_box()
+                            assert bounds['width'] >= 44 and bounds['height'] >= 44, bounds
+                        expect(page.locator('.task-notifications-trigger svg')).to_be_visible()
+                        passed('narrow icon rail retains named controls and usable targets')
                     screenshot = output / f'home-{width}x{height}.png'
                     page.screenshot(path=str(screenshot))
                     report['screenshots'].append(str(screenshot))
@@ -323,50 +338,62 @@ def main():
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 page.set_viewport_size({'width': 1488, 'height': 981})
                 page.get_by_role('button', name='搜索', exact=True).click()
-                search = page.get_by_role('dialog', name='搜索任务')
+                search = page.get_by_role('region', name='搜索任务')
                 page.get_by_role('textbox', name='搜索任务', exact=True).fill(goals[0])
                 assert search.get_by_role('button', name=re.compile(goals[0])).count() == 1
                 page.keyboard.press('Escape')
+                assert search.count() == 0
                 assert page.get_by_role('dialog').count() == 0
                 assert page.get_by_role('button', name='搜索', exact=True).evaluate('(e)=>e===document.activeElement')
                 page.keyboard.press('Control+k')
-                page.get_by_role('dialog', name='搜索任务').wait_for()
+                page.get_by_role('region', name='搜索任务').wait_for()
                 page.keyboard.press('Escape')
                 passed('keyboard command search, Escape and focus restore')
                 page.get_by_role('button', name='设置', exact=True).click()
-                settings = page.get_by_role('dialog', name='设置', exact=True)
-                close = settings.get_by_role('button', name='关闭', exact=True)
+                settings = page.get_by_role('region', name='设置', exact=True)
+                back = settings.get_by_role('button', name='返回', exact=True)
+                general = settings.get_by_role('tab', name='常规', exact=True)
+                background = settings.get_by_role('tab', name='后台与登录', exact=True)
+                diagnostics = settings.get_by_role('tab', name='恢复与诊断', exact=True)
+                assert general.get_attribute('aria-selected') == 'true'
+                assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
+                assert settings.get_by_role('heading', name='设置', exact=True).evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('Tab')
+                assert general.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('End')
+                assert diagnostics.evaluate('(e)=>e===document.activeElement')
+                assert diagnostics.get_attribute('aria-selected') == 'true'
+                assert background.get_attribute('tabindex') == '-1'
                 summary = settings.locator('summary').filter(has_text=re.compile('^连接证据$'))
-                background_summary = settings.locator('summary').filter(has_text=re.compile('^后台与登录启动$'))
-                assert summary.count() == 1 and background_summary.count() == 1
                 assert summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
-                assert background_summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
+                assert page.get_by_role('dialog').count() == 0
+                assert page.get_by_role('button', name='能力', exact=True).is_enabled()
+                assert back.count() == 0
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
-                assert close.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Shift+Tab')
-                assert background_summary.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Shift+Tab')
-                assert summary.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Tab')
-                assert background_summary.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Tab')
-                assert close.evaluate('(e)=>e===document.activeElement')
-                # The composed settings add recovery and daemon controls before the
-                # two closed summaries. Forward tabbing must stay in the dialog.
-                page.keyboard.press('Tab')
-                assert settings.evaluate('(e)=>e.contains(document.activeElement)')
-                assert not background_summary.evaluate('(e)=>e.parentElement.contains(document.activeElement)')
-                page.keyboard.press('Shift+Tab')
-                assert close.evaluate('(e)=>e===document.activeElement')
-                assert summary.evaluate('(e)=>e.parentElement.open===false')
-                assert background_summary.evaluate('(e)=>e.parentElement.open===false')
-                assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
+                settings_capture = output / 'settings-categories.png'
+                page.screenshot(path=settings_capture)
+                report['screenshots'].append(str(settings_capture))
                 page.keyboard.press('Escape')
                 assert page.get_by_role('button', name='设置', exact=True).evaluate('(e)=>e===document.activeElement')
-                passed('actual closed-details summary is included in dialog focus trap')
+                passed('inline settings categories, closed evidence and opener restoration')
+                before_catalog = ipc('system.snapshot', {})['result']['sequence']
+                page.get_by_role('button', name='能力', exact=True).click()
+                choose_picker_option(page.get_by_role('combobox', name='能力范围', exact=True), '')
+                page.get_by_text('暂无连接。', exact=True).wait_for()
+                assert page.get_by_text('0 项记录', exact=True).is_visible()
+                assert page.get_by_role('button', name='添加能力', exact=True).is_enabled()
+                assert not page.locator('.management-editor').count()
+                assert {'connections.list', 'managed_skills.list', 'managed_mcps.list'}.issubset(
+                    {request['method'] for request in report['requests'] if request['error'] is None})
+                assert ipc('system.snapshot', {})['result']['sequence'] == before_catalog
+                catalog_capture = output / 'capabilities-empty.png'
+                page.screenshot(path=catalog_capture)
+                report['screenshots'].append(str(catalog_capture))
+                passed('read-only capability catalog uses real daemon and gates empty configuration')
+                page.get_by_role('button', name='任务', exact=True).click()
                 page.get_by_test_id('task-card').first.click()
                 page.get_by_role('button', name='执行与授权', exact=True).click()
-                execution = page.get_by_role('dialog', name='执行与授权', exact=True)
+                execution = page.get_by_role('region', name='执行与授权', exact=True)
                 duration = execution.locator('#grant-duration')
                 assert duration.get_attribute('max') == '3600'
                 duration.fill('3601')
@@ -391,6 +418,93 @@ def main():
                 assert page.get_by_text('task.created', exact=True).count() == 6
                 assert page.get_by_text('task.cancelled', exact=True).count() == 1
                 passed('history uses actual journal events')
+                page.set_viewport_size({'width': 760, 'height': 580})
+                page.get_by_role('button', name='能力', exact=True).click()
+                choose_picker_option(page.get_by_role('combobox', name='能力范围', exact=True), '')
+                page.get_by_text('0 项记录', exact=True).wait_for()
+                assert page.locator('.page-scroll').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
+                page.get_by_role('button', name='设置', exact=True).click()
+                settings = page.get_by_role('region', name='设置', exact=True)
+                settings.get_by_role('tab', name='后台与登录', exact=True).click()
+                background = settings.get_by_role('region', name='后台服务', exact=True)
+                service = background.get_by_text('服务证据', exact=True)
+                assert service.evaluate('(e)=>e.parentElement.open===false')
+                service.click()
+                background.get_by_text('已认证服务实例', exact=True).wait_for()
+                assert any(request['method'] == 'system.background' and request['error'] is None for request in report['requests'])
+                assert settings.locator('.inline-page-content').evaluate('(e)=>e.scrollWidth<=e.clientWidth')
+                assert settings.get_by_role('switch').count() == 0
+                service.click()
+                background_capture = output / 'settings-background-760.png'
+                page.screenshot(path=background_capture)
+                report['screenshots'].append(str(background_capture))
+                page.keyboard.press('Escape')
+                passed('narrow management surfaces read real background evidence without a native login mutation')
+                page.set_viewport_size({'width': 1180, 'height': 800})
+                page.get_by_role('button', name='设置', exact=True).click()
+                settings = page.get_by_role('region', name='设置', exact=True)
+                settings.get_by_role('tab', name='常规', exact=True).click()
+                appearance = settings.get_by_role('combobox', name='外观', exact=True)
+                html = page.locator('html')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
+                surfaces = '''() => {
+                    const color = (selector, prop) => getComputedStyle(document.querySelector(selector))[prop];
+                    return [color('body', 'backgroundColor'), color('.sidebar', 'backgroundColor'),
+                            color('[data-page="settings"] .mantine-Select-input', 'backgroundColor'),
+                            color('[data-page="settings"] .mantine-Select-input', 'color')];
+                }'''
+                light = page.evaluate(surfaces)
+                assert page.locator('select').count() == 0
+                appearance.press('ArrowDown')
+                expect(appearance).to_have_attribute('aria-expanded', 'true')
+                light_dropdown = open_picker(appearance)
+                light_color = light_dropdown.evaluate("e => getComputedStyle(e.closest('.mantine-Select-dropdown')).backgroundColor")
+                appearance.press('Escape')
+                expect(appearance).to_have_attribute('aria-expanded', 'false')
+                expect(settings).to_be_visible()
+                choose_picker_option(appearance, 'dark')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
+                dark = page.evaluate(surfaces)
+                assert all(a != b for a, b in zip(light, dark)), (light, dark)
+                dark_dropdown = open_picker(appearance)
+                dark_color = dark_dropdown.evaluate("e => getComputedStyle(e.closest('.mantine-Select-dropdown')).backgroundColor")
+                assert dark_color != light_color, (light_color, dark_color)
+                dark_popup_capture = output / 'appearance-open-dark.png'
+                page.screenshot(path=dark_popup_capture)
+                report['screenshots'].append(str(dark_popup_capture))
+                appearance.press('Escape')
+                expect(settings).to_be_visible()
+                for name in ('settings-dark', 'resources-dark', 'tasks-dark', 'notifications-dark'):
+                    if name == 'resources-dark':
+                        page.get_by_role('button', name='能力', exact=True).click()
+                    elif name == 'tasks-dark':
+                        page.get_by_role('button', name='任务', exact=True).click()
+                        page.get_by_test_id('task-card').first.wait_for()
+                    elif name == 'notifications-dark':
+                        page.get_by_role('button', name=re.compile('通知')).click()
+                        dialog = page.get_by_role('dialog')
+                        expect(dialog).to_be_visible()
+                        checkbox = dialog.get_by_role('checkbox')
+                        assert checkbox.evaluate("e => getComputedStyle(e).appearance") == 'none'
+                        bounds = checkbox.bounding_box()
+                        assert bounds and bounds['width'] >= 16 and bounds['height'] >= 16, bounds
+                    capture = output / (name + '.png')
+                    page.screenshot(path=capture)
+                    report['screenshots'].append(str(capture))
+                page.reload()
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
+                page.get_by_role('button', name='设置', exact=True).click()
+                appearance = page.get_by_role('combobox', name='外观', exact=True)
+                expect(appearance).to_have_attribute('data-picker-value', 'dark')
+                page.emulate_media(color_scheme='light')
+                choose_picker_option(appearance, 'auto')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
+                page.emulate_media(color_scheme='dark')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'dark')
+                choose_picker_option(appearance, 'light')
+                expect(html).to_have_attribute('data-mantine-color-scheme', 'light')
+                passed('appearance recolors shell and controls, survives reload and follows system changes',
+                       light=light, dark=dark, light_dropdown=light_color, dark_dropdown=dark_color)
                 assert not errors, errors
                 passed('no browser runtime errors')
                 context.close()

@@ -32,7 +32,7 @@ import re
 import sys
 
 PLANNING_PATH = Path(__file__).with_name('factory-child-planning-real-ipc.py')
-PLANNING_SHA256 = 'fe607d2c8bfeaf9ee34a0656b823bec9e00c11c9152501ebbd1e273bfbf79f39'
+PLANNING_SHA256 = '0a70100307a52439c63d66c537b98a0ab16e5b15fa76830276aa24155ced6c13'
 PLANNING_SOURCE = PLANNING_PATH.read_bytes()
 _spec = importlib.util.spec_from_file_location('_child_goal_planning_support', PLANNING_PATH)
 planning = importlib.util.module_from_spec(_spec)
@@ -2041,8 +2041,8 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
             if not details.evaluate('e=>e.open'):details.locator(':scope > summary').click()
         page.goto(url);page.get_by_test_id('task-card').filter(has_text=task['goal']).click();page.locator('#tab-details').click()
         panel=page.get_by_test_id('factory-runtime');expand(panel.locator(':scope > details'));form=panel.locator('form')
-        planning.fixed_form_control(form,'Existing root Grant','select').select_option(grant['id'])
-        planning.fixed_form_control(form,'Existing connections','select').select_option([cid]);planning.fixed_form_control(form,'Existing workspaces','select').select_option([workspace['id']])
+        planning.choose_fixed_picker(form,'Existing root Grant',grant['id'])
+        planning.choose_fixed_picker(form,'Existing connections',[cid]);planning.choose_fixed_picker(form,'Existing workspaces',[workspace['id']])
         expand(form.locator('details').filter(has=page.get_by_text('Selected inputs / Declared outputs',exact=True)))
         form.get_by_label('Selected inputs',exact=True).fill('input | input.txt | 1024 | '+base.sha(b'fixed input\n'))
         form.get_by_label('Declared outputs',exact=True).fill('\n'.join(a['artifact_id']+' | '+a['relative_path']+' | 4096'for a in outputs))

@@ -340,6 +340,8 @@ def restore_native_smoke_before_schema19(path, raw):
     """Peel this layer from the exact raw Rust source."""
     if type(path) is not str or path != NATIVE_SMOKE_PATH or type(raw) is not bytes:
         raise ValueError("Expected raw bytes for the canonical native smoke path")
+    from tests.infrastructure.mantine_picker_source_fixture import restore_mantine_picker_source
+    raw = restore_mantine_picker_source(path, raw, error=ValueError)
     if hashlib.sha256(raw).hexdigest() != CURRENT_SHA256:
         raise ValueError("Current native smoke source has changed")
 

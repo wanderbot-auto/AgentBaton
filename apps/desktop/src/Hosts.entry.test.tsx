@@ -1,3 +1,4 @@
+import { editField } from './test-picker';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
@@ -46,10 +47,10 @@ beforeEach(() => {
 
 function showHosts() {
   fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
-  const dialog = screen.getByRole('dialog', { name: 'Settings' });
-  const detail = within(dialog).getByText(en.title, { selector: 'summary' }).closest('details')!;
-  detail.open = true;
-  fireEvent(detail, new Event('toggle'));
+  const dialog = screen.getByRole('region', { name: 'Settings' });
+  fireEvent.click(within(dialog).getByRole('tab', { name: en.title }));
+  const summary = within(dialog).getByText(en.register, { selector: 'summary' });
+  fireEvent.click(summary);
   return dialog;
 }
 
@@ -60,7 +61,7 @@ function fill() {
     [en.known, 'known:fixture'], [en.checksum, 'a'.repeat(64)], [en.identity, 'identity:fixture'],
     [en.config, 'config:fixture'], [en.ownership, 'external_read_only'],
   ];
-  for (const [label, value] of entries) fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  for (const [label, value] of entries) editField(screen.getByLabelText(label), value);
 }
 
 it('retains the original in-flight Host request when Settings closes before reservation', async () => {
@@ -95,18 +96,20 @@ it('retains the original in-flight Host request when Settings closes before rese
   render(<App />);
   expect(native).not.toHaveBeenCalled();
   await user.click(screen.getByRole('button', { name: 'Settings' }));
-  const dialog = screen.getByRole('dialog', { name: 'Settings' });
-  await user.tab({ shift: true });
-  expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toHaveFocus();
-  await user.tab({ shift: true });
-  expect(within(dialog).getByText('Connection evidence', { selector: 'summary' })).toHaveFocus();
-  await user.tab({ shift: true });
-  const hostSummary = within(dialog).getByText(en.title, { selector: 'summary' });
-  expect(hostSummary).toHaveFocus();
-  await user.click(hostSummary);
-  expect(within(dialog).getByRole('region', { name: 'Recover connection creations' })).toBeVisible();
-  expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toBeVisible();
-  expect(within(dialog).getByText('Appearance')).toBeVisible();
+  const dialog = screen.getByRole('region', { name: 'Settings' });
+  await user.tab();
+  expect(within(dialog).getByRole('tab', { name: 'General' })).toHaveFocus();
+  await user.keyboard('{ArrowRight}');
+  expect(within(dialog).getByRole('tab', { name: 'Background and login' })).toHaveFocus();
+  await user.keyboard('{ArrowRight}');
+  expect(within(dialog).getByRole('tab', { name: en.title })).toHaveFocus();
+  expect(within(dialog).getByRole('tabpanel', { name: en.title })).toBeVisible();
+  expect(within(dialog).queryByRole('region', { name: 'Recover connection creations' })).toBeNull();
+  expect(within(dialog).getByRole('tab', { name: 'Background and login' })).toBeVisible();
+  expect(within(dialog).queryByRole('combobox', { name: 'Language' })).not.toBeInTheDocument();
+  const register = within(dialog).getByText(en.register, { selector: 'summary' });
+  expect(register.closest('details')).not.toHaveAttribute('open');
+  await user.click(register);
   const submit = await screen.findByRole('button', { name: en.register });
   await waitFor(() => expect(submit).toBeEnabled());
   fill();
@@ -114,8 +117,8 @@ it('retains the original in-flight Host request when Settings closes before rese
   await waitFor(() => expect(key).toEqual(expect.stringMatching(/^[0-9a-f-]{36}$/)));
   const original = { registration, idempotencyKey: key };
 
-  fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
-  expect(screen.queryByRole('dialog', { name: 'Settings' })).toBeNull();
+  await user.keyboard('{Escape}');
+  expect(screen.queryByRole('region', { name: 'Settings' })).toBeNull();
   showHosts();
   await waitFor(() => expect(native.mock.calls.filter(([command]) => command === 'hosts_registration_pending')).toHaveLength(2));
   const reopenedSubmit = screen.getByRole('button', { name: en.register });

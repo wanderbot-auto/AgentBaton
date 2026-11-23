@@ -1,3 +1,4 @@
+import { choosePickerOption } from './test-picker';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
@@ -74,7 +75,7 @@ it('creates, previews and revises accepted-task experience from the normal task 
   const candidate = editor();
   expect(candidate.getByRole('combobox', { name: 'Candidate type' })).toHaveFocus();
   expect(candidate.getByRole('textbox', { name: 'Summary' })).toHaveValue(accepted.goal);
-  await userEvent.selectOptions(candidate.getByRole('combobox'), 'template');
+  await choosePickerOption(userEvent, candidate.getByRole('combobox'), 'template');
   const content = candidate.getByRole<HTMLTextAreaElement>('textbox', { name: 'Reusable content' });
   expect(content.value).toContain('Acceptance checks');
   fireEvent.change(content, { target: { value: 'x'.repeat(4001) } });
@@ -154,10 +155,10 @@ it('clears a draft on a project selector change while retaining the existing tas
   await openEditor();
   fireEvent.change(editor().getByLabelText('Summary'), { target: { value: 'Private Atlas draft' } });
   previewCandidate();
-  await userEvent.click(screen.getByRole('button', { name: 'All projects' }));
-  const dialog = within(screen.getByRole('dialog', { name: 'Projects & workspaces' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Projects & workspaces' }));
+  const dialog = within(screen.getByRole('region', { name: 'Projects & workspaces' }));
   await userEvent.click(dialog.getByRole('button', { name: /Boreal.*\/work\/project-boreal/i }));
-  await userEvent.click(dialog.getByRole('button', { name: 'Close' }));
+  await userEvent.click(dialog.getByRole('button', { name: 'Back' }));
   expect(screen.getByRole('heading', { name: accepted.goal })).toBeVisible();
   expect(screen.queryByRole('region', { name: 'Experience candidate' })).toBeNull();
 

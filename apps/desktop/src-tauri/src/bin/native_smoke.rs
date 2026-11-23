@@ -975,6 +975,59 @@ fn finalize_native_report(
     report["status"] = json!(if passed { "passed" } else { "failed" });
     passed
 }
+#[cfg(target_os = "macos")]
+fn verify_mac_window_frame(window: &tauri::WebviewWindow) -> Result<Value, String> {
+    use objc2_app_kit::{NSWindow, NSWindowButton, NSWindowStyleMask, NSWindowTitleVisibility};
+
+    let _main_thread =
+        objc2::MainThreadMarker::new().ok_or("Expected native window main thread")?;
+    let pointer = window.ns_window().map_err(|_| "Missing native window")?;
+    if pointer.is_null() {
+        return Err("Missing native window".into());
+    }
+    // SAFETY: Tauri owns a live NSWindow for this WebviewWindow on the main thread.
+    let native = unsafe { &*pointer.cast::<NSWindow>() };
+    let style = native.styleMask();
+    if !style.contains(NSWindowStyleMask::FullSizeContentView | NSWindowStyleMask::Titled)
+        || native.titleVisibility() != NSWindowTitleVisibility::Hidden
+        || !native.titlebarAppearsTransparent()
+    {
+        return Err("Expected the native title bar to overlay the full content view".into());
+    }
+
+    let window_height = native.frame().size.height;
+    let mut positions = Vec::new();
+    for (name, kind) in [
+        ("close", NSWindowButton::CloseButton),
+        ("minimize", NSWindowButton::MiniaturizeButton),
+        ("zoom", NSWindowButton::ZoomButton),
+    ] {
+        let button = native
+            .standardWindowButton(kind)
+            .ok_or("Missing standard window button")?;
+        let bounds = button.convertRect_toView(button.bounds(), None);
+        let top = window_height - bounds.origin.y - bounds.size.height;
+        if button.isHidden()
+            || !button.isEnabled()
+            || bounds.size.width <= 0.0
+            || bounds.origin.x < 0.0
+            || bounds.origin.x + bounds.size.width > 76.0
+            || top < 8.0
+            || top + bounds.size.height > 44.0
+        {
+            return Err(format!(
+                "Invalid native window button {name}: x={}, y={top}, width={}, height={}, hidden={}, enabled={}",
+                bounds.origin.x, bounds.size.width, bounds.size.height, button.isHidden(), button.isEnabled()
+            ));
+        }
+        positions.push(json!({
+            "button": name, "x": bounds.origin.x, "y": top,
+            "width": bounds.size.width, "height": bounds.size.height,
+        }));
+    }
+    Ok(json!({"full_size_content":true,"hidden_title":true,"native_buttons":positions}))
+}
+
 fn capture_screen(output: &Path, window: &tauri::WebviewWindow) -> &'static str {
     let _ = window;
     #[cfg(target_os = "macos")]
@@ -1138,6 +1191,10 @@ fn native_smoke_report(
             let screenshot = capture_screen(&state.output, &window);
             let committed = (|| {
                 let mut report = state.report.lock().unwrap();
+                #[cfg(target_os = "macos")]
+                {
+                    report["macos_window_frame"] = verify_mac_window_frame(&window)?;
+                }
                 let database = &report["goal_readonly_database"];
                 if database["read_only"] != true
                     || database["unchanged"] != true
@@ -1218,10 +1275,22 @@ const FIRST: &str = r#"
   const projects=result(await invoke('projects_list'));
   require(Array.isArray(projects)&&projects.length===1&&projects[0].name==='Native readonly Goal project'&&!projects[0].archived,'generated registered readonly project fixture is absent');
   const fixtureProject=projects[0];
-  let projectSelect;
-  while(!(projectSelect=document.querySelector('.composer-project select'))||![...projectSelect.options].some(option=>option.value===fixtureProject.id)){require(Date.now()<deadline,'real project composer choice did not load');await new Promise(r=>setTimeout(r,25));}
-  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(projectSelect,fixtureProject.id);
-  projectSelect.dispatchEvent(new Event('change',{bubbles:true}));
+  let projectSelect, projectOption;
+  while(!projectOption){
+   require(Date.now()<deadline,'the actual Mantine project option did not load');
+   projectSelect=document.querySelector('.composer-project [role="combobox"]');
+   if(projectSelect&&!projectSelect.disabled){
+    if(projectSelect.getAttribute('aria-expanded')!=='true')projectSelect.click();
+    const list=document.getElementById(projectSelect.getAttribute('aria-controls')||'');
+    const matches=[...list?.querySelectorAll('[role="option"]')||[]].filter(option=>option.getAttribute('value')===':'+fixtureProject.id);
+    require(matches.length<=1,'duplicate project option');
+    projectOption=matches[0];
+   }
+   if(!projectOption)await new Promise(r=>setTimeout(r,25));
+  }
+  require(projectOption.getClientRects().length>0,'project option must be visible in the WebView');
+  projectOption.click();
+  require(document.querySelector('.composer-project select')===null,'unexpected native project selector');
   const goal='原生 WebView → IPC persistent task';
   const input=document.querySelector('[data-testid="goal-input"],#goal');
   const form=document.querySelector('[data-testid="goal-composer"],form.create-task');

@@ -51,6 +51,8 @@ def check_parent(raw, expected):
 
 
 def restore_driver_before_labels19(path, raw):
+    from tests.infrastructure.mantine_picker_source_fixture import restore_mantine_picker_source
+    raw = restore_mantine_picker_source(path, raw, error=ValueError)
     checked_source(path, raw, DRIVER_PATH, DRIVER_CURRENT_SHA256)
     raw = replace(raw, b"Core19 Unix IPC", b"Core18 Unix IPC", count=2)
     raw = replace(raw,

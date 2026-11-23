@@ -1,3 +1,4 @@
+import { editField } from './test-picker';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import type { Project, Task } from './api';
@@ -31,7 +32,7 @@ it('validates both text fields, then previews a rule with localized labels and e
   render(<TaskExperienceProposal task={task} project={project} selectedProjectId={project.id} language="zh" />);
   fireEvent.click(screen.getByRole('button', { name: '创建经验候选' }));
   const region = within(screen.getByRole('region', { name: '经验候选' }));
-  fireEvent.change(region.getByRole('combobox'), { target: { value: 'rule' } });
+  editField(region.getByRole('combobox'), 'rule');
   const summary = region.getByRole('textbox', { name: '摘要' });
   const content = region.getByRole<HTMLTextAreaElement>('textbox', { name: '可复用内容' });
   const preview = region.getByRole('button', { name: '预览候选' });

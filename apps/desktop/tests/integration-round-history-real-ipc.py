@@ -34,6 +34,15 @@ require = D.require
 SCRIPT = ('test -s reports/report.txt || exit 21; printf \'%s\\n\' "$$" > "$1" || exit 22; '
     'IFS= read -r reply < "$2" || exit 23; [ "$reply" = continue ] || exit 24')
 
+def choose_picker_option(control, value):
+    import hashlib
+    import runpy
+    helper = Path(__file__).with_name('mantine_picker.py')
+    if hashlib.sha256(helper.read_bytes()).hexdigest() != '3fd49076770fbac883d781a5a9bb51a28975921a242086251c858d5206afc1ab':
+        raise AssertionError('Unknown picker driver source')
+    runpy.run_path(str(helper))['choose_picker_option'](control, value)
+
+
 
 def own_source(expected):
     relative = 'apps/desktop/tests/integration-round-history-real-ipc.py'
@@ -444,9 +453,9 @@ def run_case(args, binary, companion, frontend, attribution):
         page.get_by_role('tab', name='Details', exact=True).click(); panel = page.get_by_test_id('task-integration')
         panel.locator(':scope > summary').click()
         expect(panel.get_by_role('button', name='Refresh integration records')).to_be_enabled()
-        panel.get_by_label('Existing local target branch').select_option(D.TARGET)
+        choose_picker_option(panel.get_by_label('Existing local target branch'), D.TARGET)
         panel.get_by_label('Maximum preparation rounds').fill('3')
-        panel.get_by_label('If the target advances').select_option('bounded_descendant_reprepare')
+        choose_picker_option(panel.get_by_label('If the target advances'), 'bounded_descendant_reprepare')
         panel.get_by_label('Permission lifetime (milliseconds)').fill('30000')
         panel.get_by_text('Fresh candidate correctness checks', exact=True).click()
         panel.get_by_role('checkbox', name=re.compile('Add check command:')).check()
