@@ -53,6 +53,12 @@
         318
       ],
       "global_window_after": 616
+    },
+    "gallery_rendering": {
+      "embedded_pngs_verified": 45,
+      "browser": "Microsoft Edge 158.0.4370.33",
+      "offline_copy": true,
+      "rendered_preview": "artifacts/ui-simplification/screenshots/comparison-rendered.png"
     }
   },
   "build": {

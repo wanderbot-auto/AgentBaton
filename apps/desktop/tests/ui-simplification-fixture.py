@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise two built desktop renderers against a private copy of the UI fixture."""
 import argparse
+from base64 import b64encode
 from collections import Counter
 from contextlib import contextmanager
 from functools import partial
@@ -608,8 +609,10 @@ def write_comparison(output, report):
         for stage, caption in (("before", "改造前"), ("after", "改造后")):
             if name in datasets[stage]:
                 shot = datasets[stage][name]
-                figures.append(f'<figure><figcaption>{caption}</figcaption><a href="{stage}/{name}.png">'
-                               f'<img src="{stage}/{name}.png" width="{shot["viewport"]["width"]}" '
+                original = f"{stage}/{shot['file']}"
+                embedded = b64encode((output / original).read_bytes()).decode("ascii")
+                figures.append(f'<figure><figcaption>{caption}</figcaption><a href="{original}">'
+                               f'<img src="data:image/png;base64,{embedded}" width="{shot["viewport"]["width"]}" '
                                f'height="{shot["viewport"]["height"]}" alt="{escape(title)} · {caption}" '
                                f'loading="lazy"></a></figure>')
         if figures:
@@ -631,7 +634,7 @@ figcaption{font-weight:600} img{display:block;width:100%;height:auto;border:1px 
 @media(max-width:760px){.pair{grid-template-columns:1fr}nav ul{columns:2}}
 </style>
 <h1>AgentBaton 前端精简 · 截图对照</h1>
-<p>在 Apple Silicon 上使用 Chrome 渲染两次实际前端构建，通过只读 IPC 连接隔离的拟真 SQLite 19 数据库。点击截图打开原图。</p>
+<p>在 Apple Silicon 上使用 Chrome 渲染两次实际前端构建，通过只读 IPC 连接隔离的拟真 SQLite 19 数据库。截图已内嵌，点击可打开原图。</p>
 """
     (output / "comparison.html").write_text(html + f'<nav aria-label="场景"><ul><li>{checks}</ul></nav>' + "".join(sections))
 
