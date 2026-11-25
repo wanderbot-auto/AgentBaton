@@ -159,6 +159,12 @@ class Boundary:
             require(set(args) == {'cursor', 'limit'} and integer(args['cursor'], 0)
                     and type(args['limit']) is int and args['limit'] == 100)
             return 'events.subscribe', dict(args), None, None
+        if command == 'tasks_history':
+            require(set(args) <= {'taskId', 'limit', 'before', 'after'} and {'taskId', 'limit'} <= set(args))
+            require(args['taskId'] in self.tasks and integer(args['limit']) and args['limit'] <= 100)
+            cursors = {name: args[name] for name in ('before', 'after') if name in args}
+            require(len(cursors) <= 1 and all(integer(value) and value < (2**53 - 1) for value in cursors.values()))
+            return 'tasks.history', {'task_id': args['taskId'], 'limit': args['limit'], **cursors}, None, None
         if command in ('workspaces_list', 'grants_list'):
             require(set(args) == {'projectId'} and args['projectId'] == self.project['id'])
             method = 'workspaces.list' if command == 'workspaces_list' else 'grants.list'
@@ -838,6 +844,18 @@ def run(args, binary, frontend, attribution, output):
             expect(panel.locator(':scope > section')).to_have_attribute('aria-busy', 'false')
             return panel
 
+        def assert_revalidated(panel):
+            identity = panel.get_by_text('Filesystem identity revalidated', exact=True)
+            evidence = panel.locator('details').filter(has=identity).last
+            if not evidence.evaluate('(element) => element.open'):
+                evidence.locator(':scope > summary').click()
+            expect(identity).to_be_visible()
+
+        def open_scope_review(dialog):
+            disclosure = dialog.get_by_test_id('session-scope-review')
+            if not disclosure.evaluate('(element) => element.open'):
+                disclosure.locator(':scope > summary').click()
+
         def click(panel, label):
             button = panel.get_by_role('button', name=label, exact=True)
             expect(button).to_be_visible()
@@ -855,7 +873,7 @@ def run(args, binary, frontend, attribution, output):
         stage = 'normal_first_task'
         panel = open_task(tasks[0])
         click(panel, 'Prepare isolated Git workspace for this task')
-        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()
+        assert_revalidated(panel)
         t1 = result('tasks.get', {'task_id': tasks[0]['id']})
         b1 = t1['code_workspace_binding']
         require(b1['state'] == 'ready' and t1['state'] == 'draft'
@@ -880,7 +898,7 @@ def run(args, binary, frontend, attribution, output):
         expect(panel.get_by_text('Stored binding only; filesystem identity has not been revalidated by this read.', exact=True)).to_be_visible()
         expect(panel.get_by_role('button', name='Recover the exact preparation', exact=True)).to_be_enabled()
         click(panel, 'Recover the exact preparation')
-        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()
+        assert_revalidated(panel)
         require(db_image(runtime) == before_replay, 'Exact replay created rows/events or changed existing receipt')
         t2_after = result('tasks.get', {'task_id': tasks[1]['id']})
         require(exact(t2, t2_after))
@@ -907,8 +925,9 @@ def run(args, binary, frontend, attribution, output):
         report['execution_dialog_reads'] = []
 
         def open_execution():
+            page.locator('#tab-conversation').click()
             start = len(report['http'])
-            button = page.get_by_test_id('task-thread').locator('.thread-back').get_by_role('button', name='Execution & approval', exact=True)
+            button = page.get_by_test_id('task-thread').get_by_role('button', name='Configure execution', exact=True)
             expect(button).to_be_visible()
             expect(button).to_be_enabled()
             button.click()
@@ -920,18 +939,19 @@ def run(args, binary, frontend, attribution, output):
             proof = wait(lambda: confirmed_dialog_task_read(report['http'], start, current_task), lambda value: value is not None)
             workspace_id = current_task['code_workspace_binding']['receipt']['workspace_id']
             require(workspace_id != other_workspace and proof['workspace_id'] == workspace_id)
-            expect(dialog.locator('#session-task')).to_have_value(current_task['id'])
-            expect(dialog.locator('#session-project')).to_have_value(project['id'])
+            expect(dialog.locator('#session-task')).to_have_count(0)
+            expect(dialog.locator('#session-project')).to_have_count(0)
+            expect(dialog.get_by_text(project['name'], exact=True)).to_be_visible()
             expect(dialog.locator('#session-workspace')).to_have_value(workspace_id)
             expect(dialog.locator('#session-workspace')).to_be_disabled()
             expect(dialog.get_by_text('The task’s stored binding locates this workspace.', exact=False)).to_be_visible()
-            expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core’s current admission checks still apply.', exact=False)).to_be_visible()
             expect(dialog.locator('#session-connection')).to_have_value('')
             expect(dialog.locator('#session-connection option')).to_have_count(1)
-            expect(dialog.locator('#session-grant')).to_have_value('')
-            expect(dialog.locator('#session-grant option')).to_have_count(1)
+            expect(dialog.locator('#session-grant')).to_have_count(0)
+            require(not dialog.get_by_test_id('session-scope-review').evaluate('(element) => element.open'))
+            open_scope_review(dialog)
             expect(dialog.get_by_role('button', name='Create bounded execution grant', exact=True)).to_be_disabled()
-            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()
+            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_have_count(0)
             expect(dialog.get_by_role('alert')).to_have_count(0)
             report['execution_dialog_reads'].append(proof)
 
@@ -941,21 +961,15 @@ def run(args, binary, frontend, attribution, output):
         verify_dialog(dialog, read_start, t2_after, b1['receipt']['workspace_id'])
         dialog.locator('#session-workspace').scroll_into_view_if_needed()
         shot('05-task2-bound-execution-desktop', dialog)
-        # Switch the real Task selector in this same mounted dialog; do not
-        # preserve Task2's workspace for Task1 or authorize either recipient.
-        read_start = len(report['http'])
-        dialog.locator('#session-task').select_option(tasks[0]['id'])
-        verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])
-        read_start = len(report['http'])
-        dialog.locator('#session-task').select_option(tasks[1]['id'])
-        verify_dialog(dialog, read_start, t2_after, b1['receipt']['workspace_id'])
-        dialog.get_by_role('button', name='Close', exact=True).click()
-        expect(dialog).to_have_count(0)
-        # Also exercise initialTaskId from Task1's own thread on a new mount.
-        page.get_by_role('button', name='Back to tasks', exact=True).click()
-        panel = open_task(tasks[0])
-        dialog, read_start = open_execution()
-        verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])
+        # Each explicit configuration is bound to its originating task. Repeat
+        # the A/B transition and require a newly delivered read each time.
+        for task, expected, sibling in ((tasks[0], t1, b2), (tasks[1], t2_after, b1), (tasks[0], t1, b2)):
+            dialog.get_by_role('button', name='Close', exact=True).click()
+            expect(dialog).to_have_count(0)
+            page.get_by_role('button', name='Back to tasks', exact=True).click()
+            page.get_by_test_id('task-card').filter(has_text=task['goal']).click()
+            dialog, read_start = open_execution()
+            verify_dialog(dialog, read_start, expected, sibling['receipt']['workspace_id'])
         page.set_viewport_size({'width': 390, 'height': 844})
         expect(dialog.locator('#session-workspace')).to_have_value(b1['receipt']['workspace_id'])
         dialog.locator('#session-workspace').scroll_into_view_if_needed()
@@ -965,7 +979,7 @@ def run(args, binary, frontend, attribution, output):
         page.set_viewport_size({'width': 1440, 'height': 1100})
         require(db_image(runtime) == dialog_before, 'Dialog reads changed durable rows/events')
         require(source_image(source, git) == baseline_source)
-        require(all(entry['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'workspaces.resolve', 'workspaces.list', 'grants.list'}
+        require(all(entry['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'tasks.history', 'workspaces.resolve', 'workspaces.list', 'grants.list'}
                     for entry in report['http'][dialog_start:]), 'Execution dialog attempted a write')
         no_execution(runtime)
         require([proof['task_id'] for proof in report['execution_dialog_reads']]
@@ -1014,9 +1028,10 @@ def run(args, binary, frontend, attribution, output):
 
         def entry_execution_blocked():
             expect(dialog.locator('#session-workspace')).to_be_disabled()
+            open_scope_review(dialog)
             expect(dialog.get_by_role('checkbox', name='I authorize this exact recipient, workspace and bounded execution scope.', exact=True)).to_be_disabled()
             expect(dialog.get_by_role('button', name='Create bounded execution grant', exact=True)).to_be_disabled()
-            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()
+            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_have_count(0)
             no_execution(runtime)
 
         entry_execution_blocked()
@@ -1036,6 +1051,9 @@ def run(args, binary, frontend, attribution, output):
         original_panel = panel.element_handle()
         require(original_panel is not None)
         refresh_start = len(report['http'])
+        advanced = dialog.locator('details').filter(has=dialog.get_by_role('button', name='Refresh session records', exact=True, include_hidden=True)).last
+        require(not advanced.evaluate('(element) => element.open'), 'Execution parameters must start folded')
+        advanced.locator(':scope > summary').click()
         click(dialog, 'Refresh session records')
         wait(lambda: confirmed_dialog_task_read(report['http'], refresh_start, third_ready), lambda v: v is not None)
         # Do not click the inner Check button: the actual parent refresh must
@@ -1057,7 +1075,6 @@ def run(args, binary, frontend, attribution, output):
         expect(dialog.locator('#session-workspace')).to_have_value(b3['receipt']['workspace_id'])
         expect(dialog.locator('#session-workspace')).to_be_disabled()
         expect(dialog.get_by_text('The task’s stored binding locates this workspace.', exact=False)).to_be_visible()
-        expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core’s current admission checks still apply.', exact=False)).to_be_visible()
         entry_execution_blocked()  # No named connection, Grant or Session was created.
         replay_proof = confirmed_entry_replay(report['http'], entry_start, third_ready, b3)
         require(db_image(runtime) == third_before_recovery, 'Exact entry recovery changed durable rows/events')
@@ -1066,7 +1083,7 @@ def run(args, binary, frontend, attribution, output):
         require([fixture_paths.image(binding, task['id']) for binding, task in zip((b1, b2), tasks)] == old_workspace_images,
                 'Entry changed an older managed worktree file or .git backlink')
         require(source_image(source, git) == baseline_source, 'Entry changed registered Git source')
-        require(all(e['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'workspaces.resolve', 'workspaces.list', 'grants.list', 'workspaces.prepare_task_git'}
+        require(all(e['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'tasks.history', 'workspaces.resolve', 'workspaces.list', 'grants.list', 'workspaces.prepare_task_git'}
                     for e in report['http'][entry_start:]), 'Entry attempted an execution/authority write')
         shot('08-unbound-entry-exact-recovered-desktop', dialog)
         report['entry_read_proofs'] = {'task': fresh_proof, 'scope': scope_proof}
@@ -1086,7 +1103,7 @@ def run(args, binary, frontend, attribution, output):
         panel = open_task(tasks[0])
         # Cached prior proof may remain on remount; explicit fresh action verifies before fault injection.
         click(panel, 'Revalidate the original binding')
-        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()
+        assert_revalidated(panel)
         retained = fixture_paths.replace_for_drift(b1, tasks[0]['id'])  # actual own FS, no SQL identity forgery
         drift_image = db_image(runtime)
         click(panel, 'Revalidate the original binding')

@@ -5,6 +5,22 @@ from hashlib import sha256
 _CURRENT_SHA256 = "732cdee38bf31f4dbcbe5d4a86f5626ea3010f08a4600f2a47e67ad03be9c204"
 _PREDECESSOR_SHA256 = "338fbef7689416a71ec101aaad3ac5afb91e433c55d5c1c4bf413242108944d5"
 
+_TASK_HISTORY_SHA256 = "adf99b38e6b3a30e26fc960ec552668f5104ad238e4e02539f44b02287efd236"
+_TASK_HISTORY_COMMAND = b"""#[tauri::command]
+async fn tasks_history(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    before: Option<u64>,
+    after: Option<u64>,
+    limit: u32,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"tasks.history","params":{"task_id":task_id,"before":before,"after":after,"limit":limit}}), false).await
+}
+
+"""
+_TASK_HISTORY_ENTRY = b"        tasks_history,\n"
+
+
 _CURRENT_GUARD = (
     b'        || response["result"]["database_schema_version"].as_u64() != Some(19)\n'
     b'    {\n'
@@ -54,6 +70,11 @@ def restore_host_native_schema18(source: bytes) -> bytes:
     """Accept only the fixed current lib.rs and recover the exact previous bytes."""
     if type(source) is not bytes:
         raise ValueError("Native handshake inverse requires raw bytes")
+    if sha256(source).hexdigest() == _TASK_HISTORY_SHA256:
+        for addition in (_TASK_HISTORY_COMMAND, _TASK_HISTORY_ENTRY):
+            if source.count(addition) != 1:
+                raise ValueError("Expected one exact task history native addition")
+            source = source.replace(addition, b"", 1)
     if sha256(source).hexdigest() != _CURRENT_SHA256:
         raise ValueError("Unknown complete native schema19 source")
     for anchor in (_CURRENT_GUARD, _CURRENT_TEST_START, _CURRENT_TEST_END):

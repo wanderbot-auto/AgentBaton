@@ -22,7 +22,7 @@ def module_from_bytes(path, raw, name):
 class ExactSourceInverse(unittest.TestCase):
     def test_complete_current_bytes_restore_pinned_predecessors(self):
         for path, current, previous in (
-            (I.DRIVER_PATH, I.DRIVER_CURRENT_SHA256, I.DRIVER_PREVIOUS_SHA256),
+            (I.DRIVER_PATH, I.DRIVER_UI_SHA256, I.DRIVER_PREVIOUS_SHA256),
             (I.PROJECTOR_PATH, I.PROJECTOR_CURRENT_SHA256, I.PROJECTOR_PREVIOUS_SHA256),
         ):
             with self.subTest(path=path):
@@ -30,6 +30,12 @@ class ExactSourceInverse(unittest.TestCase):
                 self.assertEqual(I.digest(raw), current)
                 self.assertEqual(I.digest(I.restore_schema18_source(path, raw)), previous)
                 self.assertEqual((ROOT / path).read_bytes(), raw)
+
+    def test_ui_layer_restores_the_unchanged_schema19_driver(self):
+        raw = (ROOT / I.DRIVER_PATH).read_bytes()
+        self.assertEqual(I.digest(I.restore_ui_navigation(raw)), I.DRIVER_CURRENT_SHA256)
+        with self.assertRaises(ValueError):
+            I.restore_ui_navigation(raw + b"\n")
 
     def test_unknown_bytes_partial_anchors_and_noncanonical_paths_are_refused(self):
         for path, anchor in ((I.DRIVER_PATH, I.CURRENT_DB_IMAGE),
