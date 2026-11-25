@@ -683,6 +683,7 @@ def reverse_pinned_spans(source, layer, error=AssertionError):
     if layer is START_FAILURE_LAYERS[PROJECTOR] and sha(source) == MCP_LATE_WAIT_LAYER[0]:
         source = restore_mcp_late_wait_layer(source, error=error)
     if layer is START_FAILURE_LAYERS[DRIVER]:
+        source = restore_reviewed_factory_ui_layer(DRIVER, source, error)
         cancel = CANCEL_PROC_FD_LAYERS[DRIVER]
         if sha(source) == cancel[0]:
             source = reverse_pinned_spans(source, cancel, error)

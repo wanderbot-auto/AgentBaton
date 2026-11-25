@@ -339,17 +339,10 @@ class StartFailureProjectionTests(unittest.TestCase):
             project(report, 0)
 
     def test_pinned_outer_inverse_accepts_current_bytes_and_refuses_edits_or_moved_spans(self):
-        from tests.infrastructure.host19_child_goal_source_fixture import (
-            FACTORY_UI_SIMPLIFICATION_LAYERS, START_FAILURE_LAYERS,
-            restore_factory_before_ui_simplification, reverse_pinned_spans,
-        )
+        from tests.infrastructure.host19_child_goal_source_fixture import START_FAILURE_LAYERS, reverse_pinned_spans
 
         for name, layer in START_FAILURE_LAYERS.items():
             raw = (ROOT / name).read_text()
-            if name in FACTORY_UI_SIMPLIFICATION_LAYERS:
-                with self.assertRaises(AssertionError):
-                    restore_factory_before_ui_simplification(name, raw + '# unexpected')
-                raw = restore_factory_before_ui_simplification(name, raw)
             self.assertEqual(hashlib.sha256(reverse_pinned_spans(raw, layer).encode()).hexdigest(), layer[1])
             with self.assertRaises(AssertionError):
                 reverse_pinned_spans(raw + '# unexpected', layer)
