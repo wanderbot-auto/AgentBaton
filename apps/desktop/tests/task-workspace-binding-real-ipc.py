@@ -1051,7 +1051,7 @@ def run(args, binary, frontend, attribution, output):
         original_panel = panel.element_handle()
         require(original_panel is not None)
         refresh_start = len(report['http'])
-        advanced = dialog.locator('details').filter(has=dialog.get_by_role('button', name='Refresh session records', exact=True, include_hidden=True)).last
+        advanced = dialog.locator('details').filter(has=page.get_by_role('button', name='Refresh session records', exact=True, include_hidden=True)).last
         require(not advanced.evaluate('(element) => element.open'), 'Execution parameters must start folded')
         advanced.locator(':scope > summary').click()
         click(dialog, 'Refresh session records')

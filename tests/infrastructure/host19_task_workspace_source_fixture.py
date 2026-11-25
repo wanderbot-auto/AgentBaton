@@ -90,7 +90,7 @@ def replace(raw, current, previous):
 
 
 # Exact outer layer for the UI navigation update. Older guards run after it.
-DRIVER_UI_SHA256 = "c914153dfb52d2fb6a51cc9bd9a4f9743a8511db67467943419f152c342b940d"
+DRIVER_UI_SHA256 = "c92576a6340f0db76947a4abb214f82377c4efeac98ccc024e129f3c862d5698"
 _UI_PARENT_SHA256 = "e83fdd4a10b11877a79e11b3691ca96db37460ee897f693eced5d368d44e3bdd"
 _UI_EDITS = (
     (161, 167, "8b9e6e05cfe467360dcdbded2d57196de63a410cd9192b951452e4a242c636a6",
@@ -165,7 +165,7 @@ _UI_EDITS = (
         (
             b"            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()\n"
         )),
-    (1053, 1056, "639ff7b85ae55d2c6068ba459fb745c076f5c698080a6c2673818c3fe9647004",
+    (1053, 1056, "ad3ed34b570256c1ca9e91d886466a2ee7cb5d8545a31cf62e5932c6f0c08a15",
         (
             b''
         )),
