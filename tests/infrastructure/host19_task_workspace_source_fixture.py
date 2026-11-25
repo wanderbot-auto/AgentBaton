@@ -90,14 +90,14 @@ def replace(raw, current, previous):
 
 
 # Exact outer layer for the UI navigation update. Older guards run after it.
-DRIVER_UI_SHA256 = "b33071f71ee9c9c080569892765b700d6ffdce9044e64a0510a64ebfb416348c"
+DRIVER_UI_SHA256 = "c914153dfb52d2fb6a51cc9bd9a4f9743a8511db67467943419f152c342b940d"
 _UI_PARENT_SHA256 = "e83fdd4a10b11877a79e11b3691ca96db37460ee897f693eced5d368d44e3bdd"
 _UI_EDITS = (
     (161, 167, "8b9e6e05cfe467360dcdbded2d57196de63a410cd9192b951452e4a242c636a6",
         (
             b''
         )),
-    (846, 858, "8f05936e3f94964b668be3d7d3192a58b87be852f4e814b3c5f853d9aa345dd5",
+    (846, 858, "fada7759a82a803b4a334a9ccf0332067217aa591fdb1b9bd64ec3394f77c882",
         (
             b''
         )),

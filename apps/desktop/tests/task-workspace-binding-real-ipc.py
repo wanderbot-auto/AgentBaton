@@ -846,7 +846,7 @@ def run(args, binary, frontend, attribution, output):
 
         def assert_revalidated(panel):
             identity = panel.get_by_text('Filesystem identity revalidated', exact=True)
-            evidence = panel.locator('details').filter(has=identity).last
+            evidence = panel.locator('details').filter(has=page.get_by_text('Filesystem identity revalidated', exact=True)).last
             if not evidence.evaluate('(element) => element.open'):
                 evidence.locator(':scope > summary').click()
             expect(identity).to_be_visible()
