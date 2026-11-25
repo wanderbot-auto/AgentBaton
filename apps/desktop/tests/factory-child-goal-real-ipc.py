@@ -1723,7 +1723,7 @@ def rendered_root_action_witness(http_rows, rendered, root, reference, state, af
 RENDERED_ROOT_ACTION = """
 (panel, { state, label }) => {
     const thread = panel.closest('[data-testid="task-thread"]');
-    const revision = [...(thread?.querySelectorAll('.task-details > dl > dt') ?? [])]
+    const revision = [...(thread?.querySelectorAll('.task-details > details[open] > dl > dt') ?? [])]
         .find(item => item.textContent === 'Revision')?.nextElementSibling?.textContent;
     const selected = [...panel.querySelectorAll(':scope > details > summary')]
         .find(item => item.textContent === 'Selected saved execution reference');
@@ -2104,6 +2104,7 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
         revisions.get_by_role('button',name='r1 · '+saved['reference']['plan_digest'],exact=True).click()
         goal_details=plans.get_by_test_id('factory-child-goals');expand(goal_details)
         goal_panel=goal_details.get_by_test_id('factory-child-goal-panel')
+        base.open_factory_disclosure(page.locator('.task-details'), 'Advanced details')
         report['observations']['rendered_root_action'] = {}
 
         def action_ready_timeout(deadline):

@@ -854,13 +854,17 @@ FACTORY_UI_SIMPLIFICATION_LAYERS = {'apps/desktop/tests/factory-real-ipc.py': ('
                                                              "        planning.locator('summary').click(); "
                                                              "planning.get_by_label('Allow bounded child "
                                                              "planning', exact=True).check()\n")]),
- 'apps/desktop/tests/factory-child-goal-real-ipc.py': ('4ffcc4d61abd73f8b68eb22755ca9fdee24a522705804f68f7f9895d7b1fc709',
+ 'apps/desktop/tests/factory-child-goal-real-ipc.py': ('e69b5b2c549404accbb4e55b0bd1c96d5e5cb928e93ebb0f3a281e4eeedcec1c',
                                                        '73470592d65790678a57a17bb14b13351f261902fc87411039e6ec5ff31c2e11',
                                                        [(34,
                                                          35,
                                                          '1c437773f8ab239110d4460328a3ecdbf65ecf36cc454c08b20dbe10451bd0d6',
                                                          'PLANNING_SHA256 = '
                                                          "'fe607d2c8bfeaf9ee34a0656b823bec9e00c11c9152501ebbd1e273bfbf79f39'\n"),
+                                                        (1725,
+                                                         1726,
+                                                         '97adb6c3e66d6073c48bcfdeb0d680917979549ed5852060ecb00347c7222b7b',
+                                                         "    const revision = [...(thread?.querySelectorAll('.task-details > dl > dt') ?? [])]\n"),
                                                         (2042,
                                                          2046,
                                                          '8d50106360610dded375d1db796406f3d2378c01f28fd5e47ad4e84eb2f04e70',
@@ -885,7 +889,11 @@ FACTORY_UI_SIMPLIFICATION_LAYERS = {'apps/desktop/tests/factory-real-ipc.py': ('
                                                          2100,
                                                          '94fb9c72f2b4088959fbf219837b187e6a724af2ed2283aa24240c8df313939d',
                                                          "        plan_details=task_item.locator(':scope > "
-                                                         "details');expand(plan_details)\n")])}
+                                                         "details');expand(plan_details)\n"),
+                                                        (2106,
+                                                         2107,
+                                                         '5fc9c31f3a62e6e2aa5f28b745c3df8e3aef17a8f4c8e81d3a6ce703bda05075',
+                                                         '')])}
 
 
 def restore_factory_before_ui_simplification(path, source, *, error=AssertionError):
