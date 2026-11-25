@@ -21,7 +21,7 @@ MAX_EVENTS = 500
 MAX_SOURCES_INSPECTED = 10
 MAX_SCREENSHOTS = 4
 READS = frozenset(('system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
-    'tasks.get', 'goal_scopes.list', 'goal_graph_runs.get', 'fixture.client_recovery_list',
+    'tasks.get', 'tasks.history', 'goal_scopes.list', 'goal_graph_runs.get', 'fixture.client_recovery_list',
     'events.subscribe', 'goal_runs.list', 'goal_graph_runs.list', 'goal_plans.list',
     'integration_context.get',
     'integration_targets.list', 'integration_policies.get', 'integration_policies.list',

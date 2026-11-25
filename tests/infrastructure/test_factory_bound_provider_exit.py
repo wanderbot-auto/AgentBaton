@@ -642,6 +642,7 @@ class CancelProcFdSourcePins(unittest.TestCase):
     def test_exact_factory_and_planning_sources_restore_before_historical_inverses(self):
         from tests.infrastructure.host19_child_goal_source_fixture import (
             CANCEL_PROC_FD_LAYERS, normalize_child_goal_outer_layer, restore_cancel_proc_fd_layer,
+            restore_factory_before_ui_simplification,
         )
         from tests.infrastructure.schema18_source_fixture import LAYERS, strip_schema18_source
 
@@ -651,12 +652,17 @@ class CancelProcFdSourcePins(unittest.TestCase):
             with self.subTest(path=path):
                 current=(ROOT/path).read_text()
                 digest=lambda text:hashlib.sha256(text.encode()).hexdigest()
-                self.assertEqual(digest(current),now)
-                restored=restore_cancel_proc_fd_layer(path,current)
+                pinned = restore_factory_before_ui_simplification(path, current)
+                self.assertEqual(digest(pinned), now)
+                self.assertEqual(restore_factory_before_ui_simplification(path, pinned), pinned)
+                for changed in (current+'\n# unreviewed source\n', current.replace('Integration & delegation', 'Changed delegation', 1)):
+                    with self.assertRaises(AssertionError):
+                        restore_factory_before_ui_simplification(path, changed)
+                restored=restore_cancel_proc_fd_layer(path,pinned)
                 self.assertEqual(digest(restored),old)
                 self.assertEqual(restore_cancel_proc_fd_layer(path,restored),restored)
                 with self.assertRaises(AssertionError):
-                    restore_cancel_proc_fd_layer(path,current+'\n# unreviewed source\n')
+                    restore_cancel_proc_fd_layer(path,pinned+'\n# unreviewed source\n')
                 self.assertEqual(normalize_child_goal_outer_layer(path,current),
                                  normalize_child_goal_outer_layer(path,restored))
                 if path in LAYERS:

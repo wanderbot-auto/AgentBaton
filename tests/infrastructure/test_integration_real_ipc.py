@@ -182,12 +182,32 @@ class FiniteBoundaryTests(unittest.TestCase):
         for value in [None, [], True, {'command': True}, {'command': 'system_snapshot', 'args': []}]:
             with self.assertRaises(D.Refusal): boundary().route(value)
 
+    def test_task_history_accepts_only_bounded_reads_for_the_original_task(self):
+        b = boundary()
+        requested = {'taskId': b.task}
+        self.assertEqual(b.route(envelope('tasks_history', requested)),
+            ('tasks.history', {'task_id': b.task, 'limit': 60}, None, None))
+        for cursor in ('before', 'after'):
+            self.assertEqual(b.route(envelope('tasks_history', dict(requested, limit=100, **{cursor: 2}))),
+                ('tasks.history', {'task_id': b.task, 'limit': 100, cursor: 2}, None, None))
+            for invalid in (0, -1, True, 1.0, None, D.SAFE):
+                with self.subTest(cursor=cursor, value=invalid), self.assertRaises(D.Refusal):
+                    b.route(envelope('tasks_history', dict(requested, **{cursor: invalid})))
+        for invalid in ({}, {'taskId': 'foreign'}, dict(requested, before=2, after=3),
+                dict(requested, limit=0), dict(requested, limit=101), dict(requested, limit=True),
+                dict(requested, idempotencyKey='attacker'), dict(requested, expectedRevision=1)):
+            with self.subTest(requested=invalid), self.assertRaises(D.Refusal):
+                b.route(envelope('tasks_history', invalid))
+        self.assertEqual(b.writes, {})
+
     def test_readonly_abort_cannot_hide_unknown_write_or_core_failure(self):
         for stage in ['response_headers', 'response_body']:
             self.assertTrue(D.readonly_abort(BrokenPipeError(), 'integration_context.get', stage))
+            self.assertTrue(D.readonly_abort(BrokenPipeError(), 'tasks.history', stage))
             for method in ['integration_policies.propose', 'integrations.start', 'integrations.cancel', None]:
                 self.assertFalse(D.readonly_abort(ConnectionResetError(), method, stage))
         self.assertFalse(D.readonly_abort(BrokenPipeError(), 'integrations.get', 'core_call'))
+        self.assertFalse(D.readonly_abort(BrokenPipeError(), 'tasks.history', 'core_call'))
         self.assertFalse(D.readonly_abort(RuntimeError(), 'integrations.get', 'response_body'))
 
 

@@ -384,6 +384,13 @@ class Boundary:
         if command in TASK_READS:
             require(set(args) == {'taskId'} and args['taskId'] == self.task)
             return TASK_READS[command], {'task_id': self.task}, None, None
+        if command == 'tasks_history':
+            require(set(args) <= {'taskId', 'limit', 'before', 'after'}
+                and args.get('taskId') == self.task and integer(args.get('limit', 60), 1, 100)
+                and not {'before', 'after'} <= args.keys())
+            cursors = {name: args[name] for name in ('before', 'after') if name in args}
+            require(all(integer(value, 1, SAFE - 1) for value in cursors.values()))
+            return 'tasks.history', {'task_id': self.task, 'limit': args.get('limit', 60), **cursors}, None, None
         if command == 'goal_plans_list':
             require(set(args) == {'scopeId'} and args['scopeId'] == self.scope)
             return 'goal_plans.list', {'scope_id': self.scope}, None, None
@@ -463,7 +470,7 @@ def parse_http(raw, headers, origin, bounds):
 def readonly_abort(error, method, stage):
     return isinstance(error, (BrokenPipeError, ConnectionResetError)) and method is not None \
         and method in set(BASE_READS.values()) | set(TASK_READS.values()) | {
-            'events.subscribe', 'integration_context.get', 'integration_targets.list',
+            'events.subscribe', 'tasks.history', 'integration_context.get', 'integration_targets.list',
             'integration_policies.get', 'integration_policies.list', 'integrations.get', 'integrations.list'} \
         and stage in ('response_headers', 'response_body')
 
@@ -1072,6 +1079,15 @@ def serve(frontend, host, bounds, reviews, attribution):
     return server, thread
 
 
+def open_integration_panel(page, task_id):
+    page.locator('[data-testid="task-card"][data-task-id="' + task_id + '"]').click()
+    page.get_by_role('tab', name='Details', exact=True).click()
+    page.get_by_text('Integration & delegation', exact=True).click()
+    panel = page.get_by_test_id('task-integration')
+    panel.locator(':scope > summary').click()
+    return panel
+
+
 def run_case(args, binary, companion, frontend, attribution, output, failing):
     # Imports happen only for an explicitly authorized real run, never pure tests.
     from playwright.sync_api import sync_playwright, expect
@@ -1158,12 +1174,10 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
             del report['active_screenshot']
         phase = 'actual_frontend'
         page.goto(server.origin + '/', wait_until='networkidle')
-        page.locator('[data-testid="task-card"][data-task-id="' + bounds.task + '"]').click()
-        page.get_by_role('tab', name='Details', exact=True).click()
-        panel = page.get_by_test_id('task-integration')
-        panel.locator(':scope > summary').click()
+        panel = open_integration_panel(page, bounds.task)
         expect(panel.get_by_role('button', name='Refresh integration records')).to_be_enabled()
         panel.get_by_label('Existing local target branch').select_option(TARGET)
+        panel.get_by_text('Advanced integration settings', exact=True).click()
         expect(panel.get_by_text(fixture['target'], exact=True)).to_be_visible()
         panel.get_by_text('Fresh candidate correctness checks', exact=True).click()
         panel.get_by_role('checkbox', name=re.compile('Add check command:')).check()
@@ -1224,6 +1238,7 @@ def run_case(args, binary, companion, frontend, attribution, output, failing):
         checked('actual watcher fresh merged Command/owned stop/join/shared fees/source preservation and exact local ref result', **facts)
         require(not any(v['method'] == 'integrations.start' for v in server.calls))
         panel.get_by_role('button', name='Refresh integration records').click()
+        panel.get_by_text('Integration history', exact=True).click()
         history = panel.get_by_role('region', name='Integration history ' + done['run']['id'], exact=True)
         expect(history.get_by_text(done['run']['state'], exact=True)).to_be_visible()
         expect(history.get_by_text('No confirmed local branch update' if failing else 'Confirmed local branch update', exact=True)).to_be_visible()

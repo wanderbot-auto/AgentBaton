@@ -41,7 +41,7 @@ TERMINAL_FACTS = {'state', 'stages', 'command_exit', 'cas_attempts', 'source_and
     'original_command_unchanged', 'actual_owned_reap_and_join', 'shared_runtime_ms',
     'shared_output_bytes', 'tokens', 'cost_microunits'}
 INPUT_KEYS = {'source', 'tools', 'assets', 'manifest_sha256', 'build_record_sha256', 'driver_sha256', 'source_guard', 'runtime_tools'}
-HTTP_READS = {'system.snapshot', 'projects.list', 'connections.list', 'sessions.list', 'tasks.get',
+HTTP_READS = {'system.snapshot', 'projects.list', 'connections.list', 'sessions.list', 'tasks.get', 'tasks.history',
     'goal_scopes.list', 'goal_runs.list', 'goal_graph_runs.list', 'goal_graph_runs.get', 'goal_plans.list',
     'fixture.client_recovery_list', 'events.subscribe', 'integration_context.get', 'integration_targets.list',
     'integration_policies.get', 'integration_policies.list', 'integrations.get', 'integrations.list'}

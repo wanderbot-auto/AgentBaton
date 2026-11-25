@@ -10,6 +10,11 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
+from tests.infrastructure.host19_child_goal_source_fixture import (
+    restore_cancel_proc_fd_layer,
+    restore_factory_before_ui_simplification,
+)
+
 SUBJECT = Path(__file__).with_name('factory-real-ipc.py')
 SPEC = importlib.util.spec_from_file_location('_factory_schema19_controls', SUBJECT)
 F = importlib.util.module_from_spec(SPEC)
@@ -204,7 +209,9 @@ class PrivateSchema(unittest.TestCase):
 
 class HistoricalContract(unittest.TestCase):
     def test_historical_factory_and_child_helper_source_is_byte_exact(self):
-        source = SUBJECT.read_text()
+        path = 'apps/desktop/tests/factory-real-ipc.py'
+        source = restore_factory_before_ui_simplification(path, SUBJECT.read_text())
+        source = restore_cancel_proc_fd_layer(path, source)
         functions = {node.name: node for node in ast.parse(source).body if isinstance(node, ast.FunctionDef)}
         names = ('preflight', 'install_private_tools', 'bounded_file', 'collect_started_records',
             'inspect_owned_records', 'verify_legacy_factory_shared_budget', 'note_failure', 'cleanup_call', 'runtime_exit')
@@ -212,7 +219,7 @@ class HistoricalContract(unittest.TestCase):
         self.assertEqual(F.sha(combined), 'b2aa782f3ed1e27726706eb0fe01fb5e6e76e05fd1e94d09d3afb75da6679a4b')
 
     def test_reviewed_support_uses_exact_checked_bytes(self):
-        self.assertEqual(F.sha(F.SUPPORT_SOURCE), '550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18')
+        self.assertEqual(F.sha(F.SUPPORT_SOURCE), '48023cd5b30b5f622a54d262600c76e06cb358b61a32f698fdbec75055fc0f16')
         self.assertEqual(F.SUPPORT_SOURCE, F.SUPPORT_PATH.read_bytes())
         with patch.object(F, 'SUPPORT_SOURCE', b'wrong helper'):
             with self.assertRaisesRegex(F.BoundaryRefusal, 'reviewed'):

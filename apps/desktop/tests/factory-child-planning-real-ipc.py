@@ -34,7 +34,7 @@ base = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = base
 BASE_SOURCE = BASE_PATH.read_bytes()
 exec(compile(BASE_SOURCE, str(BASE_PATH), 'exec'), base.__dict__)
-FACTORY_SUPPORT_SHA256 = '6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93'
+FACTORY_SUPPORT_SHA256 = '54e5d19cc8e19d93bb93debf7ab15c11f64e3ac5e29f84b612fb1b0e1c3dad37'
 FixedCall, Refusal, require = base.FixedCall, base.BoundaryRefusal, base.require
 sha, safe_integer, unique_object = base.sha, base.safe_integer, base.unique_object
 exact_json = base.support.exact_json_value
@@ -1186,10 +1186,12 @@ def runtime_driver(args, output, prepared):
         def http_call(command, args2):
             return page.evaluate("async v=>{const r=await fetch('/__test_child_plan_ipc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)});return {status:r.status,value:r.ok?await r.json():null}}", {'command': command, 'args': args2})
         page.goto(url); page.get_by_test_id('task-card').filter(has_text=task['goal']).click(); page.locator('#tab-details').click()
+        base.open_factory_disclosure(page.locator('#panel-details'), 'Integration & delegation')
         panel = page.get_by_test_id('factory-runtime')
         assert not panel.locator(':scope > details').evaluate('e=>e.open')
         panel.locator(':scope > details > summary').click()
-        form = panel.locator('form')
+        form = base.open_factory_disclosure(panel, 'Configure delegation').locator('form')
+        advanced = base.open_factory_disclosure(form, 'Advanced delegation settings')
         fixed_form_control(form,'Existing root Grant','select').select_option(grant['id'])
         fixed_form_control(form,'Existing connections','select').select_option([cid])
         fixed_form_control(form,'Existing workspaces','select').select_option([workspace['id']])
@@ -1203,8 +1205,8 @@ def runtime_driver(args, output, prepared):
             for label, key in [('Attempts', 'attempts'), ('Parallel attempts', 'parallel'), ('Runtime ms', 'runtime_ms'),
                     ('Declared output bytes', 'output_bytes'), ('Children', 'children'), ('Reworks', 'reworks')]:
                 group.get_by_label(label, exact=True).fill(str(budget[key]))
-        planning = form.locator('details').filter(has=page.get_by_text('Child-planning policy for Native review', exact=True))
-        planning.locator('summary').click(); planning.get_by_label('Allow bounded child planning', exact=True).check()
+        planning = base.open_factory_disclosure(advanced, 'Child-planning policy for Native review')
+        planning.get_by_label('Allow bounded child planning', exact=True).check()
         for label, value in [('Maximum plan nodes', 8), ('Maximum revisions per task', 16), ('Maximum original plan bytes', PLAN_BYTES)]:
             planning.get_by_label(label, exact=True).fill(str(value))
         planning.get_by_label('Owner acceptance criteria', exact=True).fill(expected_selection['child_planning_policy']['owner_acceptance_criteria'])

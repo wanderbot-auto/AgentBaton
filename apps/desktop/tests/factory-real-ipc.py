@@ -49,7 +49,7 @@ READS = frozenset({'system.snapshot', 'projects.list', 'connections.list', 'sess
     'workspaces.list', 'grants.list', 'events.subscribe', 'goal_scopes.list',
     'factory_scopes.get', 'factory_scopes.list', 'factory_runs.get'})
 FACTORY_SCHEMA = 19
-GRAPH_SUPPORT_SHA256 = '550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18'
+GRAPH_SUPPORT_SHA256 = '48023cd5b30b5f622a54d262600c76e06cb358b61a32f698fdbec75055fc0f16'
 MAX_TOOL_BYTES = {'batond': 256 * 1024 * 1024, 'baton': 128 * 1024 * 1024}
 MAX_FRONTEND_BYTES = 64 * 1024 * 1024
 PENDING = ('Root immutable matching schema19 batond and sibling baton with manifest hashes',
@@ -1315,6 +1315,14 @@ finally:
 '''
 
 
+def open_factory_disclosure(container, caption):
+    summary = container.locator('summary').filter(has_text=re.compile(r'^' + re.escape(caption) + r'$'))
+    details = summary.locator('..')
+    if not details.evaluate('element => element.open'):
+        summary.click()
+    return details
+
+
 def runtime_driver(args, output, attribution, prepared):
     raw_binary, raw_companion = (prepared.tool_paths[name] for name in ('batond', 'baton'))
     frontend, manifest, manifest_raw = prepared.frontend, prepared.manifest, prepared.manifest_raw
@@ -1558,6 +1566,7 @@ def runtime_driver(args, output, attribution, prepared):
                     report['screenshots'].append({'path': str(path), 'sha256': sha(path.read_bytes()), 'dimension': 'Linux Chromium; not native/Mac'})
                 try:
                     page.goto(url); page.get_by_test_id('task-card').filter(has_text=task['goal']).click(); page.locator('#tab-details').click()
+                    open_factory_disclosure(page.locator('#panel-details'), 'Integration & delegation')
                     panel = page.get_by_test_id('factory-runtime')
                     assert not panel.locator(':scope > details').evaluate('e=>e.open')
                     assert not any(r['method'].startswith('factory_') for r in report['http'])
@@ -1680,6 +1689,10 @@ def runtime_driver(args, output, attribution, prepared):
                     panel.get_by_role('button', name='Refresh Factory records', exact=True).click()
                     region = panel.get_by_role('region', name='Factory run', exact=True)
                     expect(region).to_contain_text(terminal)
+                    evidence = panel.locator('.factory-panel > details > summary').filter(
+                        has_text=re.compile(r'^Advanced delegation settings$'))
+                    if not evidence.locator('..').evaluate('element => element.open'):
+                        evidence.click()
                     expect(panel.get_by_text('Completed Factory processing does not accept the task.', exact=True)).to_be_visible()
                     shot('02-real-' + terminal + '-task-history', region)
                     assert not errors and not report['http_unexpected_errors'], (errors, report['http_unexpected_errors'])

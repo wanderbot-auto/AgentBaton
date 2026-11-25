@@ -1603,10 +1603,21 @@ def owner_only_driver(args, output: Path) -> int:
                     phase['value'] = 'browser_active'
                     page.goto(url)
                     page.get_by_test_id('task-card').filter(has_text=task['goal']).click(); page.locator('#tab-details').click()
-                    panel = page.get_by_test_id('goal-planning'); expand(panel.locator(':scope > details'))
-                    expect(panel.get_by_role('combobox', name='Selected Goal scope', exact=True)).to_have_value(scope['id'])
-                    editor = panel.locator('details').filter(has=page.get_by_text('Versioned plan proposal', exact=True)).last
+                    panel = page.get_by_test_id('goal-planning')
+                    read_start = len(report['http_requests'])
+                    expand(panel.locator(':scope > details'))
+                    wait(lambda: report['http_requests'][read_start:], lambda entries: any(
+                        row['method'] == 'goal_plans.list' and row['params'] == {'scope_id': scope['id']}
+                        and not row['response'].get('error') for row in entries))
+                    scope_choices = panel.get_by_role('combobox', name='Selected Goal scope', exact=True)
+                    if scope_choices.count():
+                        expect(scope_choices).to_have_value(scope['id'])
+                    editor = panel.get_by_test_id('goal-plan-proposal')
                     expand(editor)
+                    raw_summary = editor.get_by_text('Plan proposal JSON', exact=True).and_(editor.locator('summary'))
+                    raw_details = raw_summary.locator('..')
+                    assert not raw_details.evaluate('element=>element.open')
+                    expand(raw_details)
                     for proposal in validation_plans(scope, case) if case else owner_only_plans(scope):
                         panel.get_by_role('textbox', name='Plan proposal JSON', exact=True).fill('\n ' + json.dumps(proposal, indent=2) + '\n')
                         panel.get_by_role('button', name='Store initial plan proposal' if proposal['revision'] == 1 else 'Store revised plan proposal', exact=True).click()
@@ -1654,9 +1665,12 @@ def owner_only_driver(args, output: Path) -> int:
                     def refresh():
                         graph.get_by_test_id('goal-graph-refresh').click()
                         expect(graph).to_have_attribute('aria-busy', 'false')
-                        target = graph.locator('[data-testid=goal-graph-inspect][data-run-id="' + run_id + '"]')
                         if not graph.get_by_test_id('goal-graph-history').count():
-                            target.click(); expect(graph).to_have_attribute('aria-busy', 'false')
+                            expand(graph.get_by_test_id('goal-graph-runs'))
+                            run = graph.locator('[data-testid=goal-graph-run][data-run-id="' + run_id + '"]')
+                            expand(run)
+                            run.get_by_test_id('goal-graph-inspect').click()
+                            expect(graph).to_have_attribute('aria-busy', 'false')
                     def owner_decision(detail, node_id, key):
                         selection = {'run_id': run_id, 'node_id': node_id, 'expected_plan_revision': detail['run']['plan_revision'], 'expected_ledger_revision': detail['ledger_revision']}
                         response = host.prepare_owner(selection, detail['run']['revision'], key)
@@ -1745,8 +1759,15 @@ def owner_only_driver(args, output: Path) -> int:
                         refresh(); history = graph.get_by_test_id('goal-graph-history')
                         expect(history.get_by_test_id('goal-graph-node')).to_have_count(5)
                         expect(graph.get_by_test_id('goal-graph-owner-approve')).to_have_count(0)
-                        expect(history.get_by_text('Task acceptance pending', exact=True)).to_be_visible()
-                        expect(history.locator('[data-node-id="validate-report"] > details > summary')).to_contain_text('Failed')
+                        expect(history.get_by_role('status')).to_have_text('Blocked')
+                        expect(history.get_by_text('Task accepted', exact=True)).to_have_count(0)
+                        expect(history.get_by_test_id('goal-graph-blockers')).to_be_visible()
+                        evidence = history.get_by_test_id('goal-graph-evidence')
+                        assert not evidence.evaluate('element=>element.open')
+                        expand(evidence)
+                        failed_node = history.locator('[data-node-id="validate-report"] > details > summary')
+                        expect(failed_node).to_contain_text('Failed')
+                        expect(failed_node).to_be_visible()
                         shot('01-five-node-' + case + '-blocked-before-owner', history)
                         assert not errors, errors
                         assert (source / 'file').read_bytes() == b'baseline' and assets() == report['frontend_assets_sha256']
@@ -1771,7 +1792,10 @@ def owner_only_driver(args, output: Path) -> int:
                             assert next(n for n in initial['nodes'] if n['node']['id'] == 'produce-report')['acceptance_state'] == 'validated'
                             report['observations']['real_validator'] = validation_proof
                         refresh(); expect(graph.get_by_test_id('goal-graph-node')).to_have_count(5 if case else 4)
-                        shot('01-work-candidate-before-owner', graph.get_by_test_id('goal-graph-history'), 'owner-report')
+                        history = graph.get_by_test_id('goal-graph-history')
+                        expect(history.get_by_test_id('goal-graph-current-artifacts')).to_contain_text(first_artifact['relative_path'])
+                        expect(history.get_by_test_id('goal-graph-evidence')).not_to_have_attribute('open', '')
+                        shot('01-work-candidate-before-owner', history, 'owner-report')
                         report['observations']['before_first_owner'] = initial
                         first_decision = owner_decision(initial, 'owner-report', 'graph:owner-report')
                         assert first_decision['task_accepted'] is False
@@ -1893,6 +1917,9 @@ def owner_only_driver(args, output: Path) -> int:
                         graph = panel.get_by_test_id('goal-graph-panel'); refresh()
                         history = graph.get_by_test_id('goal-graph-history')
                         expect(history.get_by_text('Task accepted', exact=True)).to_be_visible()
+                        artifacts = history.get_by_test_id('goal-graph-current-artifacts')
+                        for artifact in accepted['task_acceptance']['artifact_refs']:
+                            expect(artifacts).to_contain_text(artifact['relative_path'])
                         expect(history.get_by_test_id('goal-graph-node')).to_have_count(5 if case else 4)
                         shot('03-task-accepted-five-node-' + kind if case else '03-task-accepted-four-node-owner-chain', history)
                         assert not errors, errors
