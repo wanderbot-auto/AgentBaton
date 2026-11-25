@@ -500,7 +500,7 @@
     ],
     "harness_sha256": "37c44c625403af1267eb50ebd8071fe00fa7225ff992227aa00d33869292afde",
     "daemon_sha256": "5e54971e7f155e229103d8aa14b79ae5a6a5537bb57d8e93c0d1de6c7d55b906",
-    "report": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/frontend-simplification/artifacts/ui-simplification/native-proof.YgTqvP/result.json",
+    "report": "artifacts/ui-simplification/native-proof.YgTqvP/result.json",
     "log": "artifacts/ui-simplification/native-run-private.log",
     "provider_model_calls": "not_run"
   },
@@ -512,14 +512,26 @@
     "artifacts/ui-simplification/build-final.log",
     "artifacts/ui-simplification/native-build.log",
     "artifacts/ui-simplification/native-run.log",
-    "artifacts/ui-simplification/browser-regression/data-workspaces.log"
+    "artifacts/ui-simplification/browser-regression/data-workspaces.log",
+    "artifacts/ui-simplification/integration/python-initial.log",
+    "artifacts/ui-simplification/integration/python-candidate.log"
   ],
   "not_verified": [
     "hosted_required_checks",
-    "pinned Goal Graph / Factory browser drivers with new navigation",
     "host_native_registration_receipt",
     "real Provider accounts and calls",
     "full native feature matrix",
-    "very large task journals"
-  ]
+    "very large task journals",
+    "updated Goal Graph, Factory, Integration and workspace drivers on the clean Linux browser build"
+  ],
+  "native_webview_smoke": {
+    "status": "passed",
+    "commit": "7dffcd83ec1d9bed24c740fc9f85f5253a508608",
+    "architecture": "aarch64",
+    "fixture_checks_passed": 37,
+    "scoped_task_history": true,
+    "log": "artifacts/ui-simplification/integration/native-smoke.log",
+    "report": "artifacts/ui-simplification/integration/native-smoke.ozGaYp/native-smoke.json",
+    "provider_models": "not_run"
+  }
 }
