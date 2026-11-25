@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { api, acknowledgeTaskMessage, DaemonError, taskAllowsExecution, type Task, type JournalEvent } from './api';
+import { api, acknowledgeTaskMessage, DaemonError, taskAllowsExecution, type Task } from './api';
 import { sessionApi, type ManagedSession, type NamedConnection } from './session-api';
-import { sessionEventText } from './ManagedSessions';
 import type { Language } from './i18n';
 import { quickConversationMessages } from './quick-conversation-i18n';
+import { canvasMessages } from './canvas-i18n';
+import { groupTranscript, taskMessageText, useTaskThreadHistory } from './task-thread-history';
 
-type Props = { language: Language; connected: boolean; busy: boolean; tasks: Task[]; sessions: ManagedSession[]; connections: NamedConnection[]; events: JournalEvent[]; uncertainSessions: Set<string>; onUncertain: (id:string)=>void; onBusy:(busy:boolean)=>void; refresh:()=>Promise<void>; summary:string; summaryProject?:string; onSummary:(text:string,projectId?:string)=>void; onConvert:(summary:string,projectId?:string)=>void };
+type Props = { language: Language; connected: boolean; busy: boolean; tasks: Task[]; sessions: ManagedSession[]; connections: NamedConnection[]; uncertainSessions: Set<string>; onUncertain: (id:string)=>void; onBusy:(busy:boolean)=>void; refresh:()=>Promise<void>; summary:string; summaryProject?:string; onSummary:(text:string,projectId?:string)=>void; onConvert:(summary:string,projectId?:string)=>void };
 const fits = (text:string) => text.length <= 8192 && new TextEncoder().encode(text).length <= 8192;
 const sameSession = (a:ManagedSession,b:ManagedSession) => ['id','task_id','project_id','workspace_id','connection_id','grant_id'].every(key => a[key as keyof ManagedSession] === b[key as keyof ManagedSession]);
 export function QuickConversation(props: Props) {
-  const { language, connected, tasks, sessions, connections, events } = props, t = quickConversationMessages[language];
+  const { language, connected, tasks, sessions, connections } = props, t = quickConversationMessages[language];
   const [id,setId] = useState(''), [text,setText] = useState(''), [tick,setTick] = useState(0), [error,setError] = useState('');
   const [fresh,setFresh] = useState<{session:ManagedSession;task:Task}|null>(null), [loading,setLoading] = useState(false);
+  const [selecting, setSelecting] = useState(false);
   const [chosen,setChosen] = useState<Map<string,string>>(new Map()), [includeGoal,setIncludeGoal] = useState(false);
   const floors = useRef(new Map<string,number>());
   const sending = useRef(false), keys = useRef(new Map<string,string>());
@@ -30,7 +32,10 @@ export function QuickConversation(props: Props) {
   const verified = !!fresh && !!session && !!task && !!connection && sameSession(fresh.session,session) && fresh.session.revision >= session.revision && fresh.task.id === task.id && fresh.task.revision >= task.revision;
   const blocked = !!session && sessions.some(item => item.task_id === session.task_id && props.uncertainSessions.has(item.id));
   const canSend = connected && !props.busy && !loading && verified && fresh!.session.state === 'ready' && taskAllowsExecution(fresh!.task) && !blocked && !!text.trim();
-  const conversation = session ? events.filter(event => event.aggregate_id === session.id && sessionEventText(event) !== null) : [];
+  const c = canvasMessages[language];
+  const zh = language === 'zh';
+  const history = useTaskThreadHistory(task?.id, connected, `${session?.revision}:${tick}`);
+  const conversation = groupTranscript(history.events.filter(event => event.aggregate_id === session?.id), taskMessageText, 'session.message_queued');
   async function send(event:FormEvent) {
     event.preventDefault(); if (!canSend || sending.current || !fresh) return;
     const observed = fresh.session, message = text, fingerprint = JSON.stringify([observed.id,observed.revision,message]);
@@ -55,17 +60,52 @@ export function QuickConversation(props: Props) {
     if (!fits(summary)) { setError(t.tooLong); return; }
     props.onSummary(summary,session.project_id); setError('');
   }
-  return <section className="quick-thread"><h1>{t.title}</h1><p>{t.help}</p>
-    <label>{t.choose}<select value={id} disabled={props.busy} onChange={event => { setId(event.target.value); setText(''); setChosen(new Map()); setIncludeGoal(false); setFresh(null); }}><option value="">{t.placeholder}</option>{sessions.filter(s => tasks.some(task => task.id === s.task_id)).map(s => <option key={s.id} value={s.id}>{connections.find(c => c.id === s.connection_id)?.name ?? s.connection_id} · {tasks.find(task => task.id === s.task_id)?.goal} · {s.id}</option>)}</select></label>
-    {!sessions.length && <p>{t.empty}</p>}{!session && <button type="button" disabled>{t.noSessionSend}</button>}
-    {session && <><p>{t.context}: {task?.goal}</p><p>{t.connection}: {connection?.name ?? t.missing}</p><p>{t.session}: {session.id} · {fresh?.session.id === session.id ? fresh.session.state : session.state}</p><button type="button" disabled={!connected||props.busy||loading} onClick={() => { setTick(n=>n+1); void props.refresh(); }}>{t.refresh}</button>
-      <p className="hint">{t.window}</p>{!conversation.length && <p>{t.noMessages}</p>}<ol>{conversation.map(event => { const body = sessionEventText(event)!; const excerpt = `${event.kind === 'session.message_queued' ? t.user : t.agent}: ${body}`; return <li key={event.event_id}><label><input type="checkbox" checked={chosen.has(event.event_id)} onChange={change => setChosen(previous => { const next = new Map(previous); if(change.target.checked)next.set(event.event_id,excerpt);else next.delete(event.event_id);return next; })} />{excerpt}</label></li>; })}</ol>
-      <label><input type="checkbox" checked={includeGoal} onChange={event=>setIncludeGoal(event.target.checked)} />{t.include}</label><button type="button" disabled={!session || !task || task.project_id !== session.project_id} onClick={selectContext}>{t.selected}</button>
-      <form onSubmit={event=>void send(event)}><label>{t.message}<textarea value={text} onChange={event=>setText(event.target.value)} maxLength={16384} disabled={props.busy||blocked} /></label><button type="submit" disabled={!canSend}>{t.send}</button></form>
-      {blocked ? <p role="status">{t.uncertain}</p> : !verified || fresh?.session.state !== 'ready' ? <p>{connection ? t.unavailable : t.missing}</p> : null}
+  const choices = sessions.filter(s => tasks.some(row => row.id === s.task_id));
+  return <section className="quick-thread">
+    <h1>{t.title}</h1>
+    {!!choices.length && <label>{t.choose}<select value={id} disabled={props.busy} onChange={event => {
+      setId(event.target.value); setText(''); setChosen(new Map()); setIncludeGoal(false); setFresh(null); setSelecting(false);
+    }}><option value="">{t.placeholder}</option>{choices.map(s => <option key={s.id} value={s.id}>
+      {tasks.find(row => row.id === s.task_id)?.goal} · {connections.find(row => row.id === s.connection_id)?.name ?? c.unavailable}
+    </option>)}</select></label>}
+    {session && <>
+      <div className="conversation-tools">
+        {history.before !== null && <button type="button" disabled={!connected || history.loading} onClick={history.loadEarlier}>{c.olderMessages}</button>}
+        {history.moreRecent && <button type="button" disabled={!connected} onClick={history.loadRecent}>{c.newerMessages}</button>}
+        {history.detached && <button type="button" disabled={!connected || history.loading} onClick={history.loadLatest}>{c.latestMessages}</button>}
+        <button type="button" disabled={!connected||props.busy||loading} onClick={() => { setTick(n=>n+1); void props.refresh(); }}>{t.refresh}</button>
+        {!!conversation.length && <button type="button" aria-pressed={selecting} onClick={() => setSelecting(value => !value)}>{zh ? '选摘转任务' : 'Select excerpts for task'}</button>}
+      </div>
+      {history.error && <div role="alert"><p>{c.historyError}</p><button type="button" onClick={history.retry}>{t.refresh}</button></div>}
+      {history.loading && <p role="status">{c.loadingMessages}</p>}
+      {history.ready && !conversation.length && <p>{c.noMessages}</p>}
+      <ol className="transcript">{conversation.map(({first, user, text: body, parts}) =>
+        <li key={first.event_id}>
+          <header><strong>{user ? t.user : t.agent}</strong></header>
+          {selecting ? parts.map(event => {
+            const excerpt = `${user ? t.user : t.agent}: ${taskMessageText(event)}`;
+            return <label key={event.event_id}><input type="checkbox" checked={chosen.has(event.event_id)} onChange={change => {
+              const checked = change.target.checked;
+              setChosen(previous => {
+                const next = new Map(previous);
+                if (checked) next.set(event.event_id,excerpt); else next.delete(event.event_id);
+                return next;
+              });
+            }} />{excerpt}</label>;
+          }) : <p>{body}</p>}
+        </li>)}</ol>
+      {selecting && <div className="conversation-tools"><label><input type="checkbox" checked={includeGoal} onChange={event=>setIncludeGoal(event.target.checked)} />{t.include}</label><button type="button" disabled={!task || task.project_id !== session.project_id} onClick={selectContext}>{t.selected}</button></div>}
+      <form onSubmit={event=>void send(event)}>
+          <label>{t.message}<textarea value={text} onChange={event=>setText(event.target.value)} maxLength={16384} disabled={props.busy||blocked||!verified||fresh?.session.state!=='ready'} /></label>
+          <button type="submit" disabled={!canSend}>{t.send}</button>
+          {blocked ? <p role="status">{t.uncertain}</p> : !loading && (!verified || fresh?.session.state !== 'ready') && <p>{connection ? t.unavailable : t.missing}</p>}
+        </form>
     </>}
     {error && <p role="alert">{error}</p>}
-    <label htmlFor="quick-summary">{t.summary}</label><textarea id="quick-summary" value={props.summary} maxLength={8192} rows={6} onChange={event=>props.onSummary(event.target.value)} /><p className="hint">{t.summaryHint}</p>{props.summaryProject !== undefined && <p>{t.project}: {props.summaryProject}</p>}
-    {!fits(props.summary) && <p role="alert">{t.tooLong}</p>}<button type="button" className="primary" disabled={props.busy||!connected||!props.summary.trim()||!fits(props.summary)} onClick={()=>props.onConvert(props.summary,props.summaryProject)}>{t.convert}</button>
+    <details open={props.summary ? true : undefined}><summary>{zh ? '从摘要创建任务' : 'Create task from notes'}</summary>
+      <label htmlFor="quick-summary">{t.summary}</label><textarea id="quick-summary" value={props.summary} maxLength={8192} rows={4} onChange={event=>props.onSummary(event.target.value)} />
+      {!fits(props.summary) && <p role="alert">{t.tooLong}</p>}
+      <button type="button" className="primary" disabled={props.busy||!connected||!props.summary.trim()||!fits(props.summary)} onClick={()=>props.onConvert(props.summary,props.summaryProject)}>{t.convert}</button>
+    </details>
   </section>;
 }

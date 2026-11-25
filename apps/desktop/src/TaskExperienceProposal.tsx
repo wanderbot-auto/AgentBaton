@@ -65,11 +65,11 @@ function ExperienceEditor({ source, goal, language }: { source: ExperienceSource
   const content = draft ? draft.content ?? t.starters[draft.kind] : '';
   const candidate = view.phase === 'preview' ? view.candidate : null;
   return <section aria-labelledby={`${id}-title`}>
-    <h2 id={`${id}-title`}>{t.title}</h2>
-    <p className="hint">{t.help}</p>
+    <h2 className="sr-only" id={`${id}-title`}>{t.title}</h2>
     {view.phase === 'closed' && <button type="button" ref={entry}
       onClick={() => update(initialExperienceDraft(goal))}>{t.open}</button>}
     {draft && <form className="connection-form" onSubmit={event => preview(event, draft, content)}>
+      <p className="hint">{t.help}</p>
       <label htmlFor={`${id}-kind`}>{t.kind}</label>
       <select id={`${id}-kind`} ref={kindSelect} value={draft.kind}
         onChange={event => update({ ...draft, kind: event.target.value as ExperienceKind })}>
@@ -95,13 +95,16 @@ function ExperienceEditor({ source, goal, language }: { source: ExperienceSource
       <h3 ref={previewHeading} tabIndex={-1}>{t.preview}</h3>
       <dl>
         <dt>{t.kind}</dt><dd>{t.kinds[candidate.kind]}</dd>
-        <dt>{t.project}</dt><dd>{candidate.source.projectName} ({candidate.source.projectId})</dd>
+        <dt>{t.project}</dt><dd>{candidate.source.projectName}</dd>
+      </dl>
+      <details><summary>{t.acceptance}</summary><dl>
+        <dt>{t.project}</dt><dd>{candidate.source.projectId}</dd>
         <dt>{t.task}</dt><dd>{candidate.source.taskId}</dd>
         <dt>{t.revision}</dt><dd>{candidate.source.taskRevision}</dd>
         <dt>{t.specRevision}</dt><dd>{candidate.source.specRevision}</dd>
         <dt>{t.acceptance}</dt><dd>{candidate.source.acceptanceRef}</dd>
         <dt>{t.sequence}</dt><dd>{candidate.source.acceptanceSequence}</dd>
-      </dl>
+      </dl></details>
       <h4>{t.summary}</h4>
       <p style={{ whiteSpace: 'pre-wrap' }}>{candidate.summary}</p>
       <h4>{t.content}</h4>

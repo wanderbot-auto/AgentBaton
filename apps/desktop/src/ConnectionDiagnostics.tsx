@@ -30,5 +30,39 @@ function Panel({connection,language,connected,onRefresh,uiState=saved}:Props){
  }
  async function retry(){if(!connected||!inspection||inspection.base!==current.current||!inspection.value.retry_eligible||!ack||readLock.current||entry.pending)return;const captured:Pending={key:crypto.randomUUID(),observed:structuredClone(connection),inFlight:true};entry.pending=captured;notify();setAck(false);setError('');try{const receipt=await connectionDiagnosticsApi.retry(captured.observed,captured.key);record(receipt);}catch(e){if(e instanceof DaemonError&&e.code!=='OUTCOME_UNKNOWN'&&['none','not_started'].includes(e.sideEffectState))entry.pending=undefined;if(mounted.current)setError(t.error);}finally{captured.inFlight=false;if(entry.receipt?.probe_attempt.request_key===captured.key&&['succeeded','failed','not_started'].includes(entry.receipt.probe_attempt.state))entry.pending=undefined;notify();if(mounted.current){setInspection(null);onRefresh();}}}
  const fresh=inspection?.base===base&&connected,receipt=entry.receipt&&sameConnection(entry.receipt.connection,connection)?entry.receipt:undefined;
- return <details><summary>{t.title}</summary><section aria-label={`${t.title}: ${connection.name}`}><p>{t.help}</p><button type="button" disabled={!connected||loading} onClick={()=>void inspect()}>{pending?t.reconcile:t.inspect}</button>{error&&<p role="alert">{error}</p>}{pending&&<p role="status">{receipt&&['prepared','running'].includes(receipt.probe_attempt.state)?t.pending:t.unknown}</p>}{fresh&&inspection&&<><dl><dt>{t.basis}</dt><dd>{inspection.value.retry_basis?t[inspection.value.retry_basis]:t.none}</dd><dt>{t.status}</dt><dd>{t[inspection.value.executable_status]}</dd><dt>{t.approved}</dt><dd>{inspection.value.approved_executable_sha256}</dd><dt>{t.current}</dt><dd>{inspection.value.current_executable_sha256??t.none}</dd><dt>{t.observed}</dt><dd>{new Date(inspection.value.observed_at_unix_ms).toISOString()}</dd><dt>{t.executable}</dt><dd>{String(inspection.value.executable_is_executable)}</dd></dl>{inspection.value.executable_status==='changed'&&<p>{t.replacement}</p>}{!inspection.value.retry_eligible&&<p>{t.blocked}: {inspection.value.retry_blocked_reason??t.none}</p>}{inspection.value.retry_eligible&&<><p>{t.retryHelp}</p><label><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/>{t.confirm}</label><button type="button" disabled={!ack||!!pending||loading} onClick={()=>void retry()}>{t.retry}</button></>}</>}{receipt&&<><h4>{t.attempt}</h4><p>{receipt.probe_attempt.id} · {t.state}: {receipt.probe_attempt.state}</p><p>{t.reaped}: {String(receipt.probe_attempt.process_reaped)} · {t.notStarted}: {String(receipt.probe_attempt.not_started)}</p>{receipt.probe_attempt.version_evidence&&<p>{t.historical}: {receipt.probe_attempt.version_evidence.version_line??receipt.probe_attempt.version_evidence.state}</p>}</>}<p>{t.noAuth}</p></section></details>;
+ const copy = language === 'zh'
+   ? { evidence: '检查证据', receipt: '重检回执', busy: '已有活动或待核对的执行。', noStop: '上次探测缺少停止凭据。', notExecutable: '当前文件不可执行。' }
+   : { evidence: 'Inspection evidence', receipt: 'Retry receipt', busy: 'An execution is active or awaiting reconciliation.', noStop: 'The previous probe has no stop receipt.', notExecutable: 'The current file is not executable.' };
+ const blockedReason = inspection?.value.retry_blocked_reason;
+ const blocked = blockedReason === 'WORKSPACE_BUSY' ? copy.busy : blockedReason === 'OUTCOME_UNKNOWN' ? copy.noStop : !inspection?.value.executable_is_executable ? copy.notExecutable : t.blocked;
+ return <details><summary>{t.title}</summary>
+   <section aria-label={`${t.title}: ${connection.name}`}>
+     <button type="button" disabled={!connected || loading} onClick={() => void inspect()}>{pending ? t.reconcile : t.inspect}</button>
+     {error && <p role="alert">{error}</p>}
+     {pending && <p role="status">{receipt && ['prepared', 'running'].includes(receipt.probe_attempt.state) ? t.pending : t.unknown}</p>}
+     {fresh && inspection && <>
+       <p>{t[inspection.value.executable_status]}</p>
+       {inspection.value.executable_status === 'changed' && <p>{t.replacement}</p>}
+       {!inspection.value.retry_eligible && <p>{blocked}</p>}
+       {inspection.value.retry_eligible && <>
+         <p>{t.retryHelp}</p>
+         <label><input type="checkbox" checked={ack} onChange={event => setAck(event.target.checked)} />{t.confirm}</label>
+         <button type="button" disabled={!ack || !!pending || loading} onClick={() => void retry()}>{t.retry}</button>
+       </>}
+       <details><summary>{copy.evidence}</summary><dl>
+         <dt>{t.basis}</dt><dd>{inspection.value.retry_basis ? t[inspection.value.retry_basis] : t.none}</dd>
+         <dt>{t.approved}</dt><dd><code>{inspection.value.approved_executable_sha256}</code></dd>
+         <dt>{t.current}</dt><dd><code>{inspection.value.current_executable_sha256 ?? t.none}</code></dd>
+         <dt>{t.observed}</dt><dd>{new Date(inspection.value.observed_at_unix_ms).toISOString()}</dd>
+         <dt>{t.executable}</dt><dd>{String(inspection.value.executable_is_executable)}</dd>
+         {blockedReason && <><dt>{t.blocked}</dt><dd><code>{blockedReason}</code></dd></>}
+       </dl><p>{t.help}</p><p>{t.noAuth}</p></details>
+     </>}
+     {receipt && <details><summary>{copy.receipt} · {t.state}: {receipt.probe_attempt.state}</summary>
+       <p>{t.attempt} · <code>{receipt.probe_attempt.id}</code></p>
+       <p>{t.reaped}: {String(receipt.probe_attempt.process_reaped)} · {t.notStarted}: {String(receipt.probe_attempt.not_started)}</p>
+       {receipt.probe_attempt.version_evidence && <p>{t.historical}: {receipt.probe_attempt.version_evidence.version_line ?? receipt.probe_attempt.version_evidence.state}</p>}
+     </details>}
+   </section>
+ </details>;
 }

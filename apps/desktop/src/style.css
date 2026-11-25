@@ -89,3 +89,43 @@
   overflow-wrap: anywhere;
   scroll-margin: 8px;
 }
+
+/* Folded evidence and compact engineering summaries. */
+.task-card { min-height: 112px; align-content: start; }
+.task-card h2, .thread-heading h1, .page-heading h1 { overflow-wrap: anywhere; }
+.task-card .card-footer { justify-content: flex-start; flex-wrap: wrap; gap: 4px 12px; }
+.task-card .card-footer > span { min-width: 0; overflow-wrap: anywhere; }
+.disconnected-panel, .task-next, .task-facts { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 12px; }
+.disconnected-panel p, .task-next p, .thread-agent { margin: 0; }
+.task-next, .thread-agent { margin-block-end: 12px; }
+.thread-agent, .task-facts, .composer-recipient { color: var(--muted); }
+.secondary-section > summary, .observable-events > summary, .folded-plan > summary { padding-block: 8px; }
+.secondary-section > :not(summary) { margin-block: 8px; }
+.composer-controls { gap: 8px; }
+.composer-controls .send-button { margin-inline-start: auto; }
+.journal-list { list-style: none; padding: 0; }
+.journal-list li { border-bottom: 1px solid var(--line); }
+.journal-list summary { padding: 8px 0; }
+.journal-list summary time { color: var(--muted); margin-inline-start: 10px; }
+.journal-object { margin-inline-start: 10px; overflow-wrap: anywhere; }
+.search-results button { grid-template-columns: minmax(0, 1fr) minmax(0, auto) auto; }
+.search-results button > span:first-child, .search-results button > small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.conversation p, .quick-thread p, .standalone-conversations p { overflow-wrap: anywhere; }
+.artifact-results article { border-top: 1px solid var(--line); padding-block: 10px; }
+.artifact-results article > p { margin: 0; font-weight: 600; }
+.artifact-results ul { list-style: none; margin-block: 6px; padding-inline-start: 0; }
+.artifact-results code { overflow-wrap: anywhere; }
+.artifact-failed { color: var(--error); }
+.hash-difference { display: block; color: var(--muted); }
+.conversation-tools { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.transcript { list-style: none; padding-inline-start: 0; }
+.transcript li { border-block-end: 1px solid var(--line); padding-block: 8px; }
+.transcript header { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.transcript time { color: var(--muted); }
+.transcript p { margin-block: 4px 8px; white-space: pre-wrap; }
+.transcript li > details > summary { font-size: var(--fs-body); color: var(--muted); }
+.projects .task-list button { flex-direction: row; align-items: baseline; justify-content: space-between; padding: 9px 12px; margin: 5px 0; }
+.connection-list > li { padding: 10px 0; margin: 0; }
+.connection-list > li > .section-heading { margin-bottom: 4px; }
+.task-artifacts-brief { list-style: none; margin: 4px 0 0; padding: 0; }
+.task-artifacts-brief code { overflow-wrap: anywhere; }

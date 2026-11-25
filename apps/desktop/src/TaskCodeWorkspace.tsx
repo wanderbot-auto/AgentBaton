@@ -5,8 +5,9 @@ import { parseTaskWithWorkspaceBinding, parseTaskWorkspaceBindingView, validateT
 import { parseCodeWorkspacePreparation, type CodeWorkspacePreparation } from './workspace-preparation-wire';
 import { taskCodeWorkspaceMessages } from './task-code-workspace-i18n';
 import { ExternalWorkspaceOpen } from './ExternalWorkspaceOpen';
+import { workspaceOpenMessages } from './workspace-open-i18n';
 
-type Props = { task: Task; language: Language; connected: boolean; autoOpen?: boolean; onBindingReady?: (taskId: string) => void };
+type Props = { task: Task; language: Language; connected: boolean; autoOpen?: boolean; compact?: boolean; onBindingReady?: (taskId: string) => void };
 type Intent = { projectId: string; selection: TaskGitWorkspacePreparation; key: string; uncertain: boolean; reconciled: boolean };
 type Observation = { value: TaskWorkspaceBindingView; at: string };
 type Memory = { active: number; pending: Intent | null; observed: Observation | null; taskFloor: number; bindingFloor: number; receiptFloor: TaskWorkspaceReservationReceipt | null; writing: boolean };
@@ -33,12 +34,13 @@ type Read = { task: Task; project: Project | null; preparation: CodeWorkspacePre
 export function TaskCodeWorkspace(props: Props) {
   const [open, setOpen] = useState(props.autoOpen ?? false), [started, setStarted] = useState(props.autoOpen ?? false);
   return <details className="task-code-workspace" data-testid="task-code-workspace" open={open} onToggle={event => { setOpen(event.currentTarget.open); if (event.currentTarget.open) setStarted(true); }}>
-    <summary>{taskCodeWorkspaceMessages[props.language].title}</summary>
+    <summary>{taskCodeWorkspaceMessages[props.language].title}{props.task.code_workspace_binding?.state === 'ready' && <> · <code>{props.task.code_workspace_binding.receipt.source_pin.head.slice(0, 8)}</code></>}</summary>
     {started && <WorkspacePanel key={props.task.id} {...props} open={open} />}
   </details>;
 }
 function WorkspacePanel(props: Props & { open: boolean }) {
   const t = taskCodeWorkspaceMessages[props.language];
+  const [openDirectory, setOpenDirectory] = useState(false);
   const [saved] = useState<Memory>(() => {
     const prior = memories.get(props.task.id); if (prior) return prior;
     if (memories.size >= 32) { const idle = [...memories].find(([, value]) => !value.active && !value.pending && !value.writing); if (idle) memories.delete(idle[0]); }
@@ -138,24 +140,27 @@ function WorkspacePanel(props: Props & { open: boolean }) {
     try { props.onBindingReady(read.task.id); } catch { setError(t.unavailable); }
   }, [props.onBindingReady, revalidated, read, observed, pending, busy, saved, currentBinding, t.unavailable]);
   return <section aria-label={t.title} aria-busy={loading || busy}>
-    <p>{t.intro}</p><button type="button" disabled={!props.connected || loading || busy || saved.writing} onClick={() => void refresh()}>{t.refresh}</button>
+    <button type="button" title={t.intro} disabled={!props.connected || loading || busy || saved.writing} onClick={() => void refresh()}>{t.refresh}</button>
     {!props.connected && <p>{t.disconnected}</p>}{loading && <p role={props.open ? 'status' : undefined}>{t.loading}</p>}{error && <p className="error" role={props.open ? 'alert' : undefined}>{error}</p>}{capacity && <p>{t.capacity}</p>}
     {pending && <p role={props.open ? 'status' : undefined}>{pending.uncertain ? t.uncertain : t.acknowledged}</p>}
     {pending && <button type="button" disabled={disabled || !pending.reconciled} onClick={() => void perform(pending, true)}>{t.recover}</button>}
     {read && <>
-      <dl><dt>{t.project}</dt><dd>{read.project?.name ?? read.task.project_id}</dd><dt>{t.host}</dt><dd>{t.local}</dd><dt>{t.currentRevision}</dt><dd>{read.task.revision}</dd></dl>
+      <p>{read.project?.name ?? t.local}{read.preparation?.source_head && <> · <code>{read.preparation.source_head.slice(0, 8)}</code></>}{currentBinding && <> · <span>{currentBinding.state === 'ready' ? t.ready : currentBinding.state === 'pending' ? t.pending : t.unknown}</span></>}</p>
       {read.project?.archived && <p>{t.archived}</p>}
       {read.preparation?.state === 'needs_registered_project' && <p>{t.personal}</p>}
-      {read.preparation?.source && <dl><dt>{t.source}</dt><dd><code>{read.preparation.source.canonical_root}</code></dd>{read.preparation.source_head && <><dt>{t.head}</dt><dd><code>{read.preparation.source_head}</code></dd></>}</dl>}
+      <details><summary>{t.source}</summary><dl><dt>{t.host}</dt><dd>{t.local}</dd><dt>{t.currentRevision}</dt><dd>{read.task.revision}</dd>{read.preparation?.source && <><dt>{t.source}</dt><dd><code>{read.preparation.source.canonical_root}</code></dd>{read.preparation.source_head && <><dt>{t.head}</dt><dd><code>{read.preparation.source_head}</code></dd></>}</>}</dl></details>
       {read.preparation?.source?.kind.kind === 'git' && read.preparation.source.kind.dirty && <p>{t.dirty}</p>}
       {read.preparation?.state === 'needs_dataset_selection' && <p>{t.directory}</p>}
       {read.preparation?.state === 'blocked' && <p>{t.blocked}</p>}
-      {!currentBinding && <><p>{t.none}</p><p>{t.confirm}</p><button className="primary" type="button" disabled={!canPrepare} onClick={prepare}>{t.prepare}</button></>}
+      {!currentBinding && <><button className="primary" type="button" title={t.confirm} disabled={!canPrepare} onClick={prepare}>{t.prepare}</button></>}
       {read.preparation && read.preparation.candidates.length > 0 && <details><summary>{t.candidates}</summary><p>{t.candidatesHint}</p><ul>{read.preparation.candidates.map(row => <li key={row.workspace_id}><code>{row.root}</code> · {row.recorded_state}{row.has_unreconciled_lease && <span> · {t.lease}</span>}</li>)}</ul></details>}
-      {currentBinding && <><h4>{t.current}</h4><p>{currentBinding.state === 'ready' ? t.ready : currentBinding.state === 'pending' ? t.pending : t.unknown}</p><p>{revalidated ? t.identity : t.recordedOnly}</p>{staleBinding && <p>{t.stale}</p>}<button type="button" disabled={disabled || !!pending} onClick={revalidate}>{t.revalidate}</button></>}
+      {currentBinding && <>{!revalidated && <p>{t.recordedOnly}</p>}{staleBinding && <p>{t.stale}</p>}<button type="button" disabled={disabled || !!pending} onClick={revalidate}>{t.revalidate}</button></>}
     </>}
-    {receipt && <details><summary>{t.details}</summary><h4>{t.receipt}</h4><dl><dt>{t.bindingId}</dt><dd>{receipt.binding_id}</dd><dt>{t.workspaceId}</dt><dd>{receipt.workspace_id}</dd><dt>{t.host}</dt><dd>{receipt.host_id === 'local' ? t.local : receipt.host_id}</dd><dt>{t.originalRevision}</dt><dd>{receipt.original_task_revision}</dd><dt>{t.reservedRevision}</dt><dd>{receipt.reserved_task_revision}</dd><dt>{t.spec}</dt><dd>{receipt.spec_revision}</dd><dt>{t.projectRevision}</dt><dd>{receipt.project_revision}</dd><dt>{t.destination}</dt><dd><code>{receipt.managed_root.replace(/\/$/, '') + '/' + receipt.workspace_id}</code></dd><dt>{t.source}</dt><dd><code>{receipt.source_pin.canonical_root}</code></dd><dt>{t.head}</dt><dd><code>{receipt.source_pin.head}</code></dd><dt>{t.sourceDevice}</dt><dd><code>{receipt.source_pin.device}</code></dd><dt>{t.sourceInode}</dt><dd><code>{receipt.source_pin.inode}</code></dd><dt>{t.requestDigest}</dt><dd><code>{receipt.request_digest}</code></dd><dt>{t.key}</dt><dd><code>{receipt.request_key}</code></dd><dt>{t.preparationKey}</dt><dd><code>{receipt.preparation_key}</code></dd>{currentBinding && <><dt>{t.bindingRevision}</dt><dd>{currentBinding.revision}</dd></>}{observed && <><dt>{t.observed}</dt><dd>{observed.at}</dd><dt>{t.observedRoot}</dt><dd><code>{observed.value.observed_managed_pin.canonical_root}</code></dd><dt>{t.managedHead}</dt><dd><code>{observed.value.observed_managed_pin.head}</code></dd></>}</dl></details>}
-    <ExternalWorkspaceOpen task={props.task} language={props.language} connected={props.connected} open={props.open} />
-    {!fresh && !loading && read && <p>{t.unavailable}</p>}<p className="hint">{t.noAuthority}</p>
+    {receipt && <details><summary>{t.details}</summary>{revalidated && <p>{t.identity}</p>}<p>{t.noAuthority}</p><h4>{t.receipt}</h4><dl><dt>{t.bindingId}</dt><dd>{receipt.binding_id}</dd><dt>{t.workspaceId}</dt><dd>{receipt.workspace_id}</dd><dt>{t.host}</dt><dd>{receipt.host_id === 'local' ? t.local : receipt.host_id}</dd><dt>{t.originalRevision}</dt><dd>{receipt.original_task_revision}</dd><dt>{t.reservedRevision}</dt><dd>{receipt.reserved_task_revision}</dd><dt>{t.spec}</dt><dd>{receipt.spec_revision}</dd><dt>{t.projectRevision}</dt><dd>{receipt.project_revision}</dd><dt>{t.destination}</dt><dd><code>{receipt.managed_root.replace(/\/$/, '') + '/' + receipt.workspace_id}</code></dd><dt>{t.source}</dt><dd><code>{receipt.source_pin.canonical_root}</code></dd><dt>{t.head}</dt><dd><code>{receipt.source_pin.head}</code></dd><dt>{t.sourceDevice}</dt><dd><code>{receipt.source_pin.device}</code></dd><dt>{t.sourceInode}</dt><dd><code>{receipt.source_pin.inode}</code></dd><dt>{t.requestDigest}</dt><dd><code>{receipt.request_digest}</code></dd><dt>{t.key}</dt><dd><code>{receipt.request_key}</code></dd><dt>{t.preparationKey}</dt><dd><code>{receipt.preparation_key}</code></dd>{currentBinding && <><dt>{t.bindingRevision}</dt><dd>{currentBinding.revision}</dd></>}{observed && <><dt>{t.observed}</dt><dd>{observed.at}</dd><dt>{t.observedRoot}</dt><dd><code>{observed.value.observed_managed_pin.canonical_root}</code></dd><dt>{t.managedHead}</dt><dd><code>{observed.value.observed_managed_pin.head}</code></dd></>}</dl></details>}
+    {props.compact ? <details onToggle={event => setOpenDirectory(event.currentTarget.open)}>
+      <summary>{workspaceOpenMessages[props.language].title}</summary>
+      <ExternalWorkspaceOpen task={props.task} language={props.language} connected={props.connected} open={props.open && openDirectory} />
+    </details> : <ExternalWorkspaceOpen task={props.task} language={props.language} connected={props.connected} open={props.open} />}
+    {!fresh && !loading && read && <p>{t.unavailable}</p>}
   </section>;
 }

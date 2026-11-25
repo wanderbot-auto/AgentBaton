@@ -27,6 +27,9 @@ describe('Project management using mocked Tauri transport', () => {
     const user = userEvent.setup();
     vi.mocked(api.projectsImport).mockResolvedValue(project);
     const selected = show([]);
+    const add = screen.getByText('Import project', { selector: 'summary' });
+    expect(screen.getByLabelText('Project name')).not.toBeVisible();
+    await user.click(add);
     await user.type(screen.getByLabelText('Project name'), project.name);
     await user.type(screen.getByLabelText('Project directory'), project.identity.canonical_root);
     await user.click(screen.getByRole('button', { name: 'Import project' }));
@@ -34,12 +37,17 @@ describe('Project management using mocked Tauri transport', () => {
     expect(selected).toHaveBeenCalledWith(project.id);
     expect(refresh).toHaveBeenCalled();
     expect(screen.getByLabelText('Project directory')).toHaveValue('');
+    expect(add.parentElement).not.toHaveAttribute('open');
+    expect(add).toHaveFocus();
   });
   it('shows observed dirty identity and creates a separate workspace without a renderer destination', async () => {
     const user = userEvent.setup();
     vi.mocked(api.workspacesCreate).mockResolvedValue({ id: 'workspace-1', project_id: project.id, root: '/managed/workspace-1', identity: null, base_revision: head, state: 'creating', revision: 1, created_at: project.created_at });
     show();
-    expect(screen.getByText('Source had local changes when observed')).toBeVisible();
+    expect(screen.getByText(/Source had local changes when observed/)).toBeVisible();
+    expect(screen.getByText(head.slice(0, 8))).toBeVisible();
+    expect(screen.getByText(head)).not.toBeVisible();
+    await user.click(screen.getByText('Project details', { selector: 'summary' }));
     expect(screen.getByText(head)).toBeVisible();
     await waitFor(() => expect(api.workspacesList).toHaveBeenCalledWith(project.id));
     await user.click(screen.getByRole('button', { name: 'Create isolated workspace' }));
@@ -50,24 +58,32 @@ describe('Project management using mocked Tauri transport', () => {
     const user = userEvent.setup();
     vi.mocked(api.projectsReassociate).mockRejectedValue(new DaemonError('STALE_REVISION', 'Project revision changed; refresh before relinking', 'not_started'));
     show();
+    await user.click(screen.getByText('Project details', { selector: 'summary' }));
+    await user.click(screen.getByText('Reassociate directory', { selector: 'summary' }));
     await user.type(screen.getByLabelText('Replacement project directory'), '/moved/repository');
     await user.click(screen.getByRole('button', { name: 'Reassociate directory' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Project revision changed');
     expect(api.projectsReassociate).toHaveBeenCalledWith(project, '/moved/repository', expect.any(String));
-    expect(screen.getByText('/source/repository', { selector: 'dd' })).toBeVisible();
+    expect(screen.getByText('/source/repository', { selector: 'code' })).toBeVisible();
   });
   it('shows unknown workspace outcome and prevents another creation', async () => {
     vi.mocked(api.workspacesList).mockResolvedValue([{ id: 'workspace-1', project_id: project.id, root: '/managed/workspace-1', identity: null, base_revision: head, state: 'outcome_unknown', revision: 1, created_at: project.created_at }]);
     show();
-    expect(await screen.findByText('Outcome unknown — reconcile before retrying')).toBeVisible();
+    expect(await screen.findByText(/Outcome unknown — reconcile before retrying/)).toBeVisible();
     expect(screen.getByRole('button', { name: 'Create isolated workspace' })).toBeDisabled();
     expect(screen.getByText('No verified workspace identity')).toBeVisible();
-    expect(screen.getByText('No execution lease is reported. Workspace readiness does not grant permission to dispatch.')).toBeVisible();
+    const help = screen.getByText('No execution lease is reported. Workspace readiness does not grant permission to dispatch.');
+    expect(help).not.toBeVisible();
+    await userEvent.click(screen.getByText('Workspace details', { selector: 'summary' }));
+    expect(help).toBeVisible();
   });
   it('archives metadata only and makes archived operations unavailable', async () => {
     const user = userEvent.setup();
     vi.mocked(api.projectsArchive).mockResolvedValue({ ...project, archived: true, revision: 4 });
     const { rerender } = render(<Projects projects={[project]} selectedId={project.id} onSelect={vi.fn()} refresh={refresh} connected language="en" />);
+    await user.click(screen.getByText('Project details', { selector: 'summary' }));
+    await user.click(screen.getByText('Archive project', { selector: 'summary' }));
+    expect(screen.getByText('Archiving prevents new work. Original source files and history are retained.')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Archive project' }));
     expect(api.projectsArchive).toHaveBeenCalledWith(project, expect.any(String));
     rerender(<Projects projects={[{ ...project, archived: true, revision: 4 }]} selectedId={project.id} onSelect={vi.fn()} refresh={refresh} connected language="en" />);

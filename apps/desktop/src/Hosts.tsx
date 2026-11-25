@@ -92,7 +92,6 @@ function matchesReceipt(record: HostRecord, key: string, receipt: HostReceipt): 
 
 function Metadata({ registration: r, copy }: { registration: HostRegistration; copy: Copy }) {
   return <dl className="settings-list">
-    <dt>{copy.name}</dt><dd>{r.name}</dd>
     <dt>{copy.platform}</dt><dd>{r.declared_platform === 'macos' ? 'macOS' : 'Linux'}</dd>
     <dt>{copy.protocol}</dt><dd>{r.endpoint.expected_host_identity}</dd>
     <dt>{copy.address}</dt><dd>{r.endpoint.address}</dd>
@@ -118,14 +117,16 @@ function RegisteredHost({ id, sequence, created, registration, copy }: {
   copy: Copy;
 }) {
   return <>
-    <p>{copy.registered} · {copy.syntax}</p>
-    <p>{copy.refs} · {copy.uncontacted} · {copy.capabilities} · {copy.execution}</p>
+    <p><strong>{registration.name}</strong> · {copy.registered}</p>
+    <details><summary>{copy.details}</summary>
+    <p>{copy.syntax} · {copy.refs} · {copy.uncontacted} · {copy.capabilities} · {copy.execution}</p>
     <dl className="settings-list">
       <dt>{copy.registryId}</dt><dd>{id}</dd>
       <dt>{copy.sequence}</dt><dd>{sequence}</dd>
       <dt>{copy.created}</dt><dd>{created}</dd>
     </dl>
     <Metadata registration={registration} copy={copy} />
+    </details>
   </>;
 }
 
@@ -229,7 +230,10 @@ function Mapping({ id, name, index, copy, remove }: {
   </>;
 }
 
-function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; daemonConnected: boolean; session: Session }) {
+function HostSettingsPanel({ copy, daemonConnected, session, language }: { copy: Copy; daemonConnected: boolean; session: Session; language: Language }) {
+  const labels = language === 'zh'
+    ? { add: '添加主机', details: '登记请求详情', notProbed: '尚未探测' }
+    : { add: 'Add Host', details: 'Registration request details', notProbed: 'Not probed' };
   const recoveryRead = useRef(0);
   const listRead = useRef(0);
   const detailRead = useRef(0);
@@ -457,8 +461,7 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
     {inventory && (listIssue || !daemonConnected) && <p className="hint">{copy.stale}</p>}
     {inventory?.hosts.length === 0 && !listIssue && daemonConnected && <p>{copy.noHosts}</p>}
     {inventory && <ul className="connection-list">{inventory.hosts.map(record => <li key={record.id}>
-      <h4>{record.registration.name}</h4>
-      <p>{copy.registered} · {copy.platform} {record.registration.declared_platform === 'macos' ? 'macOS' : 'Linux'}</p>
+      <div className="section-heading"><h4>{record.registration.name}</h4><span>{record.registration.declared_platform === 'macos' ? 'macOS' : 'Linux'} · {labels.notProbed}</span></div>
       <button type="button" disabled={!daemonConnected} onClick={() => void inspect(record)}
         aria-label={`${copy.details} · ${record.registration.name}`}>{copy.details}</button>
       {detail?.record.id === record.id && <>
@@ -475,8 +478,11 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
     {problem && <p role="alert">{problem === 'recheck' ? copy.recheck : copy.issues[problem]}</p>}
     {(intent || captured) && <section aria-label={copy.pending}>
       <h3>{copy.pending}</h3>
-      <dl className="settings-list"><dt>{copy.key}</dt><dd>{captured?.key ?? intent?.request_key}</dd></dl>
-      {!confirmed && original && <Metadata registration={original} copy={copy} />}
+      {original && <p>{original.name}</p>}
+      <details><summary>{labels.details}</summary>
+        <dl className="settings-list"><dt>{copy.key}</dt><dd>{captured?.key ?? intent?.request_key}</dd></dl>
+        {!confirmed && original && <Metadata registration={original} copy={copy} />}
+      </details>
       {phase === 'unresolved' && <p role="status">{copy.unresolved}</p>}
       <button type="button" disabled={!daemonConnected || phase === 'reading'} onClick={() => void loadRecovery(true)}>{copy.check}</button>
       {intent && phase === 'unresolved' && <button type="button" disabled={!daemonConnected}
@@ -489,15 +495,19 @@ function HostSettingsPanel({ copy, daemonConnected, session }: { copy: Copy; dae
       {phase === 'cleared' && <p role="status">{copy.acknowledged}</p>}
       {phase === 'verifiedClear' && <p role="status">{copy.verifiedClear}</p>}
     </section>}
-    <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />
+    <details className="secondary-section"><summary>{labels.add}</summary>
+      <HostForm key={formVersion} copy={copy} disabled={!ready} onRegister={register} />
+    </details>
   </section>;
 }
 
-export function Hosts({ language, daemonConnected, session }: { language: Language; daemonConnected: boolean; session: Session }) {
+export function Hosts({ language, daemonConnected, session, inline = false }: { language: Language; daemonConnected: boolean; session: Session; inline?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const copy = hostMessages[language];
+  const panel = <HostSettingsPanel copy={copy} daemonConnected={daemonConnected} session={session} language={language} />;
+  if (inline) return panel;
   return <details className="settings-connection" onToggle={event => setExpanded(event.currentTarget.open)}>
     <summary>{copy.title}</summary>
-    {expanded && <HostSettingsPanel copy={copy} daemonConnected={daemonConnected} session={session} />}
+    {expanded && panel}
   </details>;
 }

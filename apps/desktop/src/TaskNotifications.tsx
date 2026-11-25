@@ -49,6 +49,9 @@ export function TaskNotifications({ tasks, sessions, events, language, observati
     </button>
     {open && <ContextDialog title={t.title} closeLabel={t.close} onClose={() => setOpen(false)}>
       <div className="task-notifications">
+        {!model.rows.length ? <p>{t.empty}</p> : <ul className="task-notifications-list">{model.rows.slice(currentPage * NOTIFICATION_LIMITS.rows, (currentPage + 1) * NOTIFICATION_LIMITS.rows).map(row => <Notice key={row.taskId} row={row} language={language} observation={observation} events={events} evidence={evidence} onOpenTask={id => { setOpen(false); onOpenTask(id); }} onViewEvent={id => { setOpen(false); onViewEvent(id); }} />)}</ul>}
+        {pages > 1 && <Pager page={currentPage} pages={pages} language={language} onChange={setPage} />}
+        <details><summary>{language === 'zh' ? '通知设置与来源' : 'Notification settings and sources'}</summary>
         <label className="task-notifications-dnd"><input type="checkbox" checked={preference.enabled} onChange={event => setDoNotDisturb(event.target.checked)} />{t.dnd}</label>
         <p className="hint">{t.dndHelp}</p>
         {preference.windowOnly && <p role="status">{t.windowOnly}</p>}
@@ -56,8 +59,7 @@ export function TaskNotifications({ tasks, sessions, events, language, observati
         {!observation.sessionsFresh && <p className="hint">{t.sessionsStale}</p>}
         {!observation.eventsFresh && <p className="hint">{t.eventsStale}</p>}
         {(model.limited || observation.eventLimited || !observation.eventsFresh || !observation.connected) && <p className="hint">{t.limited}</p>}
-        {!model.rows.length ? <p>{t.empty}</p> : <ul className="task-notifications-list">{model.rows.slice(currentPage * NOTIFICATION_LIMITS.rows, (currentPage + 1) * NOTIFICATION_LIMITS.rows).map(row => <Notice key={row.taskId} row={row} language={language} observation={observation} events={events} evidence={evidence} onOpenTask={id => { setOpen(false); onOpenTask(id); }} onViewEvent={id => { setOpen(false); onViewEvent(id); }} />)}</ul>}
-        {pages > 1 && <Pager page={currentPage} pages={pages} language={language} onChange={setPage} />}
+        </details>
       </div>
     </ContextDialog>}
   </>;
@@ -78,7 +80,7 @@ function Notice({ row, language, observation, events, evidence, onOpenTask, onVi
   return <li data-testid="task-notification" data-task-id={row.taskId}>
     <div className="task-notifications-row"><h3>{row.goal || row.taskId}</h3><button type="button" onClick={() => onOpenTask(row.taskId)}>{t.openTask}</button></div>
     <p>{t[row.category]}</p>
-    <p className="hint">{row.stale ? t.stale : row.category === 'observed' ? t.historical : t.fresh}</p>
+    {row.stale && <small>{t.stale}</small>}
     <details><summary>{t.sources} ({row.sources.length})</summary>
       <p className="hint">{t.sourceHelp}</p>
       <p>{t.taskProjection}: <code>{row.taskId}</code> · {t.revision} {row.taskRevision} · {t.state}: <code>{row.taskState}</code> · {t.updated}: {row.updatedAt}</p>

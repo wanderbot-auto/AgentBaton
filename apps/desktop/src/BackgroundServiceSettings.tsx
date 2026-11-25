@@ -63,7 +63,6 @@ function BackgroundServicePanel({ language }: { language: Language }) {
   const operation = receipt?.login_registration === 'enabled_next_login' ? 'disable' : 'enable';
   const perform = (next: BackgroundOperation) => { const owner = context.current; if (owner !== null) void request(next, owner); };
   return <section aria-label={copy.registration} aria-busy={session.pending !== null}>
-    <p>{copy.help}</p>
     <p role="status">{session.pending === 'status' ? copy.loading : session.pending !== null ? copy.working : state}</p>
     {message && <p role="alert">{message}</p>}
     {session.needsRefresh && <p>{copy.refreshFirst}</p>}
@@ -73,9 +72,9 @@ function BackgroundServicePanel({ language }: { language: Language }) {
         {operation === 'enable' ? copy.enable : copy.disable}
       </button>
     </div>
-    <p className="hint">{copy.confirmation}</p>
-    <p className="hint">{copy.boundary}</p>
-    <p className="hint">{copy.observation}</p>
+    <details><summary>{language === 'zh' ? '登录启动的授权范围' : 'Login startup scope'}</summary>
+      <p>{copy.help}</p><p>{copy.confirmation}</p><p>{copy.boundary}</p><p>{copy.observation}</p>
+    </details>
   </section>;
 }
 

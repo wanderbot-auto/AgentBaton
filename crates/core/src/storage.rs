@@ -799,6 +799,102 @@ impl Store {
             .map(|v| v as u64)
             .map_err(db_error)
     }
+    /// Read retained transcript events for sessions belonging to a single task.
+    /// Sequence cursors are exclusive and never confer write authority.
+    pub fn task_history(
+        &self,
+        task_id: &str,
+        before: Option<u64>,
+        after: Option<u64>,
+        limit: u32,
+    ) -> Result<Value> {
+        const MAX_SAFE_SEQUENCE: u64 = 9_007_199_254_740_991;
+        if !(1..=100).contains(&limit)
+            || (before.is_some() && after.is_some())
+            || before
+                .into_iter()
+                .chain(after)
+                .any(|cursor| cursor == 0 || cursor >= MAX_SAFE_SEQUENCE)
+        {
+            return Err(CoreError::new(
+                "INVALID_REQUEST",
+                "Invalid task history page",
+            ));
+        }
+        self.get(task_id)?;
+        let has_sessions = self
+            .conn
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM sessions WHERE task_id=?1)",
+                [task_id],
+                |row| row.get::<_, bool>(0),
+            )
+            .map_err(db_error)?;
+        if !has_sessions {
+            return Ok(json!({"task_id":task_id,"events":[],"next_cursor":null}));
+        }
+        let order = if after.is_some() { "ASC" } else { "DESC" };
+        let sql = format!(
+            "SELECT sequence,octet_length(document) FROM events
+             WHERE sequence>?2 AND sequence<?3
+             AND json_extract(document,'$.kind') IN ('session.message_queued','session.update')
+             AND json_extract(document,'$.aggregate_id') IN (SELECT id FROM sessions WHERE task_id=?1)
+             AND (json_extract(document,'$.kind')='session.message_queued'
+                  OR json_extract(document,'$.payload.update.kind.kind')='agent_text')
+             ORDER BY sequence {order} LIMIT ?4"
+        );
+        let mut query = self.conn.prepare_cached(&sql).map_err(db_error)?;
+        let rows = query
+            .query_map(
+                params![
+                    task_id,
+                    after.unwrap_or(0) as i64,
+                    before.unwrap_or(MAX_SAFE_SEQUENCE) as i64,
+                    limit + 1
+                ],
+                |row| Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?)),
+            )
+            .map_err(db_error)?;
+        let mut documents = self
+            .conn
+            .prepare_cached("SELECT document FROM events WHERE sequence=?1")
+            .map_err(db_error)?;
+        let mut events = Vec::new();
+        let mut remaining = MAX_EVENT_PAGE_BYTES;
+        let mut next_cursor = None;
+        for row in rows {
+            let (sequence, bytes) = row.map_err(db_error)?;
+            let bytes = bytes as usize;
+            if events.len() == limit as usize || bytes > remaining {
+                let Some(last) = events.last().map(|event: &Event| event.sequence) else {
+                    return Err(CoreError::new(
+                        "RESOURCE_LIMIT",
+                        "A task message exceeds the history page byte limit",
+                    ));
+                };
+                next_cursor = Some(last);
+                break;
+            }
+            let raw: String = documents
+                .query_row([sequence], |row| row.get(0))
+                .map_err(db_error)?;
+            if raw.len() != bytes {
+                return Err(CoreError::new(
+                    "INPUT_CHANGED",
+                    "Task history changed during pagination",
+                ));
+            }
+            let mut event: Event = decode(&raw)?;
+            event.sequence = sequence as u64;
+            events.push(event);
+            remaining -= bytes;
+        }
+        if after.is_none() {
+            events.reverse();
+        }
+        Ok(json!({"task_id":task_id,"events":events,"next_cursor":next_cursor}))
+    }
+
     pub fn events(&self, cursor: u64, limit: u32) -> Result<Value> {
         let sequence = self.sequence()?;
         if cursor > sequence {

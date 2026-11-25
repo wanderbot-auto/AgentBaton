@@ -45,7 +45,7 @@ describe('Task code workspace component / mocked fixed daemon transport only', (
   it('resolves exact task/project/local CAS only on expansion and preserves opaque source identity', async () => {
     const user = userEvent.setup(), f = fixture(); setup(f); render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user);
     expect(api.workspacesResolve).toHaveBeenCalledExactlyOnceWith({ task_id: f.task.id, expected_task_revision: 1, expected_project_revision: 3, host_id: 'local' });
-    expect(screen.getByText('/source')).toBeVisible(); expect(screen.getByText(/uncommitted changes/)).toBeVisible(); expect(prepare()).toBeEnabled(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled();
+    expect(screen.getByText('/source')).not.toBeVisible();await user.click(screen.getByText('Source repository',{selector:'summary'}));expect(screen.getByText('/source')).toBeVisible(); expect(screen.getByText(/uncommitted changes/)).toBeVisible(); expect(prepare()).toBeEnabled(); expect(api.workspacesPrepareTaskGit).not.toHaveBeenCalled();
   });
   it('prepares only after explicit action with full original source pin, stable key and task/spec/project CAS', async () => {
     const user = userEvent.setup(), f = fixture(); setup(f);
@@ -53,12 +53,12 @@ describe('Task code workspace component / mocked fixed daemon transport only', (
     render(<TaskCodeWorkspace task={f.task} language="en" connected />); await expand(user); await user.click(prepare());
     await waitFor(() => expect(screen.getByText('Ready binding recorded')).toBeVisible());
     expect(api.workspacesPrepareTaskGit).toHaveBeenCalledExactlyOnceWith({ task_id: f.task.id, expected_task_revision: 1, expected_spec_revision: 2, expected_project_revision: 3, host_id: 'local', expected_source_pin: f.pin, preparation_key: f.preparation.preparation_key }, expect.any(String));
-    expect(screen.getByText('Filesystem identity revalidated')).toBeVisible(); expect(screen.getByText(/not execution authorization/)).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Prepare isolated Git workspace for this task' })).not.toBeInTheDocument();
     await user.click(screen.getByText('Binding and receipt details', { selector: 'summary' }));
+    expect(screen.getByText('Filesystem identity revalidated')).toBeVisible(); expect(screen.getByText(/not execution authorization/)).toBeVisible();
     expect(screen.getByText('Managed workspace', { selector: 'dt' }).nextElementSibling).toHaveTextContent('/managed/' + f.view('x').binding.receipt.workspace_id);
     expect(screen.getByText('Observed workspace root', { selector: 'dt' }).nextElementSibling).toHaveTextContent('/managed/' + f.view('x').binding.receipt.workspace_id);
-    expect(screen.getByText('Original Task revision')).toBeVisible(); expect(screen.getByText('Current Task revision')).toBeVisible();
+    expect(screen.getByText('Original Task revision')).toBeVisible();await user.click(screen.getByText('Source repository',{selector:'summary'}));expect(screen.getByText('Current Task revision')).toBeVisible();
   });
   it('retains lost request across remount and requires a successful explicit task read before exact same-key replay', async () => {
     const user = userEvent.setup(), f = fixture(); setup(f); vi.mocked(api.workspacesPrepareTaskGit).mockRejectedValue(new Error('reply lost'));

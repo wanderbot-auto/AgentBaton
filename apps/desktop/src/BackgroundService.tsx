@@ -16,5 +16,31 @@ export function BackgroundService({language,connected,uiState=sharedUiState}:{la
  useEffect(()=>{mounted.current=true;void refresh();return()=>{mounted.current=false;epoch.current++;};},[]);
  useEffect(()=>{setAck(false);},[connected]);
  async function hide(){if(!valid||!ack||reading.current||uiState.hide!=='idle'||!observation)return;const stamp=epoch.current,instance=observation.status.instance_id;reading.current=true;setBusy(true);setAck(false);let dispatched=false;try{const live=await backgroundServiceApi.status();if(!accept(live,stamp)||live.instance_id!==instance)return;if(!mounted.current||stamp!==epoch.current||!connection.current)return;uiState.hide='pending';dispatched=true;await backgroundServiceApi.hide(live);uiState.hide='idle';if(mounted.current&&stamp===epoch.current)setHidden(true);}catch(error){if(dispatched)uiState.hide=error instanceof DaemonError&&error.code!=='OUTCOME_UNKNOWN'&&['none','not_started'].includes(error.sideEffectState)?'idle':'unknown';if(mounted.current&&stamp===epoch.current){setFailed(true);if(!dispatched)setObservation(null);}}finally{reading.current=false;if(mounted.current)setBusy(false);}}
- return <section aria-label={t.title}><h3>{t.title}</h3><p>{t.limits}</p>{valid&&observation?<><dl><dt>{t.instance}</dt><dd>{observation.status.instance_id}</dd><dt>{t.started}</dt><dd>{observation.status.started_at}</dd><dt>{t.observed}</dt><dd>{observation.at}</dd><dt>{t.workers}</dt><dd>{observation.status.owned_provider_workers?t.yes:t.no}</dd></dl><p>{t[observation.relation]}</p><p>{t.workerHelp}</p><p>{t.recovery}</p></>:<p role="status">{t.unknown}</p>}{storageFailed&&<p>{t.storage}</p>}<button disabled={!connected||busy} onClick={()=>void refresh()}>{busy?t.busy:t.refresh}</button><label><input type="checkbox" checked={ack} disabled={!valid||busy||uiState.hide!=='idle'} onChange={event=>setAck(event.target.checked)}/>{t.review}</label><button disabled={!valid||!ack||busy||uiState.hide!=='idle'} onClick={()=>void hide()}>{t.hide}</button>{hidden&&<p role="status">{t.hidden}</p>}{uiState.hide==='unknown'&&<p role="alert">{t.hideUnknown}</p>}</section>;
+ const copy = language === 'zh'
+   ? { evidence: '后台连接证据', hide: '保留后台并隐藏窗口', online: '后台已连接' }
+   : { evidence: 'Background connection evidence', hide: 'Keep background service and hide window', online: 'Background connected' };
+ return <section aria-label={t.title}>
+   <h3>{t.title}</h3>
+   <p role="status">{valid && observation ? observation.relation === 'changed' ? t.changed : copy.online : t.unknown}</p>
+   {valid && observation?.relation === 'changed' && <p>{t.recovery}</p>}
+   {storageFailed && <p>{t.storage}</p>}
+   <button disabled={!connected || busy} onClick={() => void refresh()}>{busy ? t.busy : t.refresh}</button>
+   <details className="secondary-section"><summary>{copy.hide}</summary>
+     <p>{t.limits}</p>
+     <label><input type="checkbox" checked={ack} disabled={!valid || busy || uiState.hide !== 'idle'} onChange={event => setAck(event.target.checked)} />{t.review}</label>
+     <button disabled={!valid || !ack || busy || uiState.hide !== 'idle'} onClick={() => void hide()}>{t.hide}</button>
+   </details>
+   {hidden && <p role="status">{t.hidden}</p>}
+   {uiState.hide === 'unknown' && <p role="alert">{t.hideUnknown}</p>}
+   {valid && observation && <details className="secondary-section"><summary>{copy.evidence}</summary>
+     <dl>
+       <dt>{t.instance}</dt><dd><code>{observation.status.instance_id}</code></dd>
+       <dt>{t.started}</dt><dd>{observation.status.started_at}</dd>
+       <dt>{t.observed}</dt><dd>{observation.at}</dd>
+       <dt>{t.workers}</dt><dd>{observation.status.owned_provider_workers ? t.yes : t.no}</dd>
+     </dl>
+     {observation.relation !== 'changed' && <p>{t[observation.relation]}</p>}
+     <p>{t.workerHelp}</p>
+   </details>}
+ </section>;
 }

@@ -14,8 +14,9 @@ function ready(){const f=goalExecutionFixture();vi.mocked(goalApi.scopesList).mo
 function noWrites(){for(const method of [goalApi.approve,goalApi.revoke,goalApi.propose,goalApi.revise,goalExecutionApi.approve,goalExecutionApi.cancel,goalExecutionApi.advancePlan,goalGraphApi.approve,goalGraphApi.cancel,goalGraphApi.advancePlan,goalGraphApi.approveNode,goalGraphApi.rejectNode])expect(method).not.toHaveBeenCalled();expect(goalApi.preview).not.toHaveBeenCalled();}
 it('reopens plan without losing unsaved text or triggering execution',async()=>{
  const f=ready(),user=userEvent.setup();const view=render(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'first'}}/>);
- const input=await screen.findByLabelText('Plan proposal JSON');await waitFor(()=>expect(input).toBeVisible());expect(screen.getByTestId('goal-plan-proposal')).toHaveAttribute('open');expect(screen.getByTestId('goal-execution').querySelector('details')).not.toHaveAttribute('open');
- fireEvent.change(input,{target:{value:'unsubmitted exact draft'}});const criteria=screen.getByLabelText('Owner acceptance criteria');fireEvent.change(criteria,{target:{value:'unsaved acceptance text'}});
+ const input=await screen.findByLabelText('Plan proposal JSON');
+ expect(input).not.toBeVisible();await user.click(screen.getByText('Plan proposal JSON',{selector:'summary'}));await waitFor(()=>expect(input).toBeVisible());expect(screen.getByTestId('goal-plan-proposal')).toHaveAttribute('open');expect(screen.getByTestId('goal-execution').querySelector('details')).not.toHaveAttribute('open');
+ fireEvent.change(input,{target:{value:'unsubmitted exact draft'}});await user.click(screen.getByTestId('goal-scope-setup').querySelector('summary')!);const criteria=screen.getByLabelText('Owner acceptance criteria');fireEvent.change(criteria,{target:{value:'unsaved acceptance text'}});
  await user.click(screen.getByText('Versioned plan proposal',{selector:'summary'}));await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));
  view.rerender(<GoalPlanning task={f.task} language="en" connected navigation={{target:'plan',requestId:'second'}}/>);
  await waitFor(()=>expect(input).toBeVisible());expect(input).toHaveValue('unsubmitted exact draft');expect(criteria).toHaveValue('unsaved acceptance text');expect(goalExecutionApi.list).not.toHaveBeenCalled();noWrites();
@@ -28,3 +29,22 @@ it('reopens real execution history without approving or starting a run',async()=
 it('preserves lazy collapsed defaults',()=>{const f=ready();render(<GoalPlanning task={f.task} language="en" connected/>);expect(screen.getByTestId('goal-planning').querySelector('details')).not.toHaveAttribute('open');expect(goalApi.grantsList).not.toHaveBeenCalled();expect(goalApi.scopesList).not.toHaveBeenCalled();noWrites();});
 it('personal navigation explains prerequisites without authority reads',()=>{const f=ready();render(<GoalPlanning task={{...f.task,project_id:'local'}} language="en" connected navigation={{target:'execution',requestId:'personal'}}/>);expect(screen.getByText(/this personal task has no project execution scope/)).toBeVisible();expect(goalApi.grantsList).not.toHaveBeenCalled();expect(goalApi.scopesList).not.toHaveBeenCalled();noWrites();});
 it('disconnected navigation does not read or mutate',async()=>{const f=ready();render(<GoalPlanning task={f.task} language="en" connected={false} navigation={{target:'plan',requestId:'offline'}}/>);await waitFor(()=>expect(screen.getByRole('alert')).toBeVisible());expect(goalApi.grantsList).not.toHaveBeenCalled();expect(goalApi.scopesList).not.toHaveBeenCalled();noWrites();});
+it('opens the run named by the review action inside its exact scope', async () => {
+ const f = ready();
+ const targetScope = {...f.scope, id: 'second-scope'};
+ const targetPlan = {...f.plan, scope_id: targetScope.id};
+ const otherRun = {...f.run, id: 'different-run', scope_id: targetScope.id};
+ const targetRun = {...otherRun, id: 'exact-review-run'};
+ vi.mocked(goalApi.scopesList).mockResolvedValue([f.scope, targetScope]);
+ vi.mocked(goalApi.plansList).mockImplementation(async id => [id === targetScope.id ? targetPlan : f.plan]);
+ vi.mocked(goalExecutionApi.list).mockResolvedValue([f.run, otherRun, targetRun]);
+ vi.mocked(goalExecutionApi.get).mockResolvedValue({...f.view, run: targetRun});
+ render(<GoalPlanning task={f.task} language="en" connected navigation={{
+   target:'execution', requestId:'review', goalRun:{scopeId:targetScope.id, runId:targetRun.id, graph:false},
+ }}/>);
+ await waitFor(() => expect(goalExecutionApi.get).toHaveBeenCalledWith(targetRun.id));
+ expect(goalApi.plansList).not.toHaveBeenCalledWith(f.scope.id);
+ expect(goalExecutionApi.get).not.toHaveBeenCalledWith(otherRun.id);
+ expect(goalExecutionApi.get).not.toHaveBeenCalledWith(f.run.id);
+ noWrites();
+});

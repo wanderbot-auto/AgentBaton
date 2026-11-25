@@ -51,6 +51,9 @@ function open(title: string = en.title) {
   const disclosure = screen.getByText(title, { selector: 'summary' }).closest('details')!;
   disclosure.open = true;
   fireEvent(disclosure, new Event('toggle'));
+  const add = screen.getByText(title === en.title ? 'Add Host' : '添加主机', { selector: 'summary' });
+  expect(add.parentElement).not.toHaveAttribute('open');
+  fireEvent.click(add);
 }
 
 function fill() {
@@ -103,7 +106,10 @@ it('loads once when expanded, supports keyboard submit and displays a receipt be
   expect(api.register.mock.calls[0][0]).toEqual({ ...metadata, directory_mappings: [{ id: 'source', remote_root: '/remote/source' }] });
   expect(api.acknowledge).not.toHaveBeenCalled();
   expect(submit).toBeDisabled();
-  expect(within(screen.getByRole('region', { name: en.registered })).getByText(id)).toBeVisible();
+  const registered = within(screen.getByRole('region', { name: en.registered }));
+  expect(registered.getByText(id)).not.toBeVisible();
+  await user.click(registered.getByText(en.details, { selector: 'summary' }));
+  expect(registered.getByText(id)).toBeVisible();
   await user.click(ack);
   expect(await screen.findByText(en.acknowledged)).toBeVisible();
   expect(api.acknowledge).toHaveBeenCalledWith(entry, expect.objectContaining({ created_sequence: 8, host_id: id }));

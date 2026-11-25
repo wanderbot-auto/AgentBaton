@@ -6,7 +6,7 @@ import { goalExecutionMessages } from './goal-execution-i18n';
 import type { Language } from './i18n';
 import './goal-execution.css';
 
-type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;panel?:(expanded:boolean)=>ReactNode;footer?:(expanded:boolean)=>ReactNode;title?:string;onPendingChange?:(blocked:boolean)=>void;openRequest?:string};
+type Props={task:Task;scope:GoalScope;latest:GoalPlan|null;language:Language;connected:boolean;approvalAllowed:boolean;panel?:(expanded:boolean)=>ReactNode;footer?:(expanded:boolean)=>ReactNode;title?:string;onPendingChange?:(blocked:boolean)=>void;openRequest?:string;requestedRun?:string};
 type Floors=[string,GoalRunFloor][];
 type Pending={kind:'approve'|'cancel'|'advance';key:string;scopeId:string;rootGrantId:string;runId?:string;revision?:number;selection?:GoalRunSelection;advance?:GoalPlanAdvance;planDigest?:string;receipt?:{id:string;revision:number};floors:Floors;ledger?:number;uncertain:boolean;reconciled:boolean};
 // UI-process recovery only. This is neither a durable outbox nor a background writer.
@@ -23,11 +23,12 @@ export function GoalExecution(props:Props){
   useEffect(()=>{if(props.openRequest){setStarted(true);setExpanded(true);}},[props.openRequest]);
   return <section className="goal-execution" data-testid="goal-execution" data-execution-mode={props.panel?'graph':'legacy'}><details open={expanded} onToggle={event=>{const open=event.currentTarget.open;setExpanded(open);if(open)setStarted(true);}}><summary><h3>{props.title??goalExecutionMessages[props.language].title}</h3></summary>{started&&(props.panel?props.panel(expanded):<ExecutionPanel key={`${props.task.id}:${props.scope.id}`} {...props} expanded={expanded}/>)}{started&&props.footer?.(expanded)}</details></section>;
 }
-function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,expanded,onPendingChange}:Props&{expanded:boolean}){
+function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,expanded,onPendingChange,openRequest,requestedRun}:Props&{expanded:boolean}){
   const t=goalExecutionMessages[language],saved=intents.get(task.id);
   const [runs,setRuns]=useState<GoalRun[]>([]),[view,setView]=useState<GoalRunView|null>(null),[pending,setPending]=useState<Pending|null>(saved??null);
   const [fresh,setFresh]=useState(false),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[paused,setPaused]=useState(false),[readVersion,setReadVersion]=useState(0);
   const mounted=useRef(true),sequence=useRef(0),writing=useRef(false),observed=useRef(new Map<string,GoalRunFloor>(saved?.floors??[])),selected=useRef(''),reads=useRef(0),ledger=useRef(saved?.ledger??0);
+  const directRead=useRef<{request?:string; run?:string}>({});
   const context=useRef({task,scope,latest,approvalAllowed});context.current={task,scope,latest,approvalAllowed};
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;++sequence.current;};},[]);
   useEffect(()=>{onPendingChange?.(busy||!!pending);return()=>onPendingChange?.(false);},[busy,pending,onPendingChange]);
@@ -53,7 +54,9 @@ function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,ex
         if(!target||target.revision<op.revision!)throw new Error(t.scope);
       }
       if(op?.receipt&&!scoped.some(row=>row.id===op.receipt!.id&&row.revision>=op.receipt!.revision))throw new Error(t.scope);
-      const inspectId=op?.receipt?.id??(op&&(op.kind==='cancel'||op.kind==='advance')?op.runId:undefined)??(scoped.some(row=>row.id===selected.current)?selected.current:scoped[0]?.id);
+      const wanted = !op && openRequest && directRead.current.request !== openRequest ? requestedRun : undefined;
+      if (wanted && !scoped.some(row => row.id === wanted)) throw new Error(t.scope);
+      const inspectId=op?.receipt?.id??(op&&(op.kind==='cancel'||op.kind==='advance')?op.runId:undefined)??wanted??(scoped.some(row=>row.id===selected.current)?selected.current:scoped[0]?.id);
       let detail:GoalRunView|null=null;
       if(inspectId){
         detail=await api.get(inspectId);
@@ -67,6 +70,7 @@ function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,ex
       for(const row of currentRows)observed.current.set(row.id,goalRunFloor(row));
       const supported=!detail||goalRunViewSupported(detail);
       if(detail)ledger.current=detail.ledger_revision;
+      if (wanted) directRead.current={request:openRequest,run:wanted};
       selected.current=inspectId??'';setRuns(currentRows);setView(detail);setFresh(true);
       if(op){
         const receipt=op.receipt;
@@ -77,8 +81,8 @@ function ExecutionPanel({task,scope,latest,language,connected,approvalAllowed,ex
       }else setPending(null);
     }catch(failure){if(mounted.current&&current===sequence.current){setFresh(false);setError(failure instanceof Error?failure.message:t.error);}}
     finally{if(mounted.current&&current===sequence.current){setLoading(false);setReadVersion(value=>value+1);}}
-  },[connected,task.id,scope.id,t.scope,t.error,t.disconnected,t.foreignPending]);
-  useEffect(()=>{void refresh();},[refresh]);
+  },[connected,task.id,scope.id,t.scope,t.error,t.disconnected,t.foreignPending,openRequest,requestedRun]);
+  useEffect(()=>{void refresh();},[refresh, openRequest, requestedRun]);
   const active=runs.some(goalRunPolling);
   useEffect(()=>{
     if(!expanded||!connected||!fresh||loading||busy||pending||!active)return;

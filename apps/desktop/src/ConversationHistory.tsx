@@ -6,6 +6,7 @@ import { conversationHistoryApi,type ConversationHistoryCursor,type Conversation
 import { earlierEventWindow,type WindowReplacement } from './event-window';
 import { conversationHistoryMessages } from './conversation-history-i18n';
 import type { Language } from './i18n';
+import { groupTranscript } from './task-thread-history';
 
 type Props={conversation:Pick<Conversation,'id'|'attempt_id'|'project_id'|'revision'>;language:Language;connected:boolean;disabled:boolean;onSummary:(text:string,projectId:string)=>void};
 type SelectedExcerpt={id:string;sequence:number;text:string;raw:string;kind:string};
@@ -18,6 +19,9 @@ export function mergeConversationHistoryPage(page:JournalEvent[],current:Journal
 export function ConversationHistory(props:Props){return <ConversationHistoryPanel key={`${props.conversation.id}:${props.conversation.attempt_id}:${props.conversation.project_id}`} {...props}/>;}
 function ConversationHistoryPanel({conversation,language,connected,disabled,onSummary}:Props){
  const t=conversationHistoryMessages[language];
+ const zh = language === 'zh';
+ const [selecting,setSelecting] = useState(false);
+ const time = new Intl.DateTimeFormat(language, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
  const [page,setPage]=useState<ConversationHistoryPage|null>(null),[events,setEvents]=useState<JournalEvent[]>([]),[loading,setLoading]=useState(false),[error,setError]=useState(false),[replacement,setReplacement]=useState<WindowReplacement>(null);
  const [selected,setSelected]=useState(new Map<string,SelectedExcerpt>()),[selectionError,setSelectionError]=useState(false);
  const selectedRef=useRef(selected);selectedRef.current=selected;
@@ -41,13 +45,42 @@ function ConversationHistoryPanel({conversation,language,connected,disabled,onSu
   const next=new Map(selected);if(checked)next.set(event.event_id,{id:event.event_id,sequence:event.sequence,raw:conversationEventText(event)!,kind:event.kind,text:`${event.kind==='conversation.message_queued'?t.user:t.agent}: ${conversationEventText(event)}`});else next.delete(event.event_id);
   const joined=[...next.values()].sort((a,b)=>a.sequence-b.sequence).map(e=>e.text).join('\n\n');if(next.size>500||joined.length>8192||utf8(joined)>8192){setSelectionError(true);return;}setSelected(next);setSelectionError(false);
  }
- return <section aria-label={t.title} aria-busy={loading}><h3>{t.title}</h3><p>{t.partial}</p><p>{t.source}: {conversation.id}</p>
-  <button type="button" disabled={!connected||loading} onClick={()=>void read(null)}>{t.latest}</button>
-  {page?.next_cursor&&<button type="button" disabled={!connected||loading} onClick={()=>void read(page.next_cursor)}>{page.scan_limited||page.byte_limited?t.next:t.older}</button>}
-  {!connected&&<p>{t.disconnected}</p>}{loading&&<p role="status">{t.loading}</p>}{error&&<div role="alert"><p>{t.error}</p><button type="button" disabled={!connected||loading} onClick={()=>void read(failedCursor.current)}>{t.retry}</button></div>}
-  {page&&conversation.revision>page.snapshot_revision&&<p role="status">{t.updated}</p>}{replacement&&<p role="status">{t.replaced}</p>}{page?.coverage==='gap'&&<p role="status">{t.gap}</p>}{page?.coverage==='complete'&&<p>{t.end}</p>}{page?.has_more&&<p>{t.more}</p>}{(page?.scan_limited||page?.byte_limited)&&<p>{t.limited}</p>}
-  {page&&!excerpts.length&&<p>{t.empty}</p>}<ol>{excerpts.map(event=><li key={event.event_id}><label><input type="checkbox" checked={selected.has(event.event_id)} disabled={disabled} onChange={e=>choose(event,e.target.checked)}/>{event.kind==='conversation.message_queued'?t.user:t.agent}: {conversationEventText(event)}</label><small>#{event.sequence} · {event.occurred_at}</small></li>)}</ol>
-  <details open={selection.length>0}><summary>{t.selected} ({selection.length})</summary>{!selection.length&&<p>{t.noneSelected}</p>}<ol>{selection.map(excerpt=><li key={excerpt.id}><p>{excerpt.text}</p><small>#{excerpt.sequence} · {conversation.id}</small><button type="button" disabled={disabled} aria-label={`${t.remove} #${excerpt.sequence}`} onClick={()=>{setSelected(old=>{const next=new Map(old);next.delete(excerpt.id);return next;});setSelectionError(false);}}>{t.remove}</button></li>)}</ol></details>
-  {selectionError&&<p role="alert">{t.selectionLimit}</p>}<button type="button" disabled={disabled||!selection.length} onClick={()=>onSummary(selectionText,conversation.project_id)}>{t.use}</button>
+ const groups = groupTranscript(excerpts, conversationEventText, 'conversation.message_queued');
+ return <section aria-label={t.title} aria-busy={loading}>
+  <div className="conversation-tools">
+    {page?.next_cursor && <button type="button" disabled={!connected||loading} onClick={() => void read(page.next_cursor)}>{page.scan_limited||page.byte_limited?t.next:t.older}</button>}
+    {(error || !!page && conversation.revision > page.snapshot_revision) && <button type="button" disabled={!connected||loading} onClick={() => void read(null)}>{t.latest}</button>}
+    {!!excerpts.length && <button type="button" aria-pressed={selecting} disabled={disabled} onClick={() => setSelecting(value => !value)}>{zh ? '选摘消息' : 'Select excerpts'}</button>}
+  </div>
+  {!connected && <p>{t.disconnected}</p>}{loading && <p role="status">{t.loading}</p>}
+  {error && <div role="alert"><p>{t.error}</p><button type="button" disabled={!connected||loading} onClick={() => void read(failedCursor.current)}>{t.retry}</button></div>}
+  {page && conversation.revision > page.snapshot_revision && <p role="status">{t.updated}</p>}
+  {replacement && <p role="status">{t.replaced}</p>}{page?.coverage==='gap' && <p role="status">{t.gap}</p>}
+  {page && !excerpts.length && <p>{t.empty}</p>}
+  <ol className="transcript">{groups.map(({first, parts, text, user}) => {
+    const date = new Date(first.occurred_at);
+    const role = user ? t.user : t.agent;
+    return <li key={first.event_id}>
+      <header><strong>{role}</strong>{!Number.isNaN(+date) && <time dateTime={first.occurred_at}>{time.format(date)}</time>}</header>
+      {selecting ? parts.map(event => <label key={event.event_id}><input type="checkbox" checked={selected.has(event.event_id)} disabled={disabled} onChange={e => choose(event,e.target.checked)}/>{role}: {conversationEventText(event)}</label>) : <p>{text}</p>}
+      <details><summary>{zh ? '消息详情' : 'Message details'}</summary>
+        {parts.map(event => <div key={event.event_id}><small>{event.occurred_at} · <code>{event.event_id}</code></small><pre>{conversationEventText(event)}</pre></div>)}
+      </details>
+    </li>;
+  })}</ol>
+  {selecting && <div className="conversation-tools">
+    {selection.length > 0 && <details open><summary>{t.selected} ({selection.length})</summary><ol>{selection.map(excerpt =>
+      <li key={excerpt.id}><p>{excerpt.text}</p><button type="button" disabled={disabled} aria-label={`${t.remove} #${excerpt.sequence}`} onClick={() => {
+        setSelected(old => {const next = new Map(old);next.delete(excerpt.id);return next;});setSelectionError(false);
+      }}>{t.remove}</button></li>)}</ol></details>}
+    {selectionError && <p role="alert">{t.selectionLimit}</p>}
+    <button type="button" disabled={disabled||!selection.length} onClick={() => onSummary(selectionText,conversation.project_id)}>{t.use}</button>
+  </div>}
+  <details><summary>{zh ? '历史信息' : 'History details'}</summary>
+    <p>{t.partial}</p><p>{t.source} · <code>{conversation.id}</code></p>
+    {page?.coverage === 'complete' && <p>{t.end}</p>}
+    {(page?.scan_limited||page?.byte_limited) && <p>{t.limited}</p>}
+    {!error && (!page || conversation.revision <= page.snapshot_revision) && <button type="button" disabled={!connected||loading} onClick={() => void read(null)}>{t.latest}</button>}
+  </details>
  </section>;
 }

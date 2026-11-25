@@ -1,3 +1,4 @@
+import { dataValidationMessages } from './data-validation-i18n';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -103,6 +104,6 @@ describe('Data contract UI with mocked native transport; no real Provider/native
     await waitFor(() => expect(dataValidationApi.approve).toHaveBeenCalledOnce()); const selection = vi.mocked(dataValidationApi.approve).mock.calls[0][0]; expect(selection.table.dataset_rows).toBe(100); expect(selection.table.analysis.scope).toEqual({ kind: 'sample', rows: 2, limitation: 'Selected subset only' }); expect(selection.table.columns[1]).toEqual({ name: 'label', required: true, nullable: true, scalar: { type: 'string', max_bytes: 32 } }); expect(dataValidationApi.run).not.toHaveBeenCalled();
   });
   it('disables all mutations while disconnected and localizes the default-folded warnings', async () => {
-    const user = userEvent.setup(), f = fixture(); render(<DataContractValidation task={f.task} sessions={[f.session]} language="zh" connected={false} />); await user.click(screen.getByRole('heading', { name: '数据合同验证' })); expect(screen.getByRole('button', { name: '在原生对话框中审阅数据合同' })).toBeDisabled(); expect(screen.getByText(/不运行脚本、分析引擎或 Provider/)).toBeVisible(); expect(dataValidationApi.approve).not.toHaveBeenCalled(); expect(dataValidationApi.run).not.toHaveBeenCalled(); expect(dataValidationApi.policiesList).not.toHaveBeenCalled();
+    const user = userEvent.setup(), f = fixture(); render(<DataContractValidation task={f.task} sessions={[f.session]} language="zh" connected={false} />); await user.click(screen.getByRole('heading', { name: '数据合同验证' })); fireEvent.click(screen.getByText(dataValidationMessages.zh.form, { selector: 'summary' })); expect(screen.getByRole('button', { name: '在原生对话框中审阅数据合同' })).toBeDisabled(); expect(screen.getByText(/不运行脚本、分析引擎或 Provider/)).toBeVisible(); expect(dataValidationApi.approve).not.toHaveBeenCalled(); expect(dataValidationApi.run).not.toHaveBeenCalled(); expect(dataValidationApi.policiesList).not.toHaveBeenCalled();
   });
 });

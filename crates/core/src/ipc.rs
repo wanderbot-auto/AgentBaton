@@ -261,6 +261,15 @@ struct Events {
     #[serde(default = "default_limit")]
     limit: u32,
 }
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct TaskHistory {
+    task_id: String,
+    before: Option<u64>,
+    after: Option<u64>,
+    #[serde(default = "default_limit")]
+    limit: u32,
+}
 fn default_limit() -> u32 {
     100
 }
@@ -1786,6 +1795,10 @@ impl Daemon {
                 self.data_workers.cancel_task(&task.id);
                 Ok(json!(task))
             }
+            "tasks.history" => {
+                let p: TaskHistory = params(r.params)?;
+                self.store.task_history(&p.task_id, p.before, p.after, p.limit)
+            }
             "events.subscribe" => {
                 let p: Events = params(r.params)?;
                 self.store.events(p.cursor, p.limit)
@@ -2049,6 +2062,7 @@ fn is_read_only_method(method: Option<&str>) -> bool {
                 | "data_workspaces.get"
                 | "data_workspaces.list"
                 | "events.subscribe"
+                | "tasks.history"
                 | "factory_child_goals.get"
                 | "factory_child_goals.list"
                 | "factory_child_plans.context"

@@ -19,8 +19,19 @@ function fixture() {
   return { task, session, policy, record };
 }
 beforeEach(() => { vi.resetAllMocks(); vi.mocked(validationApi.policiesList).mockResolvedValue([]); vi.mocked(validationApi.recordsList).mockResolvedValue([]); });
-async function openForm(user: ReturnType<typeof userEvent.setup>) { await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh integrity records' })).toBeEnabled()); await user.click(screen.getByText('Review a file-check policy', { selector: 'summary' })); }
-async function openPolicy(user: ReturnType<typeof userEvent.setup>) { await user.click(await screen.findByText(/Approved for file integrity only/, { selector: 'summary' })); }
+async function openPolicies(user: ReturnType<typeof userEvent.setup>, language = 'en') {
+  const entry = screen.getByText(language === 'zh' ? '文件检查策略与历史' : 'File-check policies and history', { selector: 'summary' });
+  if (!entry.closest('details')?.open) await user.click(entry);
+}
+async function openForm(user: ReturnType<typeof userEvent.setup>) {
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh integrity records' })).toBeEnabled());
+  await openPolicies(user);
+  await user.click(screen.getByText('Review a file-check policy', { selector: 'summary' }));
+}
+async function openPolicy(user: ReturnType<typeof userEvent.setup>) {
+  await openPolicies(user);
+  await user.click(await screen.findByText(/Approved for file integrity only/, { selector: 'summary' }));
+}
 describe('Artifact integrity UI using mocked Tauri-facing transport (not native/real IPC evidence)', () => {
   it('approves only selected contracts, then separately runs and renders real returned evidence without task acceptance', async () => {
     const user = userEvent.setup(), f = fixture(); vi.mocked(validationApi.policiesApprove).mockResolvedValue(f.policy); vi.mocked(validationApi.run).mockResolvedValue(f.record);
@@ -28,7 +39,8 @@ describe('Artifact integrity UI using mocked Tauri-facing transport (not native/
     await waitFor(() => expect(validationApi.policiesApprove).toHaveBeenCalledWith({ session_id: f.session.id, inputs: [], outputs: [{ artifact_id: 'output-1', relative_path: 'report.txt', max_bytes: 8_388_608, expected_sha256: null }], analysis: null }, expect.any(String)));
     expect(validationApi.run).not.toHaveBeenCalled(); await openPolicy(user); await user.click(screen.getByRole('button', { name: 'Check selected files' }));
     await waitFor(() => expect(validationApi.run).toHaveBeenCalledWith(f.policy.id, 1, expect.any(String)));
-    await user.click(await screen.findByText(/File integrity passed/, { selector: 'summary' }));
+    expect(await screen.findByText('File integrity passed')).toBeVisible();
+    await user.click(screen.getByText('Evidence details', { selector: 'summary' }));
     expect(screen.getByText('Code correctness: not established')).toBeVisible(); expect(screen.getByText('Task acceptance and integration: not established')).toBeVisible();
     expect(screen.getByRole('table', { name: 'Outputs' })).toHaveTextContent('report.txt'); expect(screen.getByText('a'.repeat(64))).toBeVisible(); expect(screen.getByText('42')).toBeVisible(); expect(screen.getByText('e'.repeat(64))).toBeVisible();
     expect(f.task.state).toEqual('failed'); expect(screen.queryByText(/^Task accepted$/)).not.toBeInTheDocument();
@@ -75,14 +87,17 @@ describe('Artifact integrity UI using mocked Tauri-facing transport (not native/
   it('renders failed server evidence and malicious path text without interpreting markup or opening files', async () => {
     const user = userEvent.setup(), f = fixture(), path = '<img src=x onerror=alert(1)>';
     vi.mocked(validationApi.recordsList).mockResolvedValue([{ ...f.record, state: 'failed', evidence: { ...f.record.evidence, passed: false, outputs: [{ ...f.record.evidence.outputs[0], relative_path: path, state: 'missing', observed_sha256: null, size: null }] } }]);
-    render(<ArtifactValidation task={f.task} sessions={[f.session]} language="en" connected />); await user.click(await screen.findByText(/File integrity check failed/, { selector: 'summary' })); expect(screen.getByText(path)).toBeVisible(); expect(screen.getByText('Missing')).toBeVisible(); expect(document.querySelector('img, script, a[href]')).toBeNull(); expect(validationApi.run).not.toHaveBeenCalled();
+    render(<ArtifactValidation task={f.task} sessions={[f.session]} language="en" connected />); expect(await screen.findByText('File integrity check failed')).toBeVisible();
+    expect(screen.getAllByText(path).some(el => !el.closest('details'))).toBe(true);
+    await user.click(screen.getByText('Evidence details', { selector: 'summary' }));
+    expect(screen.getByRole('table', { name: 'Outputs' })).toHaveTextContent('Missing'); expect(document.querySelector('img, script, a[href]')).toBeNull(); expect(validationApi.run).not.toHaveBeenCalled();
   });
   it('revokes future checks with the exact revision while preserving existing receipts', async () => {
     const user = userEvent.setup(), f = fixture(); vi.mocked(validationApi.policiesList).mockResolvedValue([f.policy]); vi.mocked(validationApi.recordsList).mockResolvedValue([f.record]); vi.mocked(validationApi.revoke).mockResolvedValue({ ...f.policy, revision: 2, revoked: true });
-    render(<ArtifactValidation task={f.task} sessions={[f.session]} language="en" connected />); await openPolicy(user); await user.click(screen.getByRole('button', { name: 'Revoke future checks' })); await waitFor(() => expect(validationApi.revoke).toHaveBeenCalledWith(f.policy.id, 1)); expect(screen.getByRole('button', { name: 'Check selected files' })).toBeDisabled(); expect(screen.getByText(/File integrity passed/, { selector: 'summary' })).toBeVisible();
+    render(<ArtifactValidation task={f.task} sessions={[f.session]} language="en" connected />); await openPolicy(user); await user.click(screen.getByRole('button', { name: 'Revoke future checks' })); await waitFor(() => expect(validationApi.revoke).toHaveBeenCalledWith(f.policy.id, 1)); expect(screen.getByRole('button', { name: 'Check selected files' })).toBeDisabled(); expect(screen.getByText('File integrity passed')).toBeVisible();
   });
   it('localizes warnings, refuses stale policy runs and never mutates while disconnected', async () => {
-    const user = userEvent.setup(), f = fixture(); vi.mocked(validationApi.policiesList).mockResolvedValue([f.policy]); const view = render(<ArtifactValidation task={{ ...f.task, spec_revision: 2 }} sessions={[f.session]} language="zh" connected />); await user.click(await screen.findByText(/仅批准文件完整性检查/, { selector: 'summary' })); expect(screen.getByText('文件完整性检查，不代表代码正确、任务验收或合入授权。')).toBeVisible(); expect(screen.getByRole('button', { name: '检查选定文件' })).toBeDisabled(); expect(screen.getByText('任务规格已变化，请重新审阅策略。')).toBeVisible();
+    const user = userEvent.setup(), f = fixture(); vi.mocked(validationApi.policiesList).mockResolvedValue([f.policy]); const view = render(<ArtifactValidation task={{ ...f.task, spec_revision: 2 }} sessions={[f.session]} language="zh" connected />); await openPolicies(user, 'zh'); await user.click(await screen.findByText(/仅批准文件完整性检查/, { selector: 'summary' })); expect(screen.getByText('文件完整性检查，不代表代码正确、任务验收或合入授权。')).toBeVisible(); expect(screen.getByRole('button', { name: '检查选定文件' })).toBeDisabled(); expect(screen.getByText('任务规格已变化，请重新审阅策略。')).toBeVisible();
     view.rerender(<ArtifactValidation task={f.task} sessions={[f.session]} language="zh" connected={false} />); await user.click(screen.getByText('审阅文件检查策略', { selector: 'summary' })); expect(screen.getByRole('button', { name: '在原生负责人对话框中审阅' })).toBeDisabled(); expect(validationApi.policiesApprove).not.toHaveBeenCalled(); expect(validationApi.run).not.toHaveBeenCalled();
   });
   it('shows lease/stop denial without treating a failed session label as confirmed stop evidence', async () => {
@@ -106,6 +121,8 @@ describe('Integrity history scope checks with mocked transport', () => {
   it('labels unknown record and artifact states without presenting them as passing or elevating authority', async () => {
     const user = userEvent.setup(), f = fixture(); vi.mocked(validationApi.recordsList).mockResolvedValue([{ ...f.record, state: 'future_record_state', evidence: { ...f.record.evidence, outputs: [{ ...f.record.evidence.outputs[0], state: 'future_artifact_state' }] } }]);
     render(<ArtifactValidation task={f.task} sessions={[f.session]} language="en" connected />);
-    await user.click(await screen.findByText(/Unknown recorded state: future_record_state/, { selector: 'summary' })); expect(screen.getByText('Unknown recorded state: future_artifact_state')).toBeVisible(); expect(screen.queryByText(/File integrity passed/, { selector: 'summary' })).toBeNull(); expect(screen.queryByText(/^Passed$/)).toBeNull(); expect(screen.getByText('Task acceptance and integration: not established')).toBeVisible(); expect(validationApi.run).not.toHaveBeenCalled();
+    expect(await screen.findAllByText('Unknown recorded state')).not.toHaveLength(0);
+    await user.click(screen.getByText('Evidence details', { selector: 'summary' }));
+    expect(screen.getByRole('table', { name: 'Outputs' })).toHaveTextContent('Unknown recorded state: future_artifact_state'); expect(screen.queryByText(/File integrity passed/, { selector: 'summary' })).toBeNull(); expect(screen.queryByText(/^Passed$/)).toBeNull(); expect(screen.getByText('Task acceptance and integration: not established')).toBeVisible(); expect(validationApi.run).not.toHaveBeenCalled();
   });
 });

@@ -2306,6 +2306,17 @@ async fn goal_plans_ready_preview(
 }
 
 #[tauri::command]
+async fn tasks_history(
+    runtime: tauri::State<'_, Runtime>,
+    task_id: String,
+    before: Option<u64>,
+    after: Option<u64>,
+    limit: u32,
+) -> Result<Value, String> {
+    call(&runtime, json!({"method":"tasks.history","params":{"task_id":task_id,"before":before,"after":after,"limit":limit}}), false).await
+}
+
+#[tauri::command]
 async fn events_subscribe(
     runtime: tauri::State<'_, Runtime>,
     cursor: u64,
@@ -2511,6 +2522,7 @@ pub fn dispatch_production(invoke: tauri::ipc::Invoke<tauri::Wry>) -> bool {
         tasks_create,
         tasks_cancel,
         events_subscribe,
+        tasks_history,
         projects_list,
         projects_import,
         projects_archive,

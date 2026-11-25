@@ -57,7 +57,7 @@ it('validates both text fields, then previews a rule with localized labels and e
   fireEvent.click(preview);
   expect(region.getByRole('heading', { name: '候选预览' })).toHaveFocus();
   expect(region.getByText('规则')).toBeVisible();
-  expect(region.getByText('项目甲 (project)')).toBeVisible();
+  expect(region.getByText('项目甲', {exact:true})).toBeVisible();
   expect(region.getByText(maxSummary)).toBeVisible();
   expect(region.getByText(maxContent)).toBeVisible();
 });

@@ -31,6 +31,8 @@ describe('Quiet optional background settings', () => {
     const panel = await open(); await within(panel).findByText(copy.en.disabled);
     expect(invoke).toHaveBeenCalledExactlyOnceWith('background_service_status');
     expect(within(panel).getByRole('button', { name: copy.en.enable })).toBeEnabled();
+    expect(within(panel).getByText(copy.en.boundary)).not.toBeVisible();
+    await userEvent.click(within(panel).getByText('Login startup scope', { selector: 'summary' }));
     expect(within(panel).getByText(copy.en.boundary)).toBeVisible();
     expect(within(panel).getByText(copy.en.observation)).toBeVisible();
     expect(screen.queryByText(/running|launchctl|per_user_launchagent|not_observed/i)).toBeNull();
@@ -129,6 +131,7 @@ describe('Quiet optional background settings', () => {
   });
   it('renders complete Chinese scope and next-login state without technical fields', async () => {
     render(<BackgroundServiceSettings language="zh" />); const panel = await open('zh'); await within(panel).findByText(copy.zh.disabled);
+    await userEvent.click(within(panel).getByText('登录启动的授权范围', { selector: 'summary' }));
     for (const text of [copy.zh.help, copy.zh.boundary, copy.zh.observation, copy.zh.confirmation]) expect(within(panel).getByText(text)).toBeVisible();
     expect(within(panel).getByRole('button', { name: copy.zh.enable })).toBeEnabled();
     expect(within(panel).queryByText(/api_version|not_observed|launchagent|side_effect_state/)).toBeNull();
