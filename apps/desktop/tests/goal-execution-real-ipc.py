@@ -631,8 +631,15 @@ def main():
                         page.get_by_role('button', name='Back to tasks', exact=True).click()
                     page.get_by_test_id('task-card').filter(has_text=scenario['task']['goal']).click()
                     page.locator('#tab-details').click()
-                    panel = page.get_by_test_id('goal-planning'); expand(panel.locator(':scope > details'))
-                    expect(panel.get_by_role('combobox', name='Selected Goal scope', exact=True)).to_have_value(scenario['scope']['id'])
+                    panel = page.get_by_test_id('goal-planning')
+                    read_start = len(report['requests'])
+                    expand(panel.locator(':scope > details'))
+                    wait(lambda: report['requests'][read_start:], lambda entries: any(
+                        row['method'] == 'goal_plans.list' and row['params'] == {'scope_id': scenario['scope']['id']}
+                        and not row['response'].get('error') for row in entries))
+                    scope_choices = panel.get_by_role('combobox', name='Selected Goal scope', exact=True)
+                    if scope_choices.count():
+                        expect(scope_choices).to_have_value(scenario['scope']['id'])
                     execution = panel.get_by_test_id('goal-execution'); expand(execution.locator(':scope > details'))
                     expect(execution.locator('[aria-busy]')).to_have_attribute('aria-busy', 'false')
                     return panel, execution
@@ -642,7 +649,10 @@ def main():
                     expect(execution.locator('[aria-busy]')).to_have_attribute('aria-busy', 'false')
 
                 def store_plan(panel, scenario, revision=1):
-                    detail = panel.locator('details').filter(has=page.get_by_text('Versioned plan proposal', exact=True)).last; expand(detail)
+                    detail = panel.get_by_test_id('goal-plan-proposal')
+                    expand(detail)
+                    raw_summary = detail.get_by_text('Plan proposal JSON', exact=True).and_(detail.locator('summary'))
+                    expand(raw_summary.locator('..'))
                     raw = '\n ' + json.dumps(plan(scenario, revision), indent=2) + '\n'
                     panel.get_by_role('textbox', name='Plan proposal JSON', exact=True).fill(raw)
                     panel.get_by_role('button', name='Store initial plan proposal' if revision == 1 else 'Store revised plan proposal', exact=True).click()

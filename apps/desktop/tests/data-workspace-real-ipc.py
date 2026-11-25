@@ -501,7 +501,9 @@ def main():
             assert time.monotonic() < end, safe(f'Fixture observation deadline exceeded: {value}')
             time.sleep(.02)
 
-    with tempfile.TemporaryDirectory(prefix='baton-data-browser-') as temporary:
+    # Darwin's sockaddr_un limit needs a short canonical root.
+    temp_parent = '/tmp' if sys.platform == 'darwin' else None
+    with tempfile.TemporaryDirectory(prefix='baton-data-browser-', dir=temp_parent) as temporary:
         root = Path(temporary).resolve()
         root.chmod(0o700)
         runtime, sources = root / 'runtime', root / 'sources'
@@ -874,20 +876,33 @@ def main():
                     expect(panel.locator('[aria-busy]')).to_have_attribute('aria-busy', 'false')
 
                 def detail(panel, record_id):
-                    current = panel.locator('details').filter(has=page.locator('summary').filter(has_text=re.compile(r' · ' + re.escape(record_id) + '$'))).last
+                    current = panel.locator(f'details[data-record-id={json.dumps(record_id)}]')
                     open_details(current)
                     return current
+
+                def evidence(record):
+                    full = record.locator(':scope > details').filter(
+                        has=page.get_by_text('Full evidence', exact=True))
+                    open_details(full)
+                    return full
+
+                def preview_form(panel):
+                    form = panel.locator('details:has(> form)').filter(
+                        has=page.get_by_text('Choose files to preview', exact=True))
+                    open_details(form)
+                    return form
 
                 def start_preview(panel, name, wrong_hash=False):
                     before = len(report['requests'])
                     lines = '\n'.join(path + ' | ' + ('0' * 64 if wrong_hash else value['sha256']) for path, value in original[name].items())
-                    panel.get_by_role('textbox', name='Relative files (one path per line; optional | SHA-256)', exact=True).fill(lines)
-                    limits = panel.locator('form details')
+                    form = preview_form(panel)
+                    form.get_by_role('textbox', name='Relative files (one path per line; optional | SHA-256)', exact=True).fill(lines)
+                    limits = form.locator('form details')
                     open_details(limits)
                     large = name in {'preview-cancel', 'copy-cancel'}
                     for label, value in [('Maximum bytes per file', 67_108_864 if large else 4096), ('Maximum total bytes', 67_108_864 if large else 8192), ('Maximum selected files', 4)]:
-                        panel.get_by_role('textbox', name=label, exact=True).fill(str(value))
-                    panel.get_by_role('button', name='Preview selected files', exact=True).click()
+                        form.get_by_role('textbox', name=label, exact=True).fill(str(value))
+                    form.get_by_role('button', name='Preview selected files', exact=True).click()
                     entry = wait(lambda: report['requests'][before:], lambda rows: any(row['method'] == 'data_workspace_previews.start' for row in rows))
                     request = next(row for row in entry if row['method'] == 'data_workspace_previews.start')
                     assert not request['response'].get('error'), request['response']
@@ -901,11 +916,13 @@ def main():
                     assert record['state'] == 'verified', record
                     refresh(panel)
                     current = detail(panel, record['id'])
+                    full = evidence(current)
                     for path, value in original[name].items():
-                        expect(current.get_by_text(value['sha256'], exact=True)).to_be_visible()
+                        expect(current.locator(':scope > ul').get_by_text(path, exact=True)).to_be_visible()
+                        expect(full.get_by_text(value['sha256'], exact=True)).to_be_visible()
                     assert record['snapshot']['total_bytes'] == sum(value['bytes'] for value in original[name].values())
                     assert {file['requirement']['relative_path'] for file in record['snapshot']['files']} == set(original[name])
-                    expect(current.get_by_text(record['snapshot']['dataset_revision'], exact=True)).to_be_visible()
+                    expect(full.get_by_text(record['snapshot']['dataset_revision'], exact=True)).to_be_visible()
                     return record, request
 
                 def browser_request(command, values):
@@ -915,8 +932,9 @@ def main():
                     page.goto(url)
                     panel = open_project('normal')
                     before = database()
-                    panel.get_by_role('textbox', name='Relative files (one path per line; optional | SHA-256)', exact=True).fill('../outside')
-                    panel.get_by_role('button', name='Preview selected files', exact=True).click()
+                    form = preview_form(panel)
+                    form.get_by_role('textbox', name='Relative files (one path per line; optional | SHA-256)', exact=True).fill('../outside')
+                    form.get_by_role('button', name='Preview selected files', exact=True).click()
                     expect(panel.get_by_role('alert')).to_contain_text('relative regular-file paths')
                     assert database() == before
                     preview, request = verified(panel, 'normal')
@@ -953,7 +971,7 @@ def main():
                     assert registered['root'] == ready['destination'] and registered['base_revision'] == ready['dataset_revision']
                     journal_commitments(ready, proposal)
                     refresh(panel); current = detail(panel, creation_id)
-                    expect(current.get_by_text(ready['contract']['contract_digest'], exact=True)).to_be_visible()
+                    expect(evidence(current).get_by_text(ready['contract']['contract_digest'], exact=True)).to_be_visible()
                     current.locator(':scope > summary').evaluate("element=>element.scrollIntoView({block:'start'})")
                     screenshot('02-real-ready-data-copy')
                     page.set_viewport_size({'width': 390, 'height': 844}); current.scroll_into_view_if_needed(); screenshot('03-real-ready-mobile')
@@ -1050,12 +1068,12 @@ def main():
                             expect(current.get_by_text('Copy completed before cancellation took effect. The ready copy is retained; this is not cancellation success.', exact=True)).to_be_visible()
                     elif terminal['state'] == 'cancelled':
                         expect(current.get_by_text('The owned copy worker joined after cancellation. Files may have been written and partial output is retained; stopping does not mean deletion, a ready workspace or accepted artifacts.', exact=True)).to_be_visible()
-                        expect(current.get_by_text('Owned copy worker joined; other filesystem state is not implied', exact=True)).to_be_visible()
-                        expect(panel.get_by_role('button', name='Preview selected files', exact=True)).to_be_enabled()
+                        expect(evidence(current).get_by_text('Owned copy worker joined; other filesystem state is not implied', exact=True)).to_be_visible()
+                        expect(preview_form(panel).get_by_role('button', name='Preview selected files', exact=True)).to_be_enabled()
                         expect(current.get_by_role('button', name='Request copy cancellation', exact=True)).to_have_count(0)
                     else:
                         expect(current.get_by_text('Partial or unknown output is retained. No automatic retry, new copy or deletion.', exact=True)).to_be_visible()
-                        expect(panel.get_by_role('button', name='Preview selected files', exact=True)).to_be_disabled()
+                        expect(preview_form(panel).get_by_role('button', name='Preview selected files', exact=True)).to_be_disabled()
                     # A failed-before-reservation operation may have no target;
                     # zero observed files never means an existing target is empty.
                     if retained_destination:
@@ -1105,7 +1123,10 @@ def main():
                     failed = wait(lambda: preview_record(failed['id']), lambda value: value['state'] not in {'checking', 'cancel_requested'})
                     assert failed['state'] == 'failed' and failed['error'] is not None
                     refresh(panel); current = detail(panel, failed['id'])
-                    expect(current.get_by_text(failed['error']['code'] + ': ' + failed['error']['message'], exact=True)).to_be_visible()
+                    expect(current.get_by_text(failed['error']['message'], exact=True)).to_be_visible()
+                    raw = evidence(current).locator('pre')
+                    expect(raw).to_be_visible()
+                    assert json.loads(raw.inner_text())['error'] == failed['error']
                     expect(current.get_by_role('button', name='Review this data copy in native dialog', exact=True)).to_be_disabled()
                     assert creation_records(projects['drift']) == []
                     preview, _ = verified(panel, 'drift')

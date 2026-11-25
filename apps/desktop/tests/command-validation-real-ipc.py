@@ -54,7 +54,9 @@ def main():
             assert time.monotonic() < end, f'Fixture observation timed out: {value}'
             time.sleep(.02)
 
-    with tempfile.TemporaryDirectory(prefix='baton-command-browser-') as temporary:
+    # A macOS user temp path can exceed the AF_UNIX socket limit after resolution.
+    temp_parent = '/tmp' if sys.platform == 'darwin' else None
+    with tempfile.TemporaryDirectory(prefix='baton-command-browser-', dir=temp_parent) as temporary:
         root = Path(temporary).resolve()
         root.chmod(0o700)
         runtime = root / 'runtime'
@@ -196,6 +198,10 @@ for line in sys.stdin:
                 page.goto(url)
                 page.get_by_test_id('task-card').filter(has_text=goal).click()
                 page.locator('#tab-artifacts').click()
+                advanced = page.locator('#panel-artifacts > details').filter(
+                    has=page.get_by_text('Advanced validation', exact=True))
+                assert not advanced.evaluate('(element)=>element.open')
+                advanced.locator(':scope > summary').click()
                 panel = page.get_by_test_id('command-validation')
                 assert not panel.locator(':scope > details').evaluate('(e)=>e.open')
                 panel.locator(':scope > details > summary').click()

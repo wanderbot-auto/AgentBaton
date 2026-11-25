@@ -1,0 +1,519 @@
+{
+  "status": "local_acceptance_passed_hosted_integration_pending",
+  "base_sha": "c87a3e83207f2a651d0cbd9da2e3e16608272ad4",
+  "product_sha": "576015d7ca99f51d53b3889cd888185a435f18b7",
+  "branch": "collab/frontend-simplification",
+  "environment": {
+    "os": "macOS 26.6.1 build 25G76",
+    "arch": "arm64",
+    "rust": "1.91.1",
+    "node": "26.7.0",
+    "npm": "11.19.0",
+    "playwright": "1.62.0",
+    "browser": "149.0.7827.55"
+  },
+  "audit": {
+    "entries": 41,
+    "priority_counts": {
+      "P1": 29,
+      "P2": 11,
+      "P3": 1
+    },
+    "checklist": "CHECKLIST.md",
+    "traversal": "artifacts/ui-simplification/screenshots/audit-checklist.json"
+  },
+  "paired_screenshots": {
+    "gallery": "artifacts/ui-simplification/screenshots/comparison.html",
+    "report": "artifacts/ui-simplification/screenshots/verification-both.json",
+    "before_count": 26,
+    "after_count": 30,
+    "snapshot_sha256": "52312e34077982aae565e4a0e440af6336c33dd9a2babe23e882499381454c64",
+    "schema_version": 19,
+    "sequence": 716,
+    "daemon_sha256": "5e54971e7f155e229103d8aa14b79ae5a6a5537bb57d8e93c0d1de6c7d55b906",
+    "frontends": {
+      "before": {
+        "assets/index-D46fDJgh.js": "0c81686353abc527ce4178b834d40e19f3aef35a5589d8eb29ef75747a5f010f",
+        "assets/index-DZHSe46f.css": "6b29e5c9d4583702ecb8b7592a83ce86b6569f7b77566376b8fa65bbd5d77169",
+        "index.html": "59d3114be6cd6fa261be237df2a9e4f0b781c355be765d945171ffa5c6820e51"
+      },
+      "after": {
+        "assets/index-BPVwgylv.css": "529cda1b9479867fd01e05370a7cb39abf85682a372c35c8eebf10cf70a746c4",
+        "assets/index-D7Ewq1a9.js": "66da6d3a2ab7645640d59d416cbbac10496882a6f4c68b8df519e42da85c7e8d",
+        "index.html": "394ca299a160d769508e6e6a904ca8e5b8b6ef5bcb6ed485e84b7e2a7eb3f759"
+      }
+    },
+    "task_history": {
+      "task": "refund",
+      "messages": 4,
+      "sequences": [
+        312,
+        315,
+        317,
+        318
+      ],
+      "global_window_after": 616
+    }
+  },
+  "build": {
+    "command": "bash scripts/collab.sh run -- npm --prefix apps/desktop run build",
+    "status": "passed",
+    "log": "artifacts/ui-simplification/build-delivery.log"
+  },
+  "vitest": {
+    "command": "bash scripts/collab.sh run -- npm --prefix apps/desktop test -- --maxWorkers=6",
+    "files_passed": 115,
+    "tests_passed": 1609,
+    "log": "artifacts/ui-simplification/vitest-delivery.log"
+  },
+  "rust": {
+    "command": "bash scripts/collab.sh run -- cargo test --locked -p agentbaton-core --test task_history",
+    "tests_passed": 1,
+    "log": "artifacts/ui-simplification/core-task-history-final.log"
+  },
+  "real_ipc_browser": {
+    "quiet_canvas": {
+      "passed": 38,
+      "report": "artifacts/ui-simplification/quiet-canvas-delivery/evidence.json",
+      "checks": [
+        {
+          "name": "empty state contains no demonstration task",
+          "status": "passed"
+        },
+        {
+          "name": "five actual UI drafts persisted through Unix IPC",
+          "status": "passed",
+          "task_ids": [
+            "fc23ab5a-03bd-4924-b6a2-61494af1a93a",
+            "5ea0d0af-f3ed-4da9-b78a-f8669cb46b7a",
+            "16ae1d2a-8219-4a7b-8fca-8623824d090c",
+            "de81ae2d-f9ea-4e53-b46a-9c8ba0e5be61",
+            "5e4c3bcd-e6a0-4be9-bdcf-2b72f5a8196e"
+          ]
+        },
+        {
+          "name": "reviewed quick-context summary converts to actual draft, standalone model send unavailable",
+          "status": "passed"
+        },
+        {
+          "name": "truthful recorded-state filtering",
+          "status": "passed"
+        },
+        {
+          "name": "real core rejects oversized UTF-8 goal without inserting a task",
+          "status": "passed"
+        },
+        {
+          "name": "home layout 1488x981",
+          "status": "passed",
+          "columns": 2,
+          "overflow": false,
+          "sidebar": 232,
+          "fonts": [
+            "18px",
+            "14px",
+            "24px"
+          ],
+          "weights": [
+            500,
+            400
+          ]
+        },
+        {
+          "name": "last card remains accessible above composer 1488x981",
+          "status": "passed"
+        },
+        {
+          "name": "actual read-only integrity lists and no fabricated validation 1488x981",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only data contract lists and no fabricated validation 1488x981",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only command lists and no fabricated execution 1488x981",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only empty Goal scope and disabled-or-absent writes 1488x981",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4",
+          "before_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "after_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "native_owner_dialog": "not_run",
+          "dispatch": "not_run"
+        },
+        {
+          "name": "home layout 1440x900",
+          "status": "passed",
+          "columns": 2,
+          "overflow": false,
+          "sidebar": 232,
+          "fonts": [
+            "18px",
+            "14px",
+            "24px"
+          ],
+          "weights": [
+            500,
+            400
+          ]
+        },
+        {
+          "name": "last card remains accessible above composer 1440x900",
+          "status": "passed"
+        },
+        {
+          "name": "actual read-only integrity lists and no fabricated validation 1440x900",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only data contract lists and no fabricated validation 1440x900",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only command lists and no fabricated execution 1440x900",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only empty Goal scope and disabled-or-absent writes 1440x900",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4",
+          "before_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "after_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "native_owner_dialog": "not_run",
+          "dispatch": "not_run"
+        },
+        {
+          "name": "collapsed rail controls retain accessible localized names",
+          "status": "passed"
+        },
+        {
+          "name": "home layout 1024x768",
+          "status": "passed",
+          "columns": 2,
+          "overflow": false,
+          "sidebar": 64,
+          "fonts": [
+            "18px",
+            "14px",
+            "24px"
+          ],
+          "weights": [
+            500,
+            400
+          ]
+        },
+        {
+          "name": "last card remains accessible above composer 1024x768",
+          "status": "passed"
+        },
+        {
+          "name": "actual read-only integrity lists and no fabricated validation 1024x768",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only data contract lists and no fabricated validation 1024x768",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only command lists and no fabricated execution 1024x768",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only empty Goal scope and disabled-or-absent writes 1024x768",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4",
+          "before_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "after_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "native_owner_dialog": "not_run",
+          "dispatch": "not_run"
+        },
+        {
+          "name": "mobile navigation exposes named controls and44px toggle target",
+          "status": "passed"
+        },
+        {
+          "name": "home layout 390x844",
+          "status": "passed",
+          "columns": 1,
+          "overflow": false,
+          "sidebar": 0,
+          "fonts": [
+            "18px",
+            "14px",
+            "24px"
+          ],
+          "weights": [
+            500,
+            400
+          ]
+        },
+        {
+          "name": "last card remains accessible above composer 390x844",
+          "status": "passed"
+        },
+        {
+          "name": "actual read-only integrity lists and no fabricated validation 390x844",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only data contract lists and no fabricated validation 390x844",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only command lists and no fabricated execution 390x844",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4"
+        },
+        {
+          "name": "actual read-only empty Goal scope and disabled-or-absent writes 390x844",
+          "status": "passed",
+          "task_id": "f14cfb6c-5a8a-490c-a23f-e39d7eae6de4",
+          "before_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "after_database": {
+            "scope_count": 0,
+            "plan_count": 0,
+            "attempt_count": 0,
+            "sequence": 7
+          },
+          "native_owner_dialog": "not_run",
+          "dispatch": "not_run"
+        },
+        {
+          "name": "keyboard command search, Escape and focus restore",
+          "status": "passed"
+        },
+        {
+          "name": "actual closed-details summary is included in dialog focus trap",
+          "status": "passed"
+        },
+        {
+          "name": "actual grant duration input enforces3600second core boundary; no unsupported grant sent",
+          "status": "passed"
+        },
+        {
+          "name": "reduced motion disables product transitions",
+          "status": "passed"
+        },
+        {
+          "name": "actual never-dispatched draft cancellation is confirmed by core evidence",
+          "status": "passed"
+        },
+        {
+          "name": "history uses actual journal events",
+          "status": "passed"
+        },
+        {
+          "name": "no browser runtime errors",
+          "status": "passed"
+        }
+      ]
+    },
+    "structured_goal_planning": {
+      "passed": 10,
+      "report": "artifacts/ui-simplification/browser-regression/goal-planning/report.json",
+      "checks": [
+        {
+          "name": "actual outside-HTTP Goal approval preserves execution bindings and does not accept task",
+          "status": "passed",
+          "scope_id": "e6db475c-c7b2-448c-89c1-5456bc7ae92c",
+          "task_id": "eb9d9e60-55f7-4bbd-b9ad-2dae51111d62"
+        },
+        {
+          "name": "real UI lazily lists an independently approved Goal and empty immutable plan history",
+          "status": "passed"
+        },
+        {
+          "name": "actual structured UI prepares and edits two approved work nodes and dependency without daemon writes; explicit Apply updates original model draft only",
+          "status": "passed"
+        },
+        {
+          "name": "actual UI stores original raw plan bytes and server-derived scope references without dispatch",
+          "status": "passed",
+          "plan_digest": "750a9f323ce85efec6753e6b6f43be79691cf2f8a36cdbd8bf5c661066884258",
+          "raw_sha256": "6e7e7ccabf9548d5999ce86dfdfa5485b7c100b994a1cd5653d182190276c6b9"
+        },
+        {
+          "name": "real UI preview and direct repeat leave journal, ledgers, attempts, leases and execution unchanged",
+          "status": "passed"
+        },
+        {
+          "name": "exact-key replay is read-only; whitespace/key conflict, stale CAS and raw nested duplicates are refused by actual Core",
+          "status": "passed"
+        },
+        {
+          "name": "actual UI revises with correct CAS and retains immutable first revision; stale preview is refused",
+          "status": "passed"
+        },
+        {
+          "name": "test HTTP adapter refuses approval, generic IPC, execution, forged scope, extra fields and boolean revisions",
+          "status": "passed"
+        },
+        {
+          "name": "real input drift refuses live preview, clears old observation and disables new UI writes while retaining strict history",
+          "status": "passed"
+        },
+        {
+          "name": "revoked scope permits strict historical reads/exact-key replay while UI and Core deny new plans and previews",
+          "status": "passed"
+        }
+      ]
+    },
+    "approved_commands": {
+      "passed": 5,
+      "report": "artifacts/ui-simplification/browser-regression/commands/evidence.json",
+      "checks": [
+        {
+          "name": "actual local fixture handshake failure yields confirmed owned stop and distinct task-result uncertainty",
+          "status": "passed",
+          "task_id": "8a73e85a-aa00-40f7-b803-69da2f61b51b",
+          "session_id": "cbf2bd48-0467-4e9c-be7c-f895ca698924"
+        },
+        {
+          "name": "actual UI invokes one approved fixed script and renders real command-only success",
+          "status": "passed",
+          "run_id": "37b828b6-ec15-490b-a850-1dfe3e224ef3"
+        },
+        {
+          "name": "same-key recovery returns original run; new-key policy replay cannot duplicate effects",
+          "status": "passed"
+        },
+        {
+          "name": "actual UI cancellation reaches the owned command and records reaping without claiming whole-tree containment",
+          "status": "passed",
+          "run_id": "447fd8fd-bc9b-488a-bee0-7d3f5458e411"
+        },
+        {
+          "name": "HTTP test adapter cannot approve/finalize; real command results do not promote the task or authorize integration",
+          "status": "passed"
+        }
+      ]
+    },
+    "data_workspaces": {
+      "passed": 8,
+      "report": "artifacts/ui-simplification/browser-regression/data-workspaces-retry/report.json",
+      "checks": [
+        {
+          "name": "real UI relative selection and bounded preview show actual hashes/bytes with no copy or source writes",
+          "status": "passed",
+          "preview_id": "b2ff90e5-1a5d-42df-acfe-eff78a0d0c6b"
+        },
+        {
+          "name": "HTTP refuses Renderer approval, finalize, generic IPC, execution and arbitrary source/foreign references",
+          "status": "passed"
+        },
+        {
+          "name": "outside-HTTP owner fixture produces actual ready copy, exact inputs bytes/registry identity and unchanged source mtime",
+          "status": "passed"
+        },
+        {
+          "name": "exact-key preview/owner replay and UI readonly history refresh do not create another copy or journal entry",
+          "status": "passed"
+        },
+        {
+          "name": "preview terminal fact retained with no copy; actual dropped-response reconciliation is reported only if exercised",
+          "status": "passed",
+          "requested_through_ui": true,
+          "terminal": "cancelled"
+        },
+        {
+          "name": "actual copy request and persisted completion are reconciled without replay/deletion or inferred legacy join",
+          "status": "passed",
+          "requested_through_ui": true,
+          "terminal": "cancelled",
+          "owned_copy_worker_join_observed": true
+        },
+        {
+          "name": "real invalid-hash preview and post-observation source drift cannot authorize a ready resnapshot or new copy",
+          "status": "passed"
+        },
+        {
+          "name": "private-runtime benign source is rejected before preview persistence; generated sources unchanged and no session/execution occurred",
+          "status": "passed"
+        }
+      ]
+    }
+  },
+  "native_owner_grant": {
+    "status": "passed_automated_os_and_database_checks",
+    "dimension": "actual_macos_grant_cancel_then_same_key_real_ok",
+    "architecture": "arm64",
+    "pages_per_phase": 14,
+    "visual_spot_checks": [
+      1,
+      7,
+      14
+    ],
+    "harness_sha256": "37c44c625403af1267eb50ebd8071fe00fa7225ff992227aa00d33869292afde",
+    "daemon_sha256": "5e54971e7f155e229103d8aa14b79ae5a6a5537bb57d8e93c0d1de6c7d55b906",
+    "report": "/Users/wander/Documents/code/agentBaton-next/artifacts/collab-worktrees/frontend-simplification/artifacts/ui-simplification/native-proof.YgTqvP/result.json",
+    "log": "artifacts/ui-simplification/native-run-private.log",
+    "provider_model_calls": "not_run"
+  },
+  "retained_first_failures": [
+    "artifacts/ui-simplification/core-build.log",
+    "artifacts/ui-simplification/vitest-first.log",
+    "artifacts/ui-simplification/vitest-main-targeted.log",
+    "artifacts/ui-simplification/build-candidate.log",
+    "artifacts/ui-simplification/build-final.log",
+    "artifacts/ui-simplification/native-build.log",
+    "artifacts/ui-simplification/native-run.log",
+    "artifacts/ui-simplification/browser-regression/data-workspaces.log"
+  ],
+  "not_verified": [
+    "hosted_required_checks",
+    "pinned Goal Graph / Factory browser drivers with new navigation",
+    "host_native_registration_receipt",
+    "real Provider accounts and calls",
+    "full native feature matrix",
+    "very large task journals"
+  ]
+}
