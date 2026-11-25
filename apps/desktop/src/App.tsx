@@ -439,7 +439,7 @@ export function App() {
           </button>;
         })}</div> : status === 'connected' && <p className="canvas-empty">
           {filter === 'all' ? projectId ? c.emptyProject : c.emptyTasks : c.noMatches}
-          {filter !== 'all' && <button type="button" className="text-button" onClick={() => setFilter('all')}>{c.all}</button>}
+          {filter !== 'all' && <button type="button" className="text-button" onClick={() => setFilter('all')}>{c.clearFilters}</button>}
         </p>}
       </>}
       {showingCanvas && selected && <section className="task-thread" data-testid="task-thread" data-task-id={selected.id}><div className="thread-back"><button className="text-button" onClick={() => setSelectedId(undefined)}><Icon name="back" />{c.back}</button></div><div className="thread-heading"><h1>{selected.goal}</h1><span className={`task-state state-${taskPhase}`}><span className="status-dot" />{stateText(taskPhase!)}</span></div><div className="thread-tabs" role="tablist" aria-label={language === 'zh' ? '任务内容' : 'Task content'}>{(['conversation', 'artifacts', 'details'] as const).map(item => <button key={item} role="tab" aria-selected={tab === item} tabIndex={tab === item ? 0 : -1} id={`tab-${item}`} aria-controls={`panel-${item}`} onKeyDown={event => {
@@ -530,7 +530,7 @@ export function App() {
       </>}
       {view === 'history' && <>
         <div className="page-heading"><h1>{t.history}</h1></div>
-        <EventList events={events} language={language} empty={t.noEvents} focusedEventId={focusedEventId} focusRequest={focusedEventRequest}
+        <EventList events={events} language={language} filterable empty={t.noEvents} focusedEventId={focusedEventId} focusRequest={focusedEventRequest}
           taskName={id => tasks.find(task => task.id === id || sessions.some(session => session.id === id && session.task_id === task.id))?.goal} />
         {eventPager}
         {earliestCursor > 0 && <button onClick={() => void loadEarlier()} disabled={busy || status !== 'connected'}>{t.earlier}</button>}
@@ -606,11 +606,15 @@ const eventLabels: Record<string, [string, string]> = {
   'conversation.update': ['Agent activity', 'Agent 活动'],
   'session.turn_ended': ['Turn ended', '回合已结束'],
 };
-function EventList({ events, empty, language, taskName, focusedEventId, focusRequest = 0 }: {
+function EventList({ events, empty, language, taskName, focusedEventId, focusRequest = 0, filterable = false }: {
   events: JournalEvent[]; empty: string; language: Language; taskName: (id: string) => string | undefined;
-  focusedEventId?: string; focusRequest?: number;
+  focusedEventId?: string; focusRequest?: number; filterable?: boolean;
 }) {
   const list = useRef<HTMLUListElement>(null);
+  const [filter, setFilter] = useState<'all' | 'tasks' | 'messages' | 'approvals'>('all');
+  useEffect(() => {
+    if (focusedEventId) setFilter('all');
+  }, [focusedEventId, focusRequest]);
   const lastFocusRequest = useRef<number>(0);
   useEffect(() => {
     if (!focusedEventId || lastFocusRequest.current === focusRequest) return;
@@ -620,16 +624,24 @@ function EventList({ events, empty, language, taskName, focusedEventId, focusReq
     const disclosure = entry.closest('details');
     if (disclosure) disclosure.open = true;
     entry.scrollIntoView?.({ block: 'nearest' });
-  }, [focusedEventId, focusRequest, events]);
+  }, [focusedEventId, focusRequest, events, filter]);
   const zh = language === 'zh';
   const time = new Intl.DateTimeFormat(language, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
   const groups: JournalEvent[][] = [];
   for (const event of events) {
+    if (filter === 'tasks' && !event.kind.startsWith('task.')
+      || filter === 'messages' && !/^(session|conversation)\./.test(event.kind)
+      || filter === 'approvals' && !/^(approval|execution_grant)\./.test(event.kind)) continue;
     const previous = groups.at(-1);
     if (event.kind.endsWith('.update') && previous?.[0].kind === event.kind && previous[0].aggregate_id === event.aggregate_id) previous.push(event);
     else groups.push([event]);
   }
-  return <section className="events">{events.length ? <ul ref={list} className="journal-list">{groups.reverse().map(group => {
+  const labels = canvasMessages[language].journalFilters;
+  return <section className="events">
+    {filterable && events.length > 0 && <label>{labels.label} <select value={filter} onChange={event => setFilter(event.target.value as typeof filter)}>
+      {(['all', 'tasks', 'messages', 'approvals'] as const).map(kind => <option key={kind} value={kind}>{labels[kind]}</option>)}
+    </select></label>}
+    {groups.length ? <ul ref={list} className="journal-list">{groups.reverse().map(group => {
     const event = group.at(-1)!;
     const label = eventLabels[event.kind]?.[zh ? 1 : 0] ?? (zh ? '已记录事件' : 'Recorded event');
     const date = new Date(event.occurred_at);
@@ -640,5 +652,5 @@ function EventList({ events, empty, language, taskName, focusedEventId, focusReq
     </summary>{group.map(entry => <section id={`journal-event-${entry.event_id}`} key={entry.event_id}>
       <p><code>{entry.kind}</code> <code>#{entry.sequence}</code> <time>{entry.occurred_at}</time></p><pre>{JSON.stringify(entry, null, 2)}</pre>
     </section>)}</details></li>;
-  })}</ul> : <p>{empty}</p>}</section>;
+  })}</ul> : <p>{filter === 'all' ? empty : labels.empty}</p>}</section>;
 }

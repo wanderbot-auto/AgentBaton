@@ -2,7 +2,8 @@ export const canvasMessages = {
   en: {
     phases: { outcome_unknown: 'Outcome unknown', awaiting_acceptance: 'Awaiting review', awaiting_approval: 'Approval needed', blocked: 'Blocked', ready: 'Ready', starting: 'Starting' },
     sections: { connections: 'Connections', skills: 'Skills', mcp: 'MCP', general: 'General', background: 'Background', recovery: 'Recovery', hosts: 'Hosts' },
-    offline: 'Background disconnected', cachedTasks: 'Showing the last loaded tasks.', filters: 'Task status filters',
+    offline: 'Background disconnected', cachedTasks: 'Showing the last loaded tasks.', clearFilters: 'Clear filters',
+    journalFilters: { label: 'Event type', all: 'All events', tasks: 'Tasks', messages: 'Conversations', approvals: 'Approvals', empty: 'No matching events in this page.' }, filters: 'Task status filters',
     emptyProject: 'This project has no tasks yet.', emptyTasks: 'No tasks yet.', replyRecorded: 'Agent replied',
     review: 'Review result', reviewReason: 'A candidate result is waiting for owner review.', reviewExpired: 'The execution grant expired. The candidate is available for inspection.', blockedReason: 'Execution is blocked. Check the affected step.',
     viewEvidence: 'View evidence', reconcile: 'Check session outcome', olderMessages: 'Load earlier messages', latestMessages: 'Load latest messages', newerMessages: 'Load newer messages',
@@ -30,7 +31,8 @@ export const canvasMessages = {
   zh: {
     phases: { outcome_unknown: '结果未知', awaiting_acceptance: '待验收', awaiting_approval: '待审批', blocked: '已阻塞', ready: '就绪', starting: '启动中' },
     sections: { connections: '连接', skills: 'Skill', mcp: 'MCP', general: '常规', background: '后台', recovery: '恢复', hosts: '主机' },
-    offline: '后台未连接', cachedTasks: '显示上次读取的任务。', filters: '任务状态筛选',
+    offline: '后台未连接', cachedTasks: '显示上次读取的任务。', clearFilters: '清除筛选',
+    journalFilters: { label: '事件类型', all: '所有事件', tasks: '任务', messages: '对话', approvals: '授权', empty: '当前页没有匹配的事件。' }, filters: '任务状态筛选',
     emptyProject: '这个项目还没有任务。', emptyTasks: '还没有任务。', replyRecorded: 'Agent 已回复',
     review: '审阅结果', reviewReason: '候选结果等待负责人验收。', reviewExpired: '执行授权已过期。仍可查看候选产物。', blockedReason: '执行已阻塞。可查看受影响的步骤。',
     viewEvidence: '查看证据', reconcile: '核对会话结果', olderMessages: '读取较早消息', latestMessages: '读取最新消息', newerMessages: '读取较新消息',

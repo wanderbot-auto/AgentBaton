@@ -201,6 +201,24 @@ describe('Task workspace using mocked Tauri transport', () => {
     expect(screen.getByText(/<script>malicious/)).toBeInTheDocument();
     expect(document.querySelector('script')).toBeNull();
   });
+  it('filters the loaded history without changing the stored event window', async () => {
+    const user = userEvent.setup();
+    const base = {aggregate_id: task.id, revision: 1, occurred_at: task.created_at, source: 'fixture', payload: {}};
+    vi.mocked(api.events).mockResolvedValue({events:[
+      {...base, sequence: 1, event_id: 'task-created', kind: 'task.created'},
+      {...base, sequence: 2, event_id: 'session-update', kind: 'session.update'},
+    ], sequence: 2, next_cursor: 2, gap: false});
+    render(<App />);
+    await screen.findByText('Local daemon connected');
+    await user.click(screen.getByRole('button', { name: 'History' }));
+    const filter = screen.getByRole('combobox', { name: 'Event type' });
+    await user.selectOptions(filter, 'messages');
+    expect(screen.getByText('Agent activity')).toBeVisible();
+    expect(screen.queryByText('Task created')).toBeNull();
+    await user.selectOptions(filter, 'all');
+    expect(screen.getByText('Task created')).toBeVisible();
+    expect(api.events).toHaveBeenCalledTimes(1);
+  });
   it('opens the newest event window beyond 100 events and explicitly pages older history', async () => {
     const user = userEvent.setup();
     vi.mocked(api.snapshot).mockResolvedValue({ tasks: [task], sequence: 230, api_version:1,database_schema_version:17 });
