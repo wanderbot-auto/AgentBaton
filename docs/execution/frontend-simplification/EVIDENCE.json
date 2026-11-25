@@ -486,6 +486,12 @@
           "status": "passed"
         }
       ]
+    },
+    "task_workspace_binding_macos": {
+      "passed": 6,
+      "commit": "fed1f42c94fa09ca6196693c19dea91b891d2d69",
+      "report": "artifacts/ui-simplification/integration/workspace-mac.dxcba_rg/run/report.json",
+      "log": "artifacts/ui-simplification/integration/workspace-mac.log"
     }
   },
   "native_owner_grant": {
@@ -514,7 +520,8 @@
     "artifacts/ui-simplification/native-run.log",
     "artifacts/ui-simplification/browser-regression/data-workspaces.log",
     "artifacts/ui-simplification/integration/python-initial.log",
-    "artifacts/ui-simplification/integration/python-candidate.log"
+    "artifacts/ui-simplification/integration/python-candidate.log",
+    "artifacts/ui-simplification/integration/workspace-mac-first.log"
   ],
   "not_verified": [
     "hosted_required_checks",
