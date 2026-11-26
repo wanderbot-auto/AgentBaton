@@ -174,10 +174,11 @@ const until=performance.now()+15000;
 const wait=async f=>{{while(performance.now()<until){{const v=f();if(v)return v;await new Promise(r=>setTimeout(r,25));}}throw Error('DOM observation deadline');}};
 const find=(parent,text)=>[...parent.querySelectorAll('button')].find(b=>b.textContent.trim()===text);
 if({index}===0){{
- const language=await wait(()=>document.querySelector('.language select'));
+ const settings=await wait(()=>document.querySelector('button[title="Settings"], button[title="设置"]'));settings.click();
+ const language=await wait(()=>document.querySelector('[role="dialog"] #ui-language'));
  Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(language,'en');language.dispatchEvent(new Event('change',{{bubbles:true}}));
- const settings=await wait(()=>document.querySelector('button[title="Settings"]'));settings.click();
- const summary=await wait(()=>[...document.querySelectorAll('summary')].find(e=>e.textContent==='Background and login'));summary.click();
+ const background=await wait(()=>{{const sections=document.querySelector('[role="dialog"] .filter-row[aria-label="Settings"]');return sections&&find(sections,'Background');}});background.click();
+ const summary=await wait(()=>[...document.querySelectorAll('[role="dialog"] summary')].find(e=>e.textContent==='Background and login'));summary.click();
 }}else{{
  const panel=await wait(()=>document.querySelector('section[aria-label="Start background work at next login"]'));
  if({direct}){{if(!find(panel,'Enable at next login')?.disabled)throw Error('Conflict UI must remain disabled');await window.__TAURI_INTERNALS__.invoke('background_service_enable');}}

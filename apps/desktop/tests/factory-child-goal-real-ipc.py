@@ -32,7 +32,7 @@ import re
 import sys
 
 PLANNING_PATH = Path(__file__).with_name('factory-child-planning-real-ipc.py')
-PLANNING_SHA256 = 'fe607d2c8bfeaf9ee34a0656b823bec9e00c11c9152501ebbd1e273bfbf79f39'
+PLANNING_SHA256 = '2cf813bc87db8e2f8ee5d7006815087117155bddafa56022486b1a2adc14d303'
 PLANNING_SOURCE = PLANNING_PATH.read_bytes()
 _spec = importlib.util.spec_from_file_location('_child_goal_planning_support', PLANNING_PATH)
 planning = importlib.util.module_from_spec(_spec)
@@ -1723,7 +1723,7 @@ def rendered_root_action_witness(http_rows, rendered, root, reference, state, af
 RENDERED_ROOT_ACTION = """
 (panel, { state, label }) => {
     const thread = panel.closest('[data-testid="task-thread"]');
-    const revision = [...(thread?.querySelectorAll('.task-details > dl > dt') ?? [])]
+    const revision = [...(thread?.querySelectorAll('.task-details > details[open] > dl > dt') ?? [])]
         .find(item => item.textContent === 'Revision')?.nextElementSibling?.textContent;
     const selected = [...panel.querySelectorAll(':scope > details > summary')]
         .find(item => item.textContent === 'Selected saved execution reference');
@@ -2040,7 +2040,10 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
         def expand(details):
             if not details.evaluate('e=>e.open'):details.locator(':scope > summary').click()
         page.goto(url);page.get_by_test_id('task-card').filter(has_text=task['goal']).click();page.locator('#tab-details').click()
-        panel=page.get_by_test_id('factory-runtime');expand(panel.locator(':scope > details'));form=panel.locator('form')
+        base.open_factory_disclosure(page.locator('#panel-details'), 'Integration & delegation')
+        panel=page.get_by_test_id('factory-runtime');expand(panel.locator(':scope > details'))
+        form = base.open_factory_disclosure(panel, 'Configure delegation').locator('form')
+        advanced = base.open_factory_disclosure(form, 'Advanced delegation settings')
         planning.fixed_form_control(form,'Existing root Grant','select').select_option(grant['id'])
         planning.fixed_form_control(form,'Existing connections','select').select_option([cid]);planning.fixed_form_control(form,'Existing workspaces','select').select_option([workspace['id']])
         expand(form.locator('details').filter(has=page.get_by_text('Selected inputs / Declared outputs',exact=True)))
@@ -2050,12 +2053,12 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
         def fill_budget(group):
             for label,key in [('Attempts','attempts'),('Parallel attempts','parallel'),('Runtime ms','runtime_ms'),('Declared output bytes','output_bytes'),('Children','children'),('Reworks','reworks')]:group.get_by_label(label,exact=True).fill(str(budget[key]))
         fill_budget(form.get_by_role('group',name='Root shared limits',exact=True));fill_budget(form.get_by_role('group',name='Project shared limits',exact=True))
-        policy=form.locator('details').filter(has=page.get_by_text('Child-planning policy for Native review',exact=True));expand(policy)
+        policy = base.open_factory_disclosure(advanced, 'Child-planning policy for Native review')
         policy.get_by_label('Allow bounded child planning',exact=True).check()
         for label,value in [('Maximum plan nodes',4),('Maximum revisions per task',8),('Maximum original plan bytes',planning.PLAN_BYTES)]:policy.get_by_label(label,exact=True).fill(str(value))
         policy.get_by_label('Owner acceptance criteria',exact=True).fill(selection['child_planning_policy']['owner_acceptance_criteria'])
         policy.get_by_label('Exact declared output paths (one per line)',exact=True).fill('reports/report-child.txt')
-        execution=form.locator('details').filter(has=page.get_by_text('Child Goal execution policy',exact=True));expand(execution)
+        execution = base.open_factory_disclosure(advanced, 'Child Goal execution policy')
         execution.get_by_label('Request separate bounded child Goal execution in this Native Factory review',exact=True).check()
         execution.get_by_label('Maximum nodes per child Goal',exact=True).fill('2');execution.get_by_label('Maximum child Goal runs in this scope',exact=True).fill('2')
         fill_budget(execution.get_by_role('group',name='Child Goal root budget',exact=True));fill_budget(execution.get_by_role('group',name='Child Goal project budget',exact=True))
@@ -2094,13 +2097,14 @@ def runtime_driver(args, output, prepared, free, tool_bytes):
         # Use actual task container; never choose a same-caption root panel by first().
         task_item=panel.get_by_role('region',name='Factory run',exact=True).locator(':scope > ul > li').filter(has_text=child['task_id'])
         expect(task_item).to_have_count(1,timeout=15000)
-        plan_details=task_item.locator(':scope > details');expand(plan_details)
+        base.open_factory_disclosure(task_item, 'Child task plans · ' + child['task_id'])
         plans=task_item.get_by_role('region',name='Child task plans',exact=True)
         plans.get_by_role('button',name='Refresh child-plan history',exact=True).click()
         revisions=plans.locator('details').filter(has=page.get_by_text('Immutable plan revisions',exact=True));expand(revisions)
         revisions.get_by_role('button',name='r1 · '+saved['reference']['plan_digest'],exact=True).click()
         goal_details=plans.get_by_test_id('factory-child-goals');expand(goal_details)
         goal_panel=goal_details.get_by_test_id('factory-child-goal-panel')
+        base.open_factory_disclosure(page.locator('.task-details'), 'Advanced details')
         report['observations']['rendered_root_action'] = {}
 
         def action_ready_timeout(deadline):

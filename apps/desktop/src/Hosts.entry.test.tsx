@@ -47,9 +47,8 @@ beforeEach(() => {
 function showHosts() {
   fireEvent.click(screen.getByRole('button', { name: 'Settings' }));
   const dialog = screen.getByRole('dialog', { name: 'Settings' });
-  const detail = within(dialog).getByText(en.title, { selector: 'summary' }).closest('details')!;
-  detail.open = true;
-  fireEvent(detail, new Event('toggle'));
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Hosts' }));
+  fireEvent.click(within(dialog).getByText('Add Host', { selector: 'summary' }));
   return dialog;
 }
 
@@ -96,17 +95,19 @@ it('retains the original in-flight Host request when Settings closes before rese
   expect(native).not.toHaveBeenCalled();
   await user.click(screen.getByRole('button', { name: 'Settings' }));
   const dialog = screen.getByRole('dialog', { name: 'Settings' });
+  const hostCategory = within(dialog).getByRole('button', { name: 'Hosts' });
   await user.tab({ shift: true });
-  expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toHaveFocus();
+  expect(within(dialog).getByLabelText('Language')).toHaveFocus();
   await user.tab({ shift: true });
-  expect(within(dialog).getByText('Connection evidence', { selector: 'summary' })).toHaveFocus();
-  await user.tab({ shift: true });
-  const hostSummary = within(dialog).getByText(en.title, { selector: 'summary' });
-  expect(hostSummary).toHaveFocus();
-  await user.click(hostSummary);
-  expect(within(dialog).getByRole('region', { name: 'Recover connection creations' })).toBeVisible();
-  expect(within(dialog).getByText('Background and login', { selector: 'summary' })).toBeVisible();
+  expect(hostCategory).toHaveFocus();
   expect(within(dialog).getByText('Appearance')).toBeVisible();
+  await user.keyboard('{Enter}');
+  expect(within(dialog).getByRole('region', { name: 'Remote Hosts' })).toBeVisible();
+  expect(within(dialog).queryByRole('region', { name: 'Recover connection creations' })).not.toBeInTheDocument();
+  const addHost = within(dialog).getByText('Add Host', { selector: 'summary' });
+  expect(addHost.parentElement).not.toHaveAttribute('open');
+  addHost.focus();
+  await user.keyboard('{Enter}');
   const submit = await screen.findByRole('button', { name: en.register });
   await waitFor(() => expect(submit).toBeEnabled());
   fill();

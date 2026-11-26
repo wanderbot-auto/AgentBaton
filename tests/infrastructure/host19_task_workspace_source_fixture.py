@@ -89,10 +89,121 @@ def replace(raw, current, previous):
     return raw.replace(current, previous, 1)
 
 
+# Exact outer layer for the UI navigation update. Older guards run after it.
+DRIVER_UI_SHA256 = "c92576a6340f0db76947a4abb214f82377c4efeac98ccc024e129f3c862d5698"
+_UI_PARENT_SHA256 = "e83fdd4a10b11877a79e11b3691ca96db37460ee897f693eced5d368d44e3bdd"
+_UI_EDITS = (
+    (161, 167, "8b9e6e05cfe467360dcdbded2d57196de63a410cd9192b951452e4a242c636a6",
+        (
+            b''
+        )),
+    (846, 858, "fada7759a82a803b4a334a9ccf0332067217aa591fdb1b9bd64ec3394f77c882",
+        (
+            b''
+        )),
+    (875, 876, "017d3b77a86b759be07feb6e435b9ec692dd01aa393db312191c0efe70645a89",
+        (
+            b"        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()\n"
+        )),
+    (900, 901, "017d3b77a86b759be07feb6e435b9ec692dd01aa393db312191c0efe70645a89",
+        (
+            b"        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()\n"
+        )),
+    (927, 928, "f1983be914713737564854b71edc49ff031b42c60c55b0fee42003c1edca07c8",
+        (
+            b''
+        )),
+    (929, 930, "b716a3f1dd1d5c6b9e8b067b0d2d4e45b46b5559ffce43d8eafec877cc18aaeb",
+        (
+            b"            button = page.get_by_test_id('task-thread').locator('.thread-back').get_by_role('button', name='Execution & approval', exact=True)\n"
+        )),
+    (941, 944, "08e8f63adb95b173f418a47d744291436b8ee4261b78cb137ab73ccaf917bca9",
+        (
+            b"            expect(dialog.locator('#session-task')).to_have_value(current_task['id'])\n"
+            b"            expect(dialog.locator('#session-project')).to_have_value(project['id'])\n"
+        )),
+    (947, 947, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        (
+            b"            expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core\xe2\x80\x99s current admission checks still apply.', exact=False)).to_be_visible()\n"
+        )),
+    (949, 952, "8c1d1e858fbb66491cf4a7a21de739d72ed629b150bdce72269c510211cf3b29",
+        (
+            b"            expect(dialog.locator('#session-grant')).to_have_value('')\n"
+            b"            expect(dialog.locator('#session-grant option')).to_have_count(1)\n"
+        )),
+    (953, 954, "661b9c7a877110c80cff6cfff4ae5c603fca565abf06bf9277f5010ce4fcde97",
+        (
+            b"            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()\n"
+        )),
+    (963, 972, "c95a292a15bc4fededfcacfe4d37a879a19af24cb715e382a10fbcb9309f5680",
+        (
+            b'        # Switch the real Task selector in this same mounted dialog; do not\n'
+            b"        # preserve Task2's workspace for Task1 or authorize either recipient.\n"
+            b"        read_start = len(report['http'])\n"
+            b"        dialog.locator('#session-task').select_option(tasks[0]['id'])\n"
+            b"        verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])\n"
+            b"        read_start = len(report['http'])\n"
+            b"        dialog.locator('#session-task').select_option(tasks[1]['id'])\n"
+            b"        verify_dialog(dialog, read_start, t2_after, b1['receipt']['workspace_id'])\n"
+            b"        dialog.get_by_role('button', name='Close', exact=True).click()\n"
+            b'        expect(dialog).to_have_count(0)\n'
+            b"        # Also exercise initialTaskId from Task1's own thread on a new mount.\n"
+            b"        page.get_by_role('button', name='Back to tasks', exact=True).click()\n"
+            b'        panel = open_task(tasks[0])\n'
+            b'        dialog, read_start = open_execution()\n'
+            b"        verify_dialog(dialog, read_start, t1, b2['receipt']['workspace_id'])\n"
+        )),
+    (981, 982, "afda70975162ecb01b34419c9c5fe66ac6667f990e6c1ed92d32031ae90d26ab",
+        (
+            b"        require(all(entry['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'workspaces.resolve', 'workspaces.list', 'grants.list'}\n"
+        )),
+    (1030, 1031, "9b1ecbe24f531ef16de68c7bc43862e7a4691a8f207ee2887034c21918eb17e6",
+        (
+            b''
+        )),
+    (1033, 1034, "661b9c7a877110c80cff6cfff4ae5c603fca565abf06bf9277f5010ce4fcde97",
+        (
+            b"            expect(dialog.get_by_role('button', name='Create managed session', exact=True)).to_be_disabled()\n"
+        )),
+    (1053, 1056, "ad3ed34b570256c1ca9e91d886466a2ee7cb5d8545a31cf62e5932c6f0c08a15",
+        (
+            b''
+        )),
+    (1077, 1077, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        (
+            b"        expect(dialog.get_by_text('Stored binding is not fresh filesystem evidence or execution permission. Native Owner confirmation and the Core\xe2\x80\x99s current admission checks still apply.', exact=False)).to_be_visible()\n"
+        )),
+    (1085, 1086, "da017fd65d69d2bd999c1b5beaf8c40b936d01b312a4b336ca9a2cc7e95d4b05",
+        (
+            b"        require(all(e['method'] in {*READS.values(), 'events.subscribe', 'tasks.get', 'workspaces.resolve', 'workspaces.list', 'grants.list', 'workspaces.prepare_task_git'}\n"
+        )),
+    (1105, 1106, "017d3b77a86b759be07feb6e435b9ec692dd01aa393db312191c0efe70645a89",
+        (
+            b"        expect(panel.get_by_text('Filesystem identity revalidated', exact=True)).to_be_visible()\n"
+        )),
+)
+
+
+def restore_ui_navigation(raw):
+    if type(raw) is not bytes or hashlib.sha256(raw).hexdigest() != DRIVER_UI_SHA256:
+        raise ValueError("UI navigation inverse requires the exact reviewed source")
+    lines = raw.splitlines(keepends=True)
+    for start, end, expected, old in reversed(_UI_EDITS):
+        if not 0 <= start <= end <= len(lines) or hashlib.sha256(b''.join(lines[start:end])).hexdigest() != expected:
+            raise ValueError("UI navigation source span changed")
+        lines[start:end] = old.splitlines(keepends=True)
+    result = b''.join(lines)
+    if hashlib.sha256(result).hexdigest() != _UI_PARENT_SHA256:
+        raise ValueError("UI navigation inverse did not recover the entire parent")
+    return result
+
+
 def restore_schema18_source(path, raw):
     if type(path) is not str or type(raw) is not bytes or path not in (DRIVER_PATH, PROJECTOR_PATH):
         raise ValueError("Expected raw Task Workspace bytes at a canonical source path")
     if path == DRIVER_PATH:
+        if digest(raw) == DRIVER_UI_SHA256:
+            raw = restore_ui_navigation(raw)
         current, previous = DRIVER_CURRENT_SHA256, DRIVER_PREVIOUS_SHA256
         edits = (
             (b"real schema19 Owner Unix IPC", b"real schema18 Owner Unix IPC"),

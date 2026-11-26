@@ -27,6 +27,10 @@ beforeEach(() => {
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
 });
 
+async function openSettings(user: ReturnType<typeof userEvent.setup>, name = 'Notification settings and sources') {
+  await user.click(screen.getByText(name, { selector: 'summary' }));
+}
+
 describe('in-app Task notifications', () => {
   it('renders one notice for 100 events, pages sources, opens a real reference and restores focus', async () => {
     const user = userEvent.setup(), onOpenTask = vi.fn(), onViewEvent = vi.fn();
@@ -55,6 +59,7 @@ describe('in-app Task notifications', () => {
     const trigger = screen.getByRole('button', { name: 'Notifications (1)' });
     expect(trigger).toHaveAttribute('data-attention', 'true');
     await user.click(trigger);
+    await openSettings(user);
     await user.click(screen.getByRole('checkbox', { name: 'Do not disturb' }));
     expect(localStorage.getItem('agentbaton.notifications.doNotDisturb')).toBe('true');
     expect(trigger).toHaveAttribute('aria-label', 'Notifications · do not disturb');
@@ -63,6 +68,7 @@ describe('in-app Task notifications', () => {
     await user.click(screen.getByRole('button', { name: 'Open task' }));
     expect(onOpenTask).toHaveBeenCalledWith(task.id);
     await user.click(screen.getByRole('button', { name: 'Notifications · do not disturb' }));
+    await openSettings(user);
     expect(screen.getByRole('checkbox', { name: 'Do not disturb' })).toBeChecked();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -75,6 +81,7 @@ describe('in-app Task notifications', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('Storage denied'); });
     render(<TaskNotifications tasks={[task]} sessions={[]} events={[]} language="en" observation={observation} onOpenTask={vi.fn()} onViewEvent={vi.fn()} />);
     await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    await openSettings(user);
     await user.click(screen.getByRole('checkbox', { name: 'Do not disturb' }));
     expect(screen.getByRole('checkbox')).toBeChecked();
     expect(screen.getByRole('status')).toHaveTextContent('This preference could not be saved. It applies to this window only.');
@@ -88,6 +95,7 @@ describe('in-app Task notifications', () => {
     mounted.rerender(<TaskNotifications {...props} sessions={[]} events={[]} observation={{ ...observation, eventsFresh: false, eventLimited: true }} />);
     await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
     expect(screen.getByTestId('task-notification')).toHaveTextContent('Past observation to review');
+    await openSettings(user);
     expect(screen.getByText(/Evidence is limited/)).toBeVisible();
     await user.click(screen.getByText('Sources (1)'));
     await user.click(screen.getByText('session.outcome_unknown'));
@@ -131,6 +139,7 @@ describe('in-app Task notifications', () => {
     render(<App />);
     await screen.findByText('Local daemon connected');
     await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
+    await openSettings(user);
     await waitFor(() => expect(screen.queryByText('Event observations are old or unavailable.')).not.toBeInTheDocument());
     await user.click(screen.getByRole('button', { name: 'Close notifications' }));
     let resolveOld!: (value: ReturnType<typeof snapshot>) => void;
@@ -138,6 +147,7 @@ describe('in-app Task notifications', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
     await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
     expect(screen.getByTestId('task-notification')).toHaveTextContent('Last observed');
+    await openSettings(user);
     expect(screen.getByText('Event observations are old or unavailable.')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Close notifications' }));
     vi.mocked(sessionApi.sessionsList).mockRejectedValueOnce(new DaemonError('CONFLICT', 'Session projection unavailable', 'none'));
@@ -147,7 +157,8 @@ describe('in-app Task notifications', () => {
     await act(async () => resolveOld(snapshot([{ ...task, state: 'accepted' }])));
     await user.click(screen.getByRole('button', { name: 'Notifications (1)' }));
     expect(screen.getByTestId('task-notification')).toHaveTextContent('Task failed');
-    expect(screen.getByTestId('task-notification')).toHaveTextContent('Latest task status');
+    expect(screen.getByTestId('task-notification')).not.toHaveTextContent('Last observed');
+    await openSettings(user);
     expect(screen.getByText('Session observations are old or unavailable.')).toBeVisible();
     expect(screen.getByText('Event observations are old or unavailable.')).toBeVisible();
     expect(screen.getByText(/Evidence is limited/)).toBeVisible();
@@ -161,6 +172,8 @@ describe('in-app Task notifications', () => {
     expect(screen.getAllByTestId('task-notification')).toHaveLength(20);
     await user.click(screen.getByRole('button', { name: '下一页' }));
     expect(screen.getAllByTestId('task-notification')).toHaveLength(5);
+    expect(screen.getByRole('checkbox', { name: '免打扰', hidden: true })).not.toBeVisible();
+    await openSettings(user, '通知设置与来源');
     expect(screen.getByRole('checkbox', { name: '免打扰' })).toBeVisible();
   });
 
@@ -184,6 +197,7 @@ describe('in-app Task notifications', () => {
     await user.click(screen.getByText('Sources (1)'));
     await user.click(within(screen.getByRole('dialog')).getByText('session.outcome_unknown'));
     expect(screen.getByText(/Conflicting event IDs were observed/)).toBeVisible();
+    await openSettings(user);
     expect(screen.getByText(/Evidence is limited/)).toBeVisible();
     expect(screen.queryByRole('button', { name: 'View loaded original event' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'History' })).not.toBeInTheDocument();
@@ -234,6 +248,7 @@ describe('in-app Task notifications', () => {
     await user.click(within(screen.getByRole('dialog')).getByText('session.outcome_unknown'));
     expect(screen.getByText('event-101')).toBeVisible();
     expect(screen.queryByText('event-999')).not.toBeInTheDocument();
+    await openSettings(user);
     expect(screen.getByText(/Evidence is limited/)).toBeVisible();
     expect(screen.getByRole('button', { name: 'View loaded original event' })).toBeVisible();
   });

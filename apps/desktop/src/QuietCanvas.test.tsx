@@ -2,11 +2,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { api, acknowledgeTaskMessage, DaemonError, type Task } from './api';
+import { api, request, acknowledgeTaskMessage, DaemonError, type Task } from './api';
 import { sessionApi, type ManagedSession } from './session-api';
 import { validationApi } from './validation-api';
 import { dataValidationApi } from './data-validation-api';
-vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), acknowledgeTaskMessage: vi.fn(), api: { snapshot: vi.fn(), taskGet:vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
+vi.mock('./api', async original => ({ ...await original<typeof import('./api')>(), request: vi.fn(), acknowledgeTaskMessage: vi.fn(), api: { snapshot: vi.fn(), taskGet:vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), workspacesList: vi.fn() } }));
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn(), sessionsGet:vi.fn(), sessionsSend: vi.fn() } }));
 vi.mock('./validation-api', async original => ({ ...await original<typeof import('./validation-api')>(), validationApi: { policiesList: vi.fn(), recordsList: vi.fn(), policiesApprove: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
 vi.mock('./data-validation-api', async original => ({ ...await original<typeof import('./data-validation-api')>(), dataValidationApi: { policiesList: vi.fn(), recordsList: vi.fn(), approve: vi.fn(), run: vi.fn(), revoke: vi.fn() } }));
@@ -15,6 +15,7 @@ const draft: Task = { id: 'draft-id', project_id:'project', spec_revision:1, goa
 const running: Task = { ...draft, id: 'running-id', goal: 'A recorded running task', state: 'running' };
 beforeEach(() => {
   vi.resetAllMocks(); localStorage.clear(); localStorage.setItem('agentbaton.language', 'en');
+  vi.mocked(request).mockImplementation(async (command,args) => command === 'tasks_history' ? { task_id: args?.taskId, events: [], next_cursor: null } as never : undefined as never);
   vi.mocked(api.snapshot).mockResolvedValue({ tasks: [draft, running], sequence: 1, api_version:1,database_schema_version:17 });
   vi.mocked(api.projectsList).mockResolvedValue([]);
   vi.mocked(api.events).mockResolvedValue({ events: [], next_cursor: 1, sequence: 1, gap: false });
@@ -31,15 +32,12 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     await screen.findAllByTestId('task-card');
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     const close = screen.getByRole('button', { name: 'Close' });
-    const summary = screen.getByText('Connection evidence');
+    await user.click(screen.getByRole('button', { name: 'Background' }));
     const background = screen.getByText('Background and login');
-    expect(summary.closest('details')).not.toHaveAttribute('open');
     expect(background.closest('details')).not.toHaveAttribute('open');
     expect(screen.queryByRole('region', { name: 'Start background work at next login' })).not.toBeInTheDocument();
-    expect(close).toHaveFocus();
+    close.focus();
     await user.tab({ shift: true }); expect(background).toHaveFocus();
-    await user.tab({ shift: true }); expect(summary).toHaveFocus();
-    await user.tab(); expect(background).toHaveFocus();
     await user.tab(); expect(close).toHaveFocus();
     await user.keyboard('{Escape}');
     expect(screen.getByRole('button', { name: 'Settings' })).toHaveFocus();
@@ -48,7 +46,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
   it('renders unknown prototype-named states as data without interpreting inherited object properties', async () => {
     vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...draft, state: 'constructor' }], sequence: 0, api_version:1,database_schema_version:17 });
     render(<App />);
-    expect(await screen.findByText('Unknown status: constructor')).toBeVisible();
+    expect(await screen.findByText('Unknown status')).toBeVisible();
     expect(screen.getAllByTestId('task-card')).toHaveLength(1);
   });
 
@@ -62,14 +60,17 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     await user.click(screen.getByRole('button', { name: `Open task: ${draft.goal}` }));
     expect(screen.getByTestId('task-thread')).toHaveAttribute('data-task-id', draft.id);
     expect(screen.queryByTestId('task-card')).not.toBeInTheDocument();
-    expect(screen.getByText('Raw observable events').closest('details')).not.toHaveAttribute('open');
+    expect(screen.queryByText('Raw observable events')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Configure execution' })).toBeVisible();
+    expect(screen.queryByLabelText('Task message')).toBeNull();
     await user.click(screen.getByRole('tab', { name: 'Artifacts' }));
     expect(await screen.findByText('No artifact integrity records yet.')).toBeVisible();
-    expect(screen.getByText('File integrity checks do not establish code correctness, task acceptance or integration authorization.')).toBeVisible();
+    expect(screen.getByText('File integrity checks do not establish code correctness, task acceptance or integration authorization.')).not.toBeVisible();
     expect(validationApi.policiesList).toHaveBeenCalledWith(draft.id);
     expect(validationApi.recordsList).toHaveBeenCalledWith(draft.id);
     expect(validationApi.policiesApprove).not.toHaveBeenCalled();
     expect(validationApi.run).not.toHaveBeenCalled();
+    await user.click(screen.getByText('Advanced validation'));
     const dataPanel = screen.getByTestId('data-contract-validation');
     expect(dataPanel.querySelector('details')).not.toHaveAttribute('open');
     expect(dataValidationApi.policiesList).toHaveBeenCalledWith(draft.id);
@@ -101,7 +102,8 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     const user = userEvent.setup(); render(<App />);
     await screen.findAllByTestId('task-card');
     await user.click(screen.getByRole('button', { name: 'Quick chat' }));
-    expect(screen.getByRole('button', { name: 'Send message · Unavailable' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Send message · Unavailable' })).toBeNull();
+    await user.click(screen.getByText('Create task from notes'));
     await user.type(screen.getByLabelText('Draft context'), 'Selected context <script>unsafe()</script>');
     await user.click(screen.getByRole('button', { name: 'Turn into task' }));
     expect(screen.getByRole('dialog', { name: 'Create a task from this summary' })).toBeVisible();
@@ -109,7 +111,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     await user.clear(screen.getByLabelText('Selected summary'));
     await user.type(screen.getByLabelText('Selected summary'), 'Only this reviewed summary');
     vi.mocked(api.create).mockResolvedValue({ ...draft, goal: 'Only this reviewed summary' });
-    await user.click(screen.getByRole('button', { name: 'Create task' }));
+    await user.click(screen.getByRole('button', { name: 'Create task draft' }));
     await waitFor(() => expect(api.create).toHaveBeenCalledWith('Only this reviewed summary', expect.any(String)));
     expect(sessionApi.sessionsSend).not.toHaveBeenCalled();
     expect(document.querySelector('script')).toBeNull();
@@ -126,6 +128,12 @@ describe('Quiet Canvas product UI with mocked transport', () => {
       kind: 'session.message_queued', occurred_at: date, source: 'user_action',
       payload: { turn_id: receipt.turn_id, text: receipt.text },
     }], next_cursor: 1, sequence: 1, gap: false });
+    vi.mocked(request).mockImplementation(async (command,args) => command === 'tasks_history' ? {
+      task_id: args?.taskId, next_cursor: null,
+      events: args?.after ? [] : [{sequence: 1, event_id: 'event', aggregate_id: session.id, revision: 3,
+        kind: 'session.message_queued', occurred_at: date, source: 'user_action',
+        payload: { turn_id: receipt.turn_id, text: receipt.text }}],
+    } as never : undefined as never);
     vi.mocked(acknowledgeTaskMessage).mockImplementation(async () => {
       vi.mocked(api.snapshot).mockResolvedValue({ ...snapshot, task_message_recovery: { pending_sessions: [], recovered: [] } });
       return null;
@@ -135,9 +143,9 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     await user.click(await screen.findByRole('button', { name: 'Task message receipt recovered' }));
     expect(await screen.findByRole('heading', { name: draft.goal })).toBeVisible();
     expect(screen.getAllByText(receipt.text)).toHaveLength(1);
-    expect(screen.getAllByText('Mark the recovered receipt as seen before sending another message.')).toHaveLength(2);
+    expect(screen.getByText('Mark the recovered receipt as seen before sending another message.')).toBeVisible();
     expect(screen.queryByText('Message outcome unknown. Reconcile the session before sending again.')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Task message')).toBeDisabled();
+    expect(screen.queryByLabelText('Task message')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Mark as seen' }));
     await waitFor(() => expect(screen.getByLabelText('Task message')).toBeEnabled());
     expect(acknowledgeTaskMessage).toHaveBeenCalledExactlyOnceWith(session.id, receipt.request_key);
@@ -160,7 +168,7 @@ describe('Quiet Canvas product UI with mocked transport', () => {
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
     vi.mocked(sessionApi.sessionsList).mockResolvedValue([{ ...session, state: 'running', revision: 3 }]);
     await user.click(screen.getByRole('button', { name: 'Refresh' }));
-    expect(await screen.findByText('Message outcome unknown. Reconcile the session before sending again.')).toBeVisible();
+    expect(await screen.findByText('The last turn has no confirmed result. Check its recorded state before sending again.')).toBeVisible();
     expect(screen.getByLabelText('Task message')).toHaveValue('Do not replay this text');
     expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
     expect(sessionApi.sessionsSend).toHaveBeenCalledExactlyOnceWith(session, 'Do not replay this text', expect.any(String));

@@ -12,7 +12,8 @@ import unittest
 from unittest.mock import patch
 
 from tests.infrastructure.host19_child_goal_source_fixture import (
-    LAYERS, restore_child_goal_before_schema19, sha,
+    DRIVER as CHILD_GOAL_PATH, LAYERS, restore_child_goal_before_schema19,
+    restore_factory_before_ui_simplification, sha, without_start_failure_layer,
 )
 
 DRIVER = Path(__file__).resolve().with_name('factory-child-goal-real-ipc.py')
@@ -243,7 +244,9 @@ class CurrentChildGoal(unittest.TestCase):
         for path, (current_pin, historical_pin, _) in LAYERS.items():
             source = (REPO / path).read_text()
             with self.subTest(source=path):
-                self.assertEqual(sha(source), current_pin)
+                pinned = restore_factory_before_ui_simplification(path, source) if path == CHILD_GOAL_PATH else source
+                pinned = without_start_failure_layer(path, pinned, AssertionError)
+                self.assertEqual(sha(pinned), current_pin)
                 restored = restore_child_goal_before_schema19(path, source)
                 self.assertEqual(sha(restored), historical_pin)
                 self.assertEqual(restore_child_goal_before_schema19(path, restored), restored)

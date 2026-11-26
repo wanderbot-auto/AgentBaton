@@ -423,7 +423,7 @@ def run_case(args, binary, companion, frontend, attribution):
         phase = 'real_three_round_fixture'
         fixture = D.bootstrap(host, root, False); headroom(fixture['context'])
         bounds = D.Boundary(fixture['task']['id'], fixture['project']['id'], fixture['scope']['id'],
-            fixture['target'], [fixture['definition']['reference']])
+            fixture['target'], [fixture['definition']['reference']], graph_run=fixture['graph']['run']['id'])
         reviews = D.Reviews(host, bounds, fixture['context'], fixture['definition'],
             selected(fixture['context'], fixture['target'], fixture['definition']['reference']))
         server, server_thread = D.serve(frontend, host, bounds, reviews, attribution)
@@ -440,11 +440,10 @@ def run_case(args, binary, companion, frontend, attribution):
                 'focus_viewport_asserted_before_capture': True, 'pixel_synchronized': False})
         phase = 'actual_UI_selection_and_private_review'
         page.goto(server.origin + '/', wait_until='networkidle')
-        page.locator('[data-testid="task-card"][data-task-id="' + bounds.task + '"]').click()
-        page.get_by_role('tab', name='Details', exact=True).click(); panel = page.get_by_test_id('task-integration')
-        panel.locator(':scope > summary').click()
+        panel = D.open_integration_panel(page, bounds.task)
         expect(panel.get_by_role('button', name='Refresh integration records')).to_be_enabled()
         panel.get_by_label('Existing local target branch').select_option(D.TARGET)
+        panel.get_by_text('Advanced integration settings', exact=True).click()
         panel.get_by_label('Maximum preparation rounds').fill('3')
         panel.get_by_label('If the target advances').select_option('bounded_descendant_reprepare')
         panel.get_by_label('Permission lifetime (milliseconds)').fill('30000')
@@ -496,6 +495,7 @@ def run_case(args, binary, companion, frontend, attribution):
         checked('actual false,false,true receipts and charged seven-stage/same-policy sole exact CAS', **facts)
         phase = 'actual_UI_readonly_round_history'
         panel.get_by_role('button', name='Refresh integration records').click()
+        panel.get_by_text('Integration history', exact=True).click()
         history = panel.get_by_role('region', name='Integration history ' + done['run']['id'], exact=True)
         expect(history.get_by_text('confirmed_local_ref', exact=True)).to_be_visible()
         expect(history.get_by_role('heading', name='Confirmed local branch update', exact=True)).to_be_visible()
@@ -516,7 +516,7 @@ def run_case(args, binary, companion, frontend, attribution):
                 expect(group.locator('dt', has_text=re.compile('^' + re.escape(label) + '$')).locator('xpath=following-sibling::dd[1]')).to_have_text(str(attempt[key]))
         # Read-only history is rendered from actual Core records; no document,
         # receipt or usage value is injected by the bridge or page script.
-        history_container = history.locator('xpath=..')
+        history_container = history.locator('xpath=ancestor::section[1]')
         history_container.get_by_text('Shared budget', exact=True).click()
         for domain, label in [('root', 'Root task'), ('project', 'Project')]:
             usage = history_container.locator('dl[aria-label="Observed shared usage ' + label + '"]')

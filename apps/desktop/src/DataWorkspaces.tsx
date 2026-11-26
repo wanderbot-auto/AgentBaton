@@ -16,10 +16,17 @@ const copyStates=['creating','ready','failed','cancel_requested','cancelled','ou
 const previewActive=(record:DataPreview)=>['checking','cancel_requested'].includes(record.state);
 const copyActive=(record:DataCreation)=>['creating','cancel_requested'].includes(record.state);
 const copyCancellationSettled=(record:DataCreation)=>['cancel_requested','ready','failed','cancelled'].includes(record.state)&&!dataCopyCancellationUnconfirmed(record);
+function fileNames(files: readonly { relative_path: string }[]) {
+  const names = files.slice(0, 3).map(file => file.relative_path.split('/').at(-1)).join(', ');
+  return files.length > 3 ? `${names}, …` : names;
+}
 const unknown=(failure:unknown)=>!(failure instanceof DaemonError)||failure.code==='OUTCOME_UNKNOWN'||!['none','not_started'].includes(failure.sideEffectState);
 export function DataWorkspaces(props:Props){const [open,setOpen]=useState(false),[started,setStarted]=useState(false);return <section className="data-workspaces" data-testid="data-workspaces"><details onToggle={event=>{setOpen(event.currentTarget.open);if(event.currentTarget.open)setStarted(true);}}><summary><h3>{dataWorkspaceMessages[props.language].title}</h3></summary>{started&&<DataWorkspacePanel key={`${props.project.id}:${props.project.revision}`} {...props} expanded={open}/>}</details></section>;}
 function DataWorkspacePanel({project,connected,language,onReady,expanded}:Props&{expanded:boolean}){
   const t=dataWorkspaceMessages[language],saved=intents.get(project.id);
+  const copy = language === 'zh'
+    ? { choose: '选择要预览的文件', fileCount: (count: number) => `${count} 个文件`, copied: (count: number) => `已复制 ${count} 个文件`, limits: '大小限额', evidence: '完整证据' }
+    : { choose: 'Choose files to preview', fileCount: (count: number) => `${count} files`, copied: (count: number) => `${count} files copied`, limits: 'Size limits', evidence: 'Full evidence' };
   const [form,setForm]=useState<DataWorkspaceForm>(()=>saved?.form??newDataForm()),[previews,setPreviews]=useState<DataPreview[]>([]),[copies,setCopies]=useState<DataCreation[]>([]),[pending,setPending]=useState<Pending|null>(saved??null),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false),[fresh,setFresh]=useState(false),[error,setError]=useState(''),[paused,setPaused]=useState(false),[readVersion,setReadVersion]=useState(0);
   const mounted=useRef(true),sequence=useRef(0),writing=useRef(false),reads=useRef(0),observed=useRef(new Map<string,Floor>(saved?.floors??[])),notified=useRef(new Set<string>()),readyCallback=useRef(onReady);readyCallback.current=onReady;
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;++sequence.current;};},[]);
@@ -86,9 +93,54 @@ function DataWorkspacePanel({project,connected,language,onReady,expanded}:Props&
   const state=(value:string,kind:'preview'|'copy')=>kind==='copy'&&value==='cancelled'?t.copyCancelled:(kind==='preview'?previewStates:copyStates).includes(value)?t[value as 'checking'|'ready']:`${t.unknownState}: ${value}`;
   const completion=(value:DataCreation['io_completion'])=>value==='worker_joined'?t.ioJoined:value==='not_scheduled'?t.ioNotScheduled:value==='interrupted_no_join_receipt'?t.ioInterrupted:t.ioUnrecorded;
   const snapshot=(value:DatasetSnapshot)=><><dl><dt>{t.count}</dt><dd>{value.files.length}</dd><dt>{t.bytes}</dt><dd>{value.total_bytes}</dd><dt>{t.dataset}</dt><dd><code>{value.dataset_revision}</code></dd></dl><ul>{value.files.map(file=><li key={file.requirement.artifact_id}><span>{file.requirement.relative_path}</span> · {file.bytes} bytes<br/><code>{file.sha256}</code></li>)}</ul></>;
-  return <div aria-busy={busy||loading}><p>{t.hint}</p><details><summary>{t.boundaryTitle}</summary><p>{t.boundaries}</p><p>{t.cancelHint}</p></details>{!live&&<p>{t.unavailable}</p>}<button type="button" disabled={!connected||busy||loading} onClick={()=>void refresh()}>{t.refresh}</button>{error&&<p className="error" role={expanded?'alert':undefined}>{error}</p>}{pending&&<p role={expanded?'status':undefined}>{pending.uncertain?t.pending:pending.receipt?t.receiptPending:t.waiting}</p>}{pending?.uncertain&&<button type="button" disabled={!canRecover} onClick={()=>pending&&void perform(pending)}>{t.recover}</button>}{paused&&<p>{t.pollPaused}</p>}
-    <form onSubmit={start}><fieldset disabled={disabled||!!pending||!live||unresolved}><label>{t.files}<textarea rows={3} value={form.files} maxLength={12288} onChange={event=>setForm(previous=>({...previous,files:event.target.value}))}/></label><details><summary>{t.maxTotalBytes}</summary>{(['maxFileBytes','maxTotalBytes','maxFiles']as const).map(key=><label key={key}>{t[key]}<input inputMode="numeric" value={form[key]} onChange={event=>setForm(previous=>({...previous,[key]:event.target.value}))}/></label>)}</details></fieldset><button type="submit" className="primary" disabled={disabled||!!pending||!live||unresolved||!form.files.trim()}>{t.start}</button></form>
-    {!previews.length&&!copies.length&&<p>{t.empty}</p>}<h4>{t.previews}</h4>{previews.map(record=><details key={record.id}><summary>{state(record.state,'preview')} · {record.id}</summary><p>{t.revision}: {record.revision}</p>{record.snapshot&&snapshot(record.snapshot)}{record.error&&<p className="error">{record.error.code}: {record.error.message}</p>}{record.state==='verified'&&<p>{t.previewOnly}</p>}<button type="button" disabled={disabled||!!pending||!live||unresolved||record.state!=='verified'||record.project_revision!==project.revision||record.snapshot?.contract.source.canonical_root!==project.identity.canonical_root||copies.some(copy=>copy.preview_id===record.id)} onClick={()=>void perform(operation('approve',record.id,record.revision,undefined,record.project_revision))}>{t.approve}</button>{previewActive(record)&&<button type="button" disabled={disabled||!!pending} onClick={()=>void perform(operation('cancel_preview',record.id,record.revision,undefined,record.project_revision))}>{t.cancelPreview}</button>}{record.state==='outcome_unknown'&&<p>{t.retained}</p>}</details>)}
-    <h4>{t.copies}</h4>{copies.map(record=><details key={record.id}><summary>{dataCopyCancellationUnconfirmed(record)?t.copyCancellationUnconfirmed:state(record.state,'copy')} · {record.id}</summary><dl><dt>{t.workspace}</dt><dd>{record.workspace_id}</dd><dt>{t.destination}</dt><dd><code>{record.destination}</code></dd><dt>{t.dataset}</dt><dd><code>{record.dataset_revision}</code></dd><dt>{t.revision}</dt><dd>{record.revision}</dd><dt>{t.ioCompletion}</dt><dd>{completion(record.io_completion)}</dd>{record.contract&&<><dt>{t.digest}</dt><dd><code>{record.contract.contract_digest}</code></dd></>}</dl>{record.state==='cancelled'&&<p>{t.copyCancelledHint}</p>}{dataCopyCancellationUnconfirmed(record)&&<p>{t.copyCancellationUnconfirmedHint}</p>}{record.cancel_requested&&record.state!=='cancelled'&&<p>{record.state==='ready'?t.readyAfterCancel:t.cancelHint}</p>}{['failed','outcome_unknown'].includes(record.state)&&<p>{t.retained}</p>}{record.observation&&<p>{t.copied}: {record.observation.copied_files}</p>}{record.error&&<p className="error">{record.error.code}: {record.error.message}</p>}{copyActive(record)&&<button type="button" disabled={disabled||!!pending} onClick={()=>void perform(operation('cancel_copy',record.id,record.revision,undefined,record.project_revision))}>{t.cancelCopy}</button>}</details>)}
+  return <div aria-busy={busy||loading}>{!live&&<p>{t.unavailable}</p>}<button type="button" disabled={!connected||busy||loading} onClick={()=>void refresh()}>{t.refresh}</button>{error&&<p className="error" role={expanded?'alert':undefined}>{error}</p>}{pending&&<p role={expanded?'status':undefined}>{pending.uncertain?t.pending:pending.receipt?t.receiptPending:t.waiting}</p>}{pending?.uncertain&&<button type="button" disabled={!canRecover} onClick={()=>pending&&void perform(pending)}>{t.recover}</button>}{paused&&<p>{t.pollPaused}</p>}
+    {!loading && !previews.length && !copies.length && <p>{t.empty}</p>}
+    {!!copies.length && <section aria-label={t.copies}>
+      <h4>{t.copies}</h4>
+      {copies.map(record => <details key={record.id} data-record-id={record.id}>
+        <summary>{dataCopyCancellationUnconfirmed(record) ? t.copyCancellationUnconfirmed : state(record.state, 'copy')} · {record.observation ? copy.copied(record.observation.copied_files) : copy.fileCount(record.snapshot.files.length)} · <code>{fileNames(record.snapshot.contract.files)}</code></summary>
+        <ul>{record.snapshot.files.map(file => <li key={file.requirement.artifact_id}><code>{file.requirement.relative_path}</code></li>)}</ul>
+        {record.state === 'cancelled' && <p>{t.copyCancelledHint}</p>}
+        {dataCopyCancellationUnconfirmed(record) && <p>{t.copyCancellationUnconfirmedHint}</p>}
+        {record.cancel_requested && record.state !== 'cancelled' && <p>{record.state === 'ready' ? t.readyAfterCancel : t.cancelHint}</p>}
+        {['failed', 'outcome_unknown'].includes(record.state) && <p>{t.retained}</p>}
+        {record.observation && <p>{t.copied}: {record.observation.copied_files}</p>}
+        {record.error && <p className="error">{record.error.message}</p>}
+        {copyActive(record) && <button type="button" disabled={disabled || !!pending}
+          onClick={() => void perform(operation('cancel_copy', record.id, record.revision, undefined, record.project_revision))}>{t.cancelCopy}</button>}
+        <details><summary>{copy.evidence}</summary><dl>
+          <dt>{t.workspace}</dt><dd><code>{record.workspace_id}</code></dd>
+          <dt>{t.destination}</dt><dd><code>{record.destination}</code></dd>
+          <dt>{t.dataset}</dt><dd><code>{record.dataset_revision}</code></dd>
+          <dt>{t.revision}</dt><dd>{record.revision}</dd>
+          <dt>{t.ioCompletion}</dt><dd>{completion(record.io_completion)}</dd>
+          {record.contract && <><dt>{t.digest}</dt><dd><code>{record.contract.contract_digest}</code></dd></>}
+        </dl><pre>{JSON.stringify(record, null, 2)}</pre></details>
+      </details>)}
+    </section>}
+    {!!previews.length && <section aria-label={t.previews}>
+      <h4>{t.previews}</h4>
+      {previews.map(record => <details key={record.id} data-record-id={record.id}>
+        <summary>{state(record.state, 'preview')} · {copy.fileCount(record.selection.files.length)} · <code>{fileNames(record.selection.files)}</code></summary>
+        <ul>{record.selection.files.map(file => <li key={file.artifact_id}><code>{file.relative_path}</code></li>)}</ul>
+        {record.error && <p className="error">{record.error.message}</p>}
+        {record.state === 'verified' && <p>{t.previewOnly}</p>}
+        <button type="button" disabled={disabled || !!pending || !live || unresolved || record.state !== 'verified' || record.project_revision !== project.revision || record.snapshot?.contract.source.canonical_root !== project.identity.canonical_root || copies.some(copy => copy.preview_id === record.id)}
+          onClick={() => void perform(operation('approve', record.id, record.revision, undefined, record.project_revision))}>{t.approve}</button>
+        {previewActive(record) && <button type="button" disabled={disabled || !!pending} onClick={() => void perform(operation('cancel_preview', record.id, record.revision, undefined, record.project_revision))}>{t.cancelPreview}</button>}
+        {record.state === 'outcome_unknown' && <p>{t.retained}</p>}
+        <details><summary>{copy.evidence}</summary><p>{t.revision}: {record.revision}</p>{record.snapshot && snapshot(record.snapshot)}<pre>{JSON.stringify(record, null, 2)}</pre></details>
+      </details>)}
+    </section>}
+    <details className="secondary-section"><summary>{copy.choose}</summary>
+      <form onSubmit={start}>
+        <fieldset disabled={disabled || !!pending || !live || unresolved}>
+          <label>{t.files}<textarea rows={3} value={form.files} maxLength={12288} onChange={event => setForm(previous => ({ ...previous, files: event.target.value }))} /></label>
+          <details><summary>{copy.limits}</summary>{(['maxFileBytes', 'maxTotalBytes', 'maxFiles'] as const).map(key => <label key={key}>{t[key]}<input inputMode="numeric" value={form[key]} onChange={event => setForm(previous => ({ ...previous, [key]: event.target.value }))} /></label>)}</details>
+        </fieldset>
+        <button type="submit" className="primary" disabled={disabled || !!pending || !live || unresolved || !form.files.trim()}>{t.start}</button>
+      </form>
+    </details>
+    <details><summary>{t.boundaryTitle}</summary><p>{t.boundaries}</p><p>{t.cancelHint}</p></details>
   </div>;
 }

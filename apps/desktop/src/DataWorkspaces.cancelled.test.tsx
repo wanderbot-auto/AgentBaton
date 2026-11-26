@@ -15,7 +15,14 @@ const retainedHint = 'The owned copy worker joined after cancellation. Files may
 beforeEach(() => { vi.resetAllMocks(); vi.mocked(api.previewsList).mockResolvedValue([]); vi.mocked(api.creationsList).mockResolvedValue([]); });
 async function open(user: ReturnType<typeof userEvent.setup>) { await user.click(screen.getByRole('heading', { name: 'Selected-file data workspace' })); await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh data workspace records' })).toBeEnabled()); }
 const refresh = () => screen.getByRole('button', { name: 'Refresh data workspace records' });
-async function detail(user: ReturnType<typeof userEvent.setup>, id: string) { const summary = screen.getByText(new RegExp(` · ${id}$`), { selector: 'summary' }); if (!summary.parentElement!.hasAttribute('open')) await user.click(summary); return within(summary.parentElement!); }
+function recordSummary(id: string) {
+  return screen.getByTestId('data-workspaces').querySelector(`details[data-record-id="${id}"] > summary`)!;
+}
+async function detail(user: ReturnType<typeof userEvent.setup>, id: string) {
+  const summary = recordSummary(id);
+  if (!summary.parentElement!.hasAttribute('open')) await user.click(summary);
+  return within(summary.parentElement!);
+}
 async function loseCancellation(user: ReturnType<typeof userEvent.setup>, f: Fixture, onReady = vi.fn()) {
   vi.mocked(api.previewsList).mockResolvedValue([f.preview]);
   vi.mocked(api.creationsList).mockResolvedValue([{ ...f.creation, revision: 3 }]);
@@ -76,7 +83,8 @@ describe('copy cancellation evidence and reconciliation, not real I/O stop proof
     await loseCancellation(user, f, onReady);
     vi.mocked(api.creationsList).mockResolvedValue([stopped(f)]); await user.click(refresh());
     expect(screen.queryByRole('button', { name: 'Recover the same request' })).toBeNull();
-    expect(screen.getByText(`${stoppedLabel} · ${f.creation.id}`, { selector: 'summary' })).toBeVisible();
+    expect(recordSummary(f.creation.id)).toBeVisible();
+    expect(recordSummary(f.creation.id)).toHaveTextContent(stoppedLabel);
     expect((await detail(user, f.creation.id)).getByText(retainedHint)).toBeVisible();
     expect(onReady).not.toHaveBeenCalled(); expect(screen.queryByText(/^Copy ready/)).toBeNull();
     const reads = vi.mocked(api.creationsList).mock.calls.length;
@@ -85,6 +93,7 @@ describe('copy cancellation evidence and reconciliation, not real I/O stop proof
     expect((await detail(user, f.preview.id)).getByRole('button', { name: 'Review this data copy in native dialog' })).toBeDisabled();
     const nextId = f.preview.id + '-next', next = { ...copyFixture(f.preview), id: nextId, snapshot: { ...copyFixture(f.snapshot), contract: { ...copyFixture(f.snapshot.contract), approval_reference: nextId } } };
     vi.mocked(api.previewStart).mockImplementation(async () => { vi.mocked(api.previewsList).mockResolvedValue([f.preview, next]); return next; });
+    await user.click(screen.getByText('Choose files to preview', { selector: 'summary' }));
     fireEvent.change(screen.getByLabelText('Relative files (one path per line; optional | SHA-256)'), { target: { value: 'data.csv' } });
     await user.click(screen.getByRole('button', { name: 'Preview selected files' }));
     await waitFor(() => expect(api.previewStart).toHaveBeenCalledWith(f.selection, f.project.revision, expect.any(String)));
@@ -96,7 +105,8 @@ describe('copy cancellation evidence and reconciliation, not real I/O stop proof
     const legacy = { ...f.creation, revision: 4, state: 'failed', cancel_requested: true, error: { code: 'CANCEL_REQUESTED', message: 'Old failure receipt', retryable: false, side_effect_state: 'not_started' } };
     vi.mocked(api.creationsList).mockResolvedValue([legacy]); await user.click(refresh());
     expect(screen.getByRole('button', { name: 'Recover the same request' })).toBeInTheDocument();
-    expect(screen.getByText(`Cancellation unconfirmed; no stopped receipt · ${f.creation.id}`, { selector: 'summary' })).toBeVisible();
+    expect(recordSummary(f.creation.id)).toBeVisible();
+    expect(recordSummary(f.creation.id)).toHaveTextContent('Cancellation unconfirmed; no stopped receipt');
     expect(screen.queryByText(new RegExp(stoppedLabel))).toBeNull(); expect(onReady).not.toHaveBeenCalled();
     expect(api.creationCancel).toHaveBeenCalledOnce(); expect(api.previewStart).not.toHaveBeenCalled(); expect(api.approve).not.toHaveBeenCalled();
     const original = vi.mocked(api.creationCancel).mock.calls[0];
@@ -134,7 +144,8 @@ describe('copy cancellation evidence and reconciliation, not real I/O stop proof
   it('retains the distinct preview-cancelled wording', async () => {
     const user = userEvent.setup(), f = dataWorkspaceFixture(); vi.mocked(api.previewsList).mockResolvedValue([{ ...f.preview, state: 'cancelled', snapshot: null }]);
     render(<DataWorkspaces project={f.project} language="en" connected />); await open(user);
-    expect(screen.getByText(`Preview cancelled; no copy approved · ${f.preview.id}`, { selector: 'summary' })).toBeVisible();
+    expect(recordSummary(f.preview.id)).toBeVisible();
+    expect(recordSummary(f.preview.id)).toHaveTextContent('Preview cancelled; no copy approved');
     expect(api.approve).not.toHaveBeenCalled(); expect(api.previewStart).not.toHaveBeenCalled();
   });
 });

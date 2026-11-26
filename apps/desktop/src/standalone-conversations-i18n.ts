@@ -1,6 +1,6 @@
 export const standaloneConversationMessages = {
   en: {
-    entry:'New independent conversation', title:'Independent Agent conversations', help:'Start a separate Agent conversation in an approved managed workspace. Starting launches an Agent process; it does not create a task or send a message.',
+    entry:'Independent conversations', title:'Independent Agent conversations', help:'Start a separate Agent conversation in an approved managed workspace. Starting launches an Agent process; it does not create a task or send a message.',
     refresh:'Refresh conversations', disconnected:'Connect to the local daemon to continue.', error:'The conversation or its authorization could not be verified. Refresh before continuing.',
     project:'Conversation project', workspace:'Managed workspace', connection:'Agent connection', grant:'Execution grant', choose:'Choose…', name:'Conversation name', start:'Start conversation', empty:'No independent conversations yet.',
     noProject:'Choose an active registered project.', noWorkspace:'No ready managed Git workspace is available for this project. Prepare one in project settings.', noConnection:'No approved ready connection is available. Configure a connection first.',
@@ -13,7 +13,7 @@ export const standaloneConversationMessages = {
     states:{starting:'Starting',ready:'Ready',running:'Running',cancel_requested:'Stop requested',stopped:'Stopped',failed:'Failed',outcome_unknown:'Outcome unknown'},
   },
   zh: {
-    entry:'新建独立对话', title:'独立 Agent 对话', help:'在已批准的受管工作区中启动独立 Agent 对话。启动会创建 Agent 进程，不创建任务，也不发送消息。',
+    entry:'独立对话', title:'独立 Agent 对话', help:'在已批准的受管工作区中启动独立 Agent 对话。启动会创建 Agent 进程，不创建任务，也不发送消息。',
     refresh:'刷新对话', disconnected:'连接本地后台后继续。', error:'无法核验对话或授权，请刷新后继续。',
     project:'对话项目', workspace:'受管工作区', connection:'Agent 连接', grant:'执行授权', choose:'请选择…', name:'对话名称', start:'开始对话', empty:'暂无独立对话。',
     noProject:'请选择有效的已注册项目。', noWorkspace:'此项目没有就绪的受管 Git 工作区，请先在项目设置中准备。', noConnection:'暂无已批准且就绪的连接，请先配置连接。',

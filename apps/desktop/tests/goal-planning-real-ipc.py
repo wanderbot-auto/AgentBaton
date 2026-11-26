@@ -88,7 +88,9 @@ def main():
             assert time.monotonic() < end, f'Observation deadline exceeded: {value}'
             time.sleep(.02)
 
-    with tempfile.TemporaryDirectory(prefix='baton-goal-browser-') as temporary:
+    # A macOS user temp path can exceed the AF_UNIX socket limit after resolution.
+    temp_parent = '/tmp' if sys.platform == 'darwin' else None
+    with tempfile.TemporaryDirectory(prefix='baton-goal-browser-', dir=temp_parent) as temporary:
         root = Path(temporary).resolve()
         root.chmod(0o700)
         runtime = root / 'runtime'
@@ -327,9 +329,17 @@ def main():
                     report['observations']['empty_history_response'] = ipc('goal_plans.list', {'scope_id': scope['id']})
                     screenshot('01-fresh-goal-expanded')
                     assert report['observations']['empty_history_response'].get('result') == [], 'Fresh approved scope must return an empty plan history; no NOT_FOUND translation or preseed permitted'
-                    expect(panel.get_by_role('combobox', name='Selected Goal scope', exact=True)).to_have_value(scope['id'])
-                    plan_detail = panel.locator('details').filter(has=page.get_by_text('Versioned plan proposal', exact=True)).last
+                    scope_choices = panel.get_by_role('combobox', name='Selected Goal scope', exact=True)
+                    if scope_choices.count():
+                        expect(scope_choices).to_have_value(scope['id'])
+                    scoped_reads = [row for row in report['requests'] if row['method'] == 'goal_plans.list']
+                    assert scoped_reads and all(row['args'] == {'scopeId': scope['id']} and row['error'] is None for row in scoped_reads)
+                    plan_detail = panel.get_by_test_id('goal-plan-proposal')
                     open_details(plan_detail)
+                    raw_plan = plan_detail.get_by_text('Plan proposal JSON', exact=True).and_(plan_detail.locator('summary'))
+                    raw_detail = raw_plan.locator('..')
+                    assert not raw_detail.evaluate('(element)=>element.open')
+                    open_details(raw_detail)
                     passed('real UI lazily lists an independently approved Goal and empty immutable plan history')
 
                     contract = scope['outputs']['report']
@@ -362,7 +372,7 @@ def main():
                         editor.get_by_role('button', name='Prepare steps from approved scope', exact=True).click()
                         first_detail = editor.locator('.goal-plan-editor-node').first
                         open_details(first_detail)
-                        first_id = first_detail.locator(':scope > summary').inner_text().rsplit(' · ', 1)[1]
+                        first_id = first_detail.get_attribute('data-step-id')
                         first_detail.get_by_role('textbox', name=f'Step goal {first_id}', exact=True).fill('Write the approved report from the fixed input')
                         first_artifacts = first_detail.locator('details').filter(has=page.get_by_text('Inputs and outputs', exact=True)).last
                         open_details(first_artifacts)
@@ -374,8 +384,8 @@ def main():
                         editor.get_by_role('button', name='Add step', exact=True).click()
                         second_detail = editor.locator('.goal-plan-editor-node').last
                         open_details(second_detail)
-                        second_id = second_detail.locator(':scope > summary').inner_text().rsplit(' · ', 1)[1]
-                        assert second_id != first_id
+                        second_id = second_detail.get_attribute('data-step-id')
+                        assert first_id and second_id and second_id != first_id
                         second_detail.get_by_role('textbox', name=f'Step goal {second_id}', exact=True).fill('Write the separately approved details after the report')
                         dependencies = second_detail.locator('details').filter(has=page.get_by_text('Dependencies and lineage', exact=True)).last
                         open_details(dependencies)
@@ -387,13 +397,13 @@ def main():
                         second_budget = second_detail.locator('details').filter(has=page.get_by_text('Bounded budget and retry', exact=True)).last
                         open_details(second_budget)
                         second_detail.get_by_role('textbox', name='Runtime (ms)', exact=True).fill('3000')
-                        expect(editor.get_by_role('region', name='Dependency graph', exact=True)).to_contain_text(f'{first_id} → {second_id}')
+                        dependency_summary = second_detail.locator(':scope > summary')
+                        expect(dependency_summary).to_contain_text(f'{first_id} → {second_id}')
                         assert textarea.input_value() == original_raw, 'Local step edits silently normalized or replaced the original advanced JSON'
                         assert database_snapshot() == before_edit
                         assert not any(row['method'] in {'goal_plans.propose', 'goal_plans.revise'} for row in report['requests'])
-                        graph_heading = editor.get_by_role('heading', name='Dependency graph', exact=True)
-                        graph_heading.scroll_into_view_if_needed()
-                        expect(graph_heading).to_be_visible()
+                        dependency_summary.scroll_into_view_if_needed()
+                        expect(dependency_summary).to_be_visible()
                         screenshot('editor-01-local-steps-no-write')
                         editor.get_by_role('button', name='Apply steps to JSON draft', exact=True).click()
                         original_raw = textarea.input_value()
@@ -411,12 +421,12 @@ def main():
                         assert database_snapshot() == before_edit, 'Applying local steps wrote the daemon journal or reserved execution resources'
                         assert_no_execution()
                         report['observations']['structured_editor'] = {'editing_context': editing, 'proposal': proposal, 'raw_sha256': sha(original_raw.encode()), 'local_edit_snapshot': before_edit, 'after_apply_snapshot': database_snapshot()}
-                        graph_heading.scroll_into_view_if_needed()
-                        expect(graph_heading).to_be_visible()
+                        dependency_summary.scroll_into_view_if_needed()
+                        expect(dependency_summary).to_be_visible()
                         screenshot('editor-02-applied-local-draft')
                         page.set_viewport_size({'width': 390, 'height': 844})
-                        graph_heading.scroll_into_view_if_needed()
-                        expect(graph_heading).to_be_visible()
+                        dependency_summary.scroll_into_view_if_needed()
+                        expect(dependency_summary).to_be_visible()
                         screenshot('editor-03-mobile-dependency-graph')
                         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                         page.set_viewport_size({'width': 1488, 'height': 981})
@@ -435,6 +445,9 @@ def main():
                     passed('actual UI stores original raw plan bytes and server-derived scope references without dispatch', plan_digest=first['digest'], raw_sha256=sha(original_raw.encode()))
 
                     before = database_snapshot()
+                    advanced = panel.get_by_test_id('goal-scope-history')
+                    assert not advanced.evaluate('(element)=>element.open')
+                    open_details(advanced)
                     panel.get_by_role('button', name='Read readiness preview', exact=True).click()
                     expect(panel.get_by_role('region', name='Read-only readiness observation', exact=True)).to_be_visible()
                     preview = result('goal_plans.ready_preview', {'scope_id': scope['id']}, revision=1)

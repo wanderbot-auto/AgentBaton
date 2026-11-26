@@ -1251,18 +1251,31 @@ const FIRST: &str = r#"
   require(bad.error?.code === 'INVALID_REQUEST', 'real invalid input did not fail');
   const events = result(await invoke('events_subscribe',{cursor:0,limit:100}));
   require(events.events.some(e=>e.aggregate_id===task.id), 'real journal event absent');
+  const beforeHistory=result(await invoke('system_snapshot')).sequence;
+  const taskHistory=result(await invoke('tasks_history',{taskId:task.id,limit:60}));
+  require(taskHistory?.task_id===task.id&&Array.isArray(taskHistory.events)&&taskHistory.events.length===0&&taskHistory.next_cursor===null,'native history must return only the fresh task page');
+  const invalidHistory=await invoke('tasks_history',{taskId:task.id,limit:60,before:2,after:1});
+  require(invalidHistory?.error?.code==='INVALID_REQUEST'&&!Object.prototype.hasOwnProperty.call(invalidHistory,'result'),'native history must reject a two-direction cursor');
+  require(result(await invoke('system_snapshot')).sequence===beforeHistory,'reading task history changed the native journal');
   const beforeData=result(await invoke('system_snapshot')).sequence;
   const dataPolicies=result(await invoke('data_validation_policies_list',{taskId:task.id}));
   const dataRecords=result(await invoke('data_validations_list',{taskId:task.id}));
   require(Array.isArray(dataPolicies)&&dataPolicies.length===0&&Array.isArray(dataRecords)&&dataRecords.length===0,'fresh task must have no fabricated data approvals or receipts');
   const artifacts=document.querySelector('#tab-artifacts');
   require(artifacts,'actual task Artifacts tab missing');artifacts.click();
+  let validationFold;
+  while(!(validationFold=document.querySelector('#panel-artifacts > details.secondary-section'))){require(Date.now()<deadline,'advanced validation did not mount');await new Promise(r=>setTimeout(r,25));}
+  require(!validationFold.open,'advanced validation must start folded');
+  validationFold.querySelector(':scope > summary').click();
   let dataPanel;
   while(!(dataPanel=document.querySelector('[data-testid="data-contract-validation"]'))){require(Date.now()<deadline,'actual data contract panel did not mount');await new Promise(r=>setTimeout(r,25));}
   const folded=dataPanel.querySelector('details');
   require(folded&&!folded.open,'data contract controls must start folded');folded.querySelector('summary').click();
   while(dataPanel.querySelector('form>fieldset')?.disabled!==false){require(Date.now()<deadline,'real native data-list read did not reconcile successfully');await new Promise(r=>setTimeout(r,25));}
   require(!dataPanel.querySelector('[role="alert"]'),'real native data-list read failed');
+  const dataForm=dataPanel.querySelector('form')?.closest('details');
+  require(dataForm&&!dataForm.open,'the data policy form must start folded');
+  dataForm.querySelector(':scope > summary').click();
   const approve=dataPanel.querySelector('button[type="submit"]');
   require(approve&&approve.disabled,'draft without stopped session must not enable native data approval');
   require(result(await invoke('system_snapshot')).sequence===beforeData,'read-only data controls unexpectedly mutated history');
@@ -1276,6 +1289,9 @@ const FIRST: &str = r#"
   require(commandFolded&&!commandFolded.open,'command validation controls must start folded');commandFolded.querySelector('summary').click();
   while(commandPanel.querySelector('form>fieldset')?.disabled!==false){require(Date.now()<deadline,'real native command-list read did not reconcile successfully');await new Promise(r=>setTimeout(r,25));}
   require(!commandPanel.querySelector('[role="alert"]'),'real native command-list read failed');
+  const commandForm=commandPanel.querySelector('form')?.closest('details');
+  require(commandForm&&!commandForm.open,'the command policy form must start folded');
+  commandForm.querySelector(':scope > summary').click();
   const commandApprove=commandPanel.querySelector('button[type="submit"]');
   require(commandApprove&&commandApprove.disabled,'draft without stopped session must not enable native command approval');
   require(result(await invoke('system_snapshot')).sequence===beforeCommand,'read-only command controls unexpectedly mutated history');
@@ -1292,7 +1308,10 @@ const FIRST: &str = r#"
   require(goalFolded&&!goalFolded.open,'Goal controls must start folded');goalFolded.querySelector('summary').click();
   while(goalPanel.querySelector('form>fieldset')?.disabled!==false||goalPanel.querySelector('[aria-busy]')?.getAttribute('aria-busy')!=='false'){require(Date.now()<deadline,'real native Goal lists did not reconcile successfully');await new Promise(r=>setTimeout(r,25));}
   require(!goalPanel.querySelector('[role="alert"]'),'real native Goal scope-list read failed');
-  require(/尚无独立原生批准的 Goal 范围|No native-approved Goal scope yet/.test(goalPanel.textContent),'actual empty Goal-scope state absent');
+  require(/需要已有且有效的本地根授予|A live existing local root grant is required/.test(goalPanel.textContent),'actual empty Goal-scope prerequisite absent');
+  const scopeSetup=goalPanel.querySelector('[data-testid="goal-scope-setup"]');
+  require(scopeSetup&&!scopeSetup.open,'new Goal scope controls must start folded');
+  scopeSetup.querySelector(':scope > summary').click();
   const goalApprove=goalPanel.querySelector('button[type="submit"]');
   require(goalApprove&&goalApprove.matches(':disabled'),'no eligible root grant must not enable native Goal approval');
   const goalActionNames=['保存初始计划提议','保存修订计划提议','读取就绪预览','Store initial plan proposal','Store revised plan proposal','Read readiness preview'];
@@ -1333,7 +1352,7 @@ const FIRST: &str = r#"
   await invoke('native_smoke_report',{result:{ok:true,goalReadonlyCheckpoint:'after',webCrypto:await webCryptoProof('after')}});
   document.querySelector('#tab-conversation').click();
   while(document.querySelector('#tab-conversation')?.getAttribute('aria-selected')!=='true'){require(Date.now()<deadline,'return to conversation did not settle');await new Promise(r=>setTimeout(r,25));}
-  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('first'),domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state},factoryScopeLists:true,factoryMissingScopeDenied:true,factoryMissingRunDenied:true,readonlyFactoryNoMutation:true,factoryReadonlySequence:{before:beforeFactory,after:afterFactory},factoryMissingScope:{scope_id:absentFactoryScopeId,code:missingFactoryScope.error.code,side_effect_state:missingFactoryScope.error.side_effect_state},factoryMissingRun:{scope_id:absentFactoryScopeId,code:missingFactoryRun.error.code,side_effect_state:missingFactoryRun.error.side_effect_state}}});
+  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('first'),domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,scopedTaskHistory:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state},factoryScopeLists:true,factoryMissingScopeDenied:true,factoryMissingRunDenied:true,readonlyFactoryNoMutation:true,factoryReadonlySequence:{before:beforeFactory,after:afterFactory},factoryMissingScope:{scope_id:absentFactoryScopeId,code:missingFactoryScope.error.code,side_effect_state:missingFactoryScope.error.side_effect_state},factoryMissingRun:{scope_id:absentFactoryScopeId,code:missingFactoryRun.error.code,side_effect_state:missingFactoryRun.error.side_effect_state}}});
  } catch (error) { await invoke('native_smoke_report',{result:{ok:false,error:String(error)}}); }
 })();
 "#;

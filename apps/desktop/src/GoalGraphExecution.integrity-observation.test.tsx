@@ -20,6 +20,8 @@ it('binds the actual accepted Task projection to the Integrity graph without tre
 it('displays the complete original observation as folded readonly JSON with its actual goal_io and no action',async()=>{
   const user=userEvent.setup(),{task,scope,graph_details:view}=actual();
   render(<GoalGraphExecutionHistory view={view} task={task} scope={scope} language="en"/>);
+  expect(screen.getByTestId('goal-graph-evidence')).not.toHaveAttribute('open');
+  await user.click(screen.getByTestId('goal-graph-evidence').querySelector('summary')!);
   const toggle=screen.getByText('Result checks · 1',{selector:'summary'});
   const section=toggle.parentElement!;
   expect(section).not.toHaveAttribute('open');

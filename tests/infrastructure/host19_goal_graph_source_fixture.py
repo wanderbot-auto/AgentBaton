@@ -3,10 +3,93 @@
 import hashlib
 
 DRIVER_PATH = 'apps/desktop/tests/goal-graph-real-ipc.py'
-CURRENT_SHA256 = '550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18'
+CURRENT_SHA256 = '48023cd5b30b5f622a54d262600c76e06cb358b61a32f698fdbec75055fc0f16'
+PRE_UI_SIMPLIFICATION_SHA256 = '550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18'
 HISTORICAL_SHA256 = '5c07f3fadcad286dffba98021f5d83c16eb999261d5887c506e830f5b52ca6cb'
 
-# Line offset in the current bytes, exact current span, exact historical span.
+
+# The current browser selectors are an outer layer over the schema 19 driver.
+UI_SIMPLIFICATION_EDITS = (
+    (1605,
+        (
+            b"                    panel = page.get_by_test_id('goal-planning')\n"
+            b"                    read_start = len(report['http_requests'])\n"
+            b"                    expand(panel.locator(':scope > details'))\n"
+            b"                    wait(lambda: report['http_requests'][read_start:], lambda entries: any(\n"
+            b"                        row['method'] == 'goal_plans.list' and row['params'] == {'scope_id': scope['id']}\n"
+            b"                        and not row['response'].get('error') for row in entries))\n"
+            b"                    scope_choices = panel.get_by_role('combobox', name='Selected Goal scope', exact=True)\n"
+            b'                    if scope_choices.count():\n'
+            b"                        expect(scope_choices).to_have_value(scope['id'])\n"
+            b"                    editor = panel.get_by_test_id('goal-plan-proposal')\n"
+        ),
+        (
+            b"                    panel = page.get_by_test_id('goal-planning'); expand(panel.locator(':scope > details'))\n"
+            b"                    expect(panel.get_by_role('combobox', name='Selected Goal scope', exact=True)).to_have_value(scope['id'])\n"
+            b"                    editor = panel.locator('details').filter(has=page.get_by_text('Versioned plan proposal', exact=True)).last\n"
+        ),
+    ),
+    (1616,
+        (
+            b"                    raw_summary = editor.get_by_text('Plan proposal JSON', exact=True).and_(editor.locator('summary'))\n"
+            b"                    raw_details = raw_summary.locator('..')\n"
+            b"                    assert not raw_details.evaluate('element=>element.open')\n"
+            b'                    expand(raw_details)\n'
+        ),
+        b'',
+    ),
+    (1667,
+        b'',
+        b'                        target = graph.locator(\'[data-testid=goal-graph-inspect][data-run-id="\' + run_id + \'"]\')\n',
+    ),
+    (1668,
+        (
+            b"                            expand(graph.get_by_test_id('goal-graph-runs'))\n"
+            b'                            run = graph.locator(\'[data-testid=goal-graph-run][data-run-id="\' + run_id + \'"]\')\n'
+            b'                            expand(run)\n'
+            b"                            run.get_by_test_id('goal-graph-inspect').click()\n"
+            b"                            expect(graph).to_have_attribute('aria-busy', 'false')\n"
+        ),
+        b"                            target.click(); expect(graph).to_have_attribute('aria-busy', 'false')\n",
+    ),
+    (1761,
+        (
+            b"                        expect(history.get_by_role('status')).to_have_text('Blocked')\n"
+            b"                        expect(history.get_by_text('Task accepted', exact=True)).to_have_count(0)\n"
+            b"                        expect(history.get_by_test_id('goal-graph-blockers')).to_be_visible()\n"
+            b"                        evidence = history.get_by_test_id('goal-graph-evidence')\n"
+            b"                        assert not evidence.evaluate('element=>element.open')\n"
+            b'                        expand(evidence)\n'
+            b'                        failed_node = history.locator(\'[data-node-id="validate-report"] > details > summary\')\n'
+            b"                        expect(failed_node).to_contain_text('Failed')\n"
+            b'                        expect(failed_node).to_be_visible()\n'
+        ),
+        (
+            b"                        expect(history.get_by_text('Task acceptance pending', exact=True)).to_be_visible()\n"
+            b'                        expect(history.locator(\'[data-node-id="validate-report"] > details > summary\')).to_contain_text(\'Failed\')\n'
+        ),
+    ),
+    (1794,
+        (
+            b"                        history = graph.get_by_test_id('goal-graph-history')\n"
+            b"                        expect(history.get_by_test_id('goal-graph-current-artifacts')).to_contain_text(first_artifact['relative_path'])\n"
+            b"                        expect(history.get_by_test_id('goal-graph-evidence')).not_to_have_attribute('open', '')\n"
+            b"                        shot('01-work-candidate-before-owner', history, 'owner-report')\n"
+        ),
+        b"                        shot('01-work-candidate-before-owner', graph.get_by_test_id('goal-graph-history'), 'owner-report')\n",
+    ),
+    (1919,
+        (
+            b"                        artifacts = history.get_by_test_id('goal-graph-current-artifacts')\n"
+            b"                        for artifact in accepted['task_acceptance']['artifact_refs']:\n"
+            b"                            expect(artifacts).to_contain_text(artifact['relative_path'])\n"
+        ),
+        b'',
+    ),
+)
+
+
+# Line offset in pre-UI schema 19 bytes, exact source span, exact historical span.
 EDITS = (
     (14,
         (
@@ -353,19 +436,35 @@ EDITS = (
 )
 
 
-def restore_goal_graph_before_schema19(path, raw):
-    """Return the original bytes from one complete and reviewed source variant."""
+def _require_driver_bytes(path, raw):
     if type(path) is not str or path != DRIVER_PATH or type(raw) is not bytes:
         raise ValueError('Expected raw bytes at the canonical Goal Graph driver path')
-    if hashlib.sha256(raw).hexdigest() != CURRENT_SHA256:
-        raise ValueError('Current Goal Graph source has changed')
+
+
+def _reverse_pinned_edits(raw, edits, expected_sha256):
     lines = raw.splitlines(keepends=True)
-    for start, current, original in reversed(EDITS):
+    for start, current, original in reversed(edits):
         end = start + len(current.splitlines(keepends=True))
         if not 0 <= start <= end <= len(lines) or b''.join(lines[start:end]) != current:
             raise ValueError('Goal Graph inverse source span has changed')
         lines[start:end] = original.splitlines(keepends=True)
     original = b''.join(lines)
-    if hashlib.sha256(original).hexdigest() != HISTORICAL_SHA256:
+    if hashlib.sha256(original).hexdigest() != expected_sha256:
         raise ValueError('Goal Graph inverse did not restore the pinned original')
     return original
+
+
+def restore_goal_graph_before_ui_simplification(path, raw):
+    """Remove the reviewed UI selector changes and restore the exact schema 19 source."""
+    _require_driver_bytes(path, raw)
+    if hashlib.sha256(raw).hexdigest() != CURRENT_SHA256:
+        raise ValueError('Current Goal Graph source has changed')
+    return _reverse_pinned_edits(raw, UI_SIMPLIFICATION_EDITS, PRE_UI_SIMPLIFICATION_SHA256)
+
+
+def restore_goal_graph_before_schema19(path, raw):
+    """Restore the original schema 18 source from either exact reviewed schema 19 variant."""
+    _require_driver_bytes(path, raw)
+    if hashlib.sha256(raw).hexdigest() != PRE_UI_SIMPLIFICATION_SHA256:
+        raw = restore_goal_graph_before_ui_simplification(path, raw)
+    return _reverse_pinned_edits(raw, EDITS, HISTORICAL_SHA256)

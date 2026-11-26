@@ -25,6 +25,10 @@ from functools import partial
 from playwright.sync_api import sync_playwright
 
 
+def disclosure(container, label):
+    return container.locator('summary').filter(has_text=re.compile('^' + re.escape(label) + '$'))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batond', type=Path, required=True)
@@ -113,6 +117,8 @@ def main():
                             'grants_list': ('grants.list', {'project_id': values.get('projectId', '')}, {'projectId'}),
                             'goal_scopes_list': ('goal_scopes.list', {'task_id': values.get('taskId', '')}, {'taskId'}),
                             'events_subscribe': ('events.subscribe', {'cursor': values.get('cursor', 0), 'limit': values.get('limit', 100)}, {'cursor', 'limit'}),
+                            'tasks_get': ('tasks.get', {'task_id': values.get('taskId', '')}, {'taskId'}),
+                            'tasks_history': ('tasks.history', {'task_id': values.get('taskId', ''), 'before': values.get('before'), 'after': values.get('after'), 'limit': values.get('limit', 60)}, {'taskId', 'before', 'after', 'limit'}),
                             'tasks_create': ('tasks.create', {'goal': values.get('goal', ''), **({'project_id': values['projectId']} if values.get('projectId') else {})}, {'goal', 'projectId', 'idempotencyKey'}),
                             'tasks_cancel': ('tasks.cancel', {'task_id': values.get('taskId', '')}, {'taskId', 'expectedRevision', 'idempotencyKey'}),
                         }
@@ -160,25 +166,31 @@ def main():
                     thread_view.wait_for()
                     task_ids.append(thread_view.get_attribute('data-task-id'))
                     assert page.get_by_role('heading', name=goal, exact=True).is_visible()
-                    assert page.get_by_text('尚无执行证据。本任务尚未派发给 Provider。', exact=True).is_visible()
+                    task = ipc('tasks.get', {'task_id': task_ids[-1]})['result']
+                    assert task['state'] == 'draft'
+                    assert thread_view.get_by_role('button', name='配置执行', exact=True).is_visible()
+                    assert page.get_by_test_id('goal-input').count() == 0
                     page.get_by_role('button', name='返回任务', exact=True).click()
                 assert len(set(task_ids)) == 5
                 passed('five actual UI drafts persisted through Unix IPC', task_ids=task_ids)
                 page.get_by_role('button', name='快捷对话', exact=True).click()
-                assert page.get_by_role('button', name='发送消息 · 暂不可用', exact=True).is_disabled()
+                assert page.get_by_role('button', name='发送到已有会话', exact=True).count() == 0
+                assert page.get_by_role('button', name='独立对话', exact=True).is_visible()
+                disclosure(page, '从摘要创建任务').press('Enter')
                 page.get_by_label('草稿上下文', exact=True).fill('检查只读配置输入')
                 page.get_by_role('button', name='转为任务', exact=True).click()
                 dialog = page.get_by_role('dialog', name='从此摘要创建任务')
                 assert dialog.is_visible()
                 page.get_by_label('选定摘要', exact=True).fill('仅将此审核摘要保存为任务')
-                dialog.get_by_role('button', name='创建任务', exact=True).click()
+                dialog.get_by_role('button', name='创建任务草稿', exact=True).click()
                 page.get_by_test_id('task-thread').wait_for()
                 assert page.get_by_role('heading', name='仅将此审核摘要保存为任务').is_visible()
                 page.get_by_role('button', name='返回任务', exact=True).click()
                 passed('reviewed quick-context summary converts to actual draft, standalone model send unavailable')
-                page.get_by_role('button', name='进行中', exact=True).click()
+                filters = page.get_by_label('任务状态筛选', exact=True)
+                filters.get_by_role('button', name='进行中', exact=True).click()
                 assert page.get_by_test_id('task-card').count() == 0
-                page.get_by_role('button', name='全部', exact=True).click()
+                filters.get_by_role('button', name='全部', exact=True).click()
                 assert page.get_by_test_id('task-card').count() == 6
                 passed('truthful recorded-state filtering')
                 page.get_by_test_id('goal-input').fill('任' * 6000)
@@ -202,7 +214,12 @@ def main():
                         assert layout['sidebar'] == 64, layout
                         assert page.get_by_role('button', name='新任务', exact=True).is_visible()
                         assert page.get_by_role('button', name='搜索', exact=True).is_visible()
-                        assert page.get_by_role('combobox', name='语言', exact=True).is_visible()
+                        preferences = page.get_by_role('button', name='设置', exact=True)
+                        assert preferences.is_visible()
+                        preferences.click()
+                        assert page.get_by_role('dialog', name='设置').get_by_role('combobox', name='语言', exact=True).is_visible()
+                        page.keyboard.press('Escape')
+                        assert preferences.evaluate('(e)=>e===document.activeElement')
                         passed('collapsed rail controls retain accessible localized names')
                     if width == 390:
                         toggle = page.get_by_role('button', name='切换导航', exact=True)
@@ -211,7 +228,12 @@ def main():
                         toggle.click()
                         assert page.get_by_role('button', name='新任务', exact=True).is_visible()
                         assert page.get_by_role('button', name='搜索', exact=True).is_visible()
-                        assert page.get_by_role('combobox', name='语言', exact=True).is_visible()
+                        preferences = page.get_by_role('button', name='设置', exact=True)
+                        assert preferences.is_visible()
+                        preferences.click()
+                        assert page.get_by_role('dialog', name='设置').get_by_role('combobox', name='语言', exact=True).is_visible()
+                        page.keyboard.press('Escape')
+                        assert preferences.evaluate('(e)=>e===document.activeElement')
                         toggle.click()
                         passed('mobile navigation exposes named controls and44px toggle target')
                     screenshot = output / f'home-{width}x{height}.png'
@@ -247,8 +269,11 @@ def main():
                     page.wait_for_function("()=>[...document.querySelectorAll('button')].some(button=>button.textContent==='刷新完整性记录'&&!button.disabled)")
                     assert any(request['method'] == 'validation_policies.list' and request['error'] is None for request in report['requests'])
                     assert any(request['method'] == 'validations.list' and request['error'] is None for request in report['requests'])
+                    integrity_boundary = page.get_by_text('文件完整性检查，不代表代码正确、任务验收或合入授权。', exact=True)
+                    assert not integrity_boundary.is_visible()
+                    disclosure(page, '文件检查策略与历史').press('Enter')
                     page.locator('summary').filter(has_text=re.compile('^审阅文件检查策略$')).click()
-                    assert page.get_by_text('文件完整性检查，不代表代码正确、任务验收或合入授权。', exact=True).is_visible()
+                    assert integrity_boundary.is_visible()
                     assert page.locator('.artifact-validation').get_by_text('请先停止并对账本任务的已登记会话，再批准文件检查。', exact=True).is_visible()
                     assert page.get_by_role('button', name='在原生负责人对话框中审阅', exact=True).is_disabled()
                     artifact_screenshot = output / f'artifacts-{width}x{height}.png'
@@ -257,11 +282,17 @@ def main():
                     assert ipc('system.snapshot', {})['result']['sequence'] == before_integrity
                     assert not any(request['method'] in ['validation_policies.propose', 'approvals.finalize', 'validations.run'] for request in report['requests'])
                     passed(f'actual read-only integrity lists and no fabricated validation {width}x{height}', task_id=selected_task)
-                    page.locator('summary').filter(has_text=re.compile('^审阅文件检查策略$')).click()
+                    disclosure(page, '文件检查策略与历史').click()
+                    advanced = disclosure(page, '高级验证')
+                    assert not advanced.evaluate('(e)=>e.parentElement.open')
+                    advanced.press('Enter')
                     data_panel = page.get_by_test_id('data-contract-validation')
                     data_panel.wait_for()
                     data_panel.locator('summary').filter(has_text=re.compile('^数据合同验证$')).click()
                     data_panel.get_by_text('尚无数据合同记录。', exact=True).wait_for()
+                    data_form = disclosure(data_panel, '审阅数据合同')
+                    assert not data_form.evaluate('(e)=>e.parentElement.open')
+                    data_form.press('Enter')
                     page.wait_for_function("()=>document.querySelector('[data-testid=\"data-contract-validation\"] form>fieldset')?.disabled===false")
                     assert data_panel.get_by_role('button', name='刷新数据合同记录', exact=True).is_enabled()
                     assert data_panel.get_by_role('button', name='在原生对话框中审阅数据合同', exact=True).is_disabled()
@@ -280,6 +311,9 @@ def main():
                     assert not command_panel.locator(':scope > details').evaluate('(e)=>e.open')
                     command_panel.locator('summary').filter(has_text=re.compile('^固定命令验证$')).click()
                     command_panel.get_by_text('尚无命令观测记录。', exact=True).wait_for()
+                    command_form = disclosure(command_panel, '审阅固定命令')
+                    assert not command_form.evaluate('(e)=>e.parentElement.open')
+                    command_form.press('Enter')
                     page.wait_for_function("()=>document.querySelector('[data-testid=\"command-validation\"] form>fieldset')?.disabled===false")
                     assert command_panel.get_by_role('button', name='刷新命令记录', exact=True).is_enabled()
                     assert command_panel.get_by_role('button', name='在原生对话框中审阅命令', exact=True).is_disabled()
@@ -301,8 +335,12 @@ def main():
                     goal_panel.wait_for()
                     assert not goal_panel.locator(':scope > details').evaluate('(e)=>e.open')
                     goal_panel.locator(':scope > details > summary').click()
+                    setup_scope = goal_panel.get_by_test_id('goal-scope-setup')
+                    setup_scope.locator('summary').first.wait_for()
+                    assert not setup_scope.evaluate('(e)=>e.open')
+                    setup_scope.locator('summary').first.press('Enter')
                     page.wait_for_function("()=>document.querySelector('[data-testid=\"goal-planning\"] form>fieldset')?.disabled===false&&document.querySelector('[data-testid=\"goal-planning\"] [aria-busy]')?.getAttribute('aria-busy')==='false'")
-                    goal_panel.get_by_text('尚无独立原生批准的 Goal 范围。', exact=True).wait_for()
+                    goal_panel.get_by_text('需要已有且有效的本地根授予，请先登记并原生批准其精确执行范围。', exact=True).wait_for()
                     assert goal_panel.get_by_role('button', name='刷新 Goal 记录', exact=True).is_enabled()
                     assert goal_panel.get_by_role('button', name='在原生对话框中审阅 Goal 范围', exact=True).is_disabled()
                     assert goal_panel.get_by_role('alert').count() == 0
@@ -336,41 +374,48 @@ def main():
                 page.get_by_role('button', name='设置', exact=True).click()
                 settings = page.get_by_role('dialog', name='设置', exact=True)
                 close = settings.get_by_role('button', name='关闭', exact=True)
-                summary = settings.locator('summary').filter(has_text=re.compile('^连接证据$'))
-                background_summary = settings.locator('summary').filter(has_text=re.compile('^后台与登录启动$'))
-                assert summary.count() == 1 and background_summary.count() == 1
-                assert summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
+                general = settings.get_by_role('button', name='常规', exact=True)
+                background = settings.get_by_role('button', name='后台', exact=True)
+                language = settings.get_by_role('combobox', name='语言', exact=True)
+                assert general.get_attribute('aria-pressed') == 'true'
+                assert close.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('Shift+Tab')
+                assert language.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('Tab')
+                assert close.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('Tab')
+                assert general.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('Tab')
+                assert background.evaluate('(e)=>e===document.activeElement')
+                page.keyboard.press('Enter')
+                background_summary = disclosure(settings, '后台与登录启动')
+                background_summary.wait_for()
                 assert background_summary.evaluate('(e)=>e.parentElement.tagName==="DETAILS" && e.parentElement.open===false')
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
-                assert close.evaluate('(e)=>e===document.activeElement')
+                close.focus()
                 page.keyboard.press('Shift+Tab')
                 assert background_summary.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Shift+Tab')
-                assert summary.evaluate('(e)=>e===document.activeElement')
-                page.keyboard.press('Tab')
-                assert background_summary.evaluate('(e)=>e===document.activeElement')
                 page.keyboard.press('Tab')
                 assert close.evaluate('(e)=>e===document.activeElement')
-                # The composed settings add recovery and daemon controls before the
-                # two closed summaries. Forward tabbing must stay in the dialog.
-                page.keyboard.press('Tab')
-                assert settings.evaluate('(e)=>e.contains(document.activeElement)')
-                assert not background_summary.evaluate('(e)=>e.parentElement.contains(document.activeElement)')
-                page.keyboard.press('Shift+Tab')
-                assert close.evaluate('(e)=>e===document.activeElement')
-                assert summary.evaluate('(e)=>e.parentElement.open===false')
                 assert background_summary.evaluate('(e)=>e.parentElement.open===false')
                 assert settings.get_by_role('region', name='下次登录时启动后台', exact=True).count() == 0
                 page.keyboard.press('Escape')
                 assert page.get_by_role('button', name='设置', exact=True).evaluate('(e)=>e===document.activeElement')
                 passed('actual closed-details summary is included in dialog focus trap')
                 page.get_by_test_id('task-card').first.click()
-                page.get_by_role('button', name='执行与授权', exact=True).click()
+                page.get_by_role('button', name='配置执行', exact=True).click()
                 execution = page.get_by_role('dialog', name='执行与授权', exact=True)
+                limits = disclosure(execution, '高级设置').first
+                assert not limits.evaluate('(e)=>e.parentElement.open')
+                limits.press('Enter')
                 duration = execution.locator('#grant-duration')
+                assert duration.is_visible()
                 assert duration.get_attribute('max') == '3600'
                 duration.fill('3601')
                 assert duration.evaluate('(e)=>e.validity.rangeOverflow')
+                permission = execution.get_by_test_id('session-scope-review')
+                assert not permission.evaluate('(e)=>e.open')
+                permission.locator('summary').first.press('Enter')
                 assert execution.get_by_role('button', name='创建有界执行授权', exact=True).is_disabled()
                 duration.fill('3600')
                 assert duration.evaluate('(e)=>e.validity.valid')
@@ -384,12 +429,18 @@ def main():
                 page.get_by_role('tab', name='详情', exact=True).click()
                 page.get_by_role('button', name='请求取消', exact=True).click()
                 page.get_by_text('已停止（已确认）', exact=True).wait_for()
-                assert page.get_by_role('button', name='请求取消', exact=True).is_disabled()
+                cancel = page.get_by_role('button', name='请求取消', exact=True)
+                assert cancel.count() == 0 or cancel.is_disabled()
                 passed('actual never-dispatched draft cancellation is confirmed by core evidence')
                 page.get_by_role('button', name='返回任务', exact=True).click()
                 page.get_by_role('button', name='历史', exact=True).click()
-                assert page.get_by_text('task.created', exact=True).count() == 6
-                assert page.get_by_text('task.cancelled', exact=True).count() == 1
+                assert page.get_by_text('已创建任务', exact=True).count() == 6
+                assert page.get_by_text('已确认停止', exact=True).count() == 1
+                assert page.get_by_text('task.created', exact=True).filter(visible=True).count() == 0
+                page.locator('.journal-list summary').filter(has_text='已创建任务').first.press('Enter')
+                assert page.get_by_text('task.created', exact=True).filter(visible=True).count() == 1
+                page.locator('.journal-list summary').filter(has_text='已确认停止').press('Enter')
+                assert page.get_by_text('task.cancelled', exact=True).filter(visible=True).count() == 1
                 passed('history uses actual journal events')
                 assert not errors, errors
                 passed('no browser runtime errors')

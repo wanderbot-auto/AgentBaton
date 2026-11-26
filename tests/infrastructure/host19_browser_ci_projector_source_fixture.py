@@ -1,12 +1,65 @@
-"""Exact inverse of the current driver label and schema 19 projector changes."""
+"""Exact inverses for compact UI driver and historical schema 19 source layers."""
 import hashlib
 
 DRIVER_PATH = "apps/desktop/tests/integration-real-ipc.py"
 PROJECTOR_PATH = "scripts/record-integration-browser-ci-evidence.py"
 DRIVER_BEFORE_SHA256 = "d7d163f945431abe328922c3f6e378c7665d3d37b9f8accbdc2f8a04454526be"
-DRIVER_CURRENT_SHA256 = "f730621d77cb75f94e214794615b1125ba0f33cc454431a3432a8b43e8ddd0bb"
+DRIVER_CURRENT_SHA256 = "26d7f4fe8cd2e0518de4916bedb6ff42048f93a8c13824836de5982af0c1b7c8"
+DRIVER_COMPACT_UI_PARENT_SHA256 = "f730621d77cb75f94e214794615b1125ba0f33cc454431a3432a8b43e8ddd0bb"
 PROJECTOR_BEFORE_SHA256 = "f4cae560fb2dbd3d5105f1433c4a8c4461d134e3fa940c2a099abb789fa5f411"
-PROJECTOR_CURRENT_SHA256 = "ff120f159df969b1f5425e371b9ea4d2166daa833bcb29000e66e2552d1b7548"
+PROJECTOR_CURRENT_SHA256 = "4128c075cac4b410dc4f7a3b79e4e7b727f7bc787c719392983c2c6dd72b9fc5"
+PROJECTOR_COMPACT_UI_PARENT_SHA256 = "ff120f159df969b1f5425e371b9ea4d2166daa833bcb29000e66e2552d1b7548"
+DRIVER_COMPACT_UI_EDITS = (
+    (
+        b"        if command == 'tasks_history':\n"
+        b"            require(set(args) <= {'taskId', 'limit', 'before', 'after'}\n"
+        b"                and args.get('taskId') == self.task and integer(args.get('limit', 60), 1, 100)\n"
+        b"                and not {'before', 'after'} <= args.keys())\n"
+        b"            cursors = {name: args[name] for name in ('before', 'after') if name in args}\n"
+        b'            require(all(integer(value, 1, SAFE - 1) for value in cursors.values()))\n'
+        b"            return 'tasks.history', {'task_id': self.task, 'limit': args.get('limit', 60), **cursors}, None, None\n",
+        b"",
+    ),
+    (
+        b"            'events.subscribe', 'tasks.history', 'integration_context.get', 'integration_targets.list',\n",
+        b"            'events.subscribe', 'integration_context.get', 'integration_targets.list',\n",
+    ),
+    (
+        b'def open_integration_panel(page, task_id):\n'
+        b'    page.locator(\'[data-testid="task-card"][data-task-id="\' + task_id + \'"]\').click()\n'
+        b"    page.get_by_role('tab', name='Details', exact=True).click()\n"
+        b"    page.get_by_text('Integration & delegation', exact=True).click()\n"
+        b"    panel = page.get_by_test_id('task-integration')\n"
+        b"    panel.locator(':scope > summary').click()\n"
+        b'    return panel\n'
+        b'\n'
+        b'\n',
+        b"",
+    ),
+    (
+        b'        panel = open_integration_panel(page, bounds.task)\n',
+        b'        page.locator(\'[data-testid="task-card"][data-task-id="\' + bounds.task + \'"]\').click()\n'
+        b"        page.get_by_role('tab', name='Details', exact=True).click()\n"
+        b"        panel = page.get_by_test_id('task-integration')\n"
+        b"        panel.locator(':scope > summary').click()\n",
+    ),
+    (
+        b"        panel.get_by_text('Advanced integration settings', exact=True).click()\n",
+        b"",
+    ),
+    (
+        b"        panel.get_by_text('Integration history', exact=True).click()\n",
+        b"",
+    ),
+)
+
+PROJECTOR_COMPACT_UI_EDITS = (
+    (
+        b"HTTP_READS = {'system.snapshot', 'projects.list', 'connections.list', 'sessions.list', 'tasks.get', 'tasks.history',\n",
+        b"HTTP_READS = {'system.snapshot', 'projects.list', 'connections.list', 'sessions.list', 'tasks.get',\n",
+    ),
+)
+
 LEGACY_CANDIDATE_CHECKS = (
     b"        manifest_raw = P.regular_bytes(fd, 'candidate.json', MAX_REPORT, witnesses=witnesses)\n"
     b"        build_raw = P.regular_bytes(fd, 'frontend-build-record.json', MAX_REPORT, witnesses=witnesses)\n"
@@ -50,8 +103,17 @@ def check_parent(raw, expected):
     return raw
 
 
+def restore_compact_ui_source(path, raw, expected_path, current_hash, parent_hash, edits):
+    """Verify every input byte before recovering the exact c87a3e83 source."""
+    checked_source(path, raw, expected_path, current_hash)
+    for current, previous in edits:
+        raw = replace(raw, current, previous)
+    return check_parent(raw, parent_hash)
+
+
 def restore_driver_before_labels19(path, raw):
-    checked_source(path, raw, DRIVER_PATH, DRIVER_CURRENT_SHA256)
+    raw = restore_compact_ui_source(path, raw, DRIVER_PATH, DRIVER_CURRENT_SHA256,
+        DRIVER_COMPACT_UI_PARENT_SHA256, DRIVER_COMPACT_UI_EDITS)
     raw = replace(raw, b"Core19 Unix IPC", b"Core18 Unix IPC", count=2)
     raw = replace(raw,
         b"    platform = 'Linux' if sys.platform == 'linux' else 'macOS'\n"
@@ -63,7 +125,8 @@ def restore_driver_before_labels19(path, raw):
 
 
 def restore_projector_before_schema19(path, raw):
-    checked_source(path, raw, PROJECTOR_PATH, PROJECTOR_CURRENT_SHA256)
+    raw = restore_compact_ui_source(path, raw, PROJECTOR_PATH, PROJECTOR_CURRENT_SHA256,
+        PROJECTOR_COMPACT_UI_PARENT_SHA256, PROJECTOR_COMPACT_UI_EDITS)
     start = raw.index(b"def validated_candidate(")
     end = raw.index(b"def collect(", start)
     raw = raw[:start] + raw[end:]

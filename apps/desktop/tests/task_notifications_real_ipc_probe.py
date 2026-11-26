@@ -21,7 +21,7 @@ MAX_EVENTS = 500
 MAX_SOURCES_INSPECTED = 10
 MAX_SCREENSHOTS = 4
 READS = frozenset(('system.snapshot', 'projects.list', 'connections.list', 'sessions.list',
-    'tasks.get', 'goal_scopes.list', 'goal_graph_runs.get', 'fixture.client_recovery_list',
+    'tasks.get', 'tasks.history', 'goal_scopes.list', 'goal_graph_runs.get', 'fixture.client_recovery_list',
     'events.subscribe', 'goal_runs.list', 'goal_graph_runs.list', 'goal_plans.list',
     'integration_context.get',
     'integration_targets.list', 'integration_policies.get', 'integration_policies.list',
@@ -228,7 +228,8 @@ def run_probe(page, host, bounds, fixture, accepted, server, report, output, wri
         expect(row).to_have_count(1, timeout=remaining_ms(deadline))
         expect(row).to_have_attribute('data-task-id', bounds.task, timeout=remaining_ms(deadline))
         visible(row.get_by_text('Task accepted', exact=True))
-        visible(row.get_by_text('Latest task status', exact=True))
+        expect(row.get_by_text('Last observed · refresh pending or unavailable', exact=True)).to_have_count(
+            0, timeout=remaining_ms(deadline))
         checked(CHECKS[1], notices=1, naturally_observed_events=len(mapped), synthetic_repeated_events=0)
         screenshot(PNG_NAMES[0], row.get_by_text('Task accepted', exact=True))
         bounded(lambda: row.get_by_text('Sources (' + str(len(mapped)) + ')', exact=True).click())
@@ -257,10 +258,12 @@ def run_probe(page, host, bounds, fixture, accepted, server, report, output, wri
         visible(page.get_by_role('heading', name='History', exact=True))
         original_row = page.locator('[id="journal-event-' + acceptance_event['event_id'] + '"]')
         expect(original_row).to_have_count(1, timeout=remaining_ms(deadline))
-        expect(original_row.locator(':scope > details')).to_have_attribute('open', '', timeout=remaining_ms(deadline))
+        disclosure = original_row.locator('xpath=ancestor::details[1]')
+        expect(disclosure).to_have_attribute('open', '', timeout=remaining_ms(deadline))
         visible(original_row.locator('pre'))
-        require(exact(json.loads(bounded(lambda: original_row.locator('pre').inner_text())), acceptance_event['payload']))
-        screenshot(PNG_NAMES[2], original_row.locator(':scope > details > summary'))
+        original = json.loads(bounded(lambda: original_row.locator('pre').inner_text()))
+        require(exact(original, acceptance_event))
+        screenshot(PNG_NAMES[2], disclosure.locator(':scope > summary'))
         checked(CHECKS[2], inspected_references=inspected, original_event_id=acceptance_event['event_id'],
             original_event_sequence=acceptance_event['sequence'], original_payload_matched=True)
         bounded(trigger.click)
@@ -278,7 +281,12 @@ def run_probe(page, host, bounds, fixture, accepted, server, report, output, wri
         expect(trigger).to_be_focused(timeout=remaining_ms(deadline))
         checked(CHECKS[3], same_task=True, modal_count=1, shortcuts=4, escape_background_restored=True)
         bounded(trigger.click)
-        dnd = page.get_by_role('dialog').get_by_role('checkbox', name='Do not disturb', exact=True)
+        dialog = page.get_by_role('dialog', name='Task notifications', exact=True)
+        settings = dialog.locator('summary').filter(has_text=re.compile('^Notification settings and sources$'))
+        expect(settings.locator('xpath=..')).not_to_have_attribute('open', '', timeout=remaining_ms(deadline))
+        bounded(lambda: settings.press('Enter'))
+        dnd = dialog.get_by_role('checkbox', name='Do not disturb', exact=True)
+        visible(dnd)
         expect(dnd).not_to_be_checked(timeout=remaining_ms(deadline)); bounded(dnd.check)
         bounded(lambda: page.keyboard.press('Escape'))
         muted = page.get_by_role('button', name='Notifications · do not disturb', exact=True)
@@ -289,11 +297,14 @@ def run_probe(page, host, bounds, fixture, accepted, server, report, output, wri
         visible(muted)
         bounded(muted.click)
         dialog = page.get_by_role('dialog', name='Task notifications', exact=True)
-        expect(dialog.get_by_role('checkbox', name='Do not disturb', exact=True)).to_be_checked(timeout=remaining_ms(deadline))
+        expect(settings.locator('xpath=..')).not_to_have_attribute('open', '', timeout=remaining_ms(deadline))
         visible(dialog.get_by_text('Task accepted', exact=True))
         visible(dialog.get_by_text('Sources (' + str(len(mapped)) + ')', exact=True))
         bounded(lambda: page.set_viewport_size({'width': 390, 'height': 844}))
-        screenshot(PNG_NAMES[3], dialog.get_by_role('checkbox', name='Do not disturb', exact=True))
+        bounded(lambda: settings.press('Enter'))
+        visible(dnd)
+        expect(dnd).to_be_checked(timeout=remaining_ms(deadline))
+        screenshot(PNG_NAMES[3], dnd)
         require(bounded(lambda: page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')))
         bounded(lambda: dialog.get_by_role('checkbox', name='Do not disturb', exact=True).uncheck())
         bounded(lambda: page.keyboard.press('Escape'))

@@ -683,6 +683,7 @@ def reverse_pinned_spans(source, layer, error=AssertionError):
     if layer is START_FAILURE_LAYERS[PROJECTOR] and sha(source) == MCP_LATE_WAIT_LAYER[0]:
         source = restore_mcp_late_wait_layer(source, error=error)
     if layer is START_FAILURE_LAYERS[DRIVER]:
+        source = restore_reviewed_factory_ui_layer(DRIVER, source, error)
         cancel = CANCEL_PROC_FD_LAYERS[DRIVER]
         if sha(source) == cancel[0]:
             source = reverse_pinned_spans(source, cancel, error)
@@ -734,6 +735,7 @@ def without_start_failure_layer(path, source, error):
 def restore_child_goal_before_schema19(path, source, *, error=AssertionError):
     if type(path) is not str or path not in LAYERS or type(source) is not str:
         raise error('Unknown Child Goal schema19 inverse arguments')
+    source = restore_reviewed_factory_ui_layer(path, source, error)
     source = without_start_failure_layer(path, source, error)
     layer = LAYERS[path]
     digest = sha(source)
@@ -807,7 +809,111 @@ def restore_cancel_proc_fd_layer(path, source, *, error=AssertionError):
     return reverse_pinned_spans(source, layer, error)
 
 
+# Exact browser navigation and imported-support pin changes since c87a3e83.
+# Keep the schema19, bounded-runtime and stop-evidence inverse layers intact.
+FACTORY_UI_SIMPLIFICATION_LAYERS = {'apps/desktop/tests/factory-real-ipc.py': ('54e5d19cc8e19d93bb93debf7ab15c11f64e3ac5e29f84b612fb1b0e1c3dad37',
+                                            '6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93',
+                                            [(51,
+                                              52,
+                                              '238a88a8f74329dae9fb067cecf31f31348d11906b4b3f4c4f17c436242f8d22',
+                                              'GRAPH_SUPPORT_SHA256 = '
+                                              "'550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18'\n"),
+                                             (1317,
+                                              1325,
+                                              'bb303feb72661170c859a2e978b0cb1dd99735251c5ff1b67778f5a0b6e40cb1',
+                                              ''),
+                                             (1568,
+                                              1569,
+                                              'c702b476dfcc4fa70cfda5f95b9b6c4b96121df55108ece5a246fd7dff4cb880',
+                                              ''),
+                                             (1691,
+                                              1695,
+                                              '257849930b3e29c87d183749492d7c0f705909fffa3b42d82228cd116746d735',
+                                              '')]),
+ 'apps/desktop/tests/factory-child-planning-real-ipc.py': ('2cf813bc87db8e2f8ee5d7006815087117155bddafa56022486b1a2adc14d303',
+                                                           'fe607d2c8bfeaf9ee34a0656b823bec9e00c11c9152501ebbd1e273bfbf79f39',
+                                                           [(36,
+                                                             37,
+                                                             '36ee3b12b53745d51ed2222633b052c917d10e306870d399a7378a4c396624d2',
+                                                             'FACTORY_SUPPORT_SHA256 = '
+                                                             "'6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93'\n"),
+                                                            (1188,
+                                                             1189,
+                                                             '655fbd25121a3cca3c3e23ab93f70d5582dfcb5d50509542c4d430e11efaafd5',
+                                                             ''),
+                                                            (1192,
+                                                             1194,
+                                                             'f0c39b11623a3092119d2b66925f4848ce4f046d7112ce48d227f3f475daea9d',
+                                                             "        form = panel.locator('form')\n"),
+                                                            (1207,
+                                                             1209,
+                                                             'b6e5e086689dc86784ac1e1a839548a7bf461f6cae8d3a2fef63748e995ce6d8',
+                                                             '        planning = '
+                                                             "form.locator('details').filter(has=page.get_by_text('Child-planning "
+                                                             "policy for Native review', exact=True))\n"
+                                                             "        planning.locator('summary').click(); "
+                                                             "planning.get_by_label('Allow bounded child "
+                                                             "planning', exact=True).check()\n")]),
+ 'apps/desktop/tests/factory-child-goal-real-ipc.py': ('e69b5b2c549404accbb4e55b0bd1c96d5e5cb928e93ebb0f3a281e4eeedcec1c',
+                                                       '73470592d65790678a57a17bb14b13351f261902fc87411039e6ec5ff31c2e11',
+                                                       [(34,
+                                                         35,
+                                                         '1c437773f8ab239110d4460328a3ecdbf65ecf36cc454c08b20dbe10451bd0d6',
+                                                         'PLANNING_SHA256 = '
+                                                         "'fe607d2c8bfeaf9ee34a0656b823bec9e00c11c9152501ebbd1e273bfbf79f39'\n"),
+                                                        (1725,
+                                                         1726,
+                                                         '97adb6c3e66d6073c48bcfdeb0d680917979549ed5852060ecb00347c7222b7b',
+                                                         "    const revision = [...(thread?.querySelectorAll('.task-details > dl > dt') ?? [])]\n"),
+                                                        (2042,
+                                                         2046,
+                                                         '8d50106360610dded375d1db796406f3d2378c01f28fd5e47ad4e84eb2f04e70',
+                                                         '        '
+                                                         "panel=page.get_by_test_id('factory-runtime');expand(panel.locator(':scope "
+                                                         "> details'));form=panel.locator('form')\n"),
+                                                        (2055,
+                                                         2056,
+                                                         '717caa61deed9e2e161efd3b49cbcaf40ae9e95815bceceac9b3e8d6b67e03e5',
+                                                         '        '
+                                                         "policy=form.locator('details').filter(has=page.get_by_text('Child-planning "
+                                                         'policy for Native '
+                                                         "review',exact=True));expand(policy)\n"),
+                                                        (2060,
+                                                         2061,
+                                                         'b5999bf42ab24601c61c465045ed46f830b379f1c4d07f7de5eae4cdf135d561',
+                                                         '        '
+                                                         "execution=form.locator('details').filter(has=page.get_by_text('Child "
+                                                         'Goal execution '
+                                                         "policy',exact=True));expand(execution)\n"),
+                                                        (2099,
+                                                         2100,
+                                                         '94fb9c72f2b4088959fbf219837b187e6a724af2ed2283aa24240c8df313939d',
+                                                         "        plan_details=task_item.locator(':scope > "
+                                                         "details');expand(plan_details)\n"),
+                                                        (2106,
+                                                         2107,
+                                                         '5fc9c31f3a62e6e2aa5f28b745c3df8e3aef17a8f4c8e81d3a6ce703bda05075',
+                                                         '')])}
+
+
+def restore_factory_before_ui_simplification(path, source, *, error=AssertionError):
+    if type(path) is not str or path not in FACTORY_UI_SIMPLIFICATION_LAYERS or type(source) is not str:
+        raise error('Unknown Factory UI inverse arguments')
+    layer = FACTORY_UI_SIMPLIFICATION_LAYERS[path]
+    if sha(source) == layer[1]:
+        return source
+    return reverse_pinned_spans(source, layer, error)
+
+
+def restore_reviewed_factory_ui_layer(path, source, error):
+    layer = FACTORY_UI_SIMPLIFICATION_LAYERS.get(path)
+    if layer is not None and sha(source) == layer[0]:
+        return restore_factory_before_ui_simplification(path, source, error=error)
+    return source
+
+
 def normalize_child_goal_outer_layer(path, source, *, error=AssertionError):
+    source = restore_reviewed_factory_ui_layer(path, source, error)
     cancel_layer = CANCEL_PROC_FD_LAYERS.get(path)
     if cancel_layer is not None and sha(source) == cancel_layer[0]:
         source = restore_cancel_proc_fd_layer(path, source, error=error)

@@ -13,6 +13,8 @@ it.each([{name:'Data',raw:dataRaw},{name:'system Command',raw:commandRaw}])('dis
   // This component test checks readonly original text, not API integrity or
   // Task acceptance. Those require the separate asynchronous verifier tests.
   render(<GoalGraphExecutionHistory view={view} scope={scope} task={task} language="en"/>);
+  expect(screen.getByTestId('goal-graph-evidence')).not.toHaveAttribute('open');
+  await user.click(screen.getByTestId('goal-graph-evidence').querySelector('summary')!);
   await user.click(screen.getByText('Result checks · 1',{selector:'summary'}));
   const pre=screen.getByTestId('goal-graph-original-observation');
   await user.click(within(pre.parentElement!).getByText('Details',{selector:'summary'}));

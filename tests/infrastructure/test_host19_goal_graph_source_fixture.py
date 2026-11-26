@@ -19,7 +19,11 @@ class OriginalGraphSource(unittest.TestCase):
     def test_exact_bytes_restore_and_legacy_controls_replay(self):
         current = SOURCE.read_bytes()
         self.assertEqual(hashlib.sha256(current).hexdigest(), F.CURRENT_SHA256)
+        schema19 = F.restore_goal_graph_before_ui_simplification(F.DRIVER_PATH, current)
+        self.assertEqual(hashlib.sha256(schema19).hexdigest(),
+            '550256ce728cbc26c5873237e09888195cfe01726b697d46d5e2b881e46b4d18')
         original = F.restore_goal_graph_before_schema19(F.DRIVER_PATH, current)
+        self.assertEqual(F.restore_goal_graph_before_schema19(F.DRIVER_PATH, schema19), original)
         self.assertEqual(hashlib.sha256(original).hexdigest(),
             '5c07f3fadcad286dffba98021f5d83c16eb999261d5887c506e830f5b52ca6cb')
         historical = types.ModuleType('_historical_goal_graph18')
@@ -67,4 +71,21 @@ class OriginalGraphSource(unittest.TestCase):
             ((start, current, original + b'# outside original\n'), *F.EDITS[1:]),
         ):
             with patch.object(F, 'EDITS', edits), self.assertRaises(ValueError):
+                F.restore_goal_graph_before_schema19(F.DRIVER_PATH, raw)
+
+    def test_ui_layer_first_requires_exact_current_source_and_pinned_target(self):
+        raw = SOURCE.read_bytes()
+        schema19 = F.restore_goal_graph_before_ui_simplification(F.DRIVER_PATH, raw)
+        for value in (schema19, raw + b'# outside reviewed selectors\n',
+                      raw.replace(b'goal-graph-evidence', b'goal-graph-evidencE', 1)):
+            self.assertNotEqual(value, raw)
+            with self.subTest(value_digest=hashlib.sha256(value).hexdigest()), self.assertRaises(ValueError):
+                F.restore_goal_graph_before_ui_simplification(F.DRIVER_PATH, value)
+
+        start, current, original = F.UI_SIMPLIFICATION_EDITS[0]
+        for edits in (
+            ((start + 1, current, original), *F.UI_SIMPLIFICATION_EDITS[1:]),
+            ((start, current, original + b'# outside canonical schema19\n'), *F.UI_SIMPLIFICATION_EDITS[1:]),
+        ):
+            with patch.object(F, 'UI_SIMPLIFICATION_EDITS', edits), self.assertRaises(ValueError):
                 F.restore_goal_graph_before_schema19(F.DRIVER_PATH, raw)

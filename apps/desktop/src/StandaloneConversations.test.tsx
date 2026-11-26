@@ -21,13 +21,13 @@ const convert=vi.fn();let state=createConversationUiState();
 beforeEach(()=>{vi.resetAllMocks();vi.mocked(conversationHistoryApi.page).mockResolvedValue({...historyPage([historyEvent(1),{...event,revision:2,sequence:2}],null),snapshot_revision:2,snapshot_sequence:2});localStorage.clear();localStorage.setItem('agentbaton.language','en');vi.mocked(sessionApi.sessionsList).mockResolvedValue([]);state=createConversationUiState();vi.mocked(api.projectsList).mockResolvedValue([project]);vi.mocked(api.workspacesList).mockResolvedValue([workspace]);vi.mocked(sessionApi.connectionsList).mockResolvedValue([connection]);vi.mocked(sessionApi.grantsList).mockResolvedValue([grant]);vi.mocked(conversationApi.list).mockResolvedValue([]);vi.mocked(conversationApi.get).mockResolvedValue(conversation);vi.mocked(api.snapshot).mockResolvedValue({tasks:[],sequence:1,api_version:1,database_schema_version:19});vi.mocked(api.events).mockResolvedValue({events:[event],sequence:1,next_cursor:1,gap:false});});
 function mount(){return render(<StandaloneConversations language="en" connected onConvert={convert} uiState={state}/>);}
 async function setup(){
- fireEvent.click(screen.getByText('New independent conversation',{selector:'summary'}));
+ fireEvent.click(screen.getByText('New conversation',{selector:'summary'}));
  await waitFor(()=>expect(screen.getByLabelText('Conversation project')).toBeEnabled());fireEvent.change(screen.getByLabelText('Conversation project'),{target:{value:project.id}});
  await waitFor(()=>expect(screen.getByRole('option',{name:workspace.root})).toBeInTheDocument());
  fireEvent.change(screen.getByLabelText('Managed workspace'),{target:{value:workspace.id}});fireEvent.change(screen.getByLabelText('Agent connection'),{target:{value:connection.id}});
  fireEvent.change(screen.getByLabelText('Execution grant'),{target:{value:grant.id}});fireEvent.change(screen.getByLabelText('Conversation name'),{target:{value:conversation.title}});
 }
-async function select(){vi.mocked(conversationApi.list).mockResolvedValue([conversation]);mount();await screen.findByRole('option',{name:'Discuss design · Ready'});fireEvent.change(screen.getByLabelText('Selected conversation'),{target:{value:conversation.id}});await screen.findByRole('heading',{name:conversation.title});}
+async function select(){vi.mocked(conversationApi.list).mockResolvedValue([conversation]);mount();await screen.findByRole('option',{name:'Discuss design · Ready'});fireEvent.change(screen.getByLabelText('Selected conversation'),{target:{value:conversation.id}});await screen.findByText('Approved Agent · Ready');}
 it('starts a taskless conversation only after explicit scope and start action',async()=>{
  vi.mocked(conversationApi.create).mockImplementation(async()=>{const row={...conversation,state:'starting',revision:1};vi.mocked(conversationApi.list).mockResolvedValue([row]);vi.mocked(conversationApi.get).mockResolvedValue(row);return row;});
  mount();await setup();expect(conversationApi.create).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Start conversation'}));
@@ -43,7 +43,7 @@ it('retains unknown creation across unmount and only explicitly replays the exac
 });
 it('disables expired grants and non-Git workspaces',async()=>{
  vi.mocked(sessionApi.grantsList).mockResolvedValue([{...grant,expires_at_ms:0}]);vi.mocked(api.workspacesList).mockResolvedValue([{...workspace,identity:{...project.identity,kind:{kind:'directory'}}}]);
- mount();fireEvent.click(screen.getByText('New independent conversation',{selector:'summary'}));await waitFor(()=>expect(screen.getByLabelText('Conversation project')).toBeEnabled());fireEvent.change(screen.getByLabelText('Conversation project'),{target:{value:project.id}});
+ mount();fireEvent.click(screen.getByText('New conversation',{selector:'summary'}));await waitFor(()=>expect(screen.getByLabelText('Conversation project')).toBeEnabled());fireEvent.change(screen.getByLabelText('Conversation project'),{target:{value:project.id}});
  await screen.findByText('No ready managed Git workspace is available for this project. Prepare one in project settings.');expect(screen.getByRole('button',{name:'Start conversation'})).toBeDisabled();
 });
 it('uses native grant authorization without launching a conversation',async()=>{
@@ -61,10 +61,13 @@ it('does not auto-retry unknown sends and retains their exact text',async()=>{
 });
 it('projects cancellation as a request rather than confirmed stop',async()=>{
  vi.mocked(conversationApi.cancel).mockImplementation(async()=>{const result={...conversation,revision:3,state:'cancel_requested'};vi.mocked(conversationApi.list).mockResolvedValue([result]);vi.mocked(conversationApi.get).mockResolvedValue(result);return result;});await select();fireEvent.click(screen.getByRole('button',{name:'Request stop'}));
- await waitFor(()=>expect(conversationApi.cancel).toHaveBeenCalledWith(conversation,expect.any(String)));await screen.findByText('Stop requested');expect(screen.queryByText('Stopped')).not.toBeInTheDocument();
+ await waitFor(()=>expect(conversationApi.cancel).toHaveBeenCalledWith(conversation,expect.any(String)));await screen.findByText('Approved Agent · Stop requested');expect(screen.queryByText('Approved Agent · Stopped')).not.toBeInTheDocument();
 });
 it('converts only chosen excerpts with fixed source project and no hidden Task creation',async()=>{
- await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));fireEvent.change(screen.getByLabelText('Selected conversation summary'),{target:{value:'Reviewed selected option'}});fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id);expect(api.create).not.toHaveBeenCalled();
+ await select();
+ expect(screen.queryByRole('checkbox',{name:'Agent: Discussed option'})).not.toBeInTheDocument();
+ fireEvent.click(await screen.findByRole('button',{name:'Select excerpts'}));
+ fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));fireEvent.click(screen.getByRole('button',{name:'Use selected excerpts'}));fireEvent.change(screen.getByLabelText('Selected conversation summary'),{target:{value:'Reviewed selected option'}});fireEvent.click(screen.getByRole('button',{name:'Create task from summary'}));expect(convert).toHaveBeenCalledWith('Reviewed selected option',project.id);expect(api.create).not.toHaveBeenCalled();
 });
 it('rejects details that regress below the observed conversation revision',async()=>{
  vi.mocked(conversationApi.list).mockResolvedValue([conversation]);vi.mocked(conversationApi.get).mockResolvedValue({...conversation,revision:1});mount();await screen.findByRole('option',{name:'Discuss design · Ready'});fireEvent.change(screen.getByLabelText('Selected conversation'),{target:{value:conversation.id}});await screen.findByRole('alert');expect(screen.queryByRole('button',{name:'Send message'})).not.toBeInTheDocument();
@@ -75,14 +78,17 @@ it('never sends automatically after a cancelled native grant confirmation',async
 
 it('opens the actual App dialog and starts no task or prompt implicitly',async()=>{
  vi.mocked(conversationApi.create).mockImplementation(async()=>{vi.mocked(conversationApi.list).mockResolvedValue([conversation]);return conversation;});
- render(<App/>);await screen.findByText('Local daemon connected');fireEvent.click(screen.getByRole('button',{name:'Quick chat'}));fireEvent.click(screen.getByRole('button',{name:'New independent conversation'}));
+ render(<App/>);await screen.findByText('Local daemon connected');fireEvent.click(screen.getByRole('button',{name:'Quick chat'}));fireEvent.click(screen.getByRole('button',{name:'Independent conversations'}));
  expect(screen.getByRole('dialog',{name:'Independent Agent conversations'})).toBeInTheDocument();
  await setup();expect(conversationApi.create).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Start conversation'}));
  await waitFor(()=>expect(conversationApi.create).toHaveBeenCalledTimes(1));expect(api.create).not.toHaveBeenCalled();expect(conversationApi.send).not.toHaveBeenCalled();expect(sessionApi.sessionsCreate).not.toHaveBeenCalled();
 });
 
 it('keeps history and selected excerpts mounted while refreshing actor state',async()=>{
- await select();fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));
+ await select();
+ expect(screen.queryByRole('checkbox',{name:'Agent: Discussed option'})).not.toBeInTheDocument();
+ fireEvent.click(await screen.findByRole('button',{name:'Select excerpts'}));
+ fireEvent.click(await screen.findByLabelText('Agent: Discussed option'));
  fireEvent.click(screen.getByRole('button',{name:'Refresh conversations'}));
  await waitFor(()=>expect(conversationApi.get).toHaveBeenCalledTimes(2));
  expect(screen.getByLabelText('Agent: Discussed option')).toBeChecked();expect(conversationHistoryApi.page).toHaveBeenCalledTimes(1);

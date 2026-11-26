@@ -21,16 +21,24 @@ function fixture(){
   return {task,grant,currentGrant:{...grant,revision:2,scope:{...grant.scope,max_children:3,max_depth:1}},scope,plan,preview,raw:` \n${JSON.stringify(proposal,null,2)}\n`};
 }
 beforeEach(()=>{vi.resetAllMocks();vi.mocked(api.grantsList).mockResolvedValue([]);vi.mocked(api.scopesList).mockResolvedValue([]);vi.mocked(api.plansList).mockResolvedValue([]);});
-async function open(user:ReturnType<typeof userEvent.setup>){await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));await waitFor(()=>expect(screen.getByRole('button',{name:'Refresh Goal records'})).toBeEnabled());}
+async function openDisclosure(user:ReturnType<typeof userEvent.setup>, testId:string){
+  const details=screen.queryByTestId(testId);
+  if(details&&!details.hasAttribute('open'))await user.click(details.querySelector('summary')!);
+}
+async function open(user:ReturnType<typeof userEvent.setup>){
+  await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));
+  await waitFor(()=>expect(screen.getByRole('button',{name:'Refresh Goal records'})).toBeEnabled());
+  await openDisclosure(user,'goal-scope-history');
+}
 const refresh=()=>screen.getByRole('button',{name:'Refresh Goal records'});
 const approve=()=>screen.getByRole('button',{name:'Review Goal scope in native dialog'});
-async function fillScope(user:ReturnType<typeof userEvent.setup>,f:ReturnType<typeof fixture>){await user.selectOptions(screen.getByLabelText('Existing root grant'),f.grant.id);fireEvent.change(screen.getByLabelText('Output relative path 1'),{target:{value:'outputs/report.txt'}});fireEvent.change(screen.getByLabelText('Owner acceptance criteria'),{target:{value:'Review report against exact outcome'}});fireEvent.change(screen.getByLabelText('Writable relative prefixes (one per line)'),{target:{value:'outputs'}});}
-async function openPlan(user:ReturnType<typeof userEvent.setup>){await user.click(screen.getByText('Versioned plan proposal',{selector:'summary'}));}
+async function fillScope(user:ReturnType<typeof userEvent.setup>,f:ReturnType<typeof fixture>){await openDisclosure(user,'goal-scope-setup');await user.selectOptions(screen.getByLabelText('Existing root grant'),f.grant.id);fireEvent.change(screen.getByLabelText('Output relative path 1'),{target:{value:'outputs/report.txt'}});fireEvent.change(screen.getByLabelText('Owner acceptance criteria'),{target:{value:'Review report against exact outcome'}});fireEvent.change(screen.getByLabelText('Writable relative prefixes (one per line)'),{target:{value:'outputs'}});}
+async function openPlan(user:ReturnType<typeof userEvent.setup>){await openDisclosure(user,'goal-plan-proposal');await user.click(screen.getByText('Plan proposal JSON',{selector:'summary'}));}
 function ready(f:ReturnType<typeof fixture>,plans:GoalPlan[]=[]){vi.mocked(api.grantsList).mockResolvedValue([f.currentGrant]);vi.mocked(api.scopesList).mockResolvedValue([f.scope]);vi.mocked(api.plansList).mockResolvedValue(plans);}
 describe('Goal UI with mocked native transport; not Core9/native dialog/dispatch proof',()=>{
   it('is folded, selects only a real root grant, uses separate native Goal approval and never dispatches on approval',async()=>{
     const user=userEvent.setup(),f=fixture();vi.mocked(api.grantsList).mockResolvedValue([f.grant,{...f.grant,id:'child',parent_id:f.grant.id},{...f.grant,id:'revoked',revoked:true}]);vi.mocked(api.approve).mockResolvedValue(f.scope);
-    render(<GoalPlanning task={f.task} language="en" connected/>);expect(screen.getByTestId('goal-planning').querySelector('details')).not.toHaveAttribute('open');await open(user);expect(screen.queryByRole('option',{name:/child/})).toBeNull();expect(screen.queryByRole('option',{name:/revoked/})).toBeNull();await fillScope(user,f);
+    render(<GoalPlanning task={f.task} language="en" connected/>);expect(screen.getByTestId('goal-planning').querySelector('details')).not.toHaveAttribute('open');await open(user);expect(screen.getByTestId('goal-scope-setup')).not.toHaveAttribute('open');await openDisclosure(user,'goal-scope-setup');expect(screen.queryByRole('option',{name:/child/})).toBeNull();expect(screen.queryByRole('option',{name:/revoked/})).toBeNull();await fillScope(user,f);
     ready(f);await user.click(approve());await waitFor(()=>expect(api.approve).toHaveBeenCalledOnce());const selection=vi.mocked(api.approve).mock.calls[0][0];expect(selection.expected_task_revision).toBe(1);expect(selection.expected_grant_revision).toBe(1);expect(selection.new_max_children).toBe(3);expect(selection.new_max_depth).toBe(1);expect(selection.root_budget.tokens).toBeNull();expect(api.propose).not.toHaveBeenCalled();expect(api.preview).not.toHaveBeenCalled();expect(await screen.findByText('Goal scope approved; planning only',{selector:'p'})).toBeVisible();
   });
   it('stores exact raw plan, revises with explicit next CAS and preserves readonly history',async()=>{
@@ -66,7 +74,7 @@ describe('Goal UI with mocked native transport; not Core9/native dialog/dispatch
     for(const raw of cases){fireEvent.change(screen.getByLabelText('Plan proposal JSON'),{target:{value:raw}});await user.click(screen.getByRole('button',{name:'Store initial plan proposal'}));expect(screen.getByRole('alert')).toBeVisible();}expect(api.propose).not.toHaveBeenCalled();expect(api.revise).not.toHaveBeenCalled();
   });
   it.each([{task_id:'foreign'},{planning_only:false}] as const)('refuses foreign/elevated scope %j',async patch=>{
-    const user=userEvent.setup(),f=fixture();ready(f);vi.mocked(api.scopesList).mockResolvedValue([{...f.scope,...patch}]);render(<GoalPlanning task={f.task} language="en" connected/>);await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));expect(await screen.findByRole('alert')).toHaveTextContent('Foreign, stale');expect(approve()).toBeDisabled();expect(api.propose).not.toHaveBeenCalled();
+    const user=userEvent.setup(),f=fixture();ready(f);vi.mocked(api.scopesList).mockResolvedValue([{...f.scope,...patch}]);render(<GoalPlanning task={f.task} language="en" connected/>);await user.click(screen.getByRole('heading',{name:'Goal scope and plan'}));expect(await screen.findByRole('alert')).toHaveTextContent('Foreign, stale');await openDisclosure(user,'goal-scope-setup');expect(approve()).toBeDisabled();expect(api.propose).not.toHaveBeenCalled();
   });
   it.each([{reservation_made:true},{dispatched:true},{read_only:false},{plan_revision:99}] as const)('refuses authority-bearing or stale preview %j and blocks writes until refresh',async patch=>{
     const user=userEvent.setup(),f=fixture();ready(f,[f.plan]);vi.mocked(api.preview).mockResolvedValue({...f.preview,...patch});render(<GoalPlanning task={f.task} language="en" connected/>);await open(user);await user.click(screen.getByRole('button',{name:'Read readiness preview'}));expect(await screen.findByRole('alert')).toHaveTextContent('Foreign, stale');expect(screen.queryByRole('region',{name:'Read-only readiness observation'})).toBeNull();expect(screen.getByRole('button',{name:'Revoke Goal scope'})).toBeDisabled();
@@ -111,7 +119,7 @@ describe('Goal UI with mocked native transport; not Core9/native dialog/dispatch
     vi.mocked(api.scopesList).mockResolvedValue([{...f.scope,expires_at_ms:-1}]);vi.mocked(api.grantsList).mockResolvedValue([{...f.currentGrant,expires_at_ms:-1}]);await user.click(refresh());await waitFor(()=>expect(screen.getByRole('button',{name:'Recover the same plan request'})).toBeEnabled());expect(api.propose).toHaveBeenCalledTimes(1);await user.click(screen.getByRole('button',{name:'Recover the same plan request'}));await waitFor(()=>expect(api.propose).toHaveBeenCalledTimes(2));expect(vi.mocked(api.propose).mock.calls[1]).toEqual(original);expect(await screen.findByRole('alert')).toHaveTextContent('Expired Goal cannot commit');expect(screen.getByRole('button',{name:'Store initial plan proposal'})).toBeDisabled();expect(api.revise).not.toHaveBeenCalled();
   });
   it('never reads or writes while disconnected and localizes the scoped Goal approval boundary',async()=>{
-    const user=userEvent.setup(),f=fixture();render(<GoalPlanning task={f.task} language="zh" connected={false}/>);await user.click(screen.getByRole('heading',{name:'Goal 范围与计划'}));expect(screen.getByRole('button',{name:'在原生对话框中审阅 Goal 范围'})).toBeDisabled();expect(screen.getByText(/共享已消耗及活动计数保留/)).toBeVisible();expect(api.grantsList).not.toHaveBeenCalled();expect(api.approve).not.toHaveBeenCalled();
+    const user=userEvent.setup(),f=fixture();render(<GoalPlanning task={f.task} language="zh" connected={false}/>);await user.click(screen.getByRole('heading',{name:'Goal 范围与计划'}));await openDisclosure(user,'goal-scope-setup');expect(screen.getByRole('button',{name:'在原生对话框中审阅 Goal 范围'})).toBeDisabled();expect(screen.getByText(/共享已消耗及活动计数保留/)).toBeVisible();expect(api.grantsList).not.toHaveBeenCalled();expect(api.approve).not.toHaveBeenCalled();
   });
   it('preserves unresolved approval and its exact key when navigation reopens the mounted panel',async()=>{
     const user=userEvent.setup(),f=fixture();vi.mocked(api.grantsList).mockResolvedValue([f.grant]);vi.mocked(api.approve).mockRejectedValueOnce(new Error('Lost approval response'));

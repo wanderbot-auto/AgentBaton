@@ -336,10 +336,57 @@ SOURCE_EDITS = (
 )
 
 
+# Exact outer layer for the UI navigation update. Older guards run after it.
+_UI_CURRENT_SHA256 = "67510f9afe40fc664930807d6f2a9577839e087c29f5ca2ef0f840c392103d26"
+_UI_PARENT_SHA256 = "58721865993d21d3aa7a34be91ae1080bcb850f9c157e7daa9611bf7d5f8ee9c"
+_UI_EDITS = (
+    (1253, 1259, "67dbc637996fc58f56f684f9f9a1cbe2d3037db439ecb4165a1d7afb710f725c",
+        (
+            b''
+        )),
+    (1265, 1269, "a9a8804642f9ba2f300efd5916621ccacdf02b60d0ddbb9724f9a5f8b14976af",
+        (
+            b''
+        )),
+    (1275, 1278, "1f2e6aea52ff3d5cdbd37a98f1805a7252912f0efd9e9b173c92e29e97e94348",
+        (
+            b''
+        )),
+    (1291, 1294, "e14777fa46489e8eaba722e5e68130a3145df6b9c2e6a4e2e6d99ed3b3ee0432",
+        (
+            b''
+        )),
+    (1310, 1314, "7d6873b30801315e60fe938eda96f140211db6da706ad4f12a1eec4c0e991fbe",
+        (
+            b"  require(/\xe5\xb0\x9a\xe6\x97\xa0\xe7\x8b\xac\xe7\xab\x8b\xe5\x8e\x9f\xe7\x94\x9f\xe6\x89\xb9\xe5\x87\x86\xe7\x9a\x84 Goal \xe8\x8c\x83\xe5\x9b\xb4|No native-approved Goal scope yet/.test(goalPanel.textContent),'actual empty Goal-scope state absent');\n"
+        )),
+    (1354, 1355, "6b6191c3b172096cb85475098455df6d1db2ba3c480841dd44659b959faf8d67",
+        (
+            b"  await invoke('native_smoke_report',{result:{ok:true,webCrypto:await webCryptoProof('first'),domMounted:true,realComposerSubmitted:true,realTaskRendered:true,taskId:task.id,projectId:task.project_id,idempotent:true,invalidInputRejected:true,journal:true,dataContractLists:true,dataContractEmptyControls:true,readonlyDataNoMutation:true,commandContractLists:true,commandContractEmptyControls:true,readonlyCommandNoMutation:true,goalScopeLists:true,goalScopeEmptyControls:true,readonlyGoalNoMutation:true,goalReadonlySequence:{before:beforeGoal,after:afterGoal},goalExecutionLists:true,goalExecutionMissingRunDenied:true,readonlyGoalExecutionNoMutation:true,goalExecutionReadonlySequence:{before:beforeGoalExecution,after:afterGoalExecution},goalExecutionMissingRun:{run_id:absentRunId,code:missingExecutionRun.error.code,side_effect_state:missingExecutionRun.error.side_effect_state},goalGraphLists:true,goalGraphMissingRunDenied:true,readonlyGoalGraphNoMutation:true,goalGraphReadonlySequence:{before:beforeGoalGraph,after:afterGoalGraph},goalGraphMissingRun:{run_id:absentGraphRunId,code:missingGraphRun.error.code,side_effect_state:missingGraphRun.error.side_effect_state},factoryScopeLists:true,factoryMissingScopeDenied:true,factoryMissingRunDenied:true,readonlyFactoryNoMutation:true,factoryReadonlySequence:{before:beforeFactory,after:afterFactory},factoryMissingScope:{scope_id:absentFactoryScopeId,code:missingFactoryScope.error.code,side_effect_state:missingFactoryScope.error.side_effect_state},factoryMissingRun:{scope_id:absentFactoryScopeId,code:missingFactoryRun.error.code,side_effect_state:missingFactoryRun.error.side_effect_state}}});\n"
+        )),
+)
+
+
+def restore_ui_navigation(raw):
+    if type(raw) is not bytes or hashlib.sha256(raw).hexdigest() != _UI_CURRENT_SHA256:
+        raise ValueError("UI navigation inverse requires the exact reviewed source")
+    lines = raw.splitlines(keepends=True)
+    for start, end, expected, old in reversed(_UI_EDITS):
+        if not 0 <= start <= end <= len(lines) or hashlib.sha256(b''.join(lines[start:end])).hexdigest() != expected:
+            raise ValueError("UI navigation source span changed")
+        lines[start:end] = old.splitlines(keepends=True)
+    result = b''.join(lines)
+    if hashlib.sha256(result).hexdigest() != _UI_PARENT_SHA256:
+        raise ValueError("UI navigation inverse did not recover the entire parent")
+    return result
+
+
 def restore_native_smoke_before_schema19(path, raw):
     """Peel this layer from the exact raw Rust source."""
     if type(path) is not str or path != NATIVE_SMOKE_PATH or type(raw) is not bytes:
         raise ValueError("Expected raw bytes for the canonical native smoke path")
+    if hashlib.sha256(raw).hexdigest() == _UI_CURRENT_SHA256:
+        raw = restore_ui_navigation(raw)
     if hashlib.sha256(raw).hexdigest() != CURRENT_SHA256:
         raise ValueError("Current native smoke source has changed")
 

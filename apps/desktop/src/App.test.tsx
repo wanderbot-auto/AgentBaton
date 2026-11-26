@@ -2,16 +2,24 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { api, DaemonError, type Task, type Project } from './api';
+import { api, request, DaemonError, type Task, type Project } from './api';
 import { sessionApi, type ManagedSession } from './session-api';
 vi.mock('./session-api', () => ({ sessionApi: { connectionsList: vi.fn(), sessionsList: vi.fn() } }));
 
 // These tests mock only the Tauri transport. They are not native IPC evidence.
 vi.mock('./api', async importOriginal => {
   const actual = await importOriginal<typeof import('./api')>();
-  return { ...actual, api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), projectsImport: vi.fn(), projectsArchive: vi.fn(), projectsReassociate: vi.fn(), workspacesCreate: vi.fn(), workspacesList: vi.fn() } };
+  return { ...actual, request: vi.fn(), api: { snapshot: vi.fn(), create: vi.fn(), cancel: vi.fn(), events: vi.fn(), projectsList: vi.fn(), projectsImport: vi.fn(), projectsArchive: vi.fn(), projectsReassociate: vi.fn(), workspacesCreate: vi.fn(), workspacesList: vi.fn() } };
 });
 const task: Task = { id: 'task-1', goal: 'Check cancellation evidence', state: 'draft', revision: 1, created_at: '2026-10-27T00:00:00Z', updated_at: '2026-10-27T00:00:00Z' };
+async function openEvent(kind: string, user: ReturnType<typeof userEvent.setup>) {
+  const raw = await screen.findByText(kind);
+  const disclosure = raw.closest('details')!;
+  expect(disclosure).not.toHaveAttribute('open');
+  expect(raw).not.toBeVisible();
+  await user.click(disclosure.querySelector('summary')!);
+  expect(raw).toBeVisible();
+}
 const session: ManagedSession = {
   id: 'session-1', task_id: task.id, project_id: 'project-1', workspace_id: 'workspace-1',
   connection_id: 'connection-1', grant_id: 'grant-1', state: 'stopped', revision: 2,
@@ -22,6 +30,7 @@ beforeEach(() => {
   vi.resetAllMocks();
   localStorage.clear();
   localStorage.setItem('agentbaton.language', 'en');
+  vi.mocked(request).mockImplementation(async (command,args) => command === 'tasks_history' ? { task_id: args?.taskId, events: [], next_cursor: null } as never : undefined as never);
   vi.mocked(api.projectsList).mockResolvedValue([]);
   vi.mocked(api.workspacesList).mockResolvedValue([]);
   vi.mocked(sessionApi.connectionsList).mockResolvedValue([]);
@@ -32,7 +41,7 @@ beforeEach(() => {
 describe('Task workspace using mocked Tauri transport', () => {
   it.each([
     {
-      language: 'en', open: 'Open task', taskState: 'Running', send: 'Send message', sendGoal: 'Send task goal',
+      language: 'en', open: 'Open task', taskState: 'Outcome unknown', send: 'Send message', sendGoal: 'Send task goal',
       labels: [
         'Recorded session state: Stopped (confirmed) · Turn ended (not accepted)',
         'Recorded session state: Cancellation requested · User message queued',
@@ -44,7 +53,7 @@ describe('Task workspace using mocked Tauri transport', () => {
       ],
     },
     {
-      language: 'zh', open: '打开任务', taskState: '运行中', send: '发送消息', sendGoal: '发送任务目标',
+      language: 'zh', open: '打开任务', taskState: '结果未知', send: '发送消息', sendGoal: '发送任务目标',
       labels: [
         '已记录的会话状态: 已停止（已确认） · 本轮已结束（未验收）',
         '已记录的会话状态: 已请求取消 · 用户消息已入队',
@@ -75,11 +84,16 @@ describe('Task workspace using mocked Tauri transport', () => {
     render(<App />);
     await userEvent.setup().click(await screen.findByRole('button', { name: `${open}: ${task.goal}` }));
     const thread = within(screen.getByTestId('task-thread'));
+    const evidence = thread.getByText(language === 'zh' ? '原始可观察事件' : 'Raw observable events');
+    expect(evidence.closest('details')).not.toHaveAttribute('open');
+    await userEvent.click(evidence);
     for (const label of labels) {
-      expect(await thread.findByText(label, { exact: true })).toBeVisible();
+      const description = label.replace(/^.*?: /, '');
+      expect(await thread.findByText(text => text.startsWith(description), { selector: 'p' })).toBeVisible();
     }
+    await userEvent.click(thread.getByText(language === 'zh' ? '任务操作' : 'Task actions'));
     expect(thread.getByText(taskState, { exact: true })).toBeVisible();
-    expect(screen.getByRole('button', { name: send })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: send })).toBeNull();
     expect(thread.getByRole('button', { name: sendGoal })).toBeDisabled();
   });
 
@@ -91,7 +105,9 @@ describe('Task workspace using mocked Tauri transport', () => {
     vi.mocked(sessionApi.sessionsList).mockResolvedValue([{ ...session, state: 'ready', turn_state: 'ended' }]);
     render(<App />);
     await userEvent.setup().click(await screen.findByRole('button', { name: `Open task: ${task.goal}` }));
-    expect(await screen.findByText('Recorded session state: Ready · Turn ended (not accepted)')).toBeVisible();
+    await userEvent.click(screen.getByText('Raw observable events'));
+    expect(screen.getByText(text => text.startsWith('Ready · Turn ended (not accepted)'), { selector: 'p' })).toBeVisible();
+    await userEvent.click(screen.getByText('Task actions'));
     expect(screen.getByRole('button', { name: 'Send task goal' })).toBeEnabled();
   });
 
@@ -119,10 +135,13 @@ describe('Task workspace using mocked Tauri transport', () => {
   it('shows a disconnected error and never inserts demonstration tasks', async () => {
     vi.mocked(api.snapshot).mockRejectedValue(new Error('AUTH_REQUIRED'));
     render(<App />);
-    expect(await screen.findByRole('heading', { name: 'Local daemon unavailable' })).toBeVisible();
-    expect(screen.getByRole('alert')).toHaveTextContent('AUTH_REQUIRED');
-    expect(screen.getByRole('button', { name: 'Create task' })).toBeDisabled();
-    expect(screen.getByText('No tasks yet. Create a task to record your goal.')).toBeVisible();
+    expect(await screen.findByText('Background disconnected')).toBeVisible();
+    expect(screen.getByText('AUTH_REQUIRED')).not.toBeVisible();
+    await userEvent.click(screen.getByText('Connection evidence'));
+    expect(screen.getByText('AUTH_REQUIRED')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Create task' })).toBeNull();
+    expect(screen.queryByText('No tasks yet.')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Retry connection' })).toBeEnabled();
   });
   it('creates a task through the API and preserves cancellation-request semantics', async () => {
     const user = userEvent.setup();
@@ -134,14 +153,15 @@ describe('Task workspace using mocked Tauri transport', () => {
     await user.click(screen.getByRole('button', { name: 'Create task' }));
     await waitFor(() => expect(api.create).toHaveBeenCalledWith(task.goal, expect.any(String)));
     expect(await screen.findByRole('heading', { name: task.goal })).toBeVisible();
-    expect(screen.getByText('No execution evidence yet. This task has not been dispatched to a Provider.')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Configure execution' })).toBeVisible();
+    expect(screen.queryByLabelText('Task message')).toBeNull();
     vi.mocked(api.cancel).mockResolvedValue({ ...task, state: 'cancel_requested', revision: 2 });
     vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'cancel_requested', revision: 2 }], sequence: 2, api_version:1,database_schema_version:17 });
     await user.click(screen.getByRole('tab', { name: 'Details' }));
     await user.click(screen.getByRole('button', { name: 'Request cancellation' }));
     await waitFor(() => expect(api.cancel).toHaveBeenCalledWith(task, expect.any(String)));
     expect(await screen.findByText('Cancellation requested')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Request cancellation' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Request cancellation' })).toBeNull();
     expect(screen.queryByText('Stopped (confirmed)')).not.toBeInTheDocument();
   });
   it('reuses the create idempotency key after an uncertain outcome', async () => {
@@ -161,8 +181,10 @@ describe('Task workspace using mocked Tauri transport', () => {
     const user = userEvent.setup();
     vi.mocked(api.snapshot).mockResolvedValue({ tasks: [{ ...task, state: 'provider_extension' }], sequence: 1, api_version:1,database_schema_version:17 });
     render(<App />);
-    expect(await screen.findByText('Unknown status: provider_extension')).toBeVisible();
+    expect(await screen.findByText('Unknown status')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
     fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'zh' } });
+    await user.click(screen.getByRole('button', { name: '关闭' }));
     expect(screen.getByRole('navigation', { name: '主导航' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '能力' }));
     expect(screen.getByRole('heading', { name: '具名连接' })).toBeVisible();
@@ -174,9 +196,28 @@ describe('Task workspace using mocked Tauri transport', () => {
     render(<App />);
     await screen.findByText('Local daemon connected');
     await user.click(screen.getByRole('button', { name: 'History' }));
-    await user.click(screen.getByText('task.created'));
+    await user.click(screen.getByText('Task created'));
+    expect(screen.getByText('task.created')).toBeVisible();
     expect(screen.getByText(/<script>malicious/)).toBeInTheDocument();
     expect(document.querySelector('script')).toBeNull();
+  });
+  it('filters the loaded history without changing the stored event window', async () => {
+    const user = userEvent.setup();
+    const base = {aggregate_id: task.id, revision: 1, occurred_at: task.created_at, source: 'fixture', payload: {}};
+    vi.mocked(api.events).mockResolvedValue({events:[
+      {...base, sequence: 1, event_id: 'task-created', kind: 'task.created'},
+      {...base, sequence: 2, event_id: 'session-update', kind: 'session.update'},
+    ], sequence: 2, next_cursor: 2, gap: false});
+    render(<App />);
+    await screen.findByText('Local daemon connected');
+    await user.click(screen.getByRole('button', { name: 'History' }));
+    const filter = screen.getByRole('combobox', { name: 'Event type' });
+    await user.selectOptions(filter, 'messages');
+    expect(screen.getByText('Agent activity')).toBeVisible();
+    expect(screen.queryByText('Task created')).toBeNull();
+    await user.selectOptions(filter, 'all');
+    expect(screen.getByText('Task created')).toBeVisible();
+    expect(api.events).toHaveBeenCalledTimes(1);
   });
   it('opens the newest event window beyond 100 events and explicitly pages older history', async () => {
     const user = userEvent.setup();
@@ -188,12 +229,12 @@ describe('Task workspace using mocked Tauri transport', () => {
     render(<App />);
     await waitFor(() => expect(api.events).toHaveBeenCalledWith(130));
     await user.click(screen.getByRole('button', { name: 'History' }));
-    expect(await screen.findByText('record.230')).toBeVisible();
+    await openEvent('record.230', user);
     expect(screen.queryByText('record.1')).not.toBeInTheDocument();
-    expect(screen.getByText('Earlier journal events are not displayed yet.')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Load earlier events' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Load earlier events' }));
     await waitFor(() => expect(api.events).toHaveBeenCalledWith(30));
-    expect(await screen.findByText('record.31')).toBeVisible();
+    await openEvent('record.31', user);
     expect(screen.getByText('record.230')).toBeVisible();
   });
   it('shows byte-limited history honestly and follows the returned cursor without accumulating large pages', async () => {
@@ -206,11 +247,11 @@ describe('Task workspace using mocked Tauri transport', () => {
     render(<App />);
     await waitFor(() => expect(api.events).toHaveBeenCalledWith(130));
     await user.click(screen.getByRole('button', { name: 'History' }));
-    expect(await screen.findByText('record.131')).toBeVisible();
+    await openEvent('record.131', user);
     expect(screen.getByText(/This journal page is incomplete/)).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Read next event page' }));
     await waitFor(() => expect(api.events).toHaveBeenCalledWith(131));
-    expect(await screen.findByText('record.132')).toBeVisible();
+    await openEvent('record.132', user);
     expect(screen.queryByText('record.131')).not.toBeInTheDocument();
   });
 
@@ -243,12 +284,12 @@ it('bounds accumulated history by bytes and explains that records remain in the 
   render(<App />);
   await screen.findByText('Local daemon connected');
   await user.click(screen.getByRole('button', { name: 'History' }));
-  expect(await screen.findByText('large.500')).toBeVisible();
+  await openEvent('large.500', user);
   await user.click(screen.getByRole('button', { name: 'Load earlier events' }));
-  expect(await screen.findByText('large.400')).toBeVisible();
+  await openEvent('large.400', user);
   expect(screen.getByText('large.500')).toBeVisible();
   await user.click(screen.getByRole('button', { name: 'Load earlier events' }));
-  expect(await screen.findByText('large.300')).toBeVisible();
+  await openEvent('large.300', user);
   expect(screen.getByText(/8 MiB budget/)).toHaveTextContent('Other events remain in the local journal');
   expect(screen.queryByText('large.400')).not.toBeInTheDocument();
   expect(screen.queryByText('large.500')).not.toBeInTheDocument();

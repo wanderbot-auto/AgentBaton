@@ -226,7 +226,8 @@ class McpLateWaitProjection(unittest.TestCase):
 
     def test_locator_names_the_unchanged_actual_assertion(self):
         raw = BASE.read_bytes()
-        self.assertEqual(hashlib.sha256(raw).hexdigest(),
+        pinned = H.restore_factory_before_ui_simplification(BASE.relative_to(ROOT).as_posix(), raw.decode())
+        self.assertEqual(hashlib.sha256(pinned.encode()).hexdigest(),
                          '6dfa764259b667f57fe0a579ecbbe242d6a4d2b253e1878f158e68cd161a1d93')
         collector = next(node for node in ast.parse(raw).body
                          if isinstance(node, ast.FunctionDef) and node.name == 'collect_started_records')

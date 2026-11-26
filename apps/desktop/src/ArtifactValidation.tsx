@@ -92,10 +92,35 @@ export function ArtifactValidation({ task, sessions, language, connected }: Arti
     });
   }
   const disabled = !connected || busy || loading;
+  const zh = language === 'zh';
+  const latest = [...new Map([...records].sort((a,b) => a.created_at.localeCompare(b.created_at)).map(record => [record.policy_id, record])).values()]
+    .sort((a,b) => b.created_at.localeCompare(a.created_at));
+  const fileState = (state: string) => artifactStates.has(state) ? t[state as keyof typeof t] : t.unknownState;
+
   return <section className="artifact-validation" aria-busy={busy || loading} aria-labelledby={`integrity-heading-${task.id}`}>
     <div className="section-heading"><h2 id={`integrity-heading-${task.id}`}>{t.title}</h2><button type="button" onClick={() => void refresh()} disabled={!connected || busy || loading}>{t.refresh}</button></div>
-    <p className="integrity-warning">{t.warning}</p><p className="hint">{t.localOnly}</p>
     {error && <p role="alert" className="error">{error}</p>}{pending && !pending.uncertain && <p role="status">{t.waiting}</p>}{pending?.uncertain && <p role="status">{t.unknown}{!pending.refreshed ? ` ${t.refreshFirst}` : ''}</p>}
+    {!loading && !latest.length && <p>{t.noRecords}</p>}
+    <div className="artifact-results">{latest.map(record => {
+      const policy = policies.find(row => row.id === record.policy_id);
+      const failed = record.state === 'failed';
+      const failedFiles = [...record.evidence.inputs, ...record.evidence.outputs].filter(item => item.state !== 'passed');
+      return <article key={record.id}>
+        <p className={failed ? 'artifact-failed' : undefined}>{failed ? t.failed : record.state === 'integrity_passed' ? t.checkPassed : t.unknownState}</p>
+        <ul>{(failed ? failedFiles : record.evidence.outputs).map(item => <li key={item.artifact_id}>
+          <code>{item.relative_path}</code>{' · '}{fileState(item.state)}
+          {item.expected_sha256 && item.observed_sha256 && item.expected_sha256 !== item.observed_sha256 &&
+            <small className="hash-difference"><code>{item.expected_sha256.slice(0, 10)}… → {item.observed_sha256.slice(0, 10)}…</code></small>}
+        </li>)}</ul>
+        {failed && policy && <button type="button" disabled={disabled || policy.revoked || (task.spec_revision !== undefined && policy.contract.subject.spec_revision !== task.spec_revision) || !usableRevision(policy) || !eligible.some(session => session.id === policy.session_id) || (!!pending && !canRetry('run', policy.id))}
+          onClick={() => void run(policy)}>{canRetry('run', policy.id) ? t.retryRun : zh ? '重新检查' : 'Check again'}</button>}
+        <details className="integrity-record"><summary>{t.details}</summary>
+          <Receipt record={record} language={language} />
+        </details>
+      </article>;
+    })}</div>
+    <details className="secondary-section"><summary>{zh ? '文件检查策略与历史' : 'File-check policies and history'}</summary>
+    <p className="integrity-warning">{t.warning}</p><p className="hint">{t.localOnly}</p>
     <details className="integrity-policy-form"><summary>{t.form}</summary>{!eligible.length && <p>{t.noSession}</p>}
       <form onSubmit={event => void approve(event)}><fieldset disabled={disabled || !!pending}><legend className="sr-only">{t.form}</legend>
         <label htmlFor={`integrity-session-${task.id}`}>{t.session}</label><select id={`integrity-session-${task.id}`} value={form.sessionId} onChange={event => setForm(previous => ({ ...previous, sessionId: event.target.value }))}><option value="">{t.chooseSession}</option>{form.sessionId && !eligible.some(session => session.id === form.sessionId) && <option value={form.sessionId} disabled>{t.sessionUnavailable}</option>}{eligible.map(session => <option key={session.id} value={session.id}>{session.id} · {session.state === 'failed' ? t.failedSession : t.stoppedSession}</option>)}</select><p className="hint">{t.sessionHint}</p>
@@ -109,9 +134,17 @@ export function ArtifactValidation({ task, sessions, language, connected }: Arti
       const stoppedSession = eligible.some(session => session.id === policy.session_id);
       return <details key={policy.id} className="integrity-policy"><summary>{policy.revoked ? t.revoked : t.approved} · <time dateTime={policy.created_at}>{policy.created_at}</time></summary><p>{t.policy}: <code>{policy.id}</code></p><p>{t.session}: <code>{policy.session_id}</code></p><p>{t.workspace}: <code>{policy.workspace_id}</code></p><details><summary>{t.policyDetails}</summary>{policy.contract.outputs.map(item => <p key={item.requirement.artifact_id}><code>{item.canonical_root}/{item.requirement.relative_path}</code> · {item.requirement.max_bytes} {t.bytes}</p>)}</details>{stale && <p>{t.stalePolicy}</p>}{!stoppedSession && !policy.revoked && <p>{t.noSession}</p>}<div className="integrity-actions"><button type="button" onClick={() => void run(policy)} disabled={disabled || policy.revoked || stale || !stoppedSession || !usableRevision(policy) || (!!pending && !canRetry('run', policy.id))}>{canRetry('run', policy.id) ? t.retryRun : t.run}</button><button type="button" onClick={() => void revoke(policy)} disabled={disabled || policy.revoked || !usableRevision(policy) || (!!pending && !canRetry('revoke', policy.id))}>{t.revoke}</button></div></details>;
     })}</section>}
-    {!loading && !policies.length && <p className="hint">{t.noPolicies}</p>}{!records.length && <p className="hint">{t.noRecords}</p>}
-    {!!records.length && <p className="hint">{t.historical}</p>}<div className="integrity-records">{records.map(record => <details key={record.id} className="integrity-record"><summary>{record.state === 'integrity_passed' ? t.checkPassed : record.state === 'failed' ? t.failed : `${t.unknownState}: ${record.state}`} · <time dateTime={record.created_at}>{record.created_at}</time></summary><p>{t.correctness}</p><p>{t.acceptance}</p><dl><dt>{t.digestLabel}</dt><dd><code>{record.evidence.digest}</code></dd><dt>{t.validator}</dt><dd><code>{record.evidence.validator_id}</code></dd><dt>{t.attempt}</dt><dd><code>{record.evidence.subject.attempt_id}</code></dd><dt>{t.spec}</dt><dd>{record.evidence.subject.spec_revision}</dd><dt>{t.inputRevision}</dt><dd><code>{record.evidence.subject.input_revision}</code></dd><dt>{t.policy}</dt><dd><code>{record.policy_id}</code></dd></dl><EvidenceTable title={t.inputsLabel} records={record.evidence.inputs} language={language} /><EvidenceTable title={t.outputsLabel} records={record.evidence.outputs} language={language} /></details>)}</div>
+    {!loading && !policies.length && <p className="hint">{t.noPolicies}</p>}
+    {records.filter(record => !latest.some(row => row.id === record.id)).map(record => <details key={record.id}>
+      <summary>{record.state === 'integrity_passed' ? t.checkPassed : record.state === 'failed' ? t.failed : t.unknownState} · <time dateTime={record.created_at}>{record.created_at}</time></summary>
+      <Receipt record={record} language={language} />
+    </details>)}
+    </details>
   </section>;
+}
+function Receipt({ record, language }: { record: ValidationRecord; language: Language }) {
+  const t = validationMessages[language];
+  return <><p>{t.correctness}</p><p>{t.acceptance}</p><dl><dt>{t.digestLabel}</dt><dd><code>{record.evidence.digest}</code></dd><dt>{t.validator}</dt><dd><code>{record.evidence.validator_id}</code></dd><dt>{t.attempt}</dt><dd><code>{record.evidence.subject.attempt_id}</code></dd><dt>{t.spec}</dt><dd>{record.evidence.subject.spec_revision}</dd><dt>{t.inputRevision}</dt><dd><code>{record.evidence.subject.input_revision}</code></dd><dt>{t.policy}</dt><dd><code>{record.policy_id}</code></dd></dl><EvidenceTable title={t.inputsLabel} records={record.evidence.inputs} language={language} /><EvidenceTable title={t.outputsLabel} records={record.evidence.outputs} language={language} /></>;
 }
 function EvidenceTable({ title, records, language }: { title: string; records: ArtifactEvidence[]; language: Language }) {
   const t = validationMessages[language]; if (!records.length) return null;
