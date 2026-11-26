@@ -521,15 +521,16 @@
     "artifacts/ui-simplification/browser-regression/data-workspaces.log",
     "artifacts/ui-simplification/integration/python-initial.log",
     "artifacts/ui-simplification/integration/python-candidate.log",
-    "artifacts/ui-simplification/integration/workspace-mac-first.log"
+    "artifacts/ui-simplification/integration/workspace-mac-first.log",
+    "artifacts/ui-simplification/integration/ci-macos-native-first.log",
+    "artifacts/ui-simplification/integration/background-original.log"
   ],
   "not_verified": [
     "hosted_required_checks",
     "host_native_registration_receipt",
     "real Provider accounts and calls",
     "full native feature matrix",
-    "very large task journals",
-    "updated Goal Graph, Factory, Integration and workspace drivers on the clean Linux browser build"
+    "very large task journals"
   ],
   "native_webview_smoke": {
     "status": "passed",
@@ -540,5 +541,49 @@
     "log": "artifacts/ui-simplification/integration/native-smoke.log",
     "report": "artifacts/ui-simplification/integration/native-smoke.ozGaYp/native-smoke.json",
     "provider_models": "not_run"
+  },
+  "native_background_registration": {
+    "status": "passed_on_local_apple_silicon",
+    "source_sha256": "eabf3083ed3de3880153c342d5ec3bb03dc7fdefe5047c1a2219f723d631de38",
+    "case_names": [
+      "conflict",
+      "normal",
+      "race"
+    ],
+    "targeted_tests_passed": 20,
+    "report": "artifacts/ui-simplification/integration/background-fixed.KCPmca/run/manifest.json",
+    "actual_os_login": "not_run"
+  },
+  "native_integration_approval": {
+    "status": "automated_pass_with_representative_visual_spot_checks",
+    "dimension": "macos_own_process_real_sheet",
+    "cases": {
+      "first-page": {
+        "report": "artifacts/ui-simplification/integration/native-integration.jbz0YF/first-page/result.json",
+        "pages_observed": {
+          "cancel": 1,
+          "approve": 64
+        }
+      },
+      "last-page": {
+        "report": "artifacts/ui-simplification/integration/native-integration.jbz0YF/last-page/result.json",
+        "pages_observed": {
+          "cancel": 64,
+          "approve": 64
+        }
+      }
+    },
+    "visual_spot_checks": [
+      "first-page/cancel/page-1",
+      "last-page/approve/page-32",
+      "last-page/approve/final"
+    ]
+  },
+  "hosted_ui": {
+    "status": "passed_on_unchanged_product_source",
+    "branch_commit": "5bfc61a6e76167f1de326ed94a0bd9223d2a26e9",
+    "attempt": 2,
+    "job": "https://github.com/wanderbot-auto/AgentBaton/actions/runs/45676161197/job/139929230177",
+    "uses_real_provider": false
   }
 }
